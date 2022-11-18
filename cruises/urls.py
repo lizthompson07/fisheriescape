@@ -13,6 +13,7 @@ urlpatterns = [
     ############
     path('list/', views.CruiseListView.as_view(), name='cruise_list'),  # TESTED
     path('new/', views.CruiseCreateView.as_view(), name='cruise_new'),  # TESTED
+    path('import/', views.CruiseImportTemplateView.as_view(), name='cruise_import'),  # TESTED
     path('<int:pk>/view/', views.CruiseDetailView.as_view(), name='cruise_detail'),  # TESTED
     path('<int:pk>/edit/', views.CruiseUpdateView.as_view(), name='cruise_edit'),  # TESTED
     path('<int:pk>/delete/', views.CruiseDeleteView.as_view(), name='cruise_delete'),  # TESTED

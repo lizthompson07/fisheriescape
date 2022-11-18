@@ -1,29 +1,29 @@
 {% extends "shared_models/generic_filter.html" %}
 
 {% block jquery_import %}
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 {% endblock %}
 
 {% block bug_create %}
-    {% include "scuba/base/_bug_url.html" %}
+  {% include "scuba/base/_bug_url.html" %}
 {% endblock bug_create %}
 
 {% block title %}
-    {% include "scuba/base/_app_title.html" %}
-    {% block subtitle %} - {{ subtitle }}{% endblock %}
+  {% include "scuba/base/_app_title.html" %}
+  {% block subtitle %} - {{ subtitle }}{% endblock %}
 {% endblock title %}
 
 {% block header %}
-    {{ block.super }}
-    {% include "scuba/base/_style.html" %}
+  {{ block.super }}
+  {% include "scuba/base/_style.html" %}
 {% endblock %}
 
 {% block body %}
-    {{ block.super }}
+  {{ block.super }}
 {% endblock body %}
 
 {% block left_auth %}
-    {% include "scuba/base/_nav_left_auth.html" %}
+  {% include "scuba/base/_nav_left_auth.html" %}
 {% endblock left_auth %}
 
 
@@ -37,6 +37,18 @@
   {% else %}
     <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
   {% endif %}
+
+
+{% endblock %}
+
+{% block table_td %}
+  {% if "is_data_entry_complete" in field.name %}
+    <span class="p-1 {% if object.is_data_entry_complete %}good{% else %}bad{% endif %}">{{ object.is_data_entry_complete|yesno }}</span>
+  {% else %}
+    {{ block.super }}
+  {% endif %}
+
+
 
 
 {% endblock %}

@@ -1,8 +1,8 @@
 pool:
-  vmImage: 'Ubuntu 18.04'
+  vmImage: 'Ubuntu 20.04'
 
 trigger:
-  - glf_dev
+  - devtest
 
 steps:
   - task: UsePythonVersion@0

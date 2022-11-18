@@ -15,7 +15,12 @@
 
   </style>
 
-  <div id="app">
+  <div id="app"
+       @keydown.esc.prevent="closeEditMode"
+       @keydown.83.ctrl.prevent="editSection(null)"
+       @keypress.83.ctrl.prevent
+       @keyup.83.ctrl.prevent
+  >
 
     <div class="mb-3">
 
@@ -35,21 +40,12 @@
                 <h2 class="mt-2"><span class="concern p-1">{{ h1 }}</span></h2>
               </div>
             </div>
-{#            <div class="col-3 text-right">#}
-{#              <div class="mb-5">#}
-{#                <table class="table table-sm text-muted">#}
-{#                  {% for field in field_list %}#}
-{#                    {% verbose_td_display object field %}#}
-{#                  {% endfor %}#}
-{#                </table>#}
-{#              </div>#}
-{#            </div>#}
           </div>
 
           <div class="mb-3">
-            <button
-              @click="editSection()"
-              class="btn btn-sm btn-success float-right">{% trans 'New Section' %}
+            <button ref="new_btn"
+                    @click="editSection()"
+                    class="btn btn-sm btn-success float-right">{% trans 'New Section (Ctrl+S)' %}
             </button>
             <p class="lead">{% trans "Sections and Observations" %}</p>
           </div>
@@ -73,11 +69,11 @@
             </tr>
             </thead>
             <tbody v-for="(section, index) in sections">
-            <tr
+            <tr :class="{greyed:section.not_sampled}"
               v-for="obs, index1 in section.observations"
             >
 
-              <td v-if="index1==0" :rowspan="section.observations.length" v-html="section.interval"></td>
+              <td v-if="index1==0" :rowspan="section.observations.length" v-html="section.interval_display"></td>
               <td v-if="index1==0" :rowspan="section.observations.length" v-html="section.depth_ft"></td>
               <td v-if="index1==0" :rowspan="section.observations.length" v-html="section.substrate_profile" style="width: 100px"></td>
               <td v-if="index1==0" :rowspan="section.observations.length" v-html="section.observations.length" style="width: 120px"></td>
@@ -98,8 +94,8 @@
                 </button>
               </td>
             </tr>
-            <tr v-if="!section.observations.length">
-              <td v-html="section.interval"></td>
+            <tr v-if="!section.observations.length" :class="{greyed:section.not_sampled}">
+              <td v-html="section.interval_display"></td>
               <td v-html="section.depth_ft"></td>
               <td v-html="section.substrate_profile" style="width: 100px"></td>
               <td v-html="section.observations.length" style="width: 120px"></td>
@@ -123,7 +119,7 @@
         <div v-else>
 
           <div class="mb-3">
-            <button @click="closeEditMode" class="btn btn-link">{% trans "Back" %}            </button>
+            <button @click="closeEditMode" class="btn btn-link">{% trans "Back (Esc)" %}            </button>
           </div>
 
           <div class="row table-bordered">
@@ -151,13 +147,13 @@
 
                 <input
                   v-if="unsavedSectionWork"
-                  :disabled="totalPercentage!='100%'"
+                  :disabled="totalPercentage!='100%' && !sectionToEdit.not_sampled"
                   type="submit"
-                  value="{% trans "Save Section" %}"
-                  class="btn btn-primary">
+                  value="{% trans "Save Section (Enter)" %}"
+                  class="btn btn-primary m-3">
               </form>
             </div>
-            <div v-if="sectionToEdit.id && !unsavedSectionWork" class="col table-bordered">
+            <div v-if="sectionToEdit.id && !unsavedSectionWork && !sectionToEdit.not_sampled" class="col table-bordered">
               <p class="h3 mb-3">{% trans "New Observation" %}</p>
               <ul class="ml-1">
                 <li>Use Tab / Shift-Tab to navigate up and down</li>
@@ -213,8 +209,8 @@
                   <td>{{ obs_form.sex }}</td>
                   <td>{{ obs_form.egg_status }}</td>
                   <td>{{ obs_form.carapace_length_mm }}</td>
-                  <td>{{ obs_form.certainty_rating }}</td>
                   <td>{{ obs_form.species }}</td>
+                  <td>{{ obs_form.certainty_rating }}</td>
                   <td>{{ obs_form.comment }}</td>
                   <td>
                     <button @click="deleteObservation(obs)" class="btn btn-xs btn-danger"><span class="mdi mdi-delete text-light"></span></button>
@@ -229,6 +225,12 @@
               <p v-else><em>{% trans "This section has no observations" %}</em></p>
             </div>
           </div>
+          <div class="m-3 float-right">
+            <input
+              @click="editSection()"
+              v-if="sectionToEdit.id && !unsavedSectionWork" type="button" value="{% trans "New Section (Ctrl+S)" %}" class="btn btn-success">
+          </div>
+
         </div>
 
       </div>
@@ -237,7 +239,7 @@
 
 
 {% endblock %}
-
+{% block js_icons %}{% endblock %}
 
 {% block body_js %}
   {% localize off %}
@@ -283,8 +285,17 @@
           let endpoint = `/api/scuba/sections/?dive=${diveId}`;
           apiService(endpoint)
               .then(response => {
+                for (const section of response) {
+                  for (const sectionKey in section) {
+                    if (section[sectionKey] === null) section[sectionKey] = '';
+                  }
+                }
+
                 this.sections = response;
                 this.loadingSections = false;
+                this.$nextTick(() => {
+                  this.$refs.new_btn.focus()
+                });
               })
         },
         closeEditMode() {
@@ -303,47 +314,56 @@
         },
         editSection(section) {
           if (section == null) {
-            // we should be able to take a good guess at the interval
-            var intervalArray = [];
-            for (var i = 0; i < this.sections.length; i++) {
-              s = this.sections[i];
-              intervalArray.push(s.interval);
+            // only proceed if the section being editing has
+            var userInput = true;
+            if (this.unsavedSectionWork) {
+              msg = "Are you certain you want to leave with un-saved work?";
+              userInput = confirm(msg);
             }
-            intervalArray.sort(function (a, b) {
-              return a - b
-            });
-            if (!intervalArray.length) interval = null;
-            else {
-              var interval = intervalArray[intervalArray.length - 1] + 1;
-              // question 1: what if there is a number missing?
-              if (intervalArray.length !== interval - 1) {
-                for (var i = 1; i < interval; i++) {
-                  if (!intervalArray.includes(i)) {
-                    interval = i;
-                    break;
+            if (userInput) {
+
+              // we should be able to take a good guess at the interval
+              var intervalArray = [];
+              for (var i = 0; i < this.sections.length; i++) {
+                s = this.sections[i];
+                intervalArray.push(s.interval);
+              }
+              intervalArray.sort(function (a, b) {
+                return a - b
+              });
+              if (!intervalArray.length) interval = null;
+              else {
+                var interval = intervalArray[intervalArray.length - 1] + 1;
+                // question 1: what if there is a number missing?
+                if (intervalArray.length !== interval - 1) {
+                  for (var i = 1; i < interval; i++) {
+                    if (!intervalArray.includes(i)) {
+                      interval = i;
+                      break;
+                    }
                   }
                 }
+                // question 2: what if this is greater than 20?
+                else if (interval > 20) {
+                  alert("Warning! This dive already has all 20 intervals!")
+                  interval = null
+                }
               }
-              // question 2: what if this is greater than 20?
-              else if (interval > 20) {
-                alert("Warning! This dive already has all 20 intervals!")
-                interval = null
-              }
-            }
 
-            this.sectionToEdit = {
-              comment: "",
-              depth_ft: null,
-              dive: diveId,
-              interval: interval,
-              observations: [],
-              percent_algae: 0,
-              percent_cobble: 0,
-              percent_gravel: 0,
-              percent_hard: 0,
-              percent_mud: 0,
-              percent_boulder: 0,
-              percent_sand: 0,
+              this.sectionToEdit = {
+                comment: "",
+                depth_ft: null,
+                dive: diveId,
+                interval: interval,
+                observations: [],
+                percent_algae: 0,
+                percent_cobble: 0,
+                percent_gravel: 0,
+                percent_hard: 0,
+                percent_mud: 0,
+                percent_boulder: 0,
+                percent_sand: 0,
+              }
             }
 
           } else {
@@ -363,6 +383,11 @@
         submitSectionForm() {
           this.sectionFormErrors = null
           // this is an update
+
+          for (const sectionToEditKey in this.sectionToEdit) {
+            if (this.sectionToEdit[sectionToEditKey] === "") this.sectionToEdit[sectionToEditKey] = null;
+          }
+
           if (this.sectionToEdit.id) {
             let endpoint = `/api/scuba/sections/${this.sectionToEdit.id}/`;
             apiService(endpoint, "PUT", this.sectionToEdit)

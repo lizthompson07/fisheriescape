@@ -1,0 +1,50 @@
+{% load i18n %}
+<li class="nav-item"><a class="nav-link" href="{% url 'herring:index' %}">Home</a></li>
+{##}
+{# Samples #}
+{#<li class="nav-item dropdown">#}
+{#  <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"#}
+{#     aria-haspopup="true" aria-expanded="false">#}
+{#    Samples#}
+{#  </a>#}
+{#  <div class="dropdown-menu" aria-labelledby="navbarDropdown">#}
+{#    <div class="dropdown-divider"></div>#}
+{#    <a class="dropdown-item" href="{% url 'herring:sample_new' %}">New</a>#}
+{#    <a class="dropdown-item" href="{% url 'herring:sample_list' %}">Search</a>#}
+{#  </div>#}
+{#</li>#}
+
+{# Reports #}
+<li class="nav-item"><a class="nav-link" href="{% url 'herring:report_search' %}">Reports</a></li>
+
+{% if is_admin %}
+  {# Admin #}
+  <li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
+       aria-haspopup="true" aria-expanded="false">
+      HERMAN Admin
+    </a>
+    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+      <div class="dropdown-divider"></div>
+      <a class="dropdown-item" href="{% url 'herring:check_usage' %}">Check Usage</a>
+      <a class="dropdown-item" href="{% url 'herring:import' "sample" %}">Import Sample Data from Andes</a>
+      <a class="dropdown-item" href="{% url 'herring:import' "lf" %}">Import LF Data from Andes</a>
+      <a class="dropdown-item" href="{% url 'herring:import' "detail" %}">Import Fish Detail Data from Andes</a>
+      <hr>
+      <a class="dropdown-item" href="{% url 'herring:species_list' %}">Manage Species</a>
+      <a class="dropdown-item" href="{% url 'herring:port_list' %}">Manage Ports</a>
+      <a class="dropdown-item" href="{% url 'herring:manage_samplers' %}">Manage Samplers</a>
+      <a class="dropdown-item" href="{% url 'herring:manage_gears' %}">Manage Gear Types</a>
+      <a class="dropdown-item" href="{% url 'herring:manage_fishing_areas' %}">Manage Fishing Areas</a>
+      <a class="dropdown-item" href="{% url 'herring:manage_mesh_sizes' %}">Manage Mesh Sizes</a>
+
+      <a class="dropdown-item" href="{% url 'herring:manage_herring_users' %}" target="_blank">
+        {% trans "HERMAN User Permissions" %}
+      </a>
+
+    </div>
+  </li>
+{% endif %}
+
+
+

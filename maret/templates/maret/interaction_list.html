@@ -1,0 +1,14 @@
+{% extends "maret/maret_list.html" %}
+{% load static %}
+{% load custom_filters %}
+{% load verbose_names %}
+{% load i18n %}
+
+
+{% block table_td %}
+    {% if "date_of_meeting" in field.name  %}
+      {{ object.date_of_meeting|date:'Y-m-d'  }}
+    {% else %}
+      {% get_field_value object field.name safe=True %}
+    {% endif %}
+{% endblock %}

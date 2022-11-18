@@ -1,21 +1,10 @@
-import os
-
-from django.conf import settings
-from django.contrib.messages import get_messages
-from django.test import TestCase
-from django.urls import resolve, reverse
-from django.utils.translation import activate
 from faker import Faker
-from html2text import html2text
 
-from csas2.models import CSASAdminUser
-from ppt.models import PPTAdminUser
 from scuba.models import ScubaUser
-from shared_models.test.SharedModelsFactoryFloor import UserFactory, GroupFactory
 from shared_models.test.common_tests import CommonTest
-from travel.models import TravelUser
 
 faker = Faker()
+
 
 class ScubaCommonTest(CommonTest):
 

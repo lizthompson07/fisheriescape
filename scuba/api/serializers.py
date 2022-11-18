@@ -52,6 +52,10 @@ class ObservationSerializer(serializers.ModelSerializer):
 class SectionSerializer(serializers.ModelSerializer):
     observations = ObservationSerializer(many=True, read_only=True)
     substrate_profile = serializers.SerializerMethodField()
+    interval_display = serializers.SerializerMethodField()
+
+    def get_interval_display(self, instance):
+        return instance.get_interval_display()
 
     def get_substrate_profile(self, instance):
         return instance.substrate_profile

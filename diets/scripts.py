@@ -1,10 +1,14 @@
+import csv
+import os
+
 from django.utils import timezone
 
 from lib.templatetags.custom_filters import nz
 from . import models
 
-import os
-import csv
+
+def delete_old_data():
+    models.Predator.objects.filter(processing_date__year__lte=2017).delete()
 
 
 def import_old_data():

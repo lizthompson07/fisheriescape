@@ -36,7 +36,7 @@
                         {% for field in field_list %}
                             {% if field == "committee" %}
                                 {# only include committee field if interaction is type committee/working group: #}
-                                {% if object.interaction_type == 4 %}
+                                {% if object.interaction_type == 4 or object.is_committee %}
                                     <tr>
                                         <th>{% get_verbose_label object field %}</th>
                                         <td>
@@ -46,6 +46,41 @@
                                         </td>
                                     </tr>
                                 {% endif %}
+                            {% elif "dfo_liaison" in field %}
+                              <tr>
+                                <th>{% get_verbose_label object field %}</th>
+                                <td>
+                                {%  for user in object.dfo_liaison.all %}
+                                  {% if not forloop.last %}
+                                    <a href="{% url 'maret:user_detail' user.id %}">{{ user }}</a>,
+                                  {% else %}
+                                    <a href="{% url 'maret:user_detail' user.id %}">{{ user }}</a>
+                                  {% endif %}
+                                {% endfor %}
+                              </td>
+                              </tr>
+                            {% elif "other_dfo_participants" in field %}
+                              <tr>
+                                <th>{% get_verbose_label object field %}</th>
+                                <td>
+                                  {%  for user in object.other_dfo_participants.all %}
+                                    {% if not forloop.last %}
+                                      <a href="{% url 'maret:user_detail' user.id %}">{{ user }}</a>,
+                                    {% else %}
+                                      <a href="{% url 'maret:user_detail' user.id %}">{{ user }}</a>
+                                    {% endif %}
+                                  {% endfor %}
+                                </td>
+                              </tr>
+                            {% elif field == "last_modified_by" %}
+                              <tr>
+                                <th>{% get_verbose_label object field %}</th>
+                                <td>
+                                    {% if object.last_modified_by.id %}
+                                        <a href="{% url 'maret:user_detail' object.last_modified_by.id %}">{% get_field_value object field %}</a>
+                                    {% endif %}
+                                </td>
+                              </tr>
 
                             {% else %}
                                 {% verbose_td_display object field %}

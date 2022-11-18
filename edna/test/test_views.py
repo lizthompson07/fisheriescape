@@ -2,7 +2,7 @@ from django.test import tag
 from django.urls import reverse_lazy
 from faker import Factory
 
-from shared_models.test.common_tests import CommonTest
+from ..test.common_tests import CommonEDNATest as CommonTest
 from shared_models.views import CommonCreateView, CommonFilterView, CommonUpdateView, CommonDeleteView, CommonDetailView, CommonFormView, \
     CommonPopoutCreateView, CommonPopoutDeleteView, CommonPopoutUpdateView
 from . import FactoryFloor
@@ -16,7 +16,7 @@ class TestCollectionCreateView(CommonTest):
         super().setUp()
         self.test_url = reverse_lazy('edna:collection_new')
         self.expected_template = 'edna/form.html'
-        self.user = self.get_and_login_user(in_group="edna_admin")
+        self.user = self.get_and_login_user(is_admin=True)
 
     @tag("Collection", "collection_new", "view")
     def test_view_class(self):
@@ -44,7 +44,7 @@ class TestCollectionDeleteView(CommonTest):
         self.instance = FactoryFloor.CollectionFactory()
         self.test_url = reverse_lazy('edna:collection_delete', args=[self.instance.pk, ])
         self.expected_template = 'edna/confirm_delete.html'
-        self.user = self.get_and_login_user(in_group="edna_admin")
+        self.user = self.get_and_login_user(is_admin=True)
 
     @tag("Collection", "collection_delete", "view")
     def test_view_class(self):
@@ -75,7 +75,7 @@ class TestCollectionDetailView(CommonTest):
         self.instance = FactoryFloor.CollectionFactory()
         self.test_url = reverse_lazy('edna:collection_detail', args=[self.instance.pk, ])
         self.expected_template = 'edna/collection_detail.html'
-        self.user = self.get_and_login_user(in_group="edna_admin")
+        self.user = self.get_and_login_user(is_admin=True)
 
     @tag("Collection", "collection_detail", "view")
     def test_view_class(self):
@@ -97,7 +97,7 @@ class TestCollectionListView(CommonTest):
         super().setUp()
         self.test_url = reverse_lazy('edna:collection_list')
         self.expected_template = 'edna/list.html'
-        self.user = self.get_and_login_user(in_group="edna_admin")
+        self.user = self.get_and_login_user(is_admin=True)
 
     @tag("Collection", "collection_list", "view")
     def test_view_class(self):
@@ -127,7 +127,7 @@ class TestCollectionUpdateView(CommonTest):
         self.instance = FactoryFloor.CollectionFactory()
         self.test_url = reverse_lazy('edna:collection_edit', args=[self.instance.pk, ])
         self.expected_template = 'edna/form.html'
-        self.user = self.get_and_login_user(in_group="edna_admin")
+        self.user = self.get_and_login_user(is_admin=True)
 
     @tag("Collection", "collection_edit", "view")
     def test_view_class(self):
@@ -154,7 +154,7 @@ class TestExtractionBatchCreateView(CommonTest):
         super().setUp()
         self.test_url = reverse_lazy('edna:extraction_batch_new')
         self.expected_template = 'edna/form.html'
-        self.user = self.get_and_login_user(in_group="edna_admin")
+        self.user = self.get_and_login_user(is_admin=True)
 
     @tag("ExtractionBatch", "extraction_batch_new", "view")
     def test_view_class(self):
@@ -173,7 +173,7 @@ class TestExtractionBatchCreateView(CommonTest):
     @tag("ExtractionBatch", "extraction_batch_new", "correct_url")
     def test_correct_url(self):
         # use the 'en' locale prefix to url
-        self.assert_correct_url("edna:extraction_batch_new", f"/en/edna/extractions/new/")
+        self.assert_correct_url("edna:extraction_batch_new", f"/en/edna/extraction-batches/new/")
 
 
 class TestExtractionBatchDeleteView(CommonTest):
@@ -182,7 +182,7 @@ class TestExtractionBatchDeleteView(CommonTest):
         self.instance = FactoryFloor.ExtractionBatchFactory()
         self.test_url = reverse_lazy('edna:extraction_batch_delete', args=[self.instance.pk, ])
         self.expected_template = 'edna/confirm_delete.html'
-        self.user = self.get_and_login_user(in_group="edna_admin")
+        self.user = self.get_and_login_user(is_admin=True)
 
     @tag("ExtractionBatch", "extraction_batch_delete", "view")
     def test_view_class(self):
@@ -204,7 +204,7 @@ class TestExtractionBatchDeleteView(CommonTest):
     @tag("ExtractionBatch", "extraction_batch_delete", "correct_url")
     def test_correct_url(self):
         # use the 'en' locale prefix to url
-        self.assert_correct_url("edna:extraction_batch_delete", f"/en/edna/extractions/{self.instance.pk}/delete/", [self.instance.pk])
+        self.assert_correct_url("edna:extraction_batch_delete", f"/en/edna/extraction-batches/{self.instance.pk}/delete/", [self.instance.pk])
 
 
 class TestExtractionBatchDetailView(CommonTest):
@@ -213,7 +213,7 @@ class TestExtractionBatchDetailView(CommonTest):
         self.instance = FactoryFloor.ExtractionBatchFactory()
         self.test_url = reverse_lazy('edna:extraction_batch_detail', args=[self.instance.pk, ])
         self.expected_template = 'edna/extraction_batch_detail.html'
-        self.user = self.get_and_login_user(in_group="edna_admin")
+        self.user = self.get_and_login_user(is_admin=True)
 
     @tag("ExtractionBatch", "extraction_batch_detail", "view")
     def test_view_class(self):
@@ -227,7 +227,7 @@ class TestExtractionBatchDetailView(CommonTest):
     @tag("ExtractionBatch", "extraction_batch_detail", "correct_url")
     def test_correct_url(self):
         # use the 'en' locale prefix to url
-        self.assert_correct_url("edna:extraction_batch_detail", f"/en/edna/extractions/{self.instance.pk}/view/", [self.instance.pk])
+        self.assert_correct_url("edna:extraction_batch_detail", f"/en/edna/extraction-batches/{self.instance.pk}/view/", [self.instance.pk])
 
 
 class TestExtractionBatchListView(CommonTest):
@@ -235,7 +235,7 @@ class TestExtractionBatchListView(CommonTest):
         super().setUp()
         self.test_url = reverse_lazy('edna:extraction_batch_list')
         self.expected_template = 'edna/list.html'
-        self.user = self.get_and_login_user(in_group="edna_admin")
+        self.user = self.get_and_login_user(is_admin=True)
 
     @tag("ExtractionBatch", "extraction_batch_list", "view")
     def test_view_class(self):
@@ -256,7 +256,7 @@ class TestExtractionBatchListView(CommonTest):
     @tag("ExtractionBatch", "extraction_batch_list", "correct_url")
     def test_correct_url(self):
         # use the 'en' locale prefix to url
-        self.assert_correct_url("edna:extraction_batch_list", f"/en/edna/extractions/")
+        self.assert_correct_url("edna:extraction_batch_list", f"/en/edna/extraction-batches/")
 
 
 class TestExtractionBatchUpdateView(CommonTest):
@@ -265,7 +265,7 @@ class TestExtractionBatchUpdateView(CommonTest):
         self.instance = FactoryFloor.ExtractionBatchFactory()
         self.test_url = reverse_lazy('edna:extraction_batch_edit', args=[self.instance.pk, ])
         self.expected_template = 'edna/form.html'
-        self.user = self.get_and_login_user(in_group="edna_admin")
+        self.user = self.get_and_login_user(is_admin=True)
 
     @tag("ExtractionBatch", "extraction_batch_edit", "view")
     def test_view_class(self):
@@ -284,7 +284,7 @@ class TestExtractionBatchUpdateView(CommonTest):
     @tag("ExtractionBatch", "extraction_batch_edit", "correct_url")
     def test_correct_url(self):
         # use the 'en' locale prefix to url
-        self.assert_correct_url("edna:extraction_batch_edit", f"/en/edna/extractions/{self.instance.pk}/edit/", [self.instance.pk])
+        self.assert_correct_url("edna:extraction_batch_edit", f"/en/edna/extraction-batches/{self.instance.pk}/edit/", [self.instance.pk])
 
 
 class TestFileCreateView(CommonTest):
@@ -293,7 +293,7 @@ class TestFileCreateView(CommonTest):
         self.instance = FactoryFloor.CollectionFactory()
         self.test_url = reverse_lazy('edna:file_new', args=[self.instance.pk, ])
         self.expected_template = 'shared_models/generic_popout_form.html'
-        self.user = self.get_and_login_user(in_group="edna_admin")
+        self.user = self.get_and_login_user(is_admin=True)
 
     @tag("File", "file_new", "view")
     def test_view_class(self):
@@ -321,7 +321,7 @@ class TestFileDeleteView(CommonTest):
         self.instance = FactoryFloor.FileFactory()
         self.test_url = reverse_lazy('edna:file_delete', args=[self.instance.pk, ])
         self.expected_template = 'shared_models/generic_popout_confirm_delete.html'
-        self.user = self.get_and_login_user(in_group="edna_admin")
+        self.user = self.get_and_login_user(is_admin=True)
 
     @tag("File", "file_delete", "view")
     def test_view_class(self):
@@ -352,7 +352,7 @@ class TestFileUpdateView(CommonTest):
         self.instance = FactoryFloor.FileFactory()
         self.test_url = reverse_lazy('edna:file_edit', args=[self.instance.pk, ])
         self.expected_template = 'shared_models/generic_popout_form.html'
-        self.user = self.get_and_login_user(in_group="edna_admin")
+        self.user = self.get_and_login_user(is_admin=True)
 
     @tag("File", "file_edit", "view")
     def test_view_class(self):
@@ -379,7 +379,7 @@ class TestFiltrationBatchCreateView(CommonTest):
         super().setUp()
         self.test_url = reverse_lazy('edna:filtration_batch_new')
         self.expected_template = 'edna/form.html'
-        self.user = self.get_and_login_user(in_group="edna_admin")
+        self.user = self.get_and_login_user(is_admin=True)
 
     @tag("FiltrationBatch", "filtration_batch_new", "view")
     def test_view_class(self):
@@ -398,7 +398,7 @@ class TestFiltrationBatchCreateView(CommonTest):
     @tag("FiltrationBatch", "filtration_batch_new", "correct_url")
     def test_correct_url(self):
         # use the 'en' locale prefix to url
-        self.assert_correct_url("edna:filtration_batch_new", f"/en/edna/filtrations/new/")
+        self.assert_correct_url("edna:filtration_batch_new", f"/en/edna/filtration-batches/new/")
 
 
 class TestFiltrationBatchDeleteView(CommonTest):
@@ -407,7 +407,7 @@ class TestFiltrationBatchDeleteView(CommonTest):
         self.instance = FactoryFloor.FiltrationBatchFactory()
         self.test_url = reverse_lazy('edna:filtration_batch_delete', args=[self.instance.pk, ])
         self.expected_template = 'edna/confirm_delete.html'
-        self.user = self.get_and_login_user(in_group="edna_admin")
+        self.user = self.get_and_login_user(is_admin=True)
 
     @tag("FiltrationBatch", "filtration_batch_delete", "view")
     def test_view_class(self):
@@ -429,7 +429,7 @@ class TestFiltrationBatchDeleteView(CommonTest):
     @tag("FiltrationBatch", "filtration_batch_delete", "correct_url")
     def test_correct_url(self):
         # use the 'en' locale prefix to url
-        self.assert_correct_url("edna:filtration_batch_delete", f"/en/edna/filtrations/{self.instance.pk}/delete/", [self.instance.pk])
+        self.assert_correct_url("edna:filtration_batch_delete", f"/en/edna/filtration-batches/{self.instance.pk}/delete/", [self.instance.pk])
 
 
 class TestFiltrationBatchDetailView(CommonTest):
@@ -438,7 +438,7 @@ class TestFiltrationBatchDetailView(CommonTest):
         self.instance = FactoryFloor.FiltrationBatchFactory()
         self.test_url = reverse_lazy('edna:filtration_batch_detail', args=[self.instance.pk, ])
         self.expected_template = 'edna/filtration_batch_detail.html'
-        self.user = self.get_and_login_user(in_group="edna_admin")
+        self.user = self.get_and_login_user(is_admin=True)
 
     @tag("FiltrationBatch", "filtration_batch_detail", "view")
     def test_view_class(self):
@@ -452,7 +452,7 @@ class TestFiltrationBatchDetailView(CommonTest):
     @tag("FiltrationBatch", "filtration_batch_detail", "correct_url")
     def test_correct_url(self):
         # use the 'en' locale prefix to url
-        self.assert_correct_url("edna:filtration_batch_detail", f"/en/edna/filtrations/{self.instance.pk}/view/", [self.instance.pk])
+        self.assert_correct_url("edna:filtration_batch_detail", f"/en/edna/filtration-batches/{self.instance.pk}/view/", [self.instance.pk])
 
 
 class TestFiltrationBatchListView(CommonTest):
@@ -460,7 +460,7 @@ class TestFiltrationBatchListView(CommonTest):
         super().setUp()
         self.test_url = reverse_lazy('edna:filtration_batch_list')
         self.expected_template = 'edna/list.html'
-        self.user = self.get_and_login_user(in_group="edna_admin")
+        self.user = self.get_and_login_user(is_admin=True)
 
     @tag("FiltrationBatch", "filtration_batch_list", "view")
     def test_view_class(self):
@@ -481,7 +481,7 @@ class TestFiltrationBatchListView(CommonTest):
     @tag("FiltrationBatch", "filtration_batch_list", "correct_url")
     def test_correct_url(self):
         # use the 'en' locale prefix to url
-        self.assert_correct_url("edna:filtration_batch_list", f"/en/edna/filtrations/")
+        self.assert_correct_url("edna:filtration_batch_list", f"/en/edna/filtration-batches/")
 
 
 class TestFiltrationBatchUpdateView(CommonTest):
@@ -490,7 +490,7 @@ class TestFiltrationBatchUpdateView(CommonTest):
         self.instance = FactoryFloor.FiltrationBatchFactory()
         self.test_url = reverse_lazy('edna:filtration_batch_edit', args=[self.instance.pk, ])
         self.expected_template = 'edna/form.html'
-        self.user = self.get_and_login_user(in_group="edna_admin")
+        self.user = self.get_and_login_user(is_admin=True)
 
     @tag("FiltrationBatch", "filtration_batch_edit", "view")
     def test_view_class(self):
@@ -509,7 +509,7 @@ class TestFiltrationBatchUpdateView(CommonTest):
     @tag("FiltrationBatch", "filtration_batch_edit", "correct_url")
     def test_correct_url(self):
         # use the 'en' locale prefix to url
-        self.assert_correct_url("edna:filtration_batch_edit", f"/en/edna/filtrations/{self.instance.pk}/edit/", [self.instance.pk])
+        self.assert_correct_url("edna:filtration_batch_edit", f"/en/edna/filtration-batches/{self.instance.pk}/edit/", [self.instance.pk])
 
 
 class TestPCRBatchCreateView(CommonTest):
@@ -517,7 +517,7 @@ class TestPCRBatchCreateView(CommonTest):
         super().setUp()
         self.test_url = reverse_lazy('edna:pcr_batch_new')
         self.expected_template = 'edna/form.html'
-        self.user = self.get_and_login_user(in_group="edna_admin")
+        self.user = self.get_and_login_user(is_admin=True)
 
     @tag("PCRBatch", "pcr_batch_new", "view")
     def test_view_class(self):
@@ -536,7 +536,7 @@ class TestPCRBatchCreateView(CommonTest):
     @tag("PCRBatch", "pcr_batch_new", "correct_url")
     def test_correct_url(self):
         # use the 'en' locale prefix to url
-        self.assert_correct_url("edna:pcr_batch_new", f"/en/edna/pcrs/new/")
+        self.assert_correct_url("edna:pcr_batch_new", f"/en/edna/pcr-batches/new/")
 
 
 class TestPCRBatchDeleteView(CommonTest):
@@ -545,7 +545,7 @@ class TestPCRBatchDeleteView(CommonTest):
         self.instance = FactoryFloor.PCRBatchFactory()
         self.test_url = reverse_lazy('edna:pcr_batch_delete', args=[self.instance.pk, ])
         self.expected_template = 'edna/confirm_delete.html'
-        self.user = self.get_and_login_user(in_group="edna_admin")
+        self.user = self.get_and_login_user(is_admin=True)
 
     @tag("PCRBatch", "pcr_batch_delete", "view")
     def test_view_class(self):
@@ -567,7 +567,7 @@ class TestPCRBatchDeleteView(CommonTest):
     @tag("PCRBatch", "pcr_batch_delete", "correct_url")
     def test_correct_url(self):
         # use the 'en' locale prefix to url
-        self.assert_correct_url("edna:pcr_batch_delete", f"/en/edna/pcrs/{self.instance.pk}/delete/", [self.instance.pk])
+        self.assert_correct_url("edna:pcr_batch_delete", f"/en/edna/pcr-batches/{self.instance.pk}/delete/", [self.instance.pk])
 
 
 class TestPCRBatchDetailView(CommonTest):
@@ -576,7 +576,7 @@ class TestPCRBatchDetailView(CommonTest):
         self.instance = FactoryFloor.PCRBatchFactory()
         self.test_url = reverse_lazy('edna:pcr_batch_detail', args=[self.instance.pk, ])
         self.expected_template = 'edna/pcr_batch_detail.html'
-        self.user = self.get_and_login_user(in_group="edna_admin")
+        self.user = self.get_and_login_user(is_admin=True)
 
     @tag("PCRBatch", "pcr_batch_detail", "view")
     def test_view_class(self):
@@ -590,7 +590,7 @@ class TestPCRBatchDetailView(CommonTest):
     @tag("PCRBatch", "pcr_batch_detail", "correct_url")
     def test_correct_url(self):
         # use the 'en' locale prefix to url
-        self.assert_correct_url("edna:pcr_batch_detail", f"/en/edna/pcrs/{self.instance.pk}/view/", [self.instance.pk])
+        self.assert_correct_url("edna:pcr_batch_detail", f"/en/edna/pcr-batches/{self.instance.pk}/view/", [self.instance.pk])
 
 
 class TestPCRBatchListView(CommonTest):
@@ -598,7 +598,7 @@ class TestPCRBatchListView(CommonTest):
         super().setUp()
         self.test_url = reverse_lazy('edna:pcr_batch_list')
         self.expected_template = 'edna/list.html'
-        self.user = self.get_and_login_user(in_group="edna_admin")
+        self.user = self.get_and_login_user(is_admin=True)
 
     @tag("PCRBatch", "pcr_batch_list", "view")
     def test_view_class(self):
@@ -619,7 +619,7 @@ class TestPCRBatchListView(CommonTest):
     @tag("PCRBatch", "pcr_batch_list", "correct_url")
     def test_correct_url(self):
         # use the 'en' locale prefix to url
-        self.assert_correct_url("edna:pcr_batch_list", f"/en/edna/pcrs/")
+        self.assert_correct_url("edna:pcr_batch_list", f"/en/edna/pcr-batches/")
 
 
 class TestPCRBatchUpdateView(CommonTest):
@@ -628,7 +628,7 @@ class TestPCRBatchUpdateView(CommonTest):
         self.instance = FactoryFloor.PCRBatchFactory()
         self.test_url = reverse_lazy('edna:pcr_batch_edit', args=[self.instance.pk, ])
         self.expected_template = 'edna/form.html'
-        self.user = self.get_and_login_user(in_group="edna_admin")
+        self.user = self.get_and_login_user(is_admin=True)
 
     @tag("PCRBatch", "pcr_batch_edit", "view")
     def test_view_class(self):
@@ -647,7 +647,7 @@ class TestPCRBatchUpdateView(CommonTest):
     @tag("PCRBatch", "pcr_batch_edit", "correct_url")
     def test_correct_url(self):
         # use the 'en' locale prefix to url
-        self.assert_correct_url("edna:pcr_batch_edit", f"/en/edna/pcrs/{self.instance.pk}/edit/", [self.instance.pk])
+        self.assert_correct_url("edna:pcr_batch_edit", f"/en/edna/pcr-batches/{self.instance.pk}/edit/", [self.instance.pk])
 
 
 class TestReportSearchFormView(CommonTest):
@@ -655,7 +655,7 @@ class TestReportSearchFormView(CommonTest):
         super().setUp()
         self.test_url = reverse_lazy('edna:reports')
         self.expected_template = 'edna/report_search.html'
-        self.user = self.get_and_login_user(in_group="edna_admin")
+        self.user = self.get_and_login_user(is_admin=True)
 
     @tag("ReportSearch", "reports", "view")
     def test_view_class(self):
@@ -683,7 +683,7 @@ class TestSampleCreateView(CommonTest):
         self.collection = FactoryFloor.CollectionFactory()
         self.test_url = reverse_lazy('edna:sample_new', args=[self.collection.id])
         self.expected_template = 'edna/form.html'
-        self.user = self.get_and_login_user(in_group="edna_admin")
+        self.user = self.get_and_login_user(is_admin=True)
 
     @tag("Sample", "sample_new", "view")
     def test_view_class(self):
@@ -711,7 +711,7 @@ class TestSampleDeleteView(CommonTest):
         self.instance = FactoryFloor.SampleFactory()
         self.test_url = reverse_lazy('edna:sample_delete', args=[self.instance.pk, ])
         self.expected_template = 'edna/confirm_delete.html'
-        self.user = self.get_and_login_user(in_group="edna_admin")
+        self.user = self.get_and_login_user(is_admin=True)
 
     @tag("Sample", "sample_delete", "view")
     def test_view_class(self):
@@ -742,7 +742,7 @@ class TestSampleDetailView(CommonTest):
         self.instance = FactoryFloor.SampleFactory()
         self.test_url = reverse_lazy('edna:sample_detail', args=[self.instance.pk, ])
         self.expected_template = 'edna/sample_detail.html'
-        self.user = self.get_and_login_user(in_group="edna_admin")
+        self.user = self.get_and_login_user(is_admin=True)
 
     @tag("Sample", "sample_detail", "view")
     def test_view_class(self):
@@ -765,7 +765,7 @@ class TestSampleUpdateView(CommonTest):
         self.instance = FactoryFloor.SampleFactory()
         self.test_url = reverse_lazy('edna:sample_edit', args=[self.instance.pk, ])
         self.expected_template = 'edna/form.html'
-        self.user = self.get_and_login_user(in_group="edna_admin")
+        self.user = self.get_and_login_user(is_admin=True)
 
     @tag("Sample", "sample_edit", "view")
     def test_view_class(self):
@@ -792,7 +792,7 @@ class TestSpeciesCreateView(CommonTest):
         super().setUp()
         self.test_url = reverse_lazy('edna:species_new')
         self.expected_template = 'edna/form.html'
-        self.user = self.get_and_login_user(in_group="edna_admin")
+        self.user = self.get_and_login_user(is_admin=True)
 
     @tag("Species", "species_new", "view")
     def test_view_class(self):
@@ -820,7 +820,7 @@ class TestSpeciesDeleteView(CommonTest):
         self.instance = FactoryFloor.SpeciesFactory()
         self.test_url = reverse_lazy('edna:species_delete', args=[self.instance.pk, ])
         self.expected_template = 'edna/confirm_delete.html'
-        self.user = self.get_and_login_user(in_group="edna_admin")
+        self.user = self.get_and_login_user(is_admin=True)
 
     @tag("Species", "species_delete", "view")
     def test_view_class(self):
@@ -851,7 +851,7 @@ class TestSpeciesDetailView(CommonTest):
         self.instance = FactoryFloor.SpeciesFactory()
         self.test_url = reverse_lazy('edna:species_detail', args=[self.instance.pk, ])
         self.expected_template = 'edna/species_detail.html'
-        self.user = self.get_and_login_user(in_group="edna_admin")
+        self.user = self.get_and_login_user(is_admin=True)
 
     @tag("Species", "species_detail", "view")
     def test_view_class(self):
@@ -873,7 +873,7 @@ class TestSpeciesListView(CommonTest):
         super().setUp()
         self.test_url = reverse_lazy('edna:species_list')
         self.expected_template = 'edna/list.html'
-        self.user = self.get_and_login_user(in_group="edna_admin")
+        self.user = self.get_and_login_user(is_admin=True)
 
     @tag("Species", "species_list", "view")
     def test_view_class(self):
@@ -903,7 +903,7 @@ class TestSpeciesUpdateView(CommonTest):
         self.instance = FactoryFloor.SpeciesFactory()
         self.test_url = reverse_lazy('edna:species_edit', args=[self.instance.pk, ])
         self.expected_template = 'edna/form.html'
-        self.user = self.get_and_login_user(in_group="edna_admin")
+        self.user = self.get_and_login_user(is_admin=True)
 
     @tag("Species", "species_edit", "view")
     def test_view_class(self):

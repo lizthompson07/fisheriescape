@@ -22,6 +22,7 @@ class CommitteeForm(forms.ModelForm):
             'external_chair': forms.SelectMultiple(attrs=chosen_js),
             'dfo_liaison': forms.SelectMultiple(attrs=chosen_js),
             'last_modified_by': forms.HiddenInput(),
+            'lead_national_sector': forms.Select(attrs=chosen_js),
             'external_organization': forms.SelectMultiple(attrs=chosen_js),
             'external_contact': forms.SelectMultiple(attrs=chosen_js),
             'other_dfo_participants': forms.SelectMultiple(attrs=chosen_js)
@@ -29,10 +30,10 @@ class CommitteeForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.order_fields(['name', 'main_topic', 'species', 'lead_region', 'branch', 'division', 'area_office',
-                           'area_office_program', 'other_dfo_branch', 'other_dfo_areas', 'other_dfo_regions',
-                           'dfo_national_sectors', 'dfo_role', 'is_dfo_chair', 'external_chair', 'external_contact',
-                           'external_organization', 'dfo_liaison', 'other_dfo_participants',
+        self.order_fields(['name', 'main_topic', 'species', 'lead_region', 'lead_national_sector', 'branch', 'division',
+                           'area_office', 'area_office_program', 'other_dfo_branch', 'other_dfo_areas',
+                           'other_dfo_regions', 'dfo_national_sectors', 'dfo_role', 'is_dfo_chair', 'external_chair',
+                           'external_contact', 'external_organization', 'dfo_liaison', 'other_dfo_participants',
                            'first_nation_participation', 'municipal_participation', 'provincial_participation',
                            'other_federal_participation', 'meeting_frequency', 'are_tor', 'location_of_tor',
                            'main_actions', 'comments',
@@ -68,11 +69,11 @@ class InteractionForm(forms.ModelForm):
         self.fields['other_dfo_branch'].widget.attrs['size'] = '6'
         self.fields['other_dfo_regions'].widget.attrs['size'] = '6'
         self.fields['other_dfo_areas'].widget.attrs['size'] = '6'
-        self.order_fields(['description', 'interaction_type', 'is_committee', 'committee', 'date_of_meeting', 'main_topic', 'species', 'lead_region',
-                           'branch', 'division', 'area_office', 'area_office_program', 'other_dfo_branch',
-                           'other_dfo_areas', 'other_dfo_regions', 'dfo_national_sectors', 'dfo_role',
-                           'external_contact', 'external_organization', 'dfo_liaison', 'other_dfo_participants',
-                           'action_items', 'comments'
+        self.order_fields(['description', 'interaction_type', 'is_committee', 'committee', 'date_of_meeting', 'main_topic', 'species',
+                           'lead_region', 'lead_national_sector', 'branch', 'division',  'area_office',
+                           'area_office_program', 'other_dfo_branch','other_dfo_areas', 'other_dfo_regions',
+                           'dfo_national_sectors', 'dfo_role', 'external_contact', 'external_organization',
+                           'dfo_liaison', 'other_dfo_participants', 'action_items', 'comments'
                            ])
 
     class Meta:
@@ -87,6 +88,7 @@ class InteractionForm(forms.ModelForm):
             'last_modified_by': forms.HiddenInput(),
             'committee': forms.Select(attrs=chosen_js),
             'dfo_role': forms.Select(attrs=chosen_js),
+            'lead_national_sector': forms.Select(attrs=chosen_js),
             'dfo_liaison': forms.SelectMultiple(attrs=chosen_js),
             'other_dfo_participants': forms.SelectMultiple(attrs=chosen_js),
             'external_organization': forms.SelectMultiple(attrs=chosen_js),

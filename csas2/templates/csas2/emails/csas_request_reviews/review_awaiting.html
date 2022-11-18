@@ -1,0 +1,90 @@
+{% load verbose_names %}
+{% load i18n %}
+
+<style media="screen">
+
+.button-a {
+    padding: 8px 12px;
+    border: 1px solid #01c020;
+    border-radius: 10px;
+    font-size: 14px;
+    color: #ffffff;
+    text-decoration: none;
+    font-weight: bold;
+    display: inline-block;
+}
+
+</style>
+
+<em>
+  *** un message français suit
+</em>
+<br><br>
+
+{% language 'en' %}
+  <p>
+    Hello {{ object.user }},
+    <br><br>
+    A Canadian Science Advisory Secretariat (CSAS) Request is awaiting your {% if object.role == 1 %} approval {% else %} recommendation {% endif %} in the
+    DM Apps - CSAS Tracking Tool.
+  </p>
+
+  <p><b>Title:</b><br>{{ object.csas_request.title }}</p>
+  <p><b>CSAS Office:</b><br>{{ object.csas_request.office }}</p>
+
+  <br>
+
+  <table width="100%" cellspacing="0" cellpadding="0">
+    <tr>
+      <td>
+        <table cellspacing="0" cellpadding="0">
+          <tr>
+            <td class=”button” bgcolor="#01c020">
+              <a href="{{ SITE_FULL_URL }}{% url 'csas2:action_list' %}" target="_blank" class="button-a">
+                Click here to review the Request!
+              </a>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <hr>
+
+{% endlanguage %}
+{% language 'fr' %}
+  <p>
+    Bonjour {{ object.user }} :
+    <br><br>
+    Une demande de SCAS attend votre {% if object.role == 1 %} approbation {% else %} recommandation {% endif %} dans l'outil de suivi SCAS de l’Applis GD.
+  </p>
+
+  <p><b>Titre:</b><br>{{ object.csas_request.title }}</p>
+  <p><b>Bureau de SCAS:</b><br>{{ object.csas_request.office }}</p>
+
+  <br>
+
+  <table width="100%" cellspacing="0" cellpadding="0">
+    <tr>
+      <td>
+        <table cellspacing="0" cellpadding="0">
+          <tr>
+            <td class=”button” bgcolor="#01c020">
+              <a href="{{ SITE_FULL_URL }}{% url 'csas2:action_list' %}" target="_blank" class="button-a">
+                Cliquer ici pour consulter la demande !
+              </a>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+{% endlanguage %}
+
+
+
+

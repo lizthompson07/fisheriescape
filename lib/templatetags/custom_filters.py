@@ -242,7 +242,10 @@ def text_wrap(text, width=70):
     https://github.com/nigma/django-easy-pdf/issues/65
     https://github.com/xhtml2pdf/xhtml2pdf/issues/379
     """
-    return ' '.join(wrap(text, width))
+    try:
+        return ' '.join(wrap(text, width))
+    except AttributeError:
+        pass
 
 
 @register.filter

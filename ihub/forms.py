@@ -141,7 +141,7 @@ class ReportSearchForm(forms.Form):
             (1, _("Capacity Report (Excel Spreadsheet)")),
             (2, _("Organizational Report / Cue Card (PDF)")),
             (3, _("iHub Summary Report")),
-            (6, _("Engagement Update Log")),
+            (6, _("Activity Log")),
             (7, _("Consultation Instructions (PDF)")),
             (8, _("Consultation Instructions - Mail Merge (xlsx)")),
             (9, _("Consultation Report (xlsx)")),

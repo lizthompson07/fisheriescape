@@ -25,7 +25,8 @@ max_long = -40
 
 collection_evntc_list = ["electrofishing", "bypass collection", "smolt wheel collection", "smolt collection",
                          "fall parr collection"]
-collection_locc_list = ["Adult Collection Site", "Bypass Site", "Electrofishing Site", "Smolt Wheel Site"]
+collection_locc_list = ["Adult Collection Site", "Bypass Site", "Electrofishing Site", "Smolt Wheel Site",
+                        "Collections Site"]
 distribution_locc_list = ["Distribution Site"]
 
 egg_dev_evntc_list = ["egg development", "heath unit transfer", "picking", "shocking"]

@@ -6,7 +6,7 @@ from rest_framework import serializers
 from lib.functions.custom_functions import listrify
 from shared_models import models as shared_models
 from .. import models
-from ..utils import bio_diverisity_admin
+from ..utils import in_bio_diversity_admin_group
 
 
 class UserDisplaySerializer(serializers.ModelSerializer):
@@ -17,7 +17,7 @@ class UserDisplaySerializer(serializers.ModelSerializer):
     is_admin = serializers.SerializerMethodField()
 
     def get_is_admin(self, instance):
-        return bio_diverisity_admin(instance)
+        return in_bio_diversity_admin_group(instance)
 
 
 class IndividualDisplaySerializer(serializers.ModelSerializer):

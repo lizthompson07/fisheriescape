@@ -423,15 +423,25 @@ class CommonPopoutFormView(CommonPopoutFormMixin, FormView):
 
 class CommonDetailView(CommonMixin, DetailView):
     # template_name = 'shared_models/generic_detail.html'
+    delete_url_name = None
+    edit_url_name = None
 
     def get_context_data(self, **kwargs):
         # we want to update the context with the context vars added by CommonMixin classes
         context = super().get_context_data(**kwargs)
         context.update(super().get_common_context())
+        context["edit_url_name"] = self.get_edit_url_name()
+        context["delete_url_name"] = self.get_delete_url_name()
         return context
 
     def get_h1(self):
         return str(self.get_object())
+
+    def get_delete_url_name(self):
+        return self.delete_url_name
+
+    def get_edit_url_name(self):
+        return self.edit_url_name
 
 
 class CommonPopoutDetailView(CommonPopoutMixin, CommonDetailView):
@@ -1152,7 +1162,8 @@ class UserCreateView(ExtendedAdminRequiredMixin, CommonPopoutFormView):
                 subject=email.subject,
                 html_message=email.message,
                 from_email=email.from_email,
-                recipient_list=email.to_list
+                recipient_list=email.to_list,
+                user=self.request.user
             )
             messages.success(self.request, gettext("The user '{}' was created and an email was sent".format(my_user.get_full_name())))
 

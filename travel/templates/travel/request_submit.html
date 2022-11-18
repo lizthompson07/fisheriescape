@@ -9,10 +9,14 @@
 
 
 {% block form_buttons %}
-  <div id="app">
+  <div id="app" v-cloak>
 
-
-    <div v-if="request.id && !request.submitted" class="mt-5 mb-5" v-cloak>
+    <div v-if="!request.id" class="loading mb-3 mt-3 mt-5">
+      <div class="spinner-border mb-3" style="width: 5rem; height: 5rem;" role="status">
+        <span class="sr-only"></span>
+      </div>
+    </div>
+    <div v-else-if="!request.submitted" class="mt-5 mb-5">
       <div class="form-check mb-5">
         <input class="form-check-input h1" type="checkbox" value="" id="confirmation1" v-model="userConfirmed1">
         <label class="form-check-label h4" for="confirmation1">

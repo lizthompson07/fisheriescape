@@ -36,7 +36,7 @@
             <div class="float-right">
               <a v-if="currentUser.is_admin && pageType == 'all'" class="mb-3 btn btn-sm btn-primary"
                  href="{% url 'travel:trip_new' %}">{% trans "New Trip" %}</a>
-              <a v-else-if="pageType == 'upcoming'" class="btn btn-sm btn-dark" href="{% url 'travel:export_upcoming_trips' %}">
+              <a v-else-if="pageType == 'upcoming'" class="btn btn-sm btn-dark" :href="`{% url 'travel:export_upcoming_trips' %}${ getFilterQueryString() }`">
                 {% trans "Export to Spreadsheet" %} <span class="ml-2 text-light mdi mdi-file-excel"></span>
               </a>
             </div>
@@ -163,9 +163,9 @@
     },
     methods: {
       clearFilters() {
-        this.filter_search = null;
+        this.filter_search = "";
         this.filter_fiscal_year = "";
-        this.filter_regional_lead = null;
+        this.filter_regional_lead = "";
         this.filter_adm_approval = "";
         this.filter_status = "";
         this.filter_subcategory = "";
@@ -202,6 +202,17 @@
           this.tripLabels = data.labels;
         });
       },
+      getFilterQueryString(endpoint) {
+        if(!endpoint) endpoint = "?"
+        // apply filters
+        endpoint += `search=${this.filter_search}&` +
+            `lead=${this.filter_regional_lead}&` +
+            `status=${this.filter_status}&` +
+            `fiscal_year=${this.filter_fiscal_year}&` +
+            `is_adm_approval_required=${this.filter_adm_approval}&` +
+            `trip_subcategory=${this.filter_subcategory}&`
+        return endpoint;
+      },
       getTrips(endpoint) {
         this.trips_loading = true;
         if (!endpoint) {
@@ -212,13 +223,7 @@
           else if (this.pageType === 'regional-verification') endpoint += 'regional-verification=true&'
         }
 
-        // apply filters
-        endpoint += `search=${this.filter_search}&` +
-            `lead=${this.filter_regional_lead}&` +
-            `status=${this.filter_status}&` +
-            `fiscal_year=${this.filter_fiscal_year}&` +
-            `is_adm_approval_required=${this.filter_adm_approval}&` +
-            `trip_subcategory=${this.filter_subcategory}&`
+        endpoint = this.getFilterQueryString(endpoint);
 
         apiService(endpoint)
             .then(response => {

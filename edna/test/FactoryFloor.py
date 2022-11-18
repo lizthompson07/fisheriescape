@@ -88,11 +88,25 @@ class FileFactory(factory.django.DjangoModelFactory):
         }
 
 
+class SampleTypeFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.SampleType
+
+    name = factory.lazy_attribute(lambda o: faker.catch_phrase())
+
+    @staticmethod
+    def get_valid_data():
+        return {
+            'name': faker.catch_phrase(),
+        }
+
+
 class SampleFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.Sample
 
     collection = factory.SubFactory(CollectionFactory)
+    sample_type = factory.SubFactory(SampleTypeFactory)
     bottle_id = factory.lazy_attribute(lambda o: faker.pyint(1, 100000))
     datetime = factory.lazy_attribute(lambda o: faker.date_time_this_year(tzinfo=timezone.get_current_timezone()))
     latitude = factory.lazy_attribute(lambda o: faker.pyfloat(positive=True))
@@ -102,6 +116,7 @@ class SampleFactory(factory.django.DjangoModelFactory):
     def get_valid_data():
         return {
             'collection': CollectionFactory().id,
+            'sample_type': SampleTypeFactory().id,
             'bottle_id': faker.pyint(1, 100000),
             'datetime': faker.date_time_this_year(tzinfo=timezone.get_current_timezone()),
             'latitude': faker.pyfloat(positive=True),
@@ -113,11 +128,13 @@ class FiltrationBatchFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.FiltrationBatch
 
+    default_collection = factory.SubFactory(CollectionFactory)
     datetime = factory.lazy_attribute(lambda o: faker.date_time_this_year(tzinfo=timezone.get_current_timezone()))
 
     @staticmethod
     def get_valid_data():
         return {
+            'default_collection': CollectionFactory().id,
             'datetime': faker.date_time_this_year(tzinfo=timezone.get_current_timezone()),
         }
 
@@ -126,11 +143,13 @@ class ExtractionBatchFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.ExtractionBatch
 
+    default_collection = factory.SubFactory(CollectionFactory)
     datetime = factory.lazy_attribute(lambda o: faker.date_time_this_year(tzinfo=timezone.get_current_timezone()))
 
     @staticmethod
     def get_valid_data():
         return {
+            'default_collection': CollectionFactory().id,
             'datetime': faker.date_time_this_year(tzinfo=timezone.get_current_timezone()),
         }
 
@@ -139,11 +158,13 @@ class PCRBatchFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.PCRBatch
 
+    default_collection = factory.SubFactory(CollectionFactory)
     datetime = factory.lazy_attribute(lambda o: faker.date_time_this_year(tzinfo=timezone.get_current_timezone()))
 
     @staticmethod
     def get_valid_data():
         return {
+            'default_collection': CollectionFactory().id,
             'datetime': faker.date_time_this_year(tzinfo=timezone.get_current_timezone()),
         }
 
@@ -202,23 +223,23 @@ class PCRFactory(factory.django.DjangoModelFactory):
             'start_datetime': faker.date_time_this_year(tzinfo=timezone.get_current_timezone()),
         }
 
-
-class SpeciesObservationFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = models.SpeciesObservation
-
-    pcr = factory.SubFactory(PCRFactory)
-    species = factory.SubFactory(SpeciesFactory)
-    ct = factory.lazy_attribute(lambda o: faker.pyfloat(positive=True))
-    edna_conc = factory.lazy_attribute(lambda o: faker.pyfloat(positive=True))
-    is_undetermined = factory.lazy_attribute(lambda o: faker.pybool())
-
-    @staticmethod
-    def get_valid_data():
-        return {
-            'pcr': PCRFactory().id,
-            'species': SpeciesFactory().id,
-            'ct': faker.pyfloat(positive=True),
-            'edna_conc': faker.pyfloat(positive=True),
-            'is_undetermined': faker.pybool(),
-        }
+#
+# class SpeciesObservationFactory(factory.django.DjangoModelFactory):
+#     class Meta:
+#         model = models.SpeciesObservation
+#
+#     pcr = factory.SubFactory(PCRFactory)
+#     species = factory.SubFactory(SpeciesFactory)
+#     ct = factory.lazy_attribute(lambda o: faker.pyfloat(positive=True))
+#     edna_conc = factory.lazy_attribute(lambda o: faker.pyfloat(positive=True))
+#     is_undetermined = factory.lazy_attribute(lambda o: faker.pybool())
+#
+#     @staticmethod
+#     def get_valid_data():
+#         return {
+#             'pcr': PCRFactory().id,
+#             'species': SpeciesFactory().id,
+#             'ct': faker.pyfloat(positive=True),
+#             'edna_conc': faker.pyfloat(positive=True),
+#             'is_undetermined': faker.pybool(),
+#         }

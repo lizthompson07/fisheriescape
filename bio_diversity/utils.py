@@ -1,5 +1,6 @@
 import json
 import os
+import traceback
 from copy import deepcopy
 from datetime import datetime, time
 import decimal
@@ -179,16 +180,6 @@ class DataParser:
                 self.log_data += "No valid personnel with initials ({}) on row: \n{}\n".format(inits, row)
 
 
-def bio_diverisity_authorized(user):
-    # return user.is_user and user.groups.filter(name='bio_diversity_user').exists()
-    return user.groups.filter(name='bio_diversity_user').exists() or bio_diverisity_admin(user)
-
-
-def bio_diverisity_admin(user):
-    # return user.is_authenticated and user.groups.filter(name='bio_diversity_admin').exists()
-    return user.groups.filter(name='bio_diversity_admin').exists()
-
-
 def in_bio_diversity_admin_group(user):
     if user:
         return bool(hasattr(user, "bio_user") and user.bio_user.is_admin)
@@ -196,12 +187,12 @@ def in_bio_diversity_admin_group(user):
 
 def in_bio_diversity_author_group(user):
     if user:
-        return bool(hasattr(user, "bio_user") and (user.bio_user.is_author or user.bio_user.is_admin))
+        return bool(hasattr(user, "bio_user") and (user.bio_user.is_author or in_bio_diversity_admin_group(user)))
 
 
 def in_bio_diversity_user_group(user):
     if user:
-        return bool(hasattr(user, "bio_user") and (user.bio_user.is_user or user.bio_user.is_admin))
+        return bool(hasattr(user, "bio_user") and (user.bio_user.is_user or in_bio_diversity_author_group(user)))
 
 
 def get_comment_keywords_dict():
@@ -2227,7 +2218,8 @@ def round_no_nan(data, precision):
 def common_err_parser(err):
     err_msg = err.__str__()
     if issubclass(type(err), ObjectDoesNotExist):
-        err_msg = "Could not find a {} object from worksheet in database.".format(err.__str__().split(" ")[0])
+        err_msg = "Could not find a {} object from worksheet in database.\n\n".format(err.__str__().split(" ")[0])
+        err_msg = err_msg + traceback.format_exc()
     return err_msg
 
 

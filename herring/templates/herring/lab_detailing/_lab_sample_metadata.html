@@ -1,0 +1,32 @@
+<p>
+  <style media="screen">
+    .value{
+      font-weight: bold;
+      margin-left: 10px;
+      margin-right: 10px;
+    }
+  </style>
+
+  <div class="row">
+    <div class="col">
+      <p>
+        <span class="label">Fish unique ID:</span>
+        <span class="value">{{object.id}}</span> <br>
+
+        <span class="label">Sample ID:</span>
+        <span class="value">{{object.sample.id}}</span> <br>
+
+        <span class="label">Collected by:</span>
+        <span class="value">{{object.sample.sampler.first_name}} {{object.sample.sampler.last_name}}</span> <br>
+
+        <span class="label">Collected on:</span>
+        <span class="value">{{object.sample.sample_date|date:"F d, Y"}}</span> <br>
+
+        <span class="label">Sampler's ref. no.: </span>
+        <span class="value">{{object.sample.sampler_ref_number}}</span> <br>
+      </p>
+
+    </div>
+  </div>
+</p>
+<p>

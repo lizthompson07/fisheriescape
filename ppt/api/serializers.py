@@ -143,7 +143,7 @@ class ProjectSerializer(serializers.ModelSerializer):
     years = ProjectYearSerializerLITE(many=True, read_only=True)
     has_unsubmitted_years = serializers.SerializerMethodField()
     section = serializers.StringRelatedField()
-    functional_group = serializers.StringRelatedField()
+    functional_group = serializers.SerializerMethodField()
     default_funding_source = serializers.StringRelatedField()
     lead_staff = serializers.SerializerMethodField()
     start_year_display = serializers.SerializerMethodField()
@@ -152,7 +152,16 @@ class ProjectSerializer(serializers.ModelSerializer):
     section_display = serializers.SerializerMethodField()
 
     def get_section_display(self, instance):
-        return instance.section.full_name
+        if instance.section:
+            return instance.section.full_name
+        else:
+            return ""
+
+    def get_functional_group(self, instance):
+        if instance.functional_group:
+            return instance.functional_group.__str__()
+        else:
+            return ""
 
     def get_funding_sources_display(self, instance):
         if instance.funding_sources.exists():
@@ -202,12 +211,14 @@ class ProjectYearSerializer(serializers.ModelSerializer):
     other_lab_support_needs_html = serializers.SerializerMethodField()
     it_needs_html = serializers.SerializerMethodField()
     default_funding_source_id = serializers.SerializerMethodField()
+    funding_sources_list = serializers.SerializerMethodField()
     formatted_status = serializers.SerializerMethodField()
     allocated_budget = serializers.SerializerMethodField()
     review_score_percentage = serializers.SerializerMethodField()
     review_score_fraction = serializers.SerializerMethodField()
     status_display = serializers.SerializerMethodField()
     status_class = serializers.SerializerMethodField()
+    primary_contact_email = serializers.SerializerMethodField()
     om_costs = serializers.SerializerMethodField()
     salary_costs = serializers.SerializerMethodField()
     capital_costs = serializers.SerializerMethodField()
@@ -251,6 +262,13 @@ class ProjectYearSerializer(serializers.ModelSerializer):
 
     def get_om_allocations(self, instance):
         return instance.om_allocations
+
+    def get_primary_contact_email(self, instance):
+        primary_contact = instance.staff_set.filter(is_primary_lead=True).first()
+        if primary_contact:
+            if primary_contact.user:
+                return primary_contact.user.email
+        return None
 
     def get_status_class(self, instance):
         return slugify(instance.get_status_display())
@@ -342,6 +360,9 @@ class ProjectYearSerializer(serializers.ModelSerializer):
     def get_default_funding_source_id(self, instance):
         return instance.project.default_funding_source_id
 
+    def get_funding_sources_list(self, instance):
+        return ", ".join([fs.__str__() for fs in instance.get_funding_sources()])
+
     def get_formatted_status(self, instance):
         return instance.formatted_status
 
@@ -357,6 +378,7 @@ class StaffSerializer(serializers.ModelSerializer):
     funding_source_display = serializers.SerializerMethodField()
     student_program_display = serializers.SerializerMethodField()
     project_year_obj = serializers.SerializerMethodField()
+    cost_type_choice = serializers.SerializerMethodField()
 
     def get_project_year_obj(self, instance):
         return ProjectYearSerializerLITE(instance.project_year).data
@@ -375,6 +397,9 @@ class StaffSerializer(serializers.ModelSerializer):
 
     def get_student_program_display(self, instance):
         return instance.get_student_program_display()
+
+    def get_cost_type_choice(self, instance):
+        return instance.employee_type.cost_type if instance.employee_type else None
 
 
 class OMCostSerializer(serializers.ModelSerializer):
@@ -566,12 +591,20 @@ class StatusReportSerializer(serializers.ModelSerializer):
     supporting_resources = serializers.SerializerMethodField()
     major_accomplishments_html = serializers.SerializerMethodField()
     major_issues_html = serializers.SerializerMethodField()
+    excess_funds_comment_html = serializers.SerializerMethodField()
+    insuficient_funds_comment_html = serializers.SerializerMethodField()
 
     def get_major_accomplishments_html(self, instance):
         return instance.major_accomplishments_html
 
     def get_major_issues_html(self, instance):
         return instance.major_issues_html
+
+    def get_excess_funds_comment_html(self, instance):
+        return instance.excess_funds_comment_html
+
+    def get_insuficient_funds_comment_html(self, instance):
+        return instance.insuficient_funds_comment_html
 
     def get_target_completion_date_display(self, instance):
         if instance.target_completion_date:

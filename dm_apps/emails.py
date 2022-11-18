@@ -78,7 +78,7 @@ class Email:
 
         if message_en or message_fr:
             if message_en and message_fr:
-                msg = f"*** un message français suivra \n\n\n{message_en} " \
+                msg = f"*** un message français suit \n\n\n{message_en} " \
                       f"\n\n ******************************************************************** \n\n {message_fr}"
             elif message_en:
                 msg = message_en
@@ -122,4 +122,5 @@ class Email:
     def send(self):
         custom_send_mail(
             email_instance=self,
+            user=self.request.user
         )
