@@ -32,7 +32,7 @@ def can_modify_vehicle(user, vehicle, return_as_dict=False):
             my_dict["reason"] = _("You can modify this vehicle because you are a national app administrator")
             my_dict["is_allowed"] = True
         # are they a regional administrator?
-        elif is_regional_admin(user) and user.csas_user.region == vehicle.region:
+        elif is_regional_admin(user) and user.cars_user.region == vehicle.region:
             my_dict["reason"] = _("You can modify this vehicle because you are an administrator to the region to which it belongs")
             my_dict["is_allowed"] = True
         elif user == vehicle.custodian:
