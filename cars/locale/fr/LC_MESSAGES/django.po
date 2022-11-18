@@ -7,16 +7,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-11-18 12:17-0400\n"
-"PO-Revision-Date: 2022-06-21 16:08-0300\n"
+"POT-Creation-Date: 2022-11-18 14:11-0400\n"
+"PO-Revision-Date: 2022-11-18 14:05-0400\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n > 1);\n"
-"X-Generator: Poedit 2.4.2\n"
 "Language: fr\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Generator: Poedit 3.2\n"
 
 #: .\cars\emails.py:19 .\cars\models.py:96 .\cars\views.py:420
 msgid "custodian"
@@ -55,20 +55,24 @@ msgid ""
 "I have signed the <a target='_blank' href='{url}'>Acknowledgement of Motor "
 "Vehicle Operator Role and Responsibilities Form</a>."
 msgstr ""
+"J'ai signé le <a target='_blank' href='{url}'>Formulaire de reconnaissance "
+"du rôle et des responsabilités du conducteur d’un véhicule motorisé</a>."
 
 #: .\cars\forms.py:65
 msgid ""
 "I have signed off on the safe work procedure <a href='{url}'>Driving a Road "
 "Vehicle</a>."
 msgstr ""
+"J'ai signé la procédure de travail sécuritaire<a href='{url}'>Conduite d'un "
+"véhicule routier</a>."
 
 #: .\cars\forms.py:66
 msgid "I have my manager's authorization to proceed."
-msgstr ""
+msgstr "J'ai l'autorisation de mon supérieur pour procéder."
 
 #: .\cars\forms.py:71
 msgid "You must select a primary driver!"
-msgstr ""
+msgstr "Vous devez sélectionner un conducteur principal !"
 
 #: .\cars\forms.py:93
 msgid "Sorry, the time requested overlaps with another approved reservation."
@@ -140,10 +144,8 @@ msgid "location"
 msgstr "emplacement"
 
 #: .\cars\models.py:97
-#, fuzzy
-#| msgid "Vehicle type"
 msgid "vehicle type"
-msgstr "Type de véhicule"
+msgstr "type de véhicule"
 
 #: .\cars\models.py:98
 msgid "reference number"
@@ -281,8 +283,8 @@ msgid "Clear"
 msgstr "Effacer"
 
 #: .\cars\templates\cars\base\_app_title.html:2
-msgid "Vehicle RSVP"
-msgstr "RSVP pour les véhicules"
+msgid "Gulf Field Work"
+msgstr ""
 
 #: .\cars\templates\cars\base\_nav_left_auth.html:4
 msgid "Home"
@@ -333,23 +335,18 @@ msgstr "Foire aux questions"
 
 #: .\cars\templates\cars\index.html:18
 msgid "Gulf Science Field Planning Tool"
-msgstr ""
+msgstr "Outil de planification des activités scientifiques dans le Golfe"
 
 #: .\cars\templates\cars\index.html:20
-#, fuzzy
-#| msgid ""
-#| "\n"
-#| "            Welcome to the reservation system for the Science vehicle "
-#| "fleet.\n"
-#| "          "
 msgid ""
 "\n"
 "            Welcome to the Gulf Science Field Planning Tool.\n"
 "          "
 msgstr ""
 "\n"
-"            Bienvenue au système de réservation de la flotte de véhicules "
-"des sciences."
+"            Outil de planification des activités scientifiques dans le "
+"Golfe.\n"
+"          "
 
 #: .\cars\templates\cars\index.html:24
 msgid "Calendar"
@@ -360,14 +357,22 @@ msgid "Find a Vehicle"
 msgstr "Trouver un véhicule"
 
 #: .\cars\templates\cars\index.html:26
+msgid "Find a Boat"
+msgstr "Trouver un bateau"
+
+#: .\cars\templates\cars\index.html:27
+msgid "Find Equipment "
+msgstr "Trouver l'équipements"
+
+#: .\cars\templates\cars\index.html:28
 msgid "Resources / FAQ"
 msgstr "Ressources / FAQ"
 
-#: .\cars\templates\cars\index.html:34
+#: .\cars\templates\cars\index.html:36
 msgid "Our Vehicles"
 msgstr "Nos véhicules"
 
-#: .\cars\templates\cars\index.html:36
+#: .\cars\templates\cars\index.html:38
 msgid ""
 "\n"
 "              Use this module to view or modify the vehicles in our fleet.\n"
@@ -383,27 +388,27 @@ msgstr ""
 "apporter des modifications à un véhicule existant.\n"
 "            "
 
-#: .\cars\templates\cars\index.html:41
+#: .\cars\templates\cars\index.html:43
 msgid "View Fleet"
 msgstr "Voir la flotte"
 
-#: .\cars\templates\cars\index.html:43
+#: .\cars\templates\cars\index.html:45
 msgid "Add a Vehicle"
 msgstr "Ajouter un véhicule"
 
-#: .\cars\templates\cars\index.html:47
+#: .\cars\templates\cars\index.html:49
 msgid "Manage Your Vehicles"
 msgstr "Gérez vos véhicules"
 
-#: .\cars\templates\cars\index.html:49 .\cars\templates\cars\index.html:73
+#: .\cars\templates\cars\index.html:51 .\cars\templates\cars\index.html:75
 msgid "active requests"
 msgstr "demandes en cours"
 
-#: .\cars\templates\cars\index.html:57 .\cars\views.py:341
+#: .\cars\templates\cars\index.html:59 .\cars\views.py:341
 msgid "Reservations"
 msgstr "Réservations"
 
-#: .\cars\templates\cars\index.html:59
+#: .\cars\templates\cars\index.html:61
 msgid ""
 "\n"
 "              Use this module to view or modify existing vehicle "
@@ -418,15 +423,15 @@ msgstr ""
 "              voir les demandes de vos véhicules, actuelles et passées.\n"
 "            "
 
-#: .\cars\templates\cars\index.html:64
+#: .\cars\templates\cars\index.html:66
 msgid "New Reservation"
 msgstr "Nouvelle réservation"
 
-#: .\cars\templates\cars\index.html:66 .\cars\views.py:338
+#: .\cars\templates\cars\index.html:68 .\cars\views.py:338
 msgid "Your Reservations"
 msgstr "Vos réservations"
 
-#: .\cars\templates\cars\index.html:70
+#: .\cars\templates\cars\index.html:72
 msgid "Requests for Your Vehicles"
 msgstr "Demandes pour vos véhicules"
 
@@ -467,7 +472,7 @@ msgid "Do you want to approve this reservation request?"
 msgstr "Voulez-vous approuver cette demande de réservation ?"
 
 #: .\cars\templates\cars\vehicle_detail.html:42
-#: .\cars\templates\cars\vehicle_list.html:70
+#: .\cars\templates\cars\vehicle_list.html:71
 msgid "Reserve"
 msgstr "Réserver"
 
@@ -476,7 +481,7 @@ msgid "Bookings for this Vehicle"
 msgstr "Réservations pour ce véhicule"
 
 #: .\cars\templates\cars\vehicle_list.html:15
-#: .\cars\templates\cars\vehicle_list.html:104
+#: .\cars\templates\cars\vehicle_list.html:105
 msgid "New Search"
 msgstr "Nouvelle recherche"
 
@@ -488,19 +493,19 @@ msgstr "Nouveau véhicule"
 msgid "Location"
 msgstr "Emplacement"
 
-#: .\cars\templates\cars\vehicle_list.html:64
+#: .\cars\templates\cars\vehicle_list.html:65
 msgid "Manage"
 msgstr "Gérer"
 
-#: .\cars\templates\cars\vehicle_list.html:66
+#: .\cars\templates\cars\vehicle_list.html:67
 msgid "View Details"
 msgstr "Afficher les détails"
 
-#: .\cars\templates\cars\vehicle_list.html:78
+#: .\cars\templates\cars\vehicle_list.html:79
 msgid "Reserve Now!"
 msgstr "Réservez dès maintenant !"
 
-#: .\cars\templates\cars\vehicle_list.html:100
+#: .\cars\templates\cars\vehicle_list.html:101
 msgid "Your search did not return any results"
 msgstr "Votre recherche n'a donné aucun résultat"
 
@@ -562,6 +567,9 @@ msgstr "URL"
 #: .\cars\views.py:472
 msgid "File"
 msgstr "Fichier"
+
+#~ msgid "Vehicle RSVP"
+#~ msgstr "RSVP pour les véhicules"
 
 #~ msgid "Science Vehicle Reservation System"
 #~ msgstr "Système de réservation de véhicules des sciences"

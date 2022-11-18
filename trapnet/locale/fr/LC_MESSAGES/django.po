@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: test\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-11-18 12:17-0400\n"
+"POT-Creation-Date: 2022-11-18 14:12-0400\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -17,73 +17,73 @@ msgstr ""
 msgid "You need to specify a sample"
 msgstr ""
 
-#: .\trapnet\filters.py:30 .\trapnet\filters.py:61
+#: .\trapnet\filters.py:30 .\trapnet\filters.py:62
 msgid "Year"
 msgstr ""
 
-#: .\trapnet\filters.py:31 .\trapnet\filters.py:62
+#: .\trapnet\filters.py:31 .\trapnet\filters.py:63
 msgid "Month"
 msgstr ""
 
-#: .\trapnet\filters.py:32 .\trapnet\filters.py:63
+#: .\trapnet\filters.py:32 .\trapnet\filters.py:64
 msgid "Day"
 msgstr ""
 
-#: .\trapnet\filters.py:57
+#: .\trapnet\filters.py:58
 #: .\trapnet\templates\trapnet\base\_nav_left_auth.html:19
 #: .\trapnet\views.py:199 .\trapnet\views.py:212 .\trapnet\views.py:234
 #: .\trapnet\views.py:242 .\trapnet\views.py:256
 msgid "Species"
 msgstr ""
 
-#: .\trapnet\filters.py:80
+#: .\trapnet\filters.py:81
 msgid "Sample Id"
 msgstr ""
 
-#: .\trapnet\filters.py:81
+#: .\trapnet\filters.py:82
 msgid "Scale ID #"
 msgstr ""
 
-#: .\trapnet\filters.py:82
+#: .\trapnet\filters.py:83
 msgid "Tag #"
 msgstr ""
 
-#: .\trapnet\filters.py:83
+#: .\trapnet\filters.py:84
 msgid "Sample type"
 msgstr ""
 
-#: .\trapnet\filters.py:84
+#: .\trapnet\filters.py:85
 msgid "River"
 msgstr ""
 
-#: .\trapnet\filters.py:85
+#: .\trapnet\filters.py:86
 #, fuzzy
 #| msgid "site name"
 msgid "Site"
 msgstr "nom de site"
 
-#: .\trapnet\forms.py:69
+#: .\trapnet\forms.py:70
 msgid "Must be an integer!"
 msgstr ""
 
-#: .\trapnet\forms.py:74
+#: .\trapnet\forms.py:75
 msgid "Must be between an integer between 0 and 100!"
 msgstr ""
 
-#: .\trapnet\forms.py:88
+#: .\trapnet\forms.py:89
 msgid "The departure date must be after the arrival date!"
 msgstr ""
 
-#: .\trapnet\forms.py:99
+#: .\trapnet\forms.py:100
 msgid "Either site characterization must be left null or must equal to 100"
 msgstr ""
 
-#: .\trapnet\forms.py:115
+#: .\trapnet\forms.py:116
 msgid ""
 "Either substrate characterization must be left null or must equal to 100"
 msgstr ""
 
-#: .\trapnet\forms.py:181
+#: .\trapnet\forms.py:182
 msgid "leave blank for all"
 msgstr ""
 
@@ -291,311 +291,319 @@ msgstr "common_name_fre"
 msgid "species"
 msgstr ""
 
-#: .\trapnet\models.py:141
-msgid "crew (probe)"
+#: .\trapnet\models.py:134
+msgid "monitoring program"
 msgstr ""
 
-#: .\trapnet\models.py:142
-msgid "crew (seine)"
+#: .\trapnet\models.py:135
+msgid "The sample was collected under which monitoring program"
 msgstr ""
 
 #: .\trapnet\models.py:143
-msgid "crew (dipnet)"
+msgid "crew (probe)"
 msgstr ""
 
 #: .\trapnet\models.py:144
+msgid "crew (seine)"
+msgstr ""
+
+#: .\trapnet\models.py:145
+msgid "crew (dipnet)"
+msgstr ""
+
+#: .\trapnet\models.py:146
 msgid "crew (extras)"
 msgstr ""
 
-#: .\trapnet\models.py:147 .\trapnet\models.py:318
+#: .\trapnet\models.py:149 .\trapnet\models.py:320
 msgid "riffle"
 msgstr ""
 
-#: .\trapnet\models.py:148 .\trapnet\models.py:319
+#: .\trapnet\models.py:150 .\trapnet\models.py:321
 msgid "run"
 msgstr ""
 
-#: .\trapnet\models.py:149 .\trapnet\models.py:320
+#: .\trapnet\models.py:151 .\trapnet\models.py:322
 msgid "flat"
 msgstr ""
 
-#: .\trapnet\models.py:150 .\trapnet\models.py:321
+#: .\trapnet\models.py:152 .\trapnet\models.py:323
 msgid "pool"
 msgstr ""
 
-#: .\trapnet\models.py:152
+#: .\trapnet\models.py:154
 msgid "bank length - left (m)"
 msgstr ""
 
-#: .\trapnet\models.py:153
+#: .\trapnet\models.py:155
 msgid "bank length - right (m)"
 msgstr ""
 
-#: .\trapnet\models.py:154
+#: .\trapnet\models.py:156
 msgid "width - lower (m)"
 msgstr ""
 
-#: .\trapnet\models.py:155
+#: .\trapnet\models.py:157
 msgid "depth #1 - lower (cm)"
 msgstr ""
 
-#: .\trapnet\models.py:156
+#: .\trapnet\models.py:158
 msgid "depth #2 - lower (cm)"
 msgstr ""
 
-#: .\trapnet\models.py:157
+#: .\trapnet\models.py:159
 msgid "depth #3 - lower (cm)"
 msgstr ""
 
-#: .\trapnet\models.py:158
+#: .\trapnet\models.py:160
 msgid "width - middle (m)"
 msgstr ""
 
-#: .\trapnet\models.py:159
+#: .\trapnet\models.py:161
 msgid "depth #1 - middle (cm)"
 msgstr ""
 
-#: .\trapnet\models.py:160
+#: .\trapnet\models.py:162
 msgid "depth #2 - middle (cm)"
 msgstr ""
 
-#: .\trapnet\models.py:161
+#: .\trapnet\models.py:163
 msgid "depth #3 - middle (cm)"
 msgstr ""
 
-#: .\trapnet\models.py:162
+#: .\trapnet\models.py:164
 msgid "width - upper (m)"
 msgstr ""
 
-#: .\trapnet\models.py:163
+#: .\trapnet\models.py:165
 msgid "depth #1 - upper (cm)"
 msgstr ""
 
-#: .\trapnet\models.py:164
+#: .\trapnet\models.py:166
 msgid "depth #2 - upper (cm)"
 msgstr ""
 
-#: .\trapnet\models.py:165
+#: .\trapnet\models.py:167
 msgid "depth #3 - upper (cm)"
 msgstr ""
 
-#: .\trapnet\models.py:166
+#: .\trapnet\models.py:168
 msgid "max depth (cm)"
 msgstr ""
 
-#: .\trapnet\models.py:166
+#: .\trapnet\models.py:168
 msgid "max depth found within the whole site"
 msgstr ""
 
-#: .\trapnet\models.py:185
+#: .\trapnet\models.py:187
 msgid "The measurement is to 1 decimal place in micro siemens (µS)"
 msgstr ""
 
-#: .\trapnet\models.py:187
+#: .\trapnet\models.py:189
 msgid "Overhanging Vegetation (%) - Left"
 msgstr ""
 
-#: .\trapnet\models.py:189
+#: .\trapnet\models.py:191
 msgid "Overhanging Vegetation (%) - Right"
 msgstr ""
 
-#: .\trapnet\models.py:191
+#: .\trapnet\models.py:193
 msgid "Max Overhanging Vegetation (m) - Left"
 msgstr ""
 
-#: .\trapnet\models.py:192
+#: .\trapnet\models.py:194
 msgid "Max Overhanging Vegetation (m) - Right"
 msgstr ""
 
-#: .\trapnet\models.py:195
+#: .\trapnet\models.py:197
 msgid "fine silt or clay"
 msgstr ""
 
-#: .\trapnet\models.py:196 .\trapnet\models.py:284
+#: .\trapnet\models.py:198 .\trapnet\models.py:286
 msgid "sand"
 msgstr ""
 
-#: .\trapnet\models.py:197 .\trapnet\models.py:285
+#: .\trapnet\models.py:199 .\trapnet\models.py:287
 msgid "gravel"
 msgstr ""
 
-#: .\trapnet\models.py:198 .\trapnet\models.py:286
+#: .\trapnet\models.py:200 .\trapnet\models.py:288
 msgid "pebble"
 msgstr ""
 
-#: .\trapnet\models.py:199 .\trapnet\models.py:287
+#: .\trapnet\models.py:201 .\trapnet\models.py:289
 msgid "cobble"
 msgstr ""
 
-#: .\trapnet\models.py:200 .\trapnet\models.py:288
+#: .\trapnet\models.py:202 .\trapnet\models.py:290
 msgid "rocks"
 msgstr ""
 
-#: .\trapnet\models.py:201 .\trapnet\models.py:289
+#: .\trapnet\models.py:203 .\trapnet\models.py:291
 msgid "boulder"
 msgstr ""
 
-#: .\trapnet\models.py:202 .\trapnet\models.py:290
+#: .\trapnet\models.py:204 .\trapnet\models.py:292
 msgid "bedrock"
 msgstr ""
 
-#: .\trapnet\models.py:212
+#: .\trapnet\models.py:214
 msgid "type of seine"
 msgstr ""
 
-#: .\trapnet\models.py:213
+#: .\trapnet\models.py:215
 msgid "type of site"
 msgstr ""
 
-#: .\trapnet\models.py:214
+#: .\trapnet\models.py:216
 msgid "electrofisher"
 msgstr ""
 
-#: .\trapnet\models.py:216
+#: .\trapnet\models.py:218
 msgid "electrofisher voltage (V)"
 msgstr ""
 
-#: .\trapnet\models.py:217
+#: .\trapnet\models.py:219
 msgid "electrofisher output, low (amps)"
 msgstr ""
 
-#: .\trapnet\models.py:218
+#: .\trapnet\models.py:220
 msgid "electrofisher output, high (amps)"
 msgstr ""
 
-#: .\trapnet\models.py:219
+#: .\trapnet\models.py:221
 msgid "electrofisher frequency (Hz)"
 msgstr ""
 
-#: .\trapnet\models.py:220
+#: .\trapnet\models.py:222
 msgid "type of pulse"
 msgstr ""
 
-#: .\trapnet\models.py:221
+#: .\trapnet\models.py:223
 msgid "duty cycle (%)"
 msgstr ""
 
-#: .\trapnet\models.py:227
+#: .\trapnet\models.py:229
 msgid "Has been reviewed?"
 msgstr ""
 
-#: .\trapnet\models.py:239
+#: .\trapnet\models.py:241
 msgid "Not reviewed"
 msgstr ""
 
-#: .\trapnet\models.py:240
+#: .\trapnet\models.py:242
 msgid "Reviewed by {user} on {time}"
 msgstr ""
 
-#: .\trapnet\models.py:283
+#: .\trapnet\models.py:285
 msgid "fine"
 msgstr ""
 
-#: .\trapnet\models.py:369
+#: .\trapnet\models.py:371
 msgid "{arrival} &rarr; {departure} ({duration})"
 msgstr ""
 
-#: .\trapnet\models.py:377
+#: .\trapnet\models.py:379
 msgid "<u>arrival:</u> {arrival}; <u>max:</u> {max} <u>min:</u> {min}"
 msgstr ""
 
-#: .\trapnet\models.py:386
+#: .\trapnet\models.py:388
 msgid ""
 "<u>depth (m):</u> {depth}&plusmn;{delta}; <u>discharge (m<sup>3</sup>/s):</"
 "u> {dischard}"
 msgstr ""
 
-#: .\trapnet\models.py:392
+#: .\trapnet\models.py:394
 msgid ""
 "<u>avg. lower depth (cm):</u> {d1}<br> <u>avg. middle depth (cm):</u> {d2}"
 "<br> <u>avg. upper depth (cm):</u> {d3}"
 msgstr ""
 
-#: .\trapnet\models.py:400
+#: .\trapnet\models.py:402
 msgid "<u>@start (m):</u> {start}; <u>@end:</u> {end}"
 msgstr ""
 
-#: .\trapnet\models.py:407 .\trapnet\models.py:414
+#: .\trapnet\models.py:409 .\trapnet\models.py:416
 msgid "<u>left:</u> {left}; <u>right:</u> {right}"
 msgstr ""
 
-#: .\trapnet\models.py:421
+#: .\trapnet\models.py:423
 msgid ""
 "<u>probe:</u> {probe}<br> <u>seine:</u> {seine}<br> <u>dipnet:</u> {dipnet}"
 "<br> <u>extras:</u> {extras}"
 msgstr ""
 
-#: .\trapnet\models.py:430
+#: .\trapnet\models.py:432
 msgid "<u>speed:</u> {speed}; <u>direction:</u> {dir}"
 msgstr ""
 
-#: .\trapnet\models.py:437
+#: .\trapnet\models.py:439
 msgid "<u>general:</u> {shore}"
 msgstr ""
 
-#: .\trapnet\models.py:439
+#: .\trapnet\models.py:441
 msgid "<br><u>@trap:</u> {trap}"
 msgstr ""
 
-#: .\trapnet\models.py:456
+#: .\trapnet\models.py:458
 msgid "sweep number"
 msgstr ""
 
-#: .\trapnet\models.py:457
+#: .\trapnet\models.py:459
 msgid ""
 "open sites are always 0.5. Closed sites begin at 0.5, but then are depleted "
 "starting at 1, and counting up until depletion is achieved (e.g., 2, 3,...)"
 msgstr ""
 
-#: .\trapnet\models.py:458
+#: .\trapnet\models.py:460
 msgid "sweep time (seconds)"
 msgstr ""
 
-#: .\trapnet\models.py:458
+#: .\trapnet\models.py:460
 msgid "in seconds"
 msgstr ""
 
-#: .\trapnet\models.py:541
+#: .\trapnet\models.py:543
 msgid "fork length (mm)"
 msgstr ""
 
-#: .\trapnet\models.py:542
+#: .\trapnet\models.py:544
 msgid "total length (mm)"
 msgstr ""
 
-#: .\trapnet\models.py:544
+#: .\trapnet\models.py:546
 msgid "length (mm)"
 msgstr ""
 
-#: .\trapnet\models.py:545
+#: .\trapnet\models.py:547
 msgid "length type"
 msgstr ""
 
-#: .\trapnet\models.py:547
+#: .\trapnet\models.py:549
 msgid "weight (g)"
 msgstr ""
 
-#: .\trapnet\models.py:548
+#: .\trapnet\models.py:550
 msgid "tag number"
 msgstr ""
 
-#: .\trapnet\models.py:549
+#: .\trapnet\models.py:551
 msgid "scale ID number"
 msgstr ""
 
-#: .\trapnet\models.py:552
+#: .\trapnet\models.py:554
 msgid "fish size"
 msgstr ""
 
-#: .\trapnet\models.py:556
+#: .\trapnet\models.py:558
 msgid "age type"
 msgstr ""
 
-#: .\trapnet\models.py:557
+#: .\trapnet\models.py:559
 msgid "river age"
 msgstr ""
 
-#: .\trapnet\models.py:558
+#: .\trapnet\models.py:560
 msgid "ocean age"
 msgstr ""
 
@@ -920,7 +928,7 @@ msgstr ""
 msgid "General"
 msgstr ""
 
-#: .\trapnet\templates\trapnet\sample_form.html:39
+#: .\trapnet\templates\trapnet\sample_form.html:40
 msgid ""
 "\n"
 "            Certain field will only open up after a sample type has been "
@@ -930,84 +938,84 @@ msgid ""
 "          "
 msgstr ""
 
-#: .\trapnet\templates\trapnet\sample_form.html:89
+#: .\trapnet\templates\trapnet\sample_form.html:90
 msgid "Rotary Screw Trap / Trap Net Specific"
 msgstr ""
 
-#: .\trapnet\templates\trapnet\sample_form.html:136
+#: .\trapnet\templates\trapnet\sample_form.html:137
 msgid "Electrofishing Specific"
 msgstr ""
 
-#: .\trapnet\templates\trapnet\sample_form.html:150
+#: .\trapnet\templates\trapnet\sample_form.html:151
 #, python-format
 msgid "Site characterization %% (0-100)"
 msgstr ""
 
-#: .\trapnet\templates\trapnet\sample_form.html:167
+#: .\trapnet\templates\trapnet\sample_form.html:168
 msgid "River Description"
 msgstr ""
 
-#: .\trapnet\templates\trapnet\sample_form.html:171
+#: .\trapnet\templates\trapnet\sample_form.html:172
 msgid "Bank length (m)"
 msgstr ""
 
-#: .\trapnet\templates\trapnet\sample_form.html:172
+#: .\trapnet\templates\trapnet\sample_form.html:173
 #, python-format
 msgid "Overhanging vegetation (%%)"
 msgstr ""
 
-#: .\trapnet\templates\trapnet\sample_form.html:173
+#: .\trapnet\templates\trapnet\sample_form.html:174
 msgid "Max overhanging vegetation (m)"
 msgstr ""
 
-#: .\trapnet\templates\trapnet\sample_form.html:176
+#: .\trapnet\templates\trapnet\sample_form.html:177
 msgid "Left side"
 msgstr ""
 
-#: .\trapnet\templates\trapnet\sample_form.html:182
+#: .\trapnet\templates\trapnet\sample_form.html:183
 msgid "Right side"
 msgstr ""
 
-#: .\trapnet\templates\trapnet\sample_form.html:191
+#: .\trapnet\templates\trapnet\sample_form.html:192
 msgid "River width and depth"
 msgstr ""
 
-#: .\trapnet\templates\trapnet\sample_form.html:195
+#: .\trapnet\templates\trapnet\sample_form.html:196
 msgid "Stream Width (m)"
 msgstr ""
 
-#: .\trapnet\templates\trapnet\sample_form.html:196
+#: .\trapnet\templates\trapnet\sample_form.html:197
 msgid "Depth (cm)"
-msgstr ""
-
-#: .\trapnet\templates\trapnet\sample_form.html:199
-#, python-format
-msgid "25%%"
 msgstr ""
 
 #: .\trapnet\templates\trapnet\sample_form.html:200
 #, python-format
-msgid "50%%"
+msgid "25%%"
 msgstr ""
 
 #: .\trapnet\templates\trapnet\sample_form.html:201
 #, python-format
+msgid "50%%"
+msgstr ""
+
+#: .\trapnet\templates\trapnet\sample_form.html:202
+#, python-format
 msgid "75%%"
 msgstr ""
 
-#: .\trapnet\templates\trapnet\sample_form.html:204
+#: .\trapnet\templates\trapnet\sample_form.html:205
 msgid "Lower"
 msgstr ""
 
-#: .\trapnet\templates\trapnet\sample_form.html:211
+#: .\trapnet\templates\trapnet\sample_form.html:212
 msgid "Middle"
 msgstr ""
 
-#: .\trapnet\templates\trapnet\sample_form.html:218
+#: .\trapnet\templates\trapnet\sample_form.html:219
 msgid "Upper"
 msgstr ""
 
-#: .\trapnet\templates\trapnet\sample_form.html:235
+#: .\trapnet\templates\trapnet\sample_form.html:236
 #, python-format
 msgid "Substrate characterization %% (0-100)"
 msgstr ""
