@@ -134,7 +134,7 @@ def get_app_dict(request):
     try:
         app_dict["cars"] = {
             "title": _("Gulf Science Field Planning Tool"),
-            "description": _("Tool used for the planning and coorindation of field work"),
+            "description": _("Tool used for the planning and coordindation of field work"),
             "status": "dev",
             "access": "login-required",
             "url": reverse('cars:index'),
