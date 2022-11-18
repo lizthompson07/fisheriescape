@@ -311,7 +311,6 @@ class VehicleCalendarView(CarsBasicMixin, CommonFilterView):
 class ReservationListView(CarsBasicMixin, CommonFilterView):
     template_name = 'cars/list.html'
     filterset_class = filters.SimpleReservationFilter
-    # new_object_url = reverse_lazy("cars:rsvp_new")
     row_object_url_name = row_ = "cars:rsvp_detail"
     paginate_by = 10
     field_list = [
