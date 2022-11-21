@@ -2,6 +2,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.db.models import Q
 from django.forms import modelformset_factory
+from django.templatetags.static import static
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy, gettext
 
@@ -62,7 +63,8 @@ class ReservationForm(forms.ModelForm):
         else:
             self.fields["box1"].label = mark_safe(
                 gettext("I have signed the <a target='_blank' href='{url}'>Acknowledgement of Motor Vehicle Operator Role and Responsibilities Form</a>.").format(url="https://forms-formulaires.dfo-mpo.gc.ca/Forms/FP_0024-E.pdf"))
-            self.fields["box2"].label = mark_safe(gettext("I have signed off on the safe work procedure <a href='{url}'>Driving a Road Vehicle</a>.").format(url="#"))
+            self.fields["box2"].label = mark_safe(gettext("I have signed off on the safe work procedure <a target='_blank' href='{url}'>Driving a Road Vehicle</a>.").format(
+                url=static("cars/SWP 09.pdf")))
             self.fields["box3"].label = gettext("I have my manager's authorization to proceed.")
 
     def clean_primary_driver(self):

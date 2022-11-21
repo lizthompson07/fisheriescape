@@ -53,7 +53,8 @@ def run_river_checks():
             try:
                 river = River.objects.get(cgndb=r["CGNDB"])
             except River.DoesNotExist:
-                print(r["SITE"], r["CGNDB"], r["RIVER_NAME"], r["CATCHMENT_NAME"], r["LATITUDE"], r["LONGITUDE"], r["SITE_FISHING_AREA_CODE"], "does not exist in db")
+                print(r["SITE"], r["CGNDB"], r["RIVER_NAME"], r["CATCHMENT_NAME"], r["LATITUDE"], r["LONGITUDE"], r["SITE_FISHING_AREA_CODE"],
+                      "does not exist in db")
 
     # Let's make sure we have all the river sites entered
     ## the default is that none of these exist
@@ -246,9 +247,7 @@ def run_process_samples():
                                 kwargs["water_temp_c"] = statistics.mean([float(t) for t in temps])
                                 if len(temps) > 1:
                                     notes = add_note(notes, "WATER TEMPERATURE",
-                                                 f"The mean of the following water temperature measurements were used: {listrify(temps)}")
-
-
+                                                     f"The mean of the following water temperature measurements were used: {listrify(temps)}")
 
                             # there is no field for DEPTH_LAYOUT_TYPE in dmapps, so we will just make a note
                             if r["DEPTH_LAYOUT_TYPE"]:
@@ -265,9 +264,71 @@ def run_process_samples():
                             if len(notes):
                                 kwargs["notes"] = notes
 
-                            models.Sample.objects.create(**kwargs)
+                            sample = models.Sample.objects.create(**kwargs)
 
-                            #now that we have a sample, it is time to deal with sweeps
+                            # now that we have a sample, it is time to deal with sweeps
+                            temps = [
+                                r["WATER_TEMPERATURE_ARRIVAL"],
+                                r["WATER_TEMPERATURE_DEPART"],
+                                r["WATER_TEMP1"],
+                                r["WATER_TEMP2"],
+                                r["WATER_TEMP3"],
+                            ]
+                            while None in temps: temps.remove(None)
+                            while 0 in temps: temps.remove(0)
+
+                            if r["SWEEP0_TIME"]:
+                                time = r["SWEEP0_TIME"]
+                                models.Sweep.objects.create(sample=sample, sweep_number=0, sweep_time=time,
+                                                            notes="sweep number zero used as there is missing information about sampling protocol.")
+
+                            if r["SWEEP0_5_TIME"]:
+                                time = r["SWEEP0_5_TIME"]
+                                models.Sweep.objects.create(sample=sample, sweep_number=0.5, sweep_time=time)
+
+                            if r["SWEEP1_TIME"]:
+                                time = r["SWEEP1_TIME"]
+                                models.Sweep.objects.create(sample=sample, sweep_number=1, sweep_time=time)
+
+                            if r["SWEEP2_TIME"]:
+                                time = r["SWEEP2_TIME"]
+                                models.Sweep.objects.create(sample=sample, sweep_number=2, sweep_time=time)
+
+                            if r["SWEEP3_TIME"]:
+                                time = r["SWEEP3_TIME"]
+                                models.Sweep.objects.create(sample=sample, sweep_number=3, sweep_time=time)
+
+                            if r["SWEEP4_TIME"]:
+                                time = r["SWEEP4_TIME"]
+                                models.Sweep.objects.create(sample=sample, sweep_number=4, sweep_time=time)
+
+                            if r["SWEEP5_TIME"]:
+                                time = r["SWEEP5_TIME"]
+                                models.Sweep.objects.create(sample=sample, sweep_number=5, sweep_time=time)
+
+                            if r["SWEEP6_TIME"]:
+                                time = r["SWEEP6_TIME"]
+                                models.Sweep.objects.create(sample=sample, sweep_number=6, sweep_time=time)
+
+    # get a list of sweep times and figure out where to draw a line with respect to seconds vs. minutes
+    # sweeps_times = [s.sweep_time for s in models.Sweep.objects.all().order_by("sweep_time")]
+    # based on the histograms of sweep times, it seems like drawing the line at 150 would be reasonable
+    for sweep in models.Sweep.objects.filter(sweep_time__lte=100):
+        sweep.sweep_time = sweep.sweep_time * 60
+        sweep.notes = "sweep time multiplied by 60"
+        sweep.save()
+
+
+def make_histo():
+    import pandas as pd
+    import matplotlib.pyplot as plt
+    from trapnet import models
+
+    sweeps_times = [s.sweep_time for s in
+                    models.Sweep.objects.filter(sweep_time__gte=0, sweep_time__lte=300).order_by("sweep_time")]
+    df = pd.DataFrame({"sweep_times": sweeps_times})
+    df.hist(bins=100)
+    plt.show()
 
 
 def run_process_fish():

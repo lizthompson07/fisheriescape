@@ -454,7 +454,7 @@ class Sample(MetadataFields):
 
 
 class Sweep(MetadataFields):
-    sample = models.ForeignKey(Sample, related_name='sweeps', on_delete=models.DO_NOTHING, editable=False)
+    sample = models.ForeignKey(Sample, related_name='sweeps', on_delete=models.CASCADE, editable=False)
     sweep_number = models.FloatField(verbose_name=_("sweep number"), help_text=_(
         "open sites are always 0.5. Closed sites begin at 0.5, but then are depleted starting at 1, and counting up until depletion is achieved (e.g., 2, 3,...)"))
     sweep_time = models.IntegerField(verbose_name=_("sweep time (seconds)"), help_text=_("in seconds"))
