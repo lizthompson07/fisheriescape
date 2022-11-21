@@ -277,10 +277,19 @@ def run_process_samples():
                             while None in temps: temps.remove(None)
                             while 0 in temps: temps.remove(0)
 
+                            # get a list of sweep times and figure out where to draw a line with respect to seconds vs. minutes
+                            # sweeps_times = [s.sweep_time for s in models.Sweep.objects.all().order_by("sweep_time")]
+                            # based on the histograms of sweep times, it seems like drawing the line at 100 would be reasonable
+                            # but this operation should only be applied to early sweeps (0, 0.5 and 1)
+
                             if r["SWEEP0_TIME"]:
                                 time = r["SWEEP0_TIME"]
+
+                                if time and time < 100:
+                                    time = time * 60
+                                    notes = "sweep time multiplied by 60; sweep number zero used as there is missing information about sampling protocol."
                                 models.Sweep.objects.create(sample=sample, sweep_number=0, sweep_time=time,
-                                                            notes="sweep number zero used as there is missing information about sampling protocol.")
+                                                            notes=notes)
 
                             if r["SWEEP0_5_TIME"]:
                                 time = r["SWEEP0_5_TIME"]
@@ -310,13 +319,7 @@ def run_process_samples():
                                 time = r["SWEEP6_TIME"]
                                 models.Sweep.objects.create(sample=sample, sweep_number=6, sweep_time=time)
 
-    # get a list of sweep times and figure out where to draw a line with respect to seconds vs. minutes
-    # sweeps_times = [s.sweep_time for s in models.Sweep.objects.all().order_by("sweep_time")]
-    # based on the histograms of sweep times, it seems like drawing the line at 150 would be reasonable
-    for sweep in models.Sweep.objects.filter(sweep_time__lte=100):
-        sweep.sweep_time = sweep.sweep_time * 60
-        sweep.notes = "sweep time multiplied by 60"
-        sweep.save()
+
 
 
 def make_histo():

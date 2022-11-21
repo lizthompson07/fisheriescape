@@ -139,6 +139,8 @@ class VehicleFinder(CarsBasicMixin, CommonFormView):
             payload["date_range"] = f"{qp.get('start_date')} to {qp.get('end_date')}"
         if qp.get("vehicle_type"):
             payload["vehicle_type"] = qp.get('vehicle_type')
+        if qp.get("section"):
+                payload["vehicle_section"] = qp.get('section')
         if qp.get("max_passengers__gte"):
             payload["no_passengers"] = qp.get('max_passengers__gte')
         if qp.get("location"):
@@ -154,6 +156,7 @@ class VehicleFinder(CarsBasicMixin, CommonFormView):
         # region = form.cleaned_data["region"]
         location = form.cleaned_data["location"]
         vehicle_type = form.cleaned_data["vehicle_type"]
+        section = form.cleaned_data["vehicle_section"]
         vehicle = form.cleaned_data["vehicle"]
         no_passengers = form.cleaned_data["no_passengers"]
 
@@ -166,6 +169,8 @@ class VehicleFinder(CarsBasicMixin, CommonFormView):
             query_string += f"location={location.id}&"
         if vehicle_type:
             query_string += f"vehicle_type={vehicle_type.id}&"
+        if section:
+            query_string += f"section={section.id}&"
         if vehicle:
             query_string += f"id={vehicle.id}&"
         if no_passengers:
@@ -261,6 +266,7 @@ class VehicleDetailView(CarsBasicMixin, CommonDetailView):
         "location.region|{}".format(_("region")),
         "location.full_address|{}".format(_("location")),
         "custodian",
+        "section",
         "vehicle_type",
         "reference_number",
         "make",
@@ -417,6 +423,7 @@ class ReservationDetailView(CarsBasicMixin, CommonDetailView):
         "status",
         "vehicle",
         "vehicle.custodian|{}".format(_("custodian")),
+        "vehicle.section|{}".format(_("section")),
         "destination",
         "primary_driver",
         "arrival_departure|{}".format(gettext_lazy("Arrival/departure")),
@@ -510,4 +517,42 @@ class ReferenceMaterialDeleteView(CarsNationalAdminRequiredMixin, CommonDeleteVi
     template_name = "cars/confirm_delete.html"
     delete_protection = False
     container_class = "container curvy"
+
+
+
+
+# REPORTS #
+###########
+
+class ReportSearchFormView(CarsAdminRequiredMixin, CommonFormView):
+    template_name = 'cars/report_search.html'
+    form_class = forms.ReportSearchForm
+    h1 = gettext_lazy("Reports")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+    def form_valid(self, form):
+        report = int(form.cleaned_data["report"])
+        year = form.cleaned_data["year"] if form.cleaned_data["year"] else ""
+        if report == 1:
+            return HttpResponseRedirect(reverse("scuba:dive_log_report") + f"?year={year}")
+        elif report == 2:
+            return HttpResponseRedirect(reverse("scuba:export_transect_data"))
+        elif report == 3:
+            return HttpResponseRedirect(reverse("scuba:export_section_data") + f"?year={year}")
+        elif report == 4:
+            return HttpResponseRedirect(reverse("scuba:export_obs_data") + f"?year={year}")
+        elif report == 5:
+            return HttpResponseRedirect(reverse("scuba:export_dive_data") + f"?year={year}")
+        elif report == 6:
+            return HttpResponseRedirect(reverse("scuba:export_outing_data") + f"?year={year}")
+        elif report == 7:
+            return HttpResponseRedirect(reverse("scuba:export_open_data") + "?dataset=true")
+        elif report == 8:
+            return HttpResponseRedirect(reverse("scuba:export_open_data") + "?dictionary=true")
+        else:
+            messages.error(self.request, "Report is not available. Please select another report.")
+            return HttpResponseRedirect(reverse("scuba:reports"))
 

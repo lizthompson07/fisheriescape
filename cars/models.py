@@ -9,7 +9,7 @@ from django.utils.translation import gettext_lazy as _, gettext
 from markdown import markdown
 
 from dm_apps.utils import get_timezone_time
-from shared_models.models import SimpleLookup, Region, MetadataFields, UnilingualSimpleLookup, LatLongFields
+from shared_models.models import SimpleLookup, Region, MetadataFields, UnilingualSimpleLookup, LatLongFields, Section
 
 YES_NO_CHOICES = [(True, _("Yes")), (False, _("No")), ]
 
@@ -94,6 +94,7 @@ def img_file_name(instance, filename):
 class Vehicle(MetadataFields):
     location = models.ForeignKey(Location, on_delete=models.DO_NOTHING, related_name="vehicles", verbose_name=_("location"))
     custodian = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="vehicles", verbose_name=_("custodian"))
+    section = models.ForeignKey(Section, on_delete=models.DO_NOTHING, related_name="vehicles", verbose_name=_("DFO section"), blank=False, null=True)
     vehicle_type = models.ForeignKey(VehicleType, on_delete=models.DO_NOTHING, related_name="vehicles", verbose_name=_("vehicle type"))
     reference_number = models.CharField(max_length=50, verbose_name=_("reference number"), unique=True)
     make = models.CharField(max_length=255, verbose_name=_("make"))
@@ -108,8 +109,14 @@ class Vehicle(MetadataFields):
     class Meta:
         ordering = ["reference_number"]
 
-    def __str__(self):
+    @property
+    def display(self):
         return f"{self.year} {self.make} {self.model} ({self.reference_number})"
+
+    def __str__(self):
+        if self.section and self.section.abbrev:
+            return f"{self.display} - {self.section.abbrev}"
+        return str(self.display)
 
     @property
     def smart_image(self):
