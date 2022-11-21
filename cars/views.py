@@ -1,17 +1,21 @@
 import datetime
+import os
 
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.db.models import Value, TextField
 from django.db.models.functions import Concat
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy, reverse
 from django.utils.timezone import make_aware, get_current_timezone
 from django.utils.translation import gettext_lazy, gettext as _
 
-from cars import models, forms, filters, emails
+from cars import models, forms, filters, emails, reports
 from cars.mixins import CarsBasicMixin, SuperuserOrAdminRequiredMixin, CarsNationalAdminRequiredMixin, CanModifyVehicleRequiredMixin, \
     CanModifyReservationRequiredMixin, CarsAdminRequiredMixin
 from cars.utils import get_dates_from_range, is_dt_intersection, can_modify_vehicle
+from dm_apps.context_processor import my_envr
 from lib.functions.custom_functions import listrify
 from shared_models.views import CommonTemplateView, CommonFormsetView, CommonHardDeleteView, CommonDeleteView, CommonDetailView, CommonUpdateView, \
     CommonFilterView, CommonCreateView, CommonFormView, CommonListView
@@ -528,6 +532,7 @@ class ReportSearchFormView(CarsAdminRequiredMixin, CommonFormView):
     template_name = 'cars/report_search.html'
     form_class = forms.ReportSearchForm
     h1 = gettext_lazy("Reports")
+    home_url_name = "cars:index"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -535,24 +540,31 @@ class ReportSearchFormView(CarsAdminRequiredMixin, CommonFormView):
 
     def form_valid(self, form):
         report = int(form.cleaned_data["report"])
-        year = form.cleaned_data["year"] if form.cleaned_data["year"] else ""
         if report == 1:
-            return HttpResponseRedirect(reverse("scuba:dive_log_report") + f"?year={year}")
-        elif report == 2:
-            return HttpResponseRedirect(reverse("scuba:export_transect_data"))
-        elif report == 3:
-            return HttpResponseRedirect(reverse("scuba:export_section_data") + f"?year={year}")
-        elif report == 4:
-            return HttpResponseRedirect(reverse("scuba:export_obs_data") + f"?year={year}")
-        elif report == 5:
-            return HttpResponseRedirect(reverse("scuba:export_dive_data") + f"?year={year}")
-        elif report == 6:
-            return HttpResponseRedirect(reverse("scuba:export_outing_data") + f"?year={year}")
-        elif report == 7:
-            return HttpResponseRedirect(reverse("scuba:export_open_data") + "?dataset=true")
-        elif report == 8:
-            return HttpResponseRedirect(reverse("scuba:export_open_data") + "?dictionary=true")
+            return HttpResponseRedirect(reverse("cars:vehicle_report"))
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
             return HttpResponseRedirect(reverse("scuba:reports"))
+
+
+
+
+@login_required()
+def vehicle_report(request):
+    qp = request.GET
+    # fiscal_year = qp.get("fiscal_year") if qp.get("fiscal_year") and qp.get("fiscal_year") != "None" else None
+
+    # get the vehicle list
+    qs = models.Vehicle.objects.all()
+
+    site_url = my_envr(request)["SITE_FULL_URL"]
+    file_url = reports.generate_vehicle_report(qs, site_url)
+
+    if os.path.exists(file_url):
+        with open(file_url, 'rb') as fh:
+            # fy = get_object_or_404(FiscalYear, pk=year) if year else "all years"
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+            response['Content-Disposition'] = f'inline; filename="vehicles.xlsx"'
+            return response
+    raise Http404
 

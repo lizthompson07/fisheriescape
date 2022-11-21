@@ -231,45 +231,10 @@ class ReferenceMaterialForm(forms.ModelForm):
 class ReportSearchForm(forms.Form):
     REPORT_CHOICES = (
         (None, "---"),
-        (1, "Species counts by year"),
-        (3, "Annual watershed report (PDF)"),
-        (4, "Annual watershed spreadsheet (XLSX)"),
-        (6, "AIS export (CSV)"),
-        (8, "OPEN DATA: web map services report ENGLISH (CSV)"),
-        (13, "OPEN DATA: web map services report FRENCH (CSV)"),
-        (11, "OPEN DATA: species list (CSV)"),
-        (7, "OPEN DATA: data dictionary (CSV)"),
-        (5, "OPEN DATA - Version 1: Species observations (CSV)"),
-        (9, "OPEN DATA - Version 2: Summary by station by year (CSV)"),
-        (12, "OPEN DATA - Version 3: CAMP samples (CSV)"),
+        (1, "Vehicle / Custodian Report (Excel)"),
     )
 
     report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
-    species = forms.MultipleChoiceField(required=False)
-    ais_species = forms.MultipleChoiceField(required=False, label="AIS species")
-    year = forms.CharField(required=False, widget=forms.NumberInput())
-    site = forms.ChoiceField(required=False)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        SITE_CHOICES = [(obj.id, str(obj)) for obj in models.Site.objects.all()]
-        SITE_CHOICES.insert(0, tuple((None, "All Sites")))
-
-        SPECIES_CHOICES = [(obj.id, str(obj)) for obj in models.Species.objects.all().order_by("common_name_eng")]
-        SPECIES_CHOICES.insert(0, tuple((None, "-------")))
-
-        AIS_CHOICES = [(obj.id, "{} - {}".format(obj.common_name_eng, obj.scientific_name)) for obj in
-                       models.Species.objects.filter(ais=True).order_by("common_name_eng")]
-
-        self.fields['site'].choices = SITE_CHOICES
-        self.fields['species'].choices = SPECIES_CHOICES
-        self.fields['ais_species'].choices = AIS_CHOICES
-
-        # SPECIES_CHOICES = ((None, "---"),)
-        # for obj in models.Species.objects.all().order_by("common_name_eng"):
-        #     SPECIES_CHOICES = SPECIES_CHOICES.__add__(((obj.id, obj),))
-        #
-        # SITE_CHOICES = ((None, "All Stations"),)
-        # for obj in models.Site.objects.all():
-        #     SITE_CHOICES = SITE_CHOICES.__add__(((obj.id, obj),))
