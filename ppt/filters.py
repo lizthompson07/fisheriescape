@@ -10,6 +10,10 @@ from . import utils
 chosen_js = {"class": "chosen-select-contains"}
 
 
+class ProjectYearsInFilter(django_filters.BaseInFilter, django_filters.NumberFilter):
+    pass
+
+
 class StaffFilter(django_filters.FilterSet):
     fiscal_year = django_filters.ChoiceFilter(field_name='project_year__fiscal_year', lookup_expr='exact')
     region = django_filters.ChoiceFilter(field_name="project_year__project__section__division__branch__region", label=_("Region"), lookup_expr='exact')
@@ -72,6 +76,7 @@ class ProjectFilter(django_filters.FilterSet):
 
 class ProjectYearChildFilter(django_filters.FilterSet):
     project_year = django_filters.NumberFilter(field_name='project_year')
+    project_years = ProjectYearsInFilter(field_name='project_year', lookup_expr="in")
     project = django_filters.NumberFilter(field_name='project_year__project')
     year = django_filters.NumberFilter(field_name='project_year__fiscal_year')
     region_name = django_filters.CharFilter(field_name='project_year__project__section__division__branch__region__name', lookup_expr="icontains")

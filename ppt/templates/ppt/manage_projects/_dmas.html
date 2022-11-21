@@ -1,9 +1,9 @@
 {% load i18n %}
 
-<div v-if="showDMAs" class="mt-5">
+<div v-if="showTab.DMAs" class="mt-5">
   <br>
 
-  <div v-if="dma_loading" class="loading mb-3 mt-3 text-center mt-5">
+  <div v-if="tabAPILoading.DMAs" class="loading mb-3 mt-3 text-center mt-5">
     <div class="spinner-border mb-3" style="width: 10rem; height: 10rem;" role="status">
       <span class="sr-only"></span>
     </div>
