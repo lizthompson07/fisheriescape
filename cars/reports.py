@@ -54,12 +54,12 @@ def generate_vehicle_report(qs, site_url):
     my_ws = workbook.add_worksheet(name="report")
     my_ws.write(0, 0, title, title_format)
     my_ws.write_row(2, 0, header, header_format)
+    col_max = [len(str(d)) if len(str(d)) <= 100 else 100 for d in header]
 
     i = 3
     for obj in qs:
         # create the col_max column to store the length of each header
         # should be a maximum column width to 100
-        col_max = [len(str(d)) if len(str(d)) <= 100 else 100 for d in header]
         j = 0
         for field in field_list:
 
