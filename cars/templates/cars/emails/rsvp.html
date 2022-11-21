@@ -32,7 +32,28 @@
       {% verbose_td_display object field %}
     {% endfor %}
   </table>
-  
+
+
+  <div class="mb-3">
+    <p>
+      <b>Here is a list of the surrounding reservations:</b>
+    </p>
+    {% if object.surrounding_rsvps.exists %}
+      <ul>
+        {% for r in object.surrounding_rsvps.all %}
+          <li class="my-2">
+            {{ r.get_status_display }} -->
+            <a target="_blank" href="{% url 'cars:rsvp_detail' r.id %}">{{ r.primary_driver }} ({{ r.date_range }}) </a>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <em>There are no other RSVPs immediately surrounding this reservation.</em>
+    {% endif %}
+  </div>
+
+
+
 {% endlanguage %}
 
 <p>
@@ -44,7 +65,8 @@
 </p>
 {% language 'fr' %}
   <p>
-    Ceci est un message automatisé pour vous informer qu'il y a <a href="{{ SITE_FULL_URL }}{% url 'cars:rsvp_detail' object.id %}"> une nouvelle demande de réservation </a>
+    Ceci est un message automatisé pour vous informer qu'il y a <a href="{{ SITE_FULL_URL }}{% url 'cars:rsvp_detail' object.id %}"> une nouvelle demande de
+    réservation </a>
     pour le {{ object.vehicle }}.
   </p>
   <p>
@@ -55,9 +77,26 @@
       {% verbose_td_display object field %}
     {% endfor %}
   </table>
-  <p>
-  
-  </p>
+
+  <div class="mb-3">
+    <p>
+      <b>Voici une liste des réservations entourant celle-ci:</b>
+    </p>
+    {% if object.surrounding_rsvps.exists %}
+      <ul>
+        {% for r in object.surrounding_rsvps.all %}
+          <li class="my-2">
+            {{ r.get_status_display }} -->
+            <a target="_blank" href="{% url 'cars:rsvp_detail' r.id %}">{{ r.primary_driver }} ({{ r.date_range }}) </a>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <em>Il n'y a pas d'autres réservations entourant cette réservation.</em>
+    {% endif %}
+  </div>
+
+
 {% endlanguage %}
 
 

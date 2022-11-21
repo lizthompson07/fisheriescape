@@ -1,5 +1,8 @@
+from datetime import timedelta
+
 from django.contrib.auth.models import User
 from django.db import models
+from django.db.models import Q
 # Create your models here.
 from django.templatetags.static import static
 from django.urls import reverse
@@ -169,6 +172,24 @@ class Reservation(MetadataFields):
             departure=get_timezone_time(self.end_date).strftime("%Y-%m-%d %H:%M"),
         ))
 
+    @property
+    def date_range(self):
+        return mark_safe(_("{arrival} to {departure}").format(
+            arrival=get_timezone_time(self.start_date).strftime("%Y-%m-%d"),
+            departure=get_timezone_time(self.end_date).strftime("%Y-%m-%d"),
+        ))
+    @property
+    def surrounding_rsvps(self):
+        from cars.utils import is_dt_intersection
+        # give a week buffer on each side of the current rsvp
+        start= self.start_date + timedelta(days=-10)
+        end= self.end_date + timedelta(days=+10)
+        good_ones = list()
+        for r in Reservation.objects.filter(vehicle=self.vehicle).filter(~Q(id=self.id)):
+            if is_dt_intersection(r.start_date, r.end_date, start, end):
+                good_ones.append(r.id)
+        return Reservation.objects.filter(id__in=good_ones).order_by("start_date")
+    
 
 class FAQ(models.Model):
     question_en = models.TextField(blank=True, null=True, verbose_name=_("question (en)"))

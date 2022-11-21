@@ -37,7 +37,7 @@
 
   {% if is_admin or user == object.vehicle.custodian %}
 
-    <div class="card text-dark bg-light mb-3 w-45">
+    <div class="card text-dark bg-light mb-5 w-45">
       <div class="card-header">{% trans "Action Console" %}</div>
       <div class="card-body">
 
@@ -79,13 +79,31 @@
 
         {% endif %}
 
-
       </div>
     </div>
-
-
   {% endif %}
 
+  <div class="mb-3">
+    <h4 class="lead">
+      {% trans "Surounding RSVPs" %}
+    </h4>
+    {% if object.surrounding_rsvps.exists %}
+
+      <ul>
+        {% for r in object.surrounding_rsvps.all %}
+          <li class="my-2">
+            <a target="_blank" href="{% url 'cars:rsvp_detail' r.id %}">
+              {{ r.primary_driver }} ({{ r.date_range }})
+            </a>
+            &rArr;
+            <span class="{{ r.get_status_display|slugify }} p-1">{{ r.get_status_display }}</span>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <em>{% trans "There are no RSVPs immediately surrounding this reservation." %}</em>
+    {% endif %}
+  </div>
 
 
 {% endblock %}

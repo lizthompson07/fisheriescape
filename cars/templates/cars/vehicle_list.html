@@ -4,6 +4,15 @@
 {% load custom_filters %}
 {% load bootstrap5 %}
 
+{% block header %}
+  {{ block.super }}
+  <style>
+  body{
+      background-color: #f3f3f3;
+  }
+  </style>
+{% endblock %}
+
 {% block filter %}
   {% include 'cars/_vehicle_filter.html' %}
 {% endblock %}

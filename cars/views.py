@@ -433,6 +433,7 @@ class ReservationDetailView(CarsBasicMixin, CommonDetailView):
         "arrival_departure|{}".format(gettext_lazy("Arrival/departure")),
         "other_drivers",
         "comments",
+        # "surrounding_rsvps|{}".format(gettext_lazy("Surrounding RSVPs")),
 
     ]
 
