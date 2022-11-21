@@ -432,7 +432,32 @@ var app = new Vue({
       apiService(endpoint1)
           .then(response => {
             this.tabAPILoading.statusReports = false;
-            this.statusReports = response;
+            let nullSr = Object.assign({}, response[0])
+            Object.keys(nullSr).forEach((i) => nullSr[i] = "");
+
+            var uniqueStatusReports = response.reduce(function (outArr, srStep) {
+              // the following is #efficient
+              // Copy the response array, remove the srStep object.
+              let compArray = response.slice(0);
+              let srIndex = compArray.indexOf(srStep);
+              compArray.splice(srIndex, 1);
+              // if the next status report's project year is not found in the response array, or if it has the most
+              // recent created_at date, push the object into the output array
+              if (!compArray.some(function (sr) { return sr.project_year === srStep.project_year && sr.created_at > srStep.created_at})) {
+                  outArr.push(srStep);
+              }
+              return outArr;
+            }, []);
+
+            for (var i = 0; i < this.projectYears.length; i++) {
+              this.projectYears[i].status_report = uniqueStatusReports.find(sr => sr.project_year === this.projectYears[i].id)
+              if (typeof this.projectYears[i].status_report === 'undefined') {
+                this.projectYears[i].has_status_report = false;
+                this.projectYears[i].status_report = nullSr;
+              } else {
+                  this.projectYears[i].has_status_report = true;
+              }
+            }
           })
     },
     getFinancials() {
@@ -673,6 +698,11 @@ var app = new Vue({
               } else if (this.currentSort === "functional_group") {
                   if (a["project"]["functional_group"] < b["project"]["functional_group"]) return -1 * modifier;
                   if (a["project"]["functional_group"] > b["project"]["functional_group"]) return 1 * modifier;
+              } else if (this.currentSort.includes(".")){
+                  let parentKey = this.currentSort.split(".")[0];
+                  let childKey = this.currentSort.split(".")[1];
+                  if (a[parentKey][childKey] < b[parentKey][childKey]) return -1 * modifier;
+                  if (a[parentKey][childKey] > b[parentKey][childKey]) return 1 * modifier;
               } else if (this.projectYears[0][this.currentSort] == null ) {
                   if (a["project"][this.currentSort] < b["project"][this.currentSort]) return -1 * modifier;
                   if (a["project"][this.currentSort] > b["project"][this.currentSort]) return 1 * modifier;

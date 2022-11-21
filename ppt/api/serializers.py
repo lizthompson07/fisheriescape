@@ -586,6 +586,7 @@ class StatusReportSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
     target_completion_date_display = serializers.SerializerMethodField()
+    created_at_display = serializers.SerializerMethodField()
     report_number = serializers.SerializerMethodField()
     status_display = serializers.SerializerMethodField()
     supporting_resources = serializers.SerializerMethodField()
@@ -609,6 +610,10 @@ class StatusReportSerializer(serializers.ModelSerializer):
     def get_target_completion_date_display(self, instance):
         if instance.target_completion_date:
             return instance.target_completion_date.strftime("%Y-%m-%d")
+
+    def get_created_at_display(self, instance):
+        if instance.created_at:
+            return instance.created_at.strftime("%Y-%m-%d")
 
     def get_report_number(self, instance):
         return instance.report_number

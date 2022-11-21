@@ -1,28 +1,92 @@
+{% load verbose_names %}
 {% load i18n %}
+{% load custom_tags %}
+{% load bootstrap4 %}
 
 <div v-if="showTab.statusReports" class="mt-5">
-  <br>
 
-  <div v-if="tabAPILoading.statusReports" class="loading mb-3 mt-3 text-center mt-5">
+  <div v-if="!tabAPILoading.statusReports">
+    <div class="text-center">
+      <p class="font-italic font-weight-bold">${projectYears.length} of ${count} loaded</p>
+    </div>
+  </div>
+
+  <div>
+    <table class="table table-sm">
+      <thead>
+      <tr>
+        <th @click="sort('id')" class="clickable w75">
+          {% trans "Project Id" %}
+        </th>
+        <th @click="sort('fiscal_year')" class="clickable w75">
+          {% trans "Fiscal Year" %}
+        </th>
+        <th @click="sort('title')" class="clickable w75">
+          {% trans "Project Title" %}
+        </th>
+        <th @click="sort('status')" class="clickable w75">
+          {% trans "Project Status" %}
+        </th>
+        <th @click="sort('has_status_report')" class="clickable w75">
+          {% trans "Status Report Done" %}
+        </th>
+        <th @click="sort('status_report.status_display')" class="clickable w75">
+          {% trans "Status" %}
+        </th>
+        <th @click="sort('status_report.excess_funds_amt')" class="clickable w75">
+          {% trans "Unspent Funds Remainin" %}
+        </th>
+        <th @click="sort('status_report.insuficient_funds_amt')" class="clickable w75">
+          {% trans "Additional Funds Requested" %}
+        </th>
+        <th @click="sort('status_report.created_at')" class="clickable w75">
+          {% trans "Status Report Date Created" %}
+        </th>
+
+
+      </tr>
+      </thead>
+      <tbody>
+      <tr
+        v-for="(p, index) in sortedProjectYears"
+        @mouseover="hover = true"
+        @mouseleave="hover = false"
+      >
+        <td>${p.project.id}</td>
+        <td>${p.display_name}</td>
+        <td>
+          <a class="text-primary pointy" @click="goProjectDetail(p)">
+            ${p.project.title}
+          </a>
+        </td>
+        <td><span :class="p.status_class + ' p-1'" v-html="p.status_display"></span></td>
+
+        <td v-if="p.has_status_report">{% trans "Yes" %}</td>
+        <td v-else class="red-font">{% trans "No" %}</td>
+
+        <td v-if="p.status_report">${p.status_report.status_display}</td>
+        <td v-if="p.status_report">${p.status_report.excess_funds_amt}</td>
+        <td v-if="p.status_report">${p.status_report.insuficient_funds_amt}</td>
+        <td v-if="p.status_report">${p.status_report.created_at_display}</td>
+
+      </tr>
+      </tbody>
+    </table>
+  </div>
+
+
+  <div v-if="projects_loading" class="loading mb-3 mt-3 text-center mt-5">
     <div class="spinner-border mb-3" style="width: 10rem; height: 10rem;" role="status">
       <span class="sr-only"></span>
     </div>
   </div>
-  <div v-else class="mt-5">
-    <table class="table table-sm table-bordered">
-      <thead>
-      <tr>
-        <th>{% trans "Id" %}</th>
-        <th>{% trans "Status" %}</th>
-      </tr>
-      </thead>
-      <tbody v-for="(sr, index) in statusReports">
-      <tr>
-        <td>${sr.id}</td>
-        <td>${sr.status_display}</td>
-      </tr>
-
-      </tbody>
-    </table>
+  <div v-else>
+    <div class="text-center">
+      <p class="font-italic font-weight-bold">${projectYears.length} of ${count} loaded</p>
+      <button v-if="next" @click="loadMoreResults" class="btn btn-primary btn-sm">
+        {% trans "Load more results..." %}
+      </button>
+    </div>
   </div>
 </div>
+
