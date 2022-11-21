@@ -43,7 +43,7 @@
         {% for r in object.surrounding_rsvps.all %}
           <li class="my-2">
             {{ r.get_status_display }} -->
-            <a target="_blank" href="{% url 'cars:rsvp_detail' r.id %}">{{ r.primary_driver }} ({{ r.date_range }}) </a>
+            <a target="_blank" href="{% url 'cars:rsvp_detail' r.id %}">{{ r.primary_driver }} - {{ r.destination }} ({{ r.date_range }}) </a>
           </li>
         {% endfor %}
       </ul>
@@ -87,7 +87,7 @@
         {% for r in object.surrounding_rsvps.all %}
           <li class="my-2">
             {{ r.get_status_display }} -->
-            <a target="_blank" href="{% url 'cars:rsvp_detail' r.id %}">{{ r.primary_driver }} ({{ r.date_range }}) </a>
+            <a target="_blank" href="{% url 'cars:rsvp_detail' r.id %}">{{ r.primary_driver }} - {{ r.destination }} ({{ r.date_range }}) </a>
           </li>
         {% endfor %}
       </ul>
