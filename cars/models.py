@@ -130,7 +130,7 @@ class Reservation(MetadataFields):
         (30, "Field Season"),
     )
 
-    vehicle = models.ForeignKey(Vehicle, on_delete=models.DO_NOTHING, blank=True, verbose_name=_("vehicle"), related_name="reservations")
+    vehicle = models.ForeignKey(Vehicle, on_delete=models.CASCADE, blank=True, verbose_name=_("vehicle"), related_name="reservations")
     primary_driver = models.ForeignKey(User, on_delete=models.DO_NOTHING, verbose_name=_("primary driver"), related_name="vehicle_reservations", blank=True)
     start_date = models.DateTimeField(verbose_name=_("departure date"))
     end_date = models.DateTimeField(verbose_name=_("return date"))
