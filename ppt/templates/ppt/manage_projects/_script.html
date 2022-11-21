@@ -35,7 +35,7 @@ var app = new Vue({
         DMAs: false,
         statusReports: false,
     },
-    {# tabAPILoading keys must be in showTab #}
+    // tabAPILoading keys must be in showTab
     tabAPILoading: {
         staffList: true,
         financialSummary: true,
@@ -63,7 +63,6 @@ var app = new Vue({
     staff_level_summary: [],
     staff_funding_summary: [],
     dmas: [],
-    statusReports: [],
     financials: [],
     next: null,
     previous: null,
@@ -437,7 +436,7 @@ var app = new Vue({
 
             var uniqueStatusReports = response.reduce(function (outArr, srStep) {
               // the following is #efficient
-              // Copy the response array, remove the srStep object.
+              // Copy the response array, remove the srStep object from the copy.
               let compArray = response.slice(0);
               let srIndex = compArray.indexOf(srStep);
               compArray.splice(srIndex, 1);
