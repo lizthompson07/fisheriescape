@@ -411,12 +411,15 @@ class ReservationCreateView(CarsBasicMixin, CommonCreateView):
         obj = form.save(commit=False)
         obj.created_by = self.request.user
         obj = form.save(commit=True)
-        email = emails.RSVPEmail(self.request, obj)
-        # send the email object
-        email.send()
-        self.success_url = reverse("cars:vehicle_detail", args=[obj.vehicle.id])
-        return super().form_valid(form)
 
+        if obj.primary_driver != obj.vehicle.custodian:
+            # send the email object
+            email = emails.RSVPEmail(self.request, obj)
+            email.send()
+            self.success_url = reverse("cars:vehicle_detail", args=[obj.vehicle.id])
+        else:
+            self.success_url = reverse("cars:rsvp_detail", args=[obj.id])
+        return super().form_valid(form)
 
 class ReservationDetailView(CarsBasicMixin, CommonDetailView):
     model = models.Reservation
