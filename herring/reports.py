@@ -495,14 +495,14 @@ def generate_hlog(year):
 
         # o) lat
         if sample.latitude_n:
-            my_var = sample.latitude_n[:6]
+            my_var = str(round(sample.latitude_n,6))[:6]
         else:
             my_var = ""
         col_o = str(nz(my_var, "")).rjust(padding_lengths[14])
 
         # p) long
         if sample.longitude_w:
-            my_var = sample.longitude_w[:6]
+            my_var = str(round(sample.longitude_w,6))[:6]
         else:
             my_var = ""
         col_p = str(nz(my_var, "")).rjust(padding_lengths[15])

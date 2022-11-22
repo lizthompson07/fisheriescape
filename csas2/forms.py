@@ -490,7 +490,8 @@ class DocumentForm(forms.ModelForm):
             self.fields["lead_authors"].choices = person_choices
             self.fields["other_authors"].choices = person_choices
             del self.fields["year"]
-            del self.fields["pages"]
+            del self.fields["pages_en"]
+            del self.fields["pages_fr"]
             del self.fields["url_en"]
             del self.fields["url_fr"]
             del self.fields["file_en"]

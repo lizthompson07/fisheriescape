@@ -29,6 +29,7 @@ def get_sample_field_list(sample=None):
 
     my_list = [
         'site',
+        'monitoring_program',
         'arrival_departure|{}'.format(_("arrival / departure")),
         'air_temp|{}'.format(_("air temperature (°C)")),
         'percent_cloud_cover',

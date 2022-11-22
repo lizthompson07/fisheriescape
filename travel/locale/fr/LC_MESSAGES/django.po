@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Travel app\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-10-13 09:34-0300\n"
+"POT-Creation-Date: 2022-11-21 11:11-0400\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -815,12 +815,12 @@ msgid "Cost"
 msgstr "Coût"
 
 #: .\travel\models.py:855
-#: .\travel\templates\travel\common\_request_detail.html:105
+#: .\travel\templates\travel\common\_request_detail.html:109
 msgid "Amount (CAD)"
 msgstr "Montant (CAD)"
 
 #: .\travel\models.py:870
-#: .\travel\templates\travel\common\_request_detail.html:129
+#: .\travel\templates\travel\common\_request_detail.html:133
 msgid "TOTAL"
 msgstr "TOTAL"
 
@@ -1030,7 +1030,7 @@ msgid "Reports"
 msgstr "Rapports"
 
 #: .\travel\templates\travel\common\_costs.html:10
-#: .\travel\templates\travel\common\_request_detail.html:100
+#: .\travel\templates\travel\common\_request_detail.html:104
 msgid "Costs"
 msgstr "Coûts"
 
@@ -1135,7 +1135,7 @@ msgstr "Sauvegarder"
 #: .\travel\templates\travel\common\_trip_admin_notes_button.html:14
 #: .\travel\templates\travel\common\_trip_files.html:64
 #: .\travel\templates\travel\request_form.html:96
-#: .\travel\templates\travel\request_submit.html:53
+#: .\travel\templates\travel\request_submit.html:57
 #: .\travel\templates\travel\trip_reassign_form.html:87
 #: .\travel\templates\travel\trip_reassign_form.html:97
 msgid "Cancel"
@@ -1156,22 +1156,26 @@ msgstr "Ajouter une pièce jointe"
 
 #: .\travel\templates\travel\common\_files.html:11
 #: .\travel\templates\travel\common\_files.html:13
+#: .\travel\templates\travel\common\_request_detail.html:166
 #: .\travel\templates\travel\common\_trip_files.html:11
 #: .\travel\templates\travel\common\_trip_files.html:13
 msgid "File Attachments"
 msgstr "Pièces jointes"
 
 #: .\travel\templates\travel\common\_files.html:42
+#: .\travel\templates\travel\common\_request_detail.html:180
 #: .\travel\templates\travel\common\_trip_files.html:42
 msgid "Open the file"
 msgstr "Ouvrir le fichier"
 
 #: .\travel\templates\travel\common\_files.html:45
+#: .\travel\templates\travel\common\_request_detail.html:183
 #: .\travel\templates\travel\common\_trip_files.html:45
 msgid "missing file"
 msgstr "fichier manquant"
 
 #: .\travel\templates\travel\common\_files.html:79
+#: .\travel\templates\travel\common\_request_detail.html:190
 msgid "No files have been attached to this request"
 msgstr "Aucun fichier n'a été joint à cette demande"
 
@@ -1241,78 +1245,78 @@ msgstr "Notes administratives"
 msgid "Request Summary"
 msgstr "Résumé de la demande"
 
-#: .\travel\templates\travel\common\_request_detail.html:24
+#: .\travel\templates\travel\common\_request_detail.html:26
 msgid "Details"
 msgstr "Les détails"
 
-#: .\travel\templates\travel\common\_request_detail.html:39
+#: .\travel\templates\travel\common\_request_detail.html:41
 #: .\travel\templates\travel\request_list\main.html:68 .\travel\views.py:138
 msgid "Destination"
 msgstr "Destination"
 
-#: .\travel\templates\travel\common\_request_detail.html:43
+#: .\travel\templates\travel\common\_request_detail.html:45
 #: .\travel\templates\travel\common\_trip_detail.html:62
 #: .\travel\templates\travel\trip_list\main.html:60
 #: .\travel\templates\travel\trip_reviewer_list.html:39
 msgid "Dates"
 msgstr "Dates"
 
-#: .\travel\templates\travel\common\_request_detail.html:47
+#: .\travel\templates\travel\common\_request_detail.html:49
 msgid "Number of travellers"
 msgstr "Nombre de voyageurs"
 
-#: .\travel\templates\travel\common\_request_detail.html:51
+#: .\travel\templates\travel\common\_request_detail.html:53
 msgid "Request status"
 msgstr "Statut de la demande"
 
-#: .\travel\templates\travel\common\_request_detail.html:55
+#: .\travel\templates\travel\common\_request_detail.html:57
 #: .\travel\templates\travel\common\_traveller_request_detail.html:12
 msgid "DFO Section"
 msgstr "Section MPO"
 
-#: .\travel\templates\travel\common\_request_detail.html:59
+#: .\travel\templates\travel\common\_request_detail.html:61
 msgid "Objective of trip"
 msgstr "Objectif du voyage"
 
-#: .\travel\templates\travel\common\_request_detail.html:67
+#: .\travel\templates\travel\common\_request_detail.html:69
 msgid "Benefits to DFO"
 msgstr "Avantages pour le MPO"
 
-#: .\travel\templates\travel\common\_request_detail.html:75
+#: .\travel\templates\travel\common\_request_detail.html:77
 msgid "BTA attendees"
 msgstr "Participants avec AGV"
 
-#: .\travel\templates\travel\common\_request_detail.html:79
+#: .\travel\templates\travel\common\_request_detail.html:81
 msgid "Notes"
 msgstr "Notes"
 
-#: .\travel\templates\travel\common\_request_detail.html:87
+#: .\travel\templates\travel\common\_request_detail.html:89
 #: .\travel\templates\travel\request_list\main.html:75 .\travel\views.py:142
 msgid "Processing time"
 msgstr "Temps de traitement"
 
-#: .\travel\templates\travel\common\_request_detail.html:95
+#: .\travel\templates\travel\common\_request_detail.html:97
 msgid "Metadata"
 msgstr "Métadonnées"
 
-#: .\travel\templates\travel\common\_request_detail.html:106
+#: .\travel\templates\travel\common\_request_detail.html:110
 msgid "Funding source(s)"
 msgstr "Source (s) de financement"
 
-#: .\travel\templates\travel\common\_request_detail.html:111
+#: .\travel\templates\travel\common\_request_detail.html:115
 msgid "DFO"
 msgstr "MPO"
 
-#: .\travel\templates\travel\common\_request_detail.html:120
+#: .\travel\templates\travel\common\_request_detail.html:124
 msgid "Non-DFO"
 msgstr "non-MPO"
 
-#: .\travel\templates\travel\common\_request_detail.html:139
+#: .\travel\templates\travel\common\_request_detail.html:144
 #: .\travel\templates\travel\common\_trip_detail.html:143
 msgid "Comparison of Traveller Costs:"
 msgstr "Comparaison des coûts des voyageurs :"
 
-#: .\travel\templates\travel\common\_request_detail.html:150
+#: .\travel\templates\travel\common\_request_detail.html:156
 msgid "Travellers to ${request.trip.tname} from Other Regions:"
 msgstr "Voyageurs à ${request.trip.tname} en provenance d'autres régions:"
 
@@ -1831,7 +1835,7 @@ msgstr "Nouveau examinateur par défaut"
 
 #: .\travel\templates\travel\default_reviewer\default_reviewer_form.html:44
 #: .\travel\templates\travel\request_detail.html:118
-#: .\travel\templates\travel\request_submit.html:52
+#: .\travel\templates\travel\request_submit.html:56
 #: .\travel\templates\travel\trip_reassign_form.html:86
 msgid "Submit"
 msgstr "Soumettre"
@@ -2334,7 +2338,7 @@ msgstr ""
 msgid "Make changes yourself"
 msgstr "Apportez vous-même des changements"
 
-#: .\travel\templates\travel\request_submit.html:19
+#: .\travel\templates\travel\request_submit.html:23
 msgid ""
 "\n"
 "            All the information being submitted in this request has been "
@@ -2346,7 +2350,7 @@ msgstr ""
 "soigneusement examinées avant d'être soumises.\n"
 "          "
 
-#: .\travel\templates\travel\request_submit.html:27
+#: .\travel\templates\travel\request_submit.html:31
 msgid ""
 "\n"
 "            I have done my due diligence to ensure that the regional "
@@ -2364,7 +2368,7 @@ msgstr ""
 "font partie de cette demande.\n"
 "          "
 
-#: .\travel\templates\travel\request_submit.html:36
+#: .\travel\templates\travel\request_submit.html:40
 msgid ""
 "\n"
 "            All costs have been entered in Canadian dollars.\n"
@@ -2374,7 +2378,7 @@ msgstr ""
 "            Tous les coûts ont été inscrits en dollars canadiens.\n"
 "          "
 
-#: .\travel\templates\travel\request_submit.html:43
+#: .\travel\templates\travel\request_submit.html:47
 msgid ""
 "\n"
 "          WARNING: you are about to submit a trip request that has no "

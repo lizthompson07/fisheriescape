@@ -16,7 +16,7 @@ from dm_apps.utils import get_timezone_time
 from lib.functions.custom_functions import listrify
 from lib.templatetags.custom_filters import nz
 from shared_models import models as shared_models
-from shared_models.models import MetadataFields, SimpleLookup, LatLongFields
+from shared_models.models import MetadataFields, SimpleLookup, LatLongFields, Lookup
 from shared_models.utils import remove_nulls
 from trapnet import model_choices
 
@@ -70,6 +70,10 @@ class RiverSite(MetadataFields, LatLongFields):
 
     class Meta:
         ordering = ['river', 'name']
+
+
+class MonitoringProgram(Lookup):
+    pass
 
 
 class LifeStage(CodeModel):
@@ -127,7 +131,9 @@ class Electrofisher(SimpleLookup):
 class Sample(MetadataFields):
     site = models.ForeignKey(RiverSite, related_name='samples', on_delete=models.DO_NOTHING)
     sample_type = models.IntegerField(choices=model_choices.sample_type_choices)
-
+    monitoring_program = models.ForeignKey(MonitoringProgram, on_delete=models.DO_NOTHING, verbose_name=_("monitoring program"),
+                                           help_text=_("The sample was collected under which monitoring program"), related_name="samples", blank=False,
+                                           null=True)
     arrival_date = models.DateTimeField(verbose_name="arrival date/time")
     departure_date = models.DateTimeField(verbose_name="departure date/time")
     samplers = models.TextField(blank=True, null=True)
@@ -448,7 +454,7 @@ class Sample(MetadataFields):
 
 
 class Sweep(MetadataFields):
-    sample = models.ForeignKey(Sample, related_name='sweeps', on_delete=models.DO_NOTHING, editable=False)
+    sample = models.ForeignKey(Sample, related_name='sweeps', on_delete=models.CASCADE, editable=False)
     sweep_number = models.FloatField(verbose_name=_("sweep number"), help_text=_(
         "open sites are always 0.5. Closed sites begin at 0.5, but then are depleted starting at 1, and counting up until depletion is achieved (e.g., 2, 3,...)"))
     sweep_time = models.IntegerField(verbose_name=_("sweep time (seconds)"), help_text=_("in seconds"))

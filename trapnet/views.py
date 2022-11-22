@@ -167,6 +167,20 @@ class FishingAreaHardDeleteView(TrapNetAdminRequiredMixin, CommonHardDeleteView)
     success_url = reverse_lazy("trapnet:manage_fishing_areas")
 
 
+class MonitoringProgramFormsetView(TrapNetAdminRequiredMixin, CommonFormsetView):
+    template_name = 'trapnet/formset.html'
+    h1 = "Manage Monitoring Programs"
+    queryset = models.MonitoringProgram.objects.all()
+    formset_class = forms.MonitoringProgramFormset
+    success_url_name = "trapnet:manage_monitoring_programs"
+    home_url_name = "trapnet:index"
+    delete_url_name = "trapnet:delete_monitoring_program"
+
+class MonitoringProgramHardDeleteView(TrapNetAdminRequiredMixin, CommonHardDeleteView):
+    model = models.MonitoringProgram
+    success_url = reverse_lazy("trapnet:manage_monitoring_programs")
+
+
 # SPECIES #
 ###########
 

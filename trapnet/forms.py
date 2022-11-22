@@ -44,6 +44,7 @@ class SampleForm(forms.ModelForm):
         fields = "__all__"
         widgets = {
             "site": forms.Select(attrs=chosen_js),
+            "monitoring_program": forms.Select(attrs=chosen_js),
             "samplers": forms.Textarea(attrs={"rows": "2", }),
             "notes": forms.Textarea(attrs={"rows": "3", }),
             "time_released": forms.DateTimeInput(attrs={"type": "datetime-local"}, format="%Y-%m-%dT%H:%M:%S"),
@@ -319,5 +320,18 @@ class TrapNetUserForm(forms.ModelForm):
 TrapNetUserFormset = modelformset_factory(
     model=models.TrapNetUser,
     form=TrapNetUserForm,
+    extra=1,
+)
+
+
+class MonitoringProgramForm(forms.ModelForm):
+    class Meta:
+        model = models.MonitoringProgram
+        fields = "__all__"
+
+
+MonitoringProgramFormset = modelformset_factory(
+    model=models.MonitoringProgram,
+    form=MonitoringProgramForm,
     extra=1,
 )

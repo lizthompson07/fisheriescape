@@ -85,14 +85,3 @@
 
 {# <b>TOTAL: {{sum_fish_detail_count}}</b> #}
 
-
-<script type="text/javascript">
-// PREPARE THE STRING TO READ IN THE VIEW AND PASS AS CONTEXT...
-var playbackString = "{{playback_string}}"
-
-console.log(speechSynthesis.getVoices());
-
-$("#read-aloud").click(function () {
-  speak(playbackString);
-})
-</script>

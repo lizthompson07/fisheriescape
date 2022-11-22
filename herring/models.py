@@ -7,6 +7,7 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from herring import flag_definitions
+from lib.templatetags.custom_filters import nz
 from shared_models import models as shared_models
 from shared_models.models import MetadataFields, SimpleLookup
 from shared_models.utils import get_metadata_string
@@ -186,14 +187,10 @@ class Test(models.Model):
 
 class Sample(models.Model):
     # Choices for sample_type
-    PORT = 1
-    SEA = 2
-
     SAMPLE_TYPE_CHOICES = (
-        (PORT, 'Port'),
-        (SEA, 'Sea'),
+        (1, 'Port'),
+        (2, 'Sea'),
     )
-
     season_type_choices = (
         (1, "spring"),
         (2, "fall"),
@@ -234,11 +231,41 @@ class Sample(models.Model):
     length_frequencies = models.ManyToManyField(to=LengthBin, through='LengthFrequency', editable=False)
     lab_processing_complete = models.BooleanField(default=False, editable=False)
     otolith_processing_complete = models.BooleanField(default=False, editable=False)
+    egg_processing_complete = models.BooleanField(default=False, editable=False)
 
     created_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="created_by_samples", editable=False)
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="last_modified_by_samples", editable=False)
     creation_date = models.DateTimeField(auto_now_add=True, editable=False)
     last_modified_date = models.DateTimeField(auto_now=True, editable=False)
+
+    @property
+    def lab_complete_fish(self):
+        return self.fish_details.filter(lab_processed_date__isnull=False)
+
+    @property
+    def oto_complete_fish(self):
+        return self.fish_details.filter(otolith_processed_date__isnull=False)
+
+    @property
+    def egg_complete_fish(self):
+        return self.fish_details.filter(egg_processed_date__isnull=False)
+
+    @property
+    def total_egg_fish(self):
+        return self.fish_details.filter(will_count_eggs=True)
+
+    @property
+    def is_complete(self):
+
+        if not (self.type and self.sample_date and self.sampler and self.sampler_ref_number and self.total_fish_measured and self.total_fish_preserved):
+            return False
+        else:
+            # port sample
+            if self.type == 1:
+                return self.port is not None
+            # sea sample
+            else:
+                return self.survey_id is not None
 
     @property
     def lf_count(self):
@@ -262,29 +289,24 @@ class Sample(models.Model):
 
         # set lab_processing_complete
         ## first test if there are enough or too many fish...
-        if self.fish_details.exists() and not self.fish_details.count() >= self.total_fish_preserved:
-            # then there is no chance for being comeplete
+        fish_count = self.fish_details.all().count()
+
+        if fish_count < nz(self.total_fish_preserved, 0):
+            # then there is no chance for being complete
             self.lab_processing_complete = False
             self.otolith_processing_complete = False
+            self.egg_processing_complete = False
         else:
-            count = 0
-            for fish in self.fish_details.all():
-                if fish.lab_processed_date:
-                    count = count + 1
-            if count == self.total_fish_preserved:
-                self.lab_processing_complete = True
-            else:
-                self.lab_processing_complete = False
-
+            lab_processed_count = self.fish_details.filter(lab_processed_date__isnull=False).count()
+            oto_processed_count = self.fish_details.filter(otolith_processed_date__isnull=False).count()
+            egg_processed_count = self.fish_details.filter(egg_processed_date__isnull=False).count()
+            # set lab_processing_complete
+            self.lab_processing_complete = lab_processed_count == fish_count
             # set otolith_processing_complete
-            count = 0
-            for fish in self.fish_details.all():
-                if fish.otolith_processed_date:
-                    count = count + 1
-            if count == self.total_fish_preserved:
-                self.otolith_processing_complete = True
-            else:
-                self.otolith_processing_complete = False
+            self.otolith_processing_complete = oto_processed_count == fish_count
+            # set egg_processing_complete
+            fish_egg_count = self.fish_details.filter(will_count_eggs=True).count()
+            self.egg_processing_complete = egg_processed_count == fish_egg_count
 
         return super().save(*args, **kwargs)
 
