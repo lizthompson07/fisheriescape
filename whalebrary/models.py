@@ -1,4 +1,5 @@
 import os
+from datetime import timedelta, datetime
 from pathlib import Path
 
 from django.contrib.auth.models import User
@@ -9,6 +10,7 @@ from django.dispatch import receiver
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
+from lib.templatetags.custom_filters import timedelta_duration_days_hours as td
 
 from shared_models.models import LatLongFields, SimpleLookup
 
@@ -524,6 +526,39 @@ class Audit(models.Model):
         # if there is no translated term, just pull from the english field
         else:
             return "{}".format(self.date)
+
+
+class Maintenance(models.Model):
+
+    MAINT_CHOICES = (
+        (1, "Charging"),
+        (2, "Book Inspection"),
+        (3, "Other"),
+    )
+
+    item = models.ForeignKey(Item, on_delete=models.DO_NOTHING, related_name="maintenances", verbose_name=_("item"))
+    maint_type = models.IntegerField(choices=MAINT_CHOICES, verbose_name=_("maintenance type"))
+    schedule = models.DurationField(default=timedelta(days=30), verbose_name=_("maintenance schedule"))
+    assigned_to = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, related_name="assigneds", verbose_name=_("assigned to"))
+    comments = models.TextField(blank=True, null=True, verbose_name=_("comments/details"))
+    last_maint_by = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, related_name="maintainers", verbose_name=_("last maintained by"))
+    last_maint_date = models.DateTimeField(blank=True, null=True, verbose_name="date last maintained")
+
+    def __str__(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("item"))):
+
+            return "{}".format(getattr(self, str(_("item"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            return "{}".format(self.item.item_name)
+
+    @property
+    def days_until_maint(self):
+        date_scheduled = self.last_maint_date + self.schedule
+        today = datetime.now(timezone.utc)
+        time_remaining = date_scheduled - today
+        return td(time_remaining)
 
 
 class Tag(models.Model):

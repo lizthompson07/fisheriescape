@@ -82,6 +82,17 @@ urlpatterns = [
     path('order/<int:order>/received/', views.mark_order_received,
          name="mark_order_received"),
 
+    # MAINTENANCE #
+
+    path('maintenance_list/', views.MaintenanceListView.as_view(), name="maintenance_list"),
+    path('maintenance_detail/<int:pk>/view/', views.MaintenanceDetailView.as_view(), name="maintenance_detail"),
+    path('maintenance/new/', views.MaintenanceCreateView.as_view(), name="maintenance_new"),
+    path('item/<int:pk>/maintenance/new/', views.MaintenanceCreateView.as_view(), name="maintenance_new"),
+    path('maintenance/<int:pk>/edit/', views.MaintenanceUpdateView.as_view(), name="maintenance_edit"),
+    path('maintenance/<int:pk>/edit/pop/<int:pop>/', views.MaintenanceUpdatePopoutView.as_view(), name="maintenance_edit"),
+    path('maintenance/<int:pk>/delete/pop/<int:pop>/', views.MaintenanceDeletePopoutView.as_view(), name="maintenance_delete"),
+    path('maintenance/<int:pk>/delete/', views.MaintenanceDeleteView.as_view(), name="maintenance_delete"),
+    path('maintenance/<int:maintenance>/complete/', views.mark_maintenance_done, name="mark_maintenance_done"),
 
     # LOCATION #
 
