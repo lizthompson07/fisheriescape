@@ -87,7 +87,7 @@ def run_river_checks():
                     models.RiverSite.objects.create(**kwargs)
 
 
-def add_note(notes, key, value):
+def add_note(notes, key, value=None):
     mystr = str()
     if len(notes):
         mystr += "\n\n"
@@ -280,46 +280,43 @@ def run_process_samples():
                             # get a list of sweep times and figure out where to draw a line with respect to seconds vs. minutes
                             # sweeps_times = [s.sweep_time for s in models.Sweep.objects.all().order_by("sweep_time")]
                             # based on the histograms of sweep times, it seems like drawing the line at 100 would be reasonable
-                            # but this operation should only be applied to early sweeps (0, 0.5 and 1)
+                            # but the decision of whether this operation should be applied, should only be assessed based on early sweeps (0, 0.5 and 1)
+                            time_dict = {
+                                0:"SWEEP0_TIME",
+                                0.5:"SWEEP0_5_TIME",
+                                1:"SWEEP1_TIME",
+                                2:"SWEEP2_TIME",
+                                3:"SWEEP3_TIME",
+                                4:"SWEEP4_TIME",
+                                5:"SWEEP5_TIME",
+                                6:"SWEEP6_TIME",
+                            }
+                            sweep_keys = [time_dict[key] for key in time_dict]
 
-                            if r["SWEEP0_TIME"]:
-                                time = r["SWEEP0_TIME"]
+                            # start out assuming time is recorded in seconds
+                            time_in_minutes = False
+                            for sweep_number in time_dict:
+                                sweep_key = time_dict[sweep_number]
+                                # first rule of the NoneObjects
+                                if r[sweep_key]:
+                                    time = int(r[sweep_key])
+                                    # next rule out any negative times
+                                    if time > 0:
+                                        notes = str()
+                                        # do the test to see if we should convert to minutes
+                                        if not time_in_minutes and (sweep_key in sweep_keys[:3]) and (time < 100):
+                                            time_in_minutes = True
+                                            notes = add_note(notes, "sweep time value from mastersheet multiplied by 60")
+                                        # if this is sweep 0, there is a special note to be added
+                                        if sweep_key == sweep_keys[0]:
+                                            notes = add_note(notes, "sweep number zero used as there is missing information about sampling protocol.")
 
-                                if time and time < 100:
-                                    time = time * 60
-                                    notes = "sweep time multiplied by 60; sweep number zero used as there is missing information about sampling protocol."
-                                models.Sweep.objects.create(sample=sample, sweep_number=0, sweep_time=time,
-                                                            notes=notes)
-
-                            if r["SWEEP0_5_TIME"]:
-                                time = r["SWEEP0_5_TIME"]
-                                models.Sweep.objects.create(sample=sample, sweep_number=0.5, sweep_time=time)
-
-                            if r["SWEEP1_TIME"]:
-                                time = r["SWEEP1_TIME"]
-                                models.Sweep.objects.create(sample=sample, sweep_number=1, sweep_time=time)
-
-                            if r["SWEEP2_TIME"]:
-                                time = r["SWEEP2_TIME"]
-                                models.Sweep.objects.create(sample=sample, sweep_number=2, sweep_time=time)
-
-                            if r["SWEEP3_TIME"]:
-                                time = r["SWEEP3_TIME"]
-                                models.Sweep.objects.create(sample=sample, sweep_number=3, sweep_time=time)
-
-                            if r["SWEEP4_TIME"]:
-                                time = r["SWEEP4_TIME"]
-                                models.Sweep.objects.create(sample=sample, sweep_number=4, sweep_time=time)
-
-                            if r["SWEEP5_TIME"]:
-                                time = r["SWEEP5_TIME"]
-                                models.Sweep.objects.create(sample=sample, sweep_number=5, sweep_time=time)
-
-                            if r["SWEEP6_TIME"]:
-                                time = r["SWEEP6_TIME"]
-                                models.Sweep.objects.create(sample=sample, sweep_number=6, sweep_time=time)
-
-
+                                        models.Sweep.objects.create(
+                                            sample=sample,
+                                            sweep_number=sweep_number,
+                                            sweep_time=time if not time_in_minutes else time*60,
+                                            notes=notes if len(notes) else None,
+                                        )
 
 
 def make_histo():
