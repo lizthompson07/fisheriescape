@@ -387,6 +387,17 @@ class ItemDetailView(WhalebraryAccessRequired, CommonDetailView):
 
         ]
 
+        # context for _maintenance.html
+        context["random_maint"] = models.Maintenance.objects.first()
+        context["maint_field_list"] = [
+            'id',
+            'maint_type',
+            'assigned_to',
+            'last_maint_date',
+            'days_until_maint|Days until maintenance required',
+
+        ]
+
         # context for _lending.html
         context["random_lend"] = models.Transaction.objects.first()
         context["lend_field_list"] = [
@@ -1063,6 +1074,166 @@ class OrderDeleteView(WhalebraryEditRequiredMixin, CommonDeleteView):
 class OrderDeletePopoutView(WhalebraryEditRequiredMixin, CommonPopoutDeleteView):
     model = models.Order
     delete_protection = False
+
+    ## MAINTENANCE ##
+
+
+class MaintenanceListView(WhalebraryAccessRequired, CommonFilterView):
+    template_name = "whalebrary/maintenance_list.html"
+    h1 = "Maintenance List"
+    filterset_class = filters.MaintenanceFilter
+    home_url_name = "whalebrary:index"
+    row_object_url_name = "whalebrary:maintenance_detail"
+    new_btn_text = "New Maintenance Record"
+
+    queryset = models.Maintenance.objects.annotate(
+        search_term=Concat('id', 'item__item_name', 'maint_type', 'schedule', 'assigned_to', 'comments',
+                           'last_maint_by', 'last_maint_date',
+                           output_field=TextField()))
+
+    field_list = [
+        {"name": 'id', "class": "", "width": ""},
+        {"name": 'item', "class": "", "width": ""},
+        {"name": 'maint_type', "class": "", "width": ""},
+        {"name": 'schedule', "class": "", "width": ""},
+        {"name": 'assigned_to', "class": "", "width": ""},
+        {"name": 'comments', "class": "", "width": ""},
+        {"name": 'last_maint_by', "class": "", "width": ""},
+        {"name": 'last_maint_date', "class": "", "width": ""},
+        {"name": 'days_until_maint|Days until maintenance required', "class": "", "width": ""},
+
+    ]
+
+    def get_new_object_url(self):
+        return reverse("whalebrary:maintenance_new", kwargs=self.kwargs)
+
+
+class MaintenanceDetailView(WhalebraryAccessRequired, CommonDetailView):
+    model = models.Maintenance
+    field_list = [
+        'id',
+        'item',
+        'maint_type',
+        'schedule',
+        'assigned_to',
+        'comments',
+        'last_maint_by',
+        'last_maint_date',
+
+    ]
+    home_url_name = "whalebrary:index"
+
+    # def get_h1(self):
+    #     order_num = models.Order.objects.get(pk=self.kwargs.get('pk'))
+    #     h1 = _("Order # ") + f' {str(order_num)}'
+    #     return h1
+
+    def get_parent_crumb(self):
+        return {"title": gettext_lazy("Maintenance List"), "url": reverse_lazy("whalebrary:maintenance_list")}
+
+    # def get_parent_crumb(self):
+    #     parent_crumb_url = ""
+    #     return {"title": self.get_object(), "url": parent_crumb_url}
+
+
+class MaintenanceUpdateView(WhalebraryEditRequiredMixin, CommonUpdateView):
+    model = models.Maintenance
+    form_class = forms.MaintenanceForm
+    home_url_name = "whalebrary:index"
+    template_name = "whalebrary/form.html"
+    cancel_text = _("Cancel")
+
+    # def get_h1(self):
+    #     order_num = models.Maintenance.objects.get(pk=self.kwargs.get('pk'))
+    #     h1 = _("Order # ") + f' {str(order_num)}'
+    #     return h1
+
+    def get_parent_crumb(self):
+        return {"title": str(self.get_h1()),
+                "url": reverse_lazy("whalebrary:maintenance_detail", kwargs=self.kwargs)}
+
+    def get_grandparent_crumb(self):
+        return {"title": _("Maintenance List"), "url": reverse("whalebrary:maintenance_list")}
+
+    def form_valid(self, form):
+        my_object = form.save()
+        messages.success(self.request, _(f"Maintenance record successfully updated for : {my_object}"))
+        return HttpResponseRedirect(reverse("whalebrary:maintenance_detail", kwargs=self.kwargs))
+
+
+class MaintenanceUpdatePopoutView(WhalebraryEditRequiredMixin, CommonPopoutUpdateView):
+    model = models.Maintenance
+    form_class = forms.MaintenanceForm1
+
+
+# TODO Figure out how to have it only create once the form is saved - confirmation html step?
+
+
+def mark_maintenance_done(request, maintenance):
+    """function to log that a new maintenance has been completed"""
+    # put in check to see if user wants to do this, javascript
+    # XYZ
+
+    # record logged in user and today's date
+    my_maintenance = models.Maintenance.objects.get(pk=maintenance)
+    my_user = request.user
+    my_maintenance.last_maint_date = timezone.now()
+    my_maintenance.last_maint_by = my_user
+    my_maintenance.save()
+    messages.success(request, "New maintenance completed!")
+
+    return HttpResponseRedirect(reverse_lazy('shared_models:close_me'))
+
+#
+# class OrderReceivedTransactionUpdateView(WhalebraryEditRequiredMixin, CommonPopoutUpdateView):
+#     model = models.Transaction
+#     form_class = forms.TransactionForm2
+
+
+class MaintenanceCreateView(WhalebraryEditRequiredMixin, CommonCreateView):
+    model = models.Maintenance
+    home_url_name = "whalebrary:index"
+    parent_crumb = {"title": gettext_lazy("Maintenance List"), "url": reverse_lazy("whalebrary:maintenance_list")}
+
+    def get_template_names(self):
+        return "shared_models/generic_popout_form.html" if self.kwargs.get("pk") else "whalebrary/form.html"
+
+    def get_form_class(self):
+        return forms.MaintenanceForm1 if self.kwargs.get("pk") else forms.MaintenanceForm
+
+    def form_valid(self, form):
+        my_object = form.save()
+        messages.success(self.request, _(f"Maintenance record successfully created for : Item # {str(my_object)}"))
+
+        # if there's a pk argument, this means user is calling from item_detail page and
+        if self.kwargs.get("pk"):
+            my_item = models.Item.objects.get(pk=self.kwargs.get("pk"))
+            my_item.maintenaces.add(my_object)
+            return HttpResponseRedirect(reverse_lazy('shared_models:close_me'))
+        else:
+            return HttpResponseRedirect(reverse_lazy('whalebrary:maintenance_list'))
+
+    def get_initial(self):
+        return {'item': self.kwargs.get('pk')}
+
+
+class MaintenanceDeleteView(WhalebraryEditRequiredMixin, CommonDeleteView):
+    model = models.Maintenance
+    permission_required = "__all__"
+    success_url = reverse_lazy('whalebrary:maintenance_list')
+    template_name = 'whalebrary/confirm_delete.html'
+    home_url_name = "whalebrary:index"
+    grandparent_crumb = {"title": gettext_lazy("Maintenance List"), "url": reverse_lazy("whalebrary:maintenance_list")}
+
+    def get_parent_crumb(self):
+        return {"title": str(self.get_object()),
+                "url": reverse_lazy("whalebrary:maintenance_detail", kwargs=self.kwargs)}
+
+
+class MaintenanceDeletePopoutView(WhalebraryEditRequiredMixin, CommonPopoutDeleteView):
+    model = models.Maintenance
+    delete_protection = False
+
 
     ## PERSONNEL ##
 

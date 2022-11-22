@@ -1,5 +1,6 @@
 from django import forms
 from django.forms import modelformset_factory
+from durationwidget.widgets import TimeDurationWidget
 
 from . import models
 
@@ -93,6 +94,43 @@ class OrderForm1(forms.ModelForm):
                 attrs={"class": "not-a-group-field fp-date", "placeholder": "Click to select a date.."}),
             'date_received': forms.HiddenInput(),
             'transaction': forms.HiddenInput(),
+        }
+
+
+class MaintenanceForm(forms.ModelForm):
+
+    schedule = forms.DurationField(widget=TimeDurationWidget(
+        show_days=True,
+        show_hours=True,
+        show_minutes=False,
+        show_seconds=False),
+        required=False)
+
+    class Meta:
+        model = models.Maintenance
+        fields = "__all__"
+        widgets = {
+            'last_maint_date': forms.DateInput(
+                attrs={"class": "not-a-group-field fp-date", "placeholder": "Click to select a date.."}),
+        }
+
+
+class MaintenanceForm1(forms.ModelForm):
+
+    schedule = forms.DurationField(widget=TimeDurationWidget(
+        show_days=True,
+        show_hours=True,
+        show_minutes=False,
+        show_seconds=False),
+        required=False)
+
+    class Meta:
+        model = models.Maintenance
+        fields = "__all__"
+        widgets = {
+            'item': forms.HiddenInput(),
+            'last_maint_date': forms.DateInput(
+                attrs={"class": "not-a-group-field fp-date", "placeholder": "Click to select a date.."}),
         }
 
 
