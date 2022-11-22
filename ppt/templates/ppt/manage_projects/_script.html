@@ -26,7 +26,22 @@ var app = new Vue({
     errorNoFiscalYear: false,
     loadingReport: false,
 
-    showProjectList: true,
+    showTab: {
+        projectList: true,
+        staffList: false,
+        financialSummary: false,
+        reviews: false,
+        approvals: false,
+        DMAs: false,
+        statusReports: false,
+    },
+    // tabAPILoading keys must be in showTab
+    tabAPILoading: {
+        staffList: true,
+        financialSummary: true,
+        DMAs: true,
+        statusReports: false,
+    },
     showStaffList: false,
     showFinancialSummary: false,
     showReviews: false,
@@ -38,11 +53,8 @@ var app = new Vue({
     currentSortTable: "",
 
     projects_loading: true,
-    staff_loading: true,
-    dma_loading: true,
     errorTooBigStaff: false,
     errorTooSmallStaff: false,
-    financial_loading: true,
     errorTooBigFinancial: false,
     errorTooSmallFinancial: false,
     projectYears: [],
@@ -238,6 +250,11 @@ var app = new Vue({
       if (this.filter.section) endpoint += `project__section=${this.filter.section}&`;
       return endpoint
     },
+    getStatusReportFilterString() {
+      let endpoint = "";
+      if (this.project_year_id_list) endpoint += `project_years=${this.project_year_id_list}&`;
+      return endpoint
+    },
     getProjectYearsEndpoint(pageSize = 25) {
       endpoint = `/api/ppt/project-years/`;
       // apply filters
@@ -248,6 +265,12 @@ var app = new Vue({
       endpoint = `/api/ppt/dmas/`;
       // apply filters
       endpoint += `?page_size=${pageSize}&` + this.getDMAFilterString()
+      return endpoint
+    },
+    getStatusReportEndpoint(pageSize = 25) {
+      endpoint = `/api/ppt/status-reports/`;
+      // apply filters
+      endpoint += `?page_size=${pageSize}&` + this.getStatusReportFilterString()
       return endpoint
     },
     getProjectYears(endpoint, pageSize = 25) {
@@ -261,9 +284,11 @@ var app = new Vue({
               this.next = response.next;
               this.previous = response.previous;
               this.count = response.count;
-              this.getStaff()
-              this.getFinancials()
-              this.getDMAs()
+              // make all tabs reload with new list
+              for (const tabLoadingKey in this.tabAPILoading) {
+                this.tabAPILoading[tabLoadingKey] = true;
+              }
+              this.loadActiveTab();
             }
           })
     },
@@ -273,113 +298,6 @@ var app = new Vue({
           this.$set(this.projectYears, this.projectYears.indexOf(p), response)
         }
       })
-    },
-    changeTabs(name) {
-      this.showProjectList = false;
-      this.showStaffList = false;
-      this.showFinancialSummary = false;
-      this.showReviews = false;
-      this.showApprovals = false;
-      this.showDMAs = false;
-      if (name === "project") this.showProjectList = true;
-      else if (name === "staff") this.showStaffList = true;
-      else if (name === "financial") this.showFinancialSummary = true;
-      else if (name === "reviews") this.showReviews = true;
-      else if (name === "approvals") this.showApprovals = true;
-      else if (name === "dmas") this.showDMAs = true;
-    },
-    getStaff() {
-      this.staff_loading = true;
-      this.errorTooBigStaff = false
-      this.errorTooSmallStaff = false
-      this.errorNoFiscalYear = false
-      if (!this.filter.fiscal_year) {
-        this.staff_loading = false;
-        this.errorNoFiscalYear = true;
-      } else if (!this.projectYears.length) {
-        this.staff_loading = false;
-        this.errorTooSmallStaff = true;
-      } else if (this.count > 150) {
-        this.staff_loading = false;
-        this.errorTooBigStaff = true;
-      } else {
-        // first get the full list of project years
-        let endpoint1 = this.getProjectYearsEndpoint(pageSize = 150)
-        apiService(endpoint1)
-            .then(response => {
-              if (response.results) {
-                if (response.next) {
-                  this.errorTooBigStaff = true
-                } else {
-
-                  // need a list of projectYears
-                  pyIds = []
-                  for (var i = 0; i < response.results.length; i++) {
-                    pyIds.push(response.results[i].id)
-                  }
-
-                  let endpoint2 = `/api/ppt/staffing/?year=${this.filter.fiscal_year}&ids=${pyIds}`;
-                  apiService(endpoint2)
-                      .then(response => {
-                        this.staff_loading = false;
-                        this.staff = response.results;
-                        this.staff_level_summary = response.level_summary;
-                        this.staff_type_summary = response.type_summary;
-                        this.staff_funding_summary = response.funding_summary;
-                      })
-                }
-              }
-
-            })
-      }
-    },
-    getDMAs() {
-      this.dma_loading = true;
-      // first get the full list of project years
-      let endpoint1 = this.getDMAEndpoint()
-      apiService(endpoint1)
-          .then(response => {
-            this.dma_loading = false;
-            this.dmas = response;
-          })
-    },
-    getFinancials() {
-      this.financial_loading = true;
-      this.errorTooBigFinancial = false
-      this.errorTooSmallFinancial = false
-
-      if (!this.projectYears.length) {
-        this.financial_loading = false;
-        this.errorTooSmallFinancial = true;
-      } else if (this.count > 200) {
-        this.financial_loading = false;
-        this.errorTooBigFinancial = true;
-      } else {
-        // first get the full list of project years
-        let endpoint1 = this.getProjectYearsEndpoint(pageSize = 200)
-        apiService(endpoint1)
-            .then(response => {
-              if (response.results) {
-
-                if (response.next) {
-                  this.errorTooBigFinancial = true
-                } else {
-                  // need a list of projectYears
-                  pyIds = []
-                  for (var i = 0; i < response.results.length; i++) {
-                    pyIds.push(response.results[i].id)
-                  }
-                  let endpoint2 = `/api/ppt/financials/?ids=${pyIds}`;
-                  apiService(endpoint2)
-                      .then(response => {
-                        this.financial_loading = false;
-                        this.financials = response;
-                      })
-                }
-              }
-
-            })
-      }
     },
     submitProjectYear(projectYear, action) {
       if (action === "submit" || action === "unsubmit") {
@@ -425,6 +343,159 @@ var app = new Vue({
       this.clearProjectYears();
       this.getProjectYears();
       this.getFilterData();
+    },
+    changeTabs(name) {
+      for (const showTabKey in this.showTab) {
+        this.showTab[showTabKey] = false;
+      }
+      if (name === "project") this.showTab.projectList = true;
+      else if (name === "staff") this.showTab.staffList = true;
+      else if (name === "financial") this.showTab.financialSummary = true;
+      else if (name === "reviews") this.showTab.reviews = true;
+      else if (name === "approvals") this.showTab.approvals = true;
+      else if (name === "dmas") this.showTab.DMAs = true;
+      else if (name === "statusReports") this.showTab.statusReports = true;
+      this.loadActiveTab();
+    },
+
+    loadActiveTab(){
+      for (const tabKey in this.showTab) {
+          if (this.showTab[tabKey] && this.tabAPILoading[tabKey]) {
+              if (tabKey === "staffList"){ this.getStaff() }
+              if (tabKey === "financialSummary"){ this.getFinancials() }
+              if (tabKey === "DMAs"){ this.getDMAs() }
+              if (tabKey === "statusReports"){
+                  this.getStatusReports()
+              }
+          }
+      }
+    },
+
+    getStaff() {
+      this.tabAPILoading.staffList = true;
+      this.errorTooBigStaff = false
+      this.errorTooSmallStaff = false
+      this.errorNoFiscalYear = false
+      if (!this.filter.fiscal_year) {
+        this.tabAPILoading.staffList = false;
+        this.errorNoFiscalYear = true;
+      } else if (!this.projectYears.length) {
+        this.tabAPILoading.staffList = false;
+        this.errorTooSmallStaff = true;
+      } else if (this.count > 150) {
+        this.tabAPILoading.staffList = false;
+        this.errorTooBigStaff = true;
+      } else {
+        // first get the full list of project years
+        let endpoint1 = this.getProjectYearsEndpoint(pageSize = 150)
+        apiService(endpoint1)
+            .then(response => {
+              if (response.results) {
+                if (response.next) {
+                  this.errorTooBigStaff = true
+                } else {
+
+                  // need a list of projectYears
+                  pyIds = []
+                  for (var i = 0; i < response.results.length; i++) {
+                    pyIds.push(response.results[i].id)
+                  }
+
+                  let endpoint2 = `/api/ppt/staffing/?year=${this.filter.fiscal_year}&ids=${pyIds}`;
+                  apiService(endpoint2)
+                      .then(response => {
+                        this.tabAPILoading.staffList = false;
+                        this.staff = response.results;
+                        this.staff_level_summary = response.level_summary;
+                        this.staff_type_summary = response.type_summary;
+                        this.staff_funding_summary = response.funding_summary;
+                      })
+                }
+              }
+
+            })
+      }
+    },
+    getDMAs() {
+      this.tabAPILoading.DMAs = true;
+      let endpoint1 = this.getDMAEndpoint()
+      apiService(endpoint1)
+          .then(response => {
+            this.tabAPILoading.DMAs = false;
+            this.dmas = response;
+          })
+    },
+    getStatusReports() {
+      this.tabAPILoading.statusReports = true;
+      let endpoint1 = this.getStatusReportEndpoint()
+      apiService(endpoint1)
+          .then(response => {
+            this.tabAPILoading.statusReports = false;
+            let nullSr = Object.assign({}, response[0])
+            Object.keys(nullSr).forEach((i) => nullSr[i] = "");
+
+            var uniqueStatusReports = response.reduce(function (outArr, srStep) {
+              // the following is #efficient
+              // Copy the response array, remove the srStep object from the copy.
+              let compArray = response.slice(0);
+              let srIndex = compArray.indexOf(srStep);
+              compArray.splice(srIndex, 1);
+              // if the next status report's project year is not found in the response array, or if it has the most
+              // recent created_at date, push the object into the output array
+              if (!compArray.some(function (sr) { return sr.project_year === srStep.project_year && sr.created_at > srStep.created_at})) {
+                  outArr.push(srStep);
+              }
+              return outArr;
+            }, []);
+
+            for (var i = 0; i < this.projectYears.length; i++) {
+              this.projectYears[i].status_report = uniqueStatusReports.find(sr => sr.project_year === this.projectYears[i].id)
+              if (typeof this.projectYears[i].status_report === 'undefined') {
+                this.projectYears[i].has_status_report = false;
+                this.projectYears[i].status_report = nullSr;
+              } else {
+                  this.projectYears[i].has_status_report = true;
+              }
+            }
+          })
+    },
+    getFinancials() {
+      this.tabAPILoading.financialSummary = true;
+      this.errorTooBigFinancial = false
+      this.errorTooSmallFinancial = false
+
+      if (!this.projectYears.length) {
+        this.tabAPILoading.financialSummary = false;
+        this.errorTooSmallFinancial = true;
+      } else if (this.count > 200) {
+        this.tabAPILoading.financialSummary = false;
+        this.errorTooBigFinancial = true;
+      } else {
+        // first get the full list of project years
+        let endpoint1 = this.getProjectYearsEndpoint(pageSize = 200)
+        apiService(endpoint1)
+            .then(response => {
+              if (response.results) {
+
+                if (response.next) {
+                  this.errorTooBigFinancial = true
+                } else {
+                  // need a list of projectYears
+                  pyIds = []
+                  for (var i = 0; i < response.results.length; i++) {
+                    pyIds.push(response.results[i].id)
+                  }
+                  let endpoint2 = `/api/ppt/financials/?ids=${pyIds}`;
+                  apiService(endpoint2)
+                      .then(response => {
+                        this.tabAPILoading.financialSummary = false;
+                        this.financials = response;
+                      })
+                }
+              }
+
+            })
+      }
     },
     openReviewModal(projectYear, which = "review") {
       this.projectYear2Review = projectYear;
@@ -626,6 +697,11 @@ var app = new Vue({
               } else if (this.currentSort === "functional_group") {
                   if (a["project"]["functional_group"] < b["project"]["functional_group"]) return -1 * modifier;
                   if (a["project"]["functional_group"] > b["project"]["functional_group"]) return 1 * modifier;
+              } else if (this.currentSort.includes(".")){
+                  let parentKey = this.currentSort.split(".")[0];
+                  let childKey = this.currentSort.split(".")[1];
+                  if (a[parentKey][childKey] < b[parentKey][childKey]) return -1 * modifier;
+                  if (a[parentKey][childKey] > b[parentKey][childKey]) return 1 * modifier;
               } else if (this.projectYears[0][this.currentSort] == null ) {
                   if (a["project"][this.currentSort] < b["project"][this.currentSort]) return -1 * modifier;
                   if (a["project"][this.currentSort] > b["project"][this.currentSort]) return 1 * modifier;
@@ -695,6 +771,26 @@ var app = new Vue({
                 if (a[this.currentSort] > b[this.currentSort]) return 1 * modifier;
                 return 0;
             });
+        }
+    },
+
+    console_loading() {
+        if (this.projects_loading) {
+            return true;
+        } else {
+            for (const showTabKey in this.showTab) {
+              if (this.showTab[showTabKey] && this.tabAPILoading[showTabKey]) {
+                  return true;
+              }
+            }
+          return false;
+        }
+    },
+    project_year_id_list() {
+        if (this.projectYears) {
+            return this.projectYears.map(py => py.id)
+        } else {
+            return []
         }
     },
 
