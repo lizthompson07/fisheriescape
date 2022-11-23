@@ -215,7 +215,6 @@ class ManageProjectsTemplateView(ManagerOrAdminRequiredMixin, CommonTemplateView
         context["salary_allocation_form"] = forms.SalaryAllocationForm
         context["om_allocation_form"] = forms.OMAllocationForm
         context["review_score_rubric"] = json.dumps(get_review_score_rubric())
-        context["short_fie"] = json.dumps(get_review_score_rubric())
         context["short_field_list"] = [
             'id',
             'fiscal year',
