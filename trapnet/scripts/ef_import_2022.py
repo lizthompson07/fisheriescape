@@ -366,7 +366,6 @@ def run_process_fish():
 
     life_stage_lookup = get_life_stage_lookup()
     models.Observation.objects.filter(old_id__istartswith="gd").delete()
-    i = 0
 
     with open(os.path.join(rootdir, 'problematic_fish_data.csv'), 'w') as wf:
         writer = csv.writer(wf, delimiter=',', lineterminator='\n')
@@ -376,7 +375,7 @@ def run_process_fish():
 
         with open(os.path.join(rootdir, 'fish_data.csv'), 'r') as f:
             csv_reader = csv.DictReader(f)
-            writer.writerow(list(csv_reader.fieldnames) + ["DESCRIPTION OF PROBLEM"])
+            writer.writerow(list(csv_reader.fieldnames) + ["PROBLEM CODE", "DESCRIPTION OF PROBLEM", "GD_SAMPLE_ID", "WAS_IMPORTED"])
             with alive_bar(row_count, force_tty=True) as bar:  # declare your expected total
                 for r in csv_reader:
                     # clean the row
@@ -408,99 +407,109 @@ def run_process_fish():
                                 river__fishing_area__name__iexact=sfa,
                             )
                             if not qs.exists():
-                                writer.writerow([r[key] for key in r] + [f"There is no record of site '{r['SITE']}' in {sfa}"])
+                                writer.writerow([r[key] for key in r] + [1, f"There is no record of site '{r['SITE']}' in {sfa}", "", 0])
                             else:
-                                writer.writerow([r[key] for key in r] + [
-                                    f"There is no record of site '{r['SITE']}' in {sfa} being sampled on {start_date.strftime('%Y-%m-%d')}"])
+                                writer.writerow([r[key] for key in r] + [2,
+                                                                         f"There is no record of site '{r['SITE']}' in {sfa} being sampled on {start_date.strftime('%Y-%m-%d')}"])
 
                         elif qs.count() > 1:
-                            writer.writerow([r[key] for key in r] + ["There is more than one site with same name being sampled on the same date!"])
+                            writer.writerow([r[key] for key in r] + [3, "There is more than one site with same name being sampled on the same date!", "", 0])
 
                         else:
                             sample = qs.first()
                             # Now to deal with the sweep
                             sweep_number = r["SWEEP_NUMBER"]
                             if not sweep_number:
-                                writer.writerow([r[key] for key in r] + ["This observation has no sweep number"])
+                                writer.writerow([r[key] for key in r] + [4, "This observation has no sweep number", sample.old_id, 0])
                             else:
                                 sweep_number = float(sweep_number)
                                 sweeps = sample.sweeps.filter(sweep_number=sweep_number)
                                 if not sweeps.exists():
-                                    sweep = models.Sweep.objects.create(sample=sample, sweep_number=sweep_number, sweep_time=0)
+                                    # here we need to add some complicated logic
+                                    if sweep_number == 0:
+                                        writer.writerow(
+                                            [r[key] for key in r] + [5, "sweep number is zero and there is no corresponding sweep time in the site data",
+                                                                     sample.old_id, 0])
+                                        sweep = None
+                                    else:
+                                        sweep = models.Sweep.objects.create(sample=sample, sweep_number=sweep_number, sweep_time=0)
+                                        writer.writerow([r[key] for key in r] + [6, "no corresponding sweep time in the site data", sample.old_id, 1])
                                 else:
                                     # cannot be more than one sweep per sample with the same number because of the unique_together constraint
                                     sweep = sweeps.first()
 
-                                # get the species
-                                try:
-                                    species = models.Species.objects.get(tsn=r["SPECIES_ITIS_CODE"])
-                                except models.Species.DoesNotExist:
-                                    writer.writerow([r[key] for key in r] + [f"Cannot find species with TSN {r['SPECIES_ITIS_CODE']} in db"])
-                                else:
-                                    # life stage
-                                    life_stage = life_stage_lookup.get(int(r['SPECIES_LIFE_STAGE']))
-                                    if life_stage:
-                                        life_stage = models.LifeStage.objects.get(code__iexact=life_stage)
+                                if sweep:
+                                    # get the species
+                                    try:
+                                        species = models.Species.objects.get(tsn=r["SPECIES_ITIS_CODE"])
+                                    except models.Species.DoesNotExist:
+                                        writer.writerow(
+                                            [r[key] for key in r] + [7, f"Cannot find species with TSN {r['SPECIES_ITIS_CODE']} in db", sample.old_id, 1])
+                                    else:
+                                        # life stage
+                                        life_stage = life_stage_lookup.get(int(r['SPECIES_LIFE_STAGE']))
+                                        if life_stage:
+                                            life_stage = models.LifeStage.objects.get(code__iexact=life_stage)
 
-                                    # status
-                                    status = r['FISH_STATUS']
-                                    if status:
-                                        try:
-                                            status = models.Status.objects.get(code__iexact=status)
-                                        except:
-                                            print(f"cannot find status: '{status}'")
-                                            status = None
+                                        # status
+                                        status = r['FISH_STATUS']
+                                        if status:
+                                            try:
+                                                status = models.Status.objects.get(code__iexact=status)
+                                            except:
+                                                writer.writerow([r[key] for key in r] + [8, f"Cannot find status: {status}", sample.old_id, 1])
+                                                status = None
 
-                                    # adipose_condition
-                                    origin = r['ORIGIN']
-                                    adipose_condition = None
-                                    if origin:
-                                        if origin == "AC":
-                                            adipose_condition = 0
-                                        elif origin == "W":
-                                            adipose_condition = 1
+                                        # adipose_condition
+                                        origin = r['ORIGIN']
+                                        adipose_condition = None
+                                        if origin:
+                                            if origin == "AC":
+                                                adipose_condition = 0
+                                            elif origin == "W":
+                                                adipose_condition = 1
 
-                                    # sex
-                                    sex = r['SEX']
-                                    if sex:
-                                        sex = models.Sex.objects.get(code__iexact=sex)
+                                        # sex
+                                        sex = r['SEX']
+                                        if sex:
+                                            sex = models.Sex.objects.get(code__iexact=sex)
 
-                                    age_type = r["AGE_TYPE"]
-                                    if age_type:
-                                        if age_type == "SCALE":
-                                            age_type = 1
-                                        elif age_type == "LGTHFREQ":
-                                            age_type = 2
-                                        else:
-                                            print(f"cannot find age_type: '{age_type}'")
-                                            age_type = None
+                                        age_type = r["AGE_TYPE"]
+                                        if age_type:
+                                            if age_type == "SCALE":
+                                                age_type = 1
+                                            elif age_type == "LGTHFREQ":
+                                                age_type = 2
+                                            else:
+                                                writer.writerow([r[key] for key in r] + [9, f"Cannot find age type: {age_type}", sample.old_id, 1])
+                                                age_type = None
 
-                                    fish_kwargs = {
-                                        "old_id": f'GD_{r["GD_ID"]}',
-                                        "sweep": sweep,
-                                        "species": species,
-                                        "life_stage": life_stage,
-                                        "reproductive_status": None,
-                                        "status": status,
-                                        "adipose_condition": adipose_condition,
-                                        "fork_length": r["FORK_LENGTH"],
-                                        "total_length": r["TOTAL_LENGTH"],
-                                        "weight": r["TOTAL_LENGTH"],
-                                        "sex": sex,
-                                        "age_type": age_type,
-                                        "river_age": r["RIVER_AGE"],
-                                        "scale_id_number": f'{r["SCALE_SAMPLE_ID"]} {sample.arrival_date.year}' if r["SCALE_SAMPLE_ID"] else None,
-                                    }
-                                    notes = str()
-                                    notes = add_note(notes, r["BIOLOGICAL_REMARKS"])
-                                    if not len(notes.strip()):
-                                        notes = None
-                                    fish_kwargs["notes"] = notes
-                                    catch_frequency = int(r["CATCH_FREQUENCY"])
-                                    for x in range(0, catch_frequency):
-                                        models.Observation.objects.create(**fish_kwargs)
+                                        fish_kwargs = {
+                                            "old_id": f'GD_{r["GD_ID"]}',
+                                            "sweep": sweep,
+                                            "species": species,
+                                            "life_stage": life_stage,
+                                            "reproductive_status": None,
+                                            "status": status,
+                                            "adipose_condition": adipose_condition,
+                                            "fork_length": r["FORK_LENGTH"],
+                                            "total_length": r["TOTAL_LENGTH"],
+                                            "weight": r["TOTAL_LENGTH"],
+                                            "sex": sex,
+                                            "age_type": age_type,
+                                            "river_age": r["RIVER_AGE"],
+                                            "scale_id_number": f'{r["SCALE_SAMPLE_ID"]} {sample.arrival_date.year}' if r["SCALE_SAMPLE_ID"] else None,
+                                        }
+                                        notes = str()
+                                        notes = add_note(notes, r["BIOLOGICAL_REMARKS"])
+                                        if not len(notes.strip()):
+                                            notes = None
+                                        fish_kwargs["notes"] = notes
+                                        catch_frequency = int(r["CATCH_FREQUENCY"])
+                                        for x in range(0, catch_frequency):
+                                            models.Observation.objects.create(**fish_kwargs)
                     else:
-                        writer.writerow([r[key] for key in r] + ["Fish observation has no date/time"])
+                        writer.writerow([r[key] for key in r] + [0, "Fish observation has no date/time", "", 0])
                     bar()
 
 
