@@ -63,6 +63,7 @@ def get_sample_field_list(sample=None):
         'species_list|{}'.format(_("species caught")),
         'tag_list|{}'.format(_("tags issued")),
         'notes',
+        'old_id',
         'reviewed_status|{}'.format(_("review status")),
         'metadata|{}'.format(_("metadata")),
 

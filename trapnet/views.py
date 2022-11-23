@@ -521,7 +521,7 @@ class SampleDetailView(TrapNetBasicMixin, CommonDetailView):
             'status',
             'life_stage',
             'reproductive_status',
-            'origin',
+            'adipose_condition',
             'fork_length',
             'total_length',
             'weight',
@@ -673,7 +673,7 @@ class SweepDetailView(TrapNetBasicMixin, CommonDetailView):
         context['obs_field_list'] = [
             'species',
             'status',
-            'origin',
+            'adipose_condition',
             'sex',
             'scale_id_number',
         ]

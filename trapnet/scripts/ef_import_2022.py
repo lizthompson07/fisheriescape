@@ -427,10 +427,10 @@ def run_process_fish():
                                 if not sweeps.exists():
                                     # here we need to add some complicated logic
                                     if sweep_number == 0:
+                                        sweep = None
                                         writer.writerow(
                                             [r[key] for key in r] + [5, "sweep number is zero and there is no corresponding sweep time in the site data",
                                                                      sample.old_id, 0])
-                                        sweep = None
                                     else:
                                         sweep = models.Sweep.objects.create(sample=sample, sweep_number=sweep_number, sweep_time=0)
                                         writer.writerow([r[key] for key in r] + [6, "no corresponding sweep time in the site data", sample.old_id, 1])
