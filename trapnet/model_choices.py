@@ -63,9 +63,9 @@ pulse_type_choices = (
     (3, _("Burst of pulses")),
 )
 
-fish_size_choices = (
-    (1, _("Fry")),
-    (2, _("Parr")),
+adipose_condition_choices = (
+    (0, _("Absent")),
+    (1, _("Present")),
 )
 
 age_type_choices = (

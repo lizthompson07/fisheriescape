@@ -802,3 +802,15 @@ def import_smolt_ages():
                             obs = qs.first()
                             obs.river_age = row['Smolt.Age']
                             obs.save()
+
+
+def populate_adipose_condition():
+    print("first part:")
+    for o in models.Observation.objects.filter(origin__code__iexact="ha"):
+        o.adipose_condition = 0
+        o.save()
+
+    print("second part:")
+    for o in models.Observation.objects.filter(origin__code__iexact="w"):
+        o.adipose_condition = 1
+        o.save()

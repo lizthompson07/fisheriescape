@@ -1,6 +1,6 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.db.models import TextField
+from django.db.models import TextField, Value
 from django.db.models.functions import Concat
 from django.http import HttpResponseRedirect, StreamingHttpResponse
 from django.shortcuts import get_object_or_404
@@ -188,7 +188,12 @@ class SpeciesListView(TrapNetBasicMixin, CommonFilterView):
     template_name = "trapnet/list.html"
     filterset_class = filters.SpeciesFilter
     queryset = models.Species.objects.annotate(
-        search_term=Concat('common_name_eng', 'common_name_fre', 'scientific_name', 'code', output_field=TextField()))
+        search_term=Concat('common_name_eng', Value(" "),
+                           'common_name_fre', Value(" "),
+                           'scientific_name', Value(" "),
+                           'code',Value(" "),
+                           'tsn',Value(" "),
+                           output_field=TextField()))
     new_object_url_name = "trapnet:species_new"
     row_object_url_name = "trapnet:species_detail"
     home_url_name = "trapnet:index"
@@ -758,7 +763,7 @@ class ObservationDetailView(TrapNetBasicMixin, CommonDetailView):
         'life_stage',
         'reproductive_status',
         'status',
-        'origin',
+        'adipose_condition',
         'sex',
         'fork_length',
         'total_length',

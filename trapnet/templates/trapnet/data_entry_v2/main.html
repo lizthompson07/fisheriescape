@@ -94,7 +94,7 @@
                     <th class="header w200">${labels.status}</th>
                     <th class="header w125px">${labels.life_stage}</th>
                     <th class="header w125px">${labels.reproductive_status}</th>
-                    <th class="header w150">${labels.origin}</th>
+                    <th class="header w150">${labels.adipose_condition}</th>
                     <th class="header w100px">${labels.fork_length}</th>
                     <th class="header w100px">${labels.total_length}</th>
                     <th class="w75">${labels.weight}</th>
@@ -172,16 +172,16 @@
                       </select>
                     </td>
 
-                    <td v-if="!o.edit">${o.origin_display|nz}</td>
+                    <td v-if="!o.edit">${o.adipose_condition_display|nz}</td>
                     <td v-else>
                       <select
                         class="table-input"
-                        v-model="o.origin"
+                        v-model="o.adipose_condition"
                         @change="updateObservation(o)"
-                        @focus="updateLastSelected('origin')"
-                        :ref="`origin_${o.id}`"
+                        @focus="updateLastSelected('adipose_condition')"
+                        :ref="`adipose_condition_${o.id}`"
                       >
-                        <option v-for="c in choices.originChoices" :value="c.value" :label="c.text"></option>
+                        <option v-for="c in choices.adiposeConditionChoices" :value="c.value" :label="c.text"></option>
                       </select>
                     </td>
 
@@ -355,7 +355,7 @@
         'status',
         'life_stage',
         'reproductive_status',
-        'origin',
+        'adipose_condition',
         'fork_length',
         'total_length',
         'weight',
@@ -504,7 +504,7 @@
           this.choices.speciesChoices = data.species_choices;
           this.choices.sexChoices = data.sex_choices;
           this.choices.statusChoices = data.status_choices;
-          this.choices.originChoices = data.origin_choices;
+          this.choices.adiposeConditionChoices = data.adipose_condition_choices;
           this.choices.reproductiveStatusChoices = data.reproductive_status_choices;
           this.choices.lifeStageChoices = data.life_stage_choices;
         });
