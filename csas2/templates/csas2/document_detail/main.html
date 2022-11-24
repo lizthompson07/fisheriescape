@@ -117,10 +117,6 @@
               <td class="text-left" v-html="document.tstatus_display"></td>
             </tr>
             <tr>
-              <th class="text-left" v-html="documentLabels.year"></th>
-              <td class="text-left">${document.year|nz}</td>
-            </tr>
-            <tr>
               <th class="text-left" v-html="documentLabels.pub_number"></th>
               <td class="text-left">
                 <button v-if="!document.pub_number_request_date && !document.pub_number && document.tracking" class="badge badge-pill btn-purple"
@@ -295,16 +291,20 @@
         });
       },
       getPubNumber() {
-        this.pubNumberError = null;
-        let endpoint = `/api/csas/documents/${this.documentId}/?get_pub_number=true`;
-        apiService(endpoint, "POST").then(data => {
-          if (data.pub_number) {
-            this.document.tracking.pub_number = data.pub_number;
-            this.updateTracking({})
-          } else {
-            this.pubNumberError = data[0];
-          }
-        });
+        let msg = "{% trans "Are you certain you want to generate a pub number for this document? \n\nA confirmation email will be sent to the generic inbox of the lead regional office." %}";
+        let userInput = confirm(msg);
+        if (userInput) {
+          this.pubNumberError = null;
+          let endpoint = `/api/csas/documents/${this.documentId}/?get_pub_number=true`;
+          apiService(endpoint, "POST").then(data => {
+            if (data.id) {
+              this.getDocument();
+            } else {
+              this.pubNumberError = data[0];
+            }
+          });
+        }
+
       },
       getDueDate() {
         this.dueDateError = null;
@@ -443,6 +443,10 @@
           }
         }
       },
+      cleanData(data) {
+        for (const dataKey in data) if (data[dataKey] === "") data[dataKey] = null;
+        return data;
+      },
       updateTracking(data) {
         if (!data.target) {
           if (data.is_date) {
@@ -452,9 +456,10 @@
           }
         } else {
           // data is an event
-          this._prepDates()
+          this._prepDates();
         }
-        data = this.document.tracking
+        data = this.document.tracking;
+        data = this.cleanData(data);
         this.errors = null;
         let endpoint = `/api/csas/doc-tracking/${this.document.tracking.id}/`;
         apiService(endpoint, "PATCH", data).then(data => {

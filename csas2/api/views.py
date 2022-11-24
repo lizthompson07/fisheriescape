@@ -651,7 +651,13 @@ class DocumentViewSet(viewsets.ModelViewSet):
                         num_list.sort()
                         p_num = '{:03d}'.format(num_list[-1] + 1)
                 pub_number = f"{year}/{p_num}"
-                return Response(dict(pub_number=pub_number), status=status.HTTP_200_OK)
+                tracking = doc.tracking
+                tracking.pub_number = pub_number
+                tracking.save()
+                # send email
+                email = emails.PublicationNumberConfirmationEmail(request, doc)
+                email.send()
+                return Response(serializers.DocumentTrackingSerializer(tracking).data, status=status.HTTP_200_OK)
             raise ValidationError(_("Cannot generate a pub number if there is no anticipated posting date."))
         elif qp.get("get_due_date"):
             # due date can be guessed based on the document type

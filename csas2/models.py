@@ -194,7 +194,7 @@ class CSASOffice(models.Model):
     coordinator = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="csas_offices", verbose_name=_("coordinator / CSA"))
     advisors = models.ManyToManyField(User, blank=True, verbose_name=_("science advisors"), related_name="csas_offices_advisors")
     administrators = models.ManyToManyField(User, blank=True, verbose_name=_("administrators"), related_name="csas_offices_administrators")
-    generic_email = models.EmailField(verbose_name=_("generic email address"), blank=True, null=True)
+    generic_email = models.EmailField(verbose_name=_("generic email address"))
     disable_request_notifications = models.BooleanField(default=False, verbose_name=_("disable notifications from new requests?"), choices=YES_NO_CHOICES)
     no_staff_emails = models.BooleanField(default=False, verbose_name=_("do not send emails directly to office staff?"), choices=YES_NO_CHOICES)
     ppt_default_section = models.ForeignKey(Section, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="csas_offices",
@@ -1211,7 +1211,6 @@ class Document(MetadataFields):
     title_en = models.CharField(max_length=255, verbose_name=_("title (English)"), blank=True, null=True)
     title_fr = models.CharField(max_length=255, verbose_name=_("title (French)"), blank=True, null=True)
     title_in = models.CharField(max_length=255, verbose_name=_("title (Inuktitut)"), blank=True, null=True)
-    year = models.PositiveIntegerField(null=True, blank=True, validators=[MaxValueValidator(9999)], verbose_name=_("Publication Year"))
 
     pages_en = models.IntegerField(null=True, blank=True, verbose_name=_("pages (en)"))
     pages_fr = models.IntegerField(null=True, blank=True, verbose_name=_("pages (fr)"))
