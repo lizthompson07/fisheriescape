@@ -38,7 +38,6 @@ def generate_sample_csv(year, fishing_areas, rivers, sites):
 
     for obj in qs:
         data_row = [str(nz(getattr(obj, field), "")).encode("utf-8").decode('utf-8') for field in field_names] + [obj.get_full_wetted_width(show_errors=False)]
-
         yield writer.writerow(data_row)
 
 
@@ -100,6 +99,8 @@ def generate_specimen_csv(year, fishing_areas, rivers, sites):
             field_names.append(field.attname)
     header_row = [field for field in field_names]  # starter
     header_row.extend(["site", "site_id", "arrival_date", "departure_date"])
+    header_row.extend(["sweep_number", "sweep_time"])
+
 
     pseudo_buffer = Echo()
     writer = csv.writer(pseudo_buffer)
@@ -108,6 +109,8 @@ def generate_specimen_csv(year, fishing_areas, rivers, sites):
     for obj in qs:
         data_row = [str(nz(getattr(obj, field), "")).encode("utf-8").decode('utf-8') for field in field_names]  # starter
         data_row.extend([obj.sample.site, obj.sample.site_id, obj.sample.arrival_date, obj.sample.departure_date])
+        if obj.sweep:
+            data_row.extend([obj.sweep.sweep_number, obj.sweep.sweep_time])
         yield writer.writerow(data_row)
 
 
