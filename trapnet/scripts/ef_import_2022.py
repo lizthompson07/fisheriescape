@@ -505,9 +505,12 @@ def run_process_fish():
                                         if not len(notes.strip()):
                                             notes = None
                                         fish_kwargs["notes"] = notes
-                                        catch_frequency = int(r["CATCH_FREQUENCY"])
-                                        for x in range(0, catch_frequency):
-                                            models.Specimen.objects.create(**fish_kwargs)
+                                        catch_frequency = r["CATCH_FREQUENCY"]
+                                        if catch_frequency and int(catch_frequency) > 0:
+                                            for x in range(0, int(catch_frequency)):
+                                                models.Specimen.objects.create(**fish_kwargs)
+                                        else:
+                                            writer.writerow([r[key] for key in r] + [10, f"Catch frequency null or zero", sample.old_id, 0])
                     else:
                         writer.writerow([r[key] for key in r] + [0, "Fish specimen has no date/time", "", 0])
                     bar()
