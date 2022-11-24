@@ -10,82 +10,126 @@
       <p class="font-italic font-weight-bold">${projectYears.length} of ${count} loaded</p>
     </div>
   </div>
-
-  <div>
-    <table class="table table-sm">
-      <thead>
-      <tr>
-        <th @click="sort('id')" class="clickable w75">
-          {% trans "Project Id" %}
-        </th>
-        <th @click="sort('fiscal_year')" class="clickable w75">
-          {% trans "Fiscal Year" %}
-        </th>
-        <th @click="sort('title')" class="clickable w75">
-          {% trans "Project Title" %}
-        </th>
-        <th @click="sort('status')" class="clickable w75">
-          {% trans "Project Status" %}
-        </th>
-        <th @click="sort('has_status_report')" class="clickable w75">
-          {% trans "Status Report Done" %}
-        </th>
-        <th @click="sort('status_report.status_display')" class="clickable w75">
-          {% trans "Status" %}
-        </th>
-        <th @click="sort('status_report.excess_funds_amt')" class="clickable w75">
-          {% trans "Funds Remaining" %}
-        </th>
-        <th @click="sort('status_report.insuficient_funds_amt')" class="clickable w75">
-          {% trans "Additional Funds Requested" %}
-        </th>
-        <th @click="sort('status_report.created_at')" class="clickable w75">
-          {% trans "Status Report Date Created" %}
-        </th>
-
-
-      </tr>
-      </thead>
-      <tbody>
-      <tr
-        v-for="(p, index) in sortedProjectYears"
-        @mouseover="hover = true"
-        @mouseleave="hover = false"
-      >
-        <td>${p.project.id}</td>
-        <td>${p.display_name}</td>
-        <td>
-          <a class="text-primary pointy" @click="goProjectDetail(p)">
-            ${p.project.title}
-          </a>
-        </td>
-        <td><span :class="p.status_class + ' p-1'" v-html="p.status_display"></span></td>
-
-        <td v-if="p.has_status_report">{% trans "Yes" %}</td>
-        <td v-else class="red-font">{% trans "No" %}</td>
-
-        <td v-if="p.status_report">${p.status_report.status_display}</td>
-        <td v-if="p.status_report">${p.status_report.excess_funds_amt}</td>
-        <td v-if="p.status_report">${p.status_report.insuficient_funds_amt}</td>
-        <td v-if="p.status_report">${p.status_report.created_at_display}</td>
-
-      </tr>
-      </tbody>
-    </table>
-  </div>
-
-
-  <div v-if="projects_loading" class="loading mb-3 mt-3 text-center mt-5">
-    <div class="spinner-border mb-3" style="width: 10rem; height: 10rem;" role="status">
-      <span class="sr-only"></span>
-    </div>
+  <div v-if="errorTooBigStatusReports">
+    <p class="lead font-italic">
+      {% trans "There are too many projects in your search criteria. Please reduce the number of projects using the filters" %}
+    </p>
   </div>
   <div v-else>
-    <div class="text-center">
-      <p class="font-italic font-weight-bold">${projectYears.length} of ${count} loaded</p>
-      <button v-if="next" @click="loadMoreResults" class="btn btn-primary btn-sm">
-        {% trans "Load more results..." %}
-      </button>
+    {% block filter %}
+
+      <form class="form" action="." method="get" id="filter-form" style="width: 30%">
+        <div class="row">
+
+          <div class="col">
+            <label class="text-muted small" for="filter.has_status_report">{% trans "Has Stauts Report" %}</label>
+            <select
+              v-model="filter.has_status_report"
+              @change="updateResults"
+              class="form-control form-control-sm" id="filter.has_status_report"
+            >
+              <option value="">------</option>
+              <option :value="true">{% trans "Yes" %}</option>
+              {% comment %}<option :value="false">{% trans "No" %}</option>{% endcomment %}
+            </select>
+          </div>
+
+          <div class="col">
+            <label class="text-muted small" for="status_report_filter.created_at">{% trans "Report created after date" %}</label>
+            <input
+              type="date"
+              v-model="status_report_filter.created_at"
+              @change="getStatusReports"
+              class="form-control form-control-sm" id="status_report_filter.created_at">
+          </div>
+
+          <div class="col">
+            <br>
+            <a href="." class="btn btn-secondary btn-sm">{% trans "Clear" %}</a>
+          </div>
+        </div>
+      </form>
+
+
+    {% endblock %}
+
+
+    <div>
+      <table class="table table-sm">
+        <thead>
+        <tr>
+          <th @click="sort('id')" class="clickable w75">
+            {% trans "Project Id" %}
+          </th>
+          <th @click="sort('fiscal_year')" class="clickable w75">
+            {% trans "Fiscal Year" %}
+          </th>
+          <th @click="sort('title')" class="clickable w75">
+            {% trans "Project Title" %}
+          </th>
+          <th @click="sort('status')" class="clickable w75">
+            {% trans "Project Status" %}
+          </th>
+          <th @click="sort('has_status_report')" class="clickable w75">
+            {% trans "Status Report Done" %}
+          </th>
+          <th @click="sort('status_report.status_display')" class="clickable w75">
+            {% trans "Status" %}
+          </th>
+          <th @click="sort('status_report.excess_funds_amt')" class="clickable w75">
+            {% trans "Funds Remaining" %}
+          </th>
+          <th @click="sort('status_report.insuficient_funds_amt')" class="clickable w75">
+            {% trans "Additional Funds Requested" %}
+          </th>
+          <th @click="sort('status_report.created_at')" class="clickable w75">
+            {% trans "Status Report Date Created" %}
+          </th>
+
+
+        </tr>
+        </thead>
+        <tbody>
+        <tr
+          v-for="(p, index) in sortedProjectYears"
+          @mouseover="hover = true"
+          @mouseleave="hover = false"
+        >
+          <td>${p.project.id}</td>
+          <td>${p.display_name}</td>
+          <td>
+            <a class="text-primary pointy" @click="goProjectDetail(p)">
+              ${p.project.title}
+            </a>
+          </td>
+          <td><span :class="p.status_class + ' p-1'" v-html="p.status_display"></span></td>
+
+          <td v-if="p.has_status_report">{% trans "Yes" %}</td>
+          <td v-else class="red-font">{% trans "No" %}</td>
+
+          <td v-if="p.status_report">${p.status_report.status_display}</td>
+          <td v-if="p.status_report">${p.status_report.excess_funds_amt}</td>
+          <td v-if="p.status_report">${p.status_report.insuficient_funds_amt}</td>
+          <td v-if="p.status_report">${p.status_report.created_at_display}</td>
+
+        </tr>
+        </tbody>
+      </table>
+    </div>
+
+
+    <div v-if="projects_loading" class="loading mb-3 mt-3 text-center mt-5">
+      <div class="spinner-border mb-3" style="width: 10rem; height: 10rem;" role="status">
+        <span class="sr-only"></span>
+      </div>
+    </div>
+    <div v-else>
+      <div class="text-center">
+        <p class="font-italic font-weight-bold">${projectYears.length} of ${count} loaded</p>
+        <button v-if="next" @click="loadMoreResults" class="btn btn-primary btn-sm">
+          {% trans "Load more results..." %}
+        </button>
+      </div>
     </div>
   </div>
 </div>

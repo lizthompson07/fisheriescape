@@ -13,6 +13,9 @@ chosen_js = {"class": "chosen-select-contains"}
 class ProjectYearsInFilter(django_filters.BaseInFilter, django_filters.NumberFilter):
     pass
 
+class StatusReportsInFilter(django_filters.BaseInFilter, django_filters.NumberFilter):
+    pass
+
 
 class StaffFilter(django_filters.FilterSet):
     fiscal_year = django_filters.ChoiceFilter(field_name='project_year__fiscal_year', lookup_expr='exact')
@@ -82,6 +85,11 @@ class ProjectYearChildFilter(django_filters.FilterSet):
     region_name = django_filters.CharFilter(field_name='project_year__project__section__division__branch__region__name', lookup_expr="icontains")
 
 
+class StatusReportFilter(django_filters.FilterSet):
+    project_years = ProjectYearsInFilter(field_name='project_year', lookup_expr="in")
+    created_at = django_filters.DateFilter(field_name='created_at', lookup_expr="gte")
+
+
 class DMAFilter(django_filters.FilterSet):
     project = django_filters.NumberFilter(field_name='project')
     title_name = django_filters.CharFilter(field_name='title', lookup_expr="icontains")
@@ -120,6 +128,7 @@ class ProjectYearFilter(django_filters.FilterSet):
     has_field_component = django_filters.BooleanFilter(field_name="has_field_component")
     has_data_component = django_filters.BooleanFilter(field_name="has_data_component")
     has_lab_component = django_filters.BooleanFilter(field_name="has_lab_component")
+    status_report = StatusReportsInFilter(field_name="reports", lookup_expr="in")
 
     approval_status = django_filters.NumberFilter(field_name='review__approval_status')
     approval_level = django_filters.NumberFilter(field_name='review__approval_level')
