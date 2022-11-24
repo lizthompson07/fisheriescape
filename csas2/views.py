@@ -1250,6 +1250,7 @@ class DocumentListView(LoginAccessRequiredMixin, CommonFilterView):
     open_row_in_new_tab = True
 
     field_list = [
+        {"name": 'id'},
         {"name": 'ttitle|{}'.format("title"), "class": "w-35"},
         {"name": 'document_type', "class": "", "width": ""},
         {"name": 'process', "class": "w-25"},
@@ -1461,6 +1462,16 @@ class ReportSearchFormView(CsasAdminRequiredMixin, CommonFormView):
                                         f"lead_region={lead_region}&"
                                         )
 
+
+        elif report == 5:
+            return HttpResponseRedirect(f"{reverse('csas2:unpublished_publications_report')}?"
+                                        # f"fiscal_year={fy}&"
+                                        # f"process_status={process_status}&"
+                                        # f"process_type={process_type}&"
+                                        # f"lead_region={lead_region}&"
+                                        )
+
+
         messages.error(self.request, "Report is not available. Please select another report.")
         return HttpResponseRedirect(reverse("csas2:reports"))
 
@@ -1574,5 +1585,33 @@ def process_list_report(request):
         with open(file_url, 'rb') as fh:
             response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
             response['Content-Disposition'] = f'inline; filename="CSAS processes export.xlsx"'
+            return response
+    raise Http404
+
+@login_required()
+def unpublished_publications_report(request):
+    qp = request.GET
+    # fiscal_year = qp.get("fiscal_year") if qp.get("fiscal_year") and qp.get("fiscal_year") != "None" else None
+    # process_status = qp.get("process_status") if qp.get("process_status") and qp.get("process_status") != "None" else None
+    # process_type = qp.get("process_type") if qp.get("process_type") and qp.get("process_type") != "None" else None
+    # lead_region = qp.get("lead_region") if qp.get("lead_region") and qp.get("lead_region") != "None" else None
+
+    qs = models.Document.objects.filter(is_confirmed=True)
+    # if fiscal_year:
+    #     qs = qs.filter(fiscal_year_id=fiscal_year)
+    # if process_status:
+    #     qs = qs.filter(status=process_status)
+    # if process_type:
+    #     qs = qs.filter(type=process_type)
+    # if lead_region:
+    #     qs = qs.filter(lead_office__region_id=lead_region)
+
+    site_url = my_envr(request)["SITE_FULL_URL"]
+    file_url = reports.generate_unpublished_publications_report(qs, site_url)
+
+    if os.path.exists(file_url):
+        with open(file_url, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+            response['Content-Disposition'] = f'inline; filename="unpublished publications report.xlsx"'
             return response
     raise Http404

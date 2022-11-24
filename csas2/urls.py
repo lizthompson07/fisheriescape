@@ -106,6 +106,7 @@ urlpatterns = [
     path('reports/meeting/', views.meeting_report, name="meeting_report"),
     path('reports/requests/', views.request_list_report, name="request_list_report"),
     path('reports/processes/', views.process_list_report, name="process_list_report"),
+    path('reports/unpublished-publications/', views.unpublished_publications_report, name="unpublished_publications_report"),
 
 ]
 

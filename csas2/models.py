@@ -679,6 +679,12 @@ class Process(SimpleLookupWithUUID, MetadataFields):
         return mystr
 
     @property
+    def regions_qs(self):
+        region_ids =[self.lead_office.region.id] + [o.region.id for o in self.other_offices.all()]
+        qs = Region.objects.filter(id__in=region_ids)
+        return qs
+
+    @property
     def formatted_notes(self):
         mystr = ""
         for note in self.notes.filter(type=1):
@@ -1289,6 +1295,10 @@ class Document(MetadataFields):
     def lead_authors(self):
         return self.authors.filter(is_lead=True)
 
+    @property
+    def other_authors(self):
+        return self.authors.filter(is_lead=False)
+
     class Meta:
         ordering = ["process", _("title_en")]
 
@@ -1352,6 +1362,24 @@ class Document(MetadataFields):
     def tstatus_class(self):
         return model_choices.get_translation_status_lookup().get(self.translation_status).get("stage")
 
+    @property
+    def last_meeting(self):
+        """most recent peer reviewed meeting"""
+        return self.meetings.filter(is_planning=False).order_by("-start_date").first()
+
+    @property
+    def other_regions(self):
+        """pulls in the offices from the process and excludes the lead as per the document"""
+        if not self.lead_office:
+            return self.process.regions_qs.all()
+        return self.process.regions_qs.filter(~Q(id=self.lead_office.region_id))
+
+    @property
+    def is_past_due(self):
+        """decided at whether the document is past due"""
+        if hasattr(self, "tracking") and self.tracking.due_date:
+            return timezone.now() > self.tracking.due_date
+        return gettext("No due date assigned")
 
 class DocumentNote(GenericNote):
     ''' a note pertaining to a meeting'''
@@ -1432,3 +1460,6 @@ class Author(models.Model):
     class Meta:
         ordering = ['-is_lead', 'person__first_name', "person__last_name"]
         unique_together = (("document", "person"),)
+
+    def __str__(self):
+        return str(self.person)

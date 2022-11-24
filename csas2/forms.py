@@ -98,6 +98,10 @@ class ReportSearchForm(forms.Form):
         (2, "CSAS Request batch export (PDF)"),
         (3, "CSAS Request list (Excel)"),
         (4, "State of Our Processes (Excel)"),
+        (5, "Unpublished publication report (Excel)"),
+        (None, ""),
+        (None, "-----------"),
+        (None, ""),
         (999, "Participant List (Excel) --> placeholder"),
         (999, "Process Cost Report (Excel) --> placeholder"),
     )
