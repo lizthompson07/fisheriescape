@@ -1596,7 +1596,7 @@ def unpublished_publications_report(request):
     # process_type = qp.get("process_type") if qp.get("process_type") and qp.get("process_type") != "None" else None
     # lead_region = qp.get("lead_region") if qp.get("lead_region") and qp.get("lead_region") != "None" else None
 
-    qs = models.Document.objects.filter(is_confirmed=True)
+    qs = models.Document.objects.filter(is_confirmed=True, status__gte=12)
     # if fiscal_year:
     #     qs = qs.filter(fiscal_year_id=fiscal_year)
     # if process_status:

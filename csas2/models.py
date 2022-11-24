@@ -1377,7 +1377,7 @@ class Document(MetadataFields):
     @property
     def is_past_due(self):
         """decided at whether the document is past due"""
-        if hasattr(self, "tracking") and self.tracking.due_date:
+        if self.due_date:
             return timezone.now() > self.tracking.due_date
         return gettext("No due date assigned")
 
