@@ -129,9 +129,9 @@ class SweepForm(forms.ModelForm):
         return sweep_number
 
 
-class ObservationForm(forms.ModelForm):
+class SpecimenForm(forms.ModelForm):
     class Meta:
-        model = models.Observation
+        model = models.Specimen
         fields = "__all__"
         widgets = {
             'sample': forms.HiddenInput(),
@@ -161,8 +161,8 @@ class ReportSearchForm(forms.Form):
         (None, "------------"),
         (1, "sample data export (csv)"),
         (2, "sweep data export (csv)"),
-        (3, "observation data export (csv)"),
-        (4, "Atlantic salmon individual observation event report (csv)"),
+        (3, "specimen data export (csv)"),
+        (4, "Atlantic salmon individual specimen event report (csv)"),
 
         (None, ""),
         (None, "ELECTROFISHING"),

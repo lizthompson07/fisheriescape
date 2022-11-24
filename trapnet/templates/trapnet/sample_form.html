@@ -83,6 +83,28 @@
     </div>
   </div>
 
+
+  <div class="card info-card mb-5">
+    <div class="card-header bg-primary text-light">
+      <h4 class="card-title">
+        {% trans "Salmon Site-Specific Age Thresholds" %}
+      </h4>
+    </div>
+    <div class="card-body">
+
+      <div class="row">
+        <div class="col">
+          {% bootstrap_field form.age_thresh_0_1 placeholder="" %}
+        </div>
+        <div class="col">
+          {% bootstrap_field form.age_thresh_1_2 placeholder="" %}
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+
   {% if object.sample_type == 1 or object.sample_type == 3 %}
     <div class="card info-card mb-5">
       <div class="card-header bg-primary text-light">

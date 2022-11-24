@@ -55,20 +55,20 @@
         <div class="">
           <div class="card" style="">
             <div class="card-header lead">
-              {% trans "Observations" %}
+              {% trans "Specimens" %}
             </div>
             <div class="card-body">
               <overlay
                 v-if="overlay"
                 @close="overlay=false"
-                @add="newObservation"
+                @add="newSpecimen"
                 :labels="labels"
                 :choices="choices"
                 :is_electro="isElectro"
-                :primed_observation="primedObservation"
+                :primed_specimen="primedSpecimen"
               ></overlay>
               <button class="float-right btn btn-sm btn-primary" @click="overlay=!overlay">
-                {% trans "New Observations" %}
+                {% trans "New Specimens" %}
               </button>
               <p>
                 <span class="p-3"><kbd>&larr;</kbd> move left</span>
@@ -107,16 +107,16 @@
                   </thead>
                   <tbody>
                   <tr
-                    v-for="o, index in sortedObservations"
+                    v-for="o, index in sortedSpecimens"
                     :key="o.id"
                     :class="{'mild-concern':o.edit}"
-                    @keyup.esc="updateObservation(o, true)"
+                    @keyup.esc="updateSpecimen(o, true)"
                     @keydown.enter.prevent="moveDown(o)"
                     @keydown.down.prevent="moveDown(o)"
                     @keydown.up.prevent="moveUp(o)"
                     @keydown.right.prevent="moveRight(o)"
                     @keydown.left.prevent="moveLeft(o)"
-                    @click="editObservation(o)"
+                    @click="editSpecimen(o)"
                   >
                     <td>${index+1}</td>
                     <td>${o.id}</td>
@@ -125,7 +125,7 @@
                       <select
                         class="table-input" required
                         v-model="o.species"
-                        @change="updateObservation(o)"
+                        @change="updateSpecimen(o)"
                         @focus="updateLastSelected('species')"
                         :ref="`species_${o.id}`"
                       >
@@ -138,7 +138,7 @@
                       <select
                         class="table-input" required
                         v-model="o.status"
-                        @change="updateObservation(o)"
+                        @change="updateSpecimen(o)"
                         @focus="updateLastSelected('status')"
                         :ref="`status_${o.id}`"
                       >
@@ -150,7 +150,7 @@
                       <select
                         class="table-input" required
                         v-model="o.life_stage"
-                        @change="updateObservation(o)"
+                        @change="updateSpecimen(o)"
                         @focus="updateLastSelected('life_stage')"
                         :ref="`life_stage_${o.id}`"
                       >
@@ -164,7 +164,7 @@
                       <select
                         class="table-input" required
                         v-model="o.reproductive_status"
-                        @change="updateObservation(o)"
+                        @change="updateSpecimen(o)"
                         @focus="updateLastSelected('reproductive_status')"
                         :ref="`reproductive_status_${o.id}`"
                       >
@@ -177,7 +177,7 @@
                       <select
                         class="table-input"
                         v-model="o.adipose_condition"
-                        @change="updateObservation(o)"
+                        @change="updateSpecimen(o)"
                         @focus="updateLastSelected('adipose_condition')"
                         :ref="`adipose_condition_${o.id}`"
                       >
@@ -190,7 +190,7 @@
                     <td v-else>
                       <input
                         type="text" class="table-input"
-                        @change="updateObservation(o)"
+                        @change="updateSpecimen(o)"
                         v-model="o.fork_length"
                         @focus="updateLastSelected('fork_length')"
                         :ref="`fork_length_${o.id}`"
@@ -201,7 +201,7 @@
                     <td v-else>
                       <input
                         type="text" class="table-input"
-                        @change="updateObservation(o)"
+                        @change="updateSpecimen(o)"
                         v-model="o.total_length"
                         @focus="updateLastSelected('total_length')"
                         :ref="`total_length_${o.id}`"
@@ -212,7 +212,7 @@
                     <td v-else>
                       <input
                         type="text" class="table-input p-0"
-                        @change="updateObservation(o)"
+                        @change="updateSpecimen(o)"
                         v-model="o.weight"
                         @focus="updateLastSelected('weight')"
                         :ref="`weight_${o.id}`"
@@ -224,7 +224,7 @@
                       <select
                         class="table-input"
                         v-model="o.sex"
-                        @change="updateObservation(o)"
+                        @change="updateSpecimen(o)"
                         @focus="updateLastSelected('sex')"
                         :ref="`sex_${o.id}`"
                       >
@@ -237,7 +237,7 @@
                       <input
                         type="text" class="table-input p-0"
                         v-model="o.tag_number"
-                        @change="updateObservation(o)"
+                        @change="updateSpecimen(o)"
                         @focus="updateLastSelected('tag_number')"
                         :ref="`tag_number_${o.id}`"
                       />
@@ -248,7 +248,7 @@
                       <input
                         type="text" class="table-input p-0"
                         v-model="o.scale_id_number"
-                        @change="updateObservation(o)"
+                        @change="updateSpecimen(o)"
                         @focus="updateLastSelected('scale_id_number')"
                         :ref="`scale_id_number_${o.id}`"
                       />
@@ -258,18 +258,18 @@
                       <input
                         type="text" class="table-input p-0"
                         v-model="o.notes"
-                        @change="updateObservation(o)"
+                        @change="updateSpecimen(o)"
                         @focus="updateLastSelected('notes')"
                         :ref="`notes_${o.id}`"
                       />
                     </td>
 
                     <td>
-                      <button class="btn btn-sm " @click.prevent="deleteObservation(o)">
+                      <button class="btn btn-sm " @click.prevent="deleteSpecimen(o)">
                         <span class="mdi mdi-delete"></span>
                       </button>
                       {#                    <div v-else>#}
-                      {#                      <button class="btn btn-xs btn-success" @click="updateObservation(o, true)"><span class="mdi mdi-check text-light"></span></button>#}
+                      {#                      <button class="btn btn-xs btn-success" @click="updateSpecimen(o, true)"><span class="mdi mdi-check text-light"></span></button>#}
                       {#                    </div>#}
                     </td>
                   </tr>
@@ -329,10 +329,10 @@
       overlay: false,
       sample: {},
       loading: {
-        observations: false,
+        specimens: false,
         sample: false,
       },
-      observations: [],
+      specimens: [],
       labels: {},
       choices: {
         speciesChoices: [],
@@ -377,39 +377,39 @@
         this.memory.lastSelectedInputRef = ref;
       },
 
-      moveRight(obs) {
+      moveRight(specimen) {
         let index = this.columns.indexOf(this.memory.lastSelectedInputRef);
         if (index <= this.columns.length - 2) {
           this.memory.lastSelectedInputRef = this.columns[index + 1];
-          let el = this.$refs[`${this.memory.lastSelectedInputRef}_${obs.id}`][0];
+          let el = this.$refs[`${this.memory.lastSelectedInputRef}_${specimen.id}`][0];
           if (el.type === "select-one") el.focus();
           else el.select();
         } else {
           this.memory.lastSelectedInputRef = this.columns[0];
-          this.moveDown(obs);
+          this.moveDown(specimen);
         }
       },
-      moveLeft(obs) {
+      moveLeft(specimen) {
         let index = this.columns.indexOf(this.memory.lastSelectedInputRef);
         if (index) {
           this.memory.lastSelectedInputRef = this.columns[index - 1]
-          let el = this.$refs[`${this.memory.lastSelectedInputRef}_${obs.id}`][0]
+          let el = this.$refs[`${this.memory.lastSelectedInputRef}_${specimen.id}`][0]
           if (el.type === "select-one") el.focus();
           else el.select();
         } else {
           this.memory.lastSelectedInputRef = this.columns[this.columns.length - 1];
-          this.moveUp(obs);
+          this.moveUp(specimen);
         }
       },
-      moveUp(obs) {
-        // if there is no current observation, take the top from the list
-        let index = this.observations.indexOf(obs) - 1;
-        if (index >= 0) this.editObservation(this.observations[index]);
+      moveUp(specimen) {
+        // if there is no current specimen, take the top from the list
+        let index = this.specimens.indexOf(specimen) - 1;
+        if (index >= 0) this.editSpecimen(this.specimens[index]);
       },
-      moveDown(obs) {
-        // if there is no current observation, take the top from the list
-        let index = this.observations.indexOf(obs) + 1;
-        if (index < this.observations.length) this.editObservation(this.observations[index]);
+      moveDown(specimen) {
+        // if there is no current specimen, take the top from the list
+        let index = this.specimens.indexOf(specimen) + 1;
+        if (index < this.specimens.length) this.editSpecimen(this.specimens[index]);
       },
       getCurrentUser() {
         let endpoint = `/api/trapnet/user/`;
@@ -427,37 +427,37 @@
               this.loading.sample = false;
             })
       },
-      getObservations() {
-        this.loading.observations = true;
+      getSpecimens() {
+        this.loading.specimens = true;
         let endpoint;
-        if (sweepId) endpoint = `/api/trapnet/observations/?sweep=${sweepId}`;
-        else if (sampleId) endpoint = `/api/trapnet/observations/?sample=${sampleId}`;
+        if (sweepId) endpoint = `/api/trapnet/specimens/?sweep=${sweepId}`;
+        else if (sampleId) endpoint = `/api/trapnet/specimens/?sample=${sampleId}`;
         apiService(endpoint).then(data => {
           for (const datum of data) datum.edit = false;
-          this.observations = data;
-          this.loading.observations = false;
+          this.specimens = data;
+          this.loading.specimens = false;
         });
       },
-      editObservation(obs) {
-        for (const observation of this.observations) observation.edit = false;
-        obs.edit = true;
+      editSpecimen(specimen) {
+        for (const specimen of this.specimens) specimen.edit = false;
+        specimen.edit = true;
         this.$nextTick(() => {
-          let ref = `${this.memory.lastSelectedInputRef}_${obs.id}`;
+          let ref = `${this.memory.lastSelectedInputRef}_${specimen.id}`;
           let el = this.$refs[ref][0];
           if (el.type === "select-one") el.focus();
           else el.select();
         })
       },
 
-      cleanObservation(obs) {
-        for (const observationKey in obs) if (obs[observationKey] === "") obs[observationKey] = null;
-        return obs;
+      cleanSpecimen(specimen) {
+        for (const specimenKey in specimen) if (specimen[specimenKey] === "") specimen[specimenKey] = null;
+        return specimen;
       },
 
-      newObservation(obs) {
-        obs.sample = sampleId;
-        obs = this.cleanObservation(obs);
-        apiService(`/api/trapnet/observations/`, "POST", obs)
+      newSpecimen(specimen) {
+        specimen.sample = sampleId;
+        specimen = this.cleanSpecimen(specimen);
+        apiService(`/api/trapnet/specimens/`, "POST", specimen)
             .then(response => {
               if (!response.id) alert(groomJSON(response));
               else {
@@ -466,16 +466,16 @@
                 this.memory.lastStatus = response.status;
                 this.memory.lastOrigin = response.origin;
                 response.edit = false;
-                this.observations.push(response);
+                this.specimens.push(response);
               }
             })
       },
-      updateObservation(obs, close) {
+      updateSpecimen(specimen, close) {
         this.errorMsg = null;
         this.successMsg = null;
         // set any empty strings to null
-        obs = this.cleanObservation(obs);
-        apiService(`/api/trapnet/observations/${obs.id}/`, "PUT", obs)
+        specimen = this.cleanSpecimen(specimen);
+        apiService(`/api/trapnet/specimens/${specimen.id}/`, "PUT", specimen)
             .then(response => {
               if (!response.id) alert(groomJSON(response));
               else {
@@ -483,22 +483,22 @@
                 this.memory.lastSpecies = response.species;
                 this.memory.lastStatus = response.status;
                 this.memory.lastOrigin = response.origin;
-                // because of the delay in the response, there might already be another observation being edited.
-                // if we loop through and find another observation with edit === true, set close to false
-                for (const observation of this.observations) {
-                  if (obs.id !== observation.id && observation.edit) {
+                // because of the delay in the response, there might already be another specimen being edited.
+                // if we loop through and find another specimen with edit === true, set close to false
+                for (const specimen of this.specimens) {
+                  if (specimen.id !== specimen.id && specimen.edit) {
                     close = true;
                     break;
                   }
                 }
                 response.edit = close !== true;
-                this.$set(this.observations, this.observations.indexOf(obs), response);
+                this.$set(this.specimens, this.specimens.indexOf(specimen), response);
               }
             })
       },
 
       getMetadata() {
-        let endpoint = `/api/trapnet/observations/?get_labels=true`;
+        let endpoint = `/api/trapnet/specimens/?get_labels=true`;
         apiService(endpoint).then(data => {
           this.labels = data.labels;
           this.choices.speciesChoices = data.species_choices;
@@ -509,21 +509,21 @@
           this.choices.lifeStageChoices = data.life_stage_choices;
         });
       },
-      deleteObservation(obs) {
-        let userInput = confirm("{% trans 'Are you certain you want to delete this observation?' %}")
+      deleteSpecimen(specimen) {
+        let userInput = confirm("{% trans 'Are you certain you want to delete this specimen?' %}")
         if (userInput) {
-          let endpoint = `/api/trapnet/observations/${obs.id}/`;
+          let endpoint = `/api/trapnet/specimens/${specimen.id}/`;
           apiService(endpoint, "DELETE").then(() => {
             this.showSidebar = true;
-            this.$delete(this.observations, this.observations.indexOf(obs))
+            this.$delete(this.specimens, this.specimens.indexOf(specimen))
           })
         }
       },
     },
     computed: {
 
-      sortedObservations() {
-        return this.observations.sort((a, b) => {
+      sortedSpecimens() {
+        return this.specimens.sort((a, b) => {
           let modifier = 1;
           if (this.currentSortDir === 'desc') modifier = -1;
           if (this.currentSort === "id") {
@@ -549,7 +549,7 @@
       isElectro() {
         return this.sample && this.sample.sample_type === 2;
       },
-      primedObservation() {
+      primedSpecimen() {
         return {
           sample: sampleId,
           sweep: sweepId,
@@ -565,7 +565,7 @@
     },
     created() {
       this.getCurrentUser();
-      this.getObservations();
+      this.getSpecimens();
       this.getSample();
       this.getMetadata();
     },

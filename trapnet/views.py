@@ -205,7 +205,7 @@ class SpeciesListView(TrapNetBasicMixin, CommonFilterView):
         {"name": 'scientific_name', "class": "", "width": ""},
         {"name": 'tsn|{}'.format(_("Taxonomic serial number")), "class": "", "width": ""},
         {"name": 'aphia_id|{}'.format(_("WoRMS Aphia ID")), "class": "", "width": ""},
-        # {"name": 'observation_count|{}'.format(_("Observations in Db")), "class": "", "width": ""},
+        # {"name": 'specimen_count|{}'.format(_("Specimens in Db")), "class": "", "width": ""},
     ]
 
 
@@ -464,7 +464,7 @@ class SampleListView(TrapNetBasicMixin, CommonFilterView):
         {"name": 'site', "class": "", "width": ""},
         {"name": 'arrival_date|arrival', "class": "", "width": ""},
         {"name": 'duration|duration', "class": "", "width": ""},
-        {"name": 'observations', "class": "", "width": ""},
+        {"name": 'specimens', "class": "", "width": ""},
         {"name": 'is_reviewed', "class": "", "width": ""},
     ]
 
@@ -516,7 +516,7 @@ class SampleDetailView(TrapNetBasicMixin, CommonDetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['obs_field_list'] = [
+        context['specimen_field_list'] = [
             'species',
             'status',
             'life_stage',
@@ -533,7 +533,7 @@ class SampleDetailView(TrapNetBasicMixin, CommonDetailView):
         context['sweep_field_list'] = [
             "sweep_number",
             "sweep_time",
-            "observation_count|{}".format("# observations"),
+            "specimen_count|{}".format("# specimens"),
         ]
 
         return context
@@ -670,7 +670,7 @@ class SweepDetailView(TrapNetBasicMixin, CommonDetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['obs_field_list'] = [
+        context['specimen_field_list'] = [
             'species',
             'status',
             'adipose_condition',
@@ -704,12 +704,12 @@ class SweepDeleteView(TrapNetCRUDRequiredMixin, CommonDeleteView):
 ################
 
 
-class ObservationListView(TrapNetBasicMixin, CommonFilterView):
-    model = models.Observation
-    filterset_class = filters.ObservationFilter
-    template_name = 'trapnet/obs_list.html'
+class SpecimenListView(TrapNetBasicMixin, CommonFilterView):
+    model = models.Specimen
+    filterset_class = filters.SpecimenFilter
+    template_name = 'trapnet/specimen_list.html'
     # open_row_in_new_tab = True
-    # row_object_url_name = "trapnet:obs_detail"
+    # row_object_url_name = "trapnet:specimen_detail"
     home_url_name = "trapnet:index"
     paginate_by = 25
     container_class = "container"
@@ -725,9 +725,9 @@ class ObservationListView(TrapNetBasicMixin, CommonFilterView):
     ]
 
 
-class ObservationUpdateView(TrapNetCRUDRequiredMixin, CommonUpdateView):
-    model = models.Observation
-    form_class = forms.ObservationForm
+class SpecimenUpdateView(TrapNetCRUDRequiredMixin, CommonUpdateView):
+    model = models.Specimen
+    form_class = forms.SpecimenForm
     template_name = 'trapnet/form.html'
     home_url_name = "trapnet:index"
 
@@ -745,7 +745,7 @@ class ObservationUpdateView(TrapNetCRUDRequiredMixin, CommonUpdateView):
             return {"title": sweep, "url": reverse("trapnet:sweep_detail", args=[sweep.id])}
 
     def get_parent_crumb(self):
-        return {"title": self.get_object(), "url": reverse("trapnet:obs_detail", args=[self.get_object().id])}
+        return {"title": self.get_object(), "url": reverse("trapnet:specimen_detail", args=[self.get_object().id])}
 
     def form_valid(self, form):
         obj = form.save(commit=False)
@@ -753,9 +753,9 @@ class ObservationUpdateView(TrapNetCRUDRequiredMixin, CommonUpdateView):
         return super().form_valid(form)
 
 
-class ObservationDetailView(TrapNetBasicMixin, CommonDetailView):
-    model = models.Observation
-    template_name = 'trapnet/obs_detail.html'
+class SpecimenDetailView(TrapNetBasicMixin, CommonDetailView):
+    model = models.Specimen
+    template_name = 'trapnet/specimen_detail.html'
     home_url_name = "trapnet:index"
     field_list = [
         'id',
@@ -792,8 +792,8 @@ class ObservationDetailView(TrapNetBasicMixin, CommonDetailView):
             return {"title": sweep, "url": reverse("trapnet:sweep_detail", args=[sweep.id])}
 
 
-class ObservationDeleteView(TrapNetCRUDRequiredMixin, CommonDeleteView):
-    model = models.Observation
+class SpecimenDeleteView(TrapNetCRUDRequiredMixin, CommonDeleteView):
+    model = models.Specimen
     template_name = 'trapnet/confirm_delete.html'
     home_url_name = "trapnet:index"
 
@@ -811,7 +811,7 @@ class ObservationDeleteView(TrapNetCRUDRequiredMixin, CommonDeleteView):
             return {"title": sweep, "url": reverse("trapnet:sweep_detail", args=[sweep.id])}
 
     def get_parent_crumb(self):
-        return {"title": self.get_object(), "url": reverse("trapnet:obs_detail", args=[self.get_object().id])}
+        return {"title": self.get_object(), "url": reverse("trapnet:specimen_detail", args=[self.get_object().id])}
 
     def get_success_url(self):
         return self.get_grandparent_crumb()["url"]
@@ -828,8 +828,8 @@ class FileCreateView(TrapNetCRUDRequiredMixin, CommonPopoutCreateView):
     def form_valid(self, form):
         obj = form.save(commit=False)
         obj.created_by = self.request.user
-        obs = get_object_or_404(models.Observation, pk=self.kwargs.get("obs"))
-        obj.observation = obs
+        specimen = get_object_or_404(models.Specimen, pk=self.kwargs.get("specimen"))
+        obj.specimen = specimen
         return super().form_valid(form)
 
 
@@ -906,9 +906,9 @@ class ReportSearchFormView(TrapNetCRUDRequiredMixin, CommonFormView):
         elif report == 2:
             return HttpResponseRedirect(reverse("trapnet:sweep_report") + f"?year={year}&fishing_areas={fishing_areas}&rivers={rivers}&sites={sites}")
         elif report == 3:
-            return HttpResponseRedirect(reverse("trapnet:obs_report") + f"?year={year}&fishing_areas={fishing_areas}&rivers={rivers}&sites={sites}")
+            return HttpResponseRedirect(reverse("trapnet:specimen_report") + f"?year={year}&fishing_areas={fishing_areas}&rivers={rivers}&sites={sites}")
         elif report == 4:
-            return HttpResponseRedirect(reverse("trapnet:export_obs_data_v1") + f"?year={year}&fishing_areas={fishing_areas}&rivers={rivers}&sites={sites}&sample_type={sample_type}")
+            return HttpResponseRedirect(reverse("trapnet:export_specimen_data_v1") + f"?year={year}&fishing_areas={fishing_areas}&rivers={rivers}&sites={sites}&sample_type={sample_type}")
 
         # electrofishing
         elif report == 10:
@@ -958,22 +958,22 @@ def export_sweep_data(request):
     return response
 
 
-def export_obs_data(request):
+def export_specimen_data(request):
     year = request.GET.get("year")
     fishing_areas = request.GET.get("fishing_areas")
     rivers = request.GET.get("rivers")
     sites = request.GET.get("sites")
-    filename = "observation data export ({}).csv".format(now().strftime("%Y-%m-%d"))
+    filename = "specimen data export ({}).csv".format(now().strftime("%Y-%m-%d"))
 
     response = StreamingHttpResponse(
-        streaming_content=(reports.generate_obs_csv(year, fishing_areas, rivers, sites)),
+        streaming_content=(reports.generate_specimen_csv(year, fishing_areas, rivers, sites)),
         content_type='text/csv',
     )
     response['Content-Disposition'] = f'attachment;filename={filename}'
     return response
 
 
-def export_obs_data_v1(request):
+def export_specimen_data_v1(request):
     year = request.GET.get("year")
     fishing_areas = request.GET.get("fishing_areas")
     sample_type = request.GET.get("sample_type")
@@ -991,11 +991,11 @@ def export_obs_data_v1(request):
         filter_kwargs["sample__site__river_id__in"] = rivers.split(",")
     if sites != "":
         filter_kwargs["sample__site_id__in"] = sites.split(",")
-    qs = models.Observation.objects.filter(**filter_kwargs).iterator()
+    qs = models.Specimen.objects.filter(**filter_kwargs).iterator()
 
-    filename = "Atlantic salmon individual observation event report ({}).csv".format(now().strftime("%Y-%m-%d"))
+    filename = "Atlantic salmon individual specimen event report ({}).csv".format(now().strftime("%Y-%m-%d"))
     response = StreamingHttpResponse(
-        streaming_content=(reports.generate_obs_csv_v1(qs)),
+        streaming_content=(reports.generate_specimen_csv_v1(qs)),
         content_type='text/csv',
     )
     response['Content-Disposition'] = f'attachment;filename={filename}'

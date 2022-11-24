@@ -87,14 +87,14 @@ urlpatterns = [
 
     # OBSERVATION #
     ###############
-    path('observations/', views.ObservationListView.as_view(), name="obs_list"),
-    path('observations/<int:pk>/view/', views.ObservationDetailView.as_view(), name="obs_detail"),
-    path('observations/<int:pk>/edit/', views.ObservationUpdateView.as_view(), name="obs_edit"),
-    path('observations/<int:pk>/delete/', views.ObservationDeleteView.as_view(), name="obs_delete"),
+    path('specimens/', views.SpecimenListView.as_view(), name="specimen_list"),
+    path('specimens/<int:pk>/view/', views.SpecimenDetailView.as_view(), name="specimen_detail"),
+    path('specimens/<int:pk>/edit/', views.SpecimenUpdateView.as_view(), name="specimen_edit"),
+    path('specimens/<int:pk>/delete/', views.SpecimenDeleteView.as_view(), name="specimen_delete"),
 
     # FILES #
     #########
-    path('observations/<int:obs>/new-file/', views.FileCreateView.as_view(), name='file_new'),
+    path('specimens/<int:specimen>/new-file/', views.FileCreateView.as_view(), name='file_new'),
     path('file/<int:pk>/edit/', views.FileUpdateView.as_view(), name='file_edit'),
     path('file/<int:pk>/delete/', views.FileDeleteView.as_view(), name='file_delete'),
 
@@ -103,12 +103,12 @@ urlpatterns = [
     path('reports/', views.ReportSearchFormView.as_view(), name="reports"),
     path('reports/samples/', views.export_sample_data, name="sample_report"),
     path('reports/sweeps/', views.export_sweep_data, name="sweep_report"),
-    path('reports/observations/', views.export_obs_data, name="obs_report"),
+    path('reports/specimens/', views.export_specimen_data, name="specimen_report"),
     path('reports/opendata1/<str:year>/<str:sites>/', views.export_open_data_ver1, name="od1_report"),
     path('reports/opendata1/dictionary/', views.export_open_data_ver1_dictionary, name="od1_dictionary"),
     path('reports/opendata1/species-list/', views.export_spp_list, name="od_spp_list"),
     path('reports/opendata/wms/lang/<int:lang>/', views.export_open_data_ver1_wms, name="od1_wms"),
-    path('reports/observations/v1/', views.export_obs_data_v1, name="export_obs_data_v1"),
+    path('reports/specimens/v1/', views.export_specimen_data_v1, name="export_specimen_data_v1"),
 
     #electro
     path('reports/electrofishing/juv_salmon_report/', views.electro_juv_salmon_report, name="electro_juv_salmon_report"),

@@ -365,7 +365,7 @@ def run_process_fish():
     from alive_progress import alive_bar
 
     life_stage_lookup = get_life_stage_lookup()
-    models.Observation.objects.filter(old_id__istartswith="gd").delete()
+    models.Specimen.objects.filter(old_id__istartswith="gd").delete()
 
     with open(os.path.join(rootdir, 'problematic_fish_data.csv'), 'w') as wf:
         writer = csv.writer(wf, delimiter=',', lineterminator='\n')
@@ -420,7 +420,7 @@ def run_process_fish():
                             # Now to deal with the sweep
                             sweep_number = r["SWEEP_NUMBER"]
                             if not sweep_number:
-                                writer.writerow([r[key] for key in r] + [4, "This observation has no sweep number", sample.old_id, 0])
+                                writer.writerow([r[key] for key in r] + [4, "This specimen has no sweep number", sample.old_id, 0])
                             else:
                                 sweep_number = float(sweep_number)
                                 sweeps = sample.sweeps.filter(sweep_number=sweep_number)
@@ -507,9 +507,9 @@ def run_process_fish():
                                         fish_kwargs["notes"] = notes
                                         catch_frequency = int(r["CATCH_FREQUENCY"])
                                         for x in range(0, catch_frequency):
-                                            models.Observation.objects.create(**fish_kwargs)
+                                            models.Specimen.objects.create(**fish_kwargs)
                     else:
-                        writer.writerow([r[key] for key in r] + [0, "Fish observation has no date/time", "", 0])
+                        writer.writerow([r[key] for key in r] + [0, "Fish specimen has no date/time", "", 0])
                     bar()
 
 

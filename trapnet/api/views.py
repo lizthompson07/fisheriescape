@@ -23,12 +23,12 @@ class CurrentUserAPIView(APIView):
         return Response(data)
 
 
-# Observations
+# Specimens
 ##############
 
-class ObservationViewSet(ModelViewSet):
-    queryset = models.Observation.objects.order_by("-id")
-    serializer_class = serializers.ObservationSerializer
+class SpecimenViewSet(ModelViewSet):
+    queryset = models.Specimen.objects.order_by("-id")
+    serializer_class = serializers.SpecimenSerializer
     permission_classes = [TrapnetCRUDOrReadOnly]
 
     def perform_create(self, serializer):
@@ -41,12 +41,12 @@ class ObservationViewSet(ModelViewSet):
         qp = request.query_params
         if qp.get("sample"):
             sample = get_object_or_404(models.Sample, pk=qp.get("sample"))
-            qs = sample.observations.all()
+            qs = sample.specimens.all()
             serializer = self.get_serializer(qs, many=True)
             return Response(serializer.data)
         elif qp.get("sweep"):
             sweep = get_object_or_404(models.Sweep, pk=qp.get("sweep"))
-            qs = sweep.observations.all()
+            qs = sweep.specimens.all()
             serializer = self.get_serializer(qs, many=True)
             return Response(serializer.data)
         if qp.get("get_labels"):

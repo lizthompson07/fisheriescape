@@ -38,7 +38,7 @@ class SampleFilter(django_filters.FilterSet):
             'site__river': ['exact'],
             'site': ['exact'],
             'sample_type': ['exact'],
-            'observations__species': ['exact'],
+            'specimens__species': ['exact'],
             'monitoring_program': ['exact'],
         }
 
@@ -55,16 +55,16 @@ class SampleFilter(django_filters.FilterSet):
 
         self.filters["site"] = django_filters.ChoiceFilter(field_name="site", choices=site_choices, label="Site", widget=forms.Select(attrs=chosen_js))
         self.filters["site__river"] = django_filters.ChoiceFilter(field_name="site__river", choices=river_choices, label="River")
-        self.filters["observations__species"].label = gettext("Species")
+        self.filters["specimens__species"].label = gettext("Species")
 
 
-class ObservationFilter(django_filters.FilterSet):
+class SpecimenFilter(django_filters.FilterSet):
     year = django_filters.NumberFilter("sample__arrival_date__year", label=gettext_lazy("Year"))
     month = django_filters.NumberFilter("sample__arrival_date__month", label=gettext_lazy("Month"))
     day = django_filters.NumberFilter("sample__arrival_date__day", label=gettext_lazy("Day"))
 
     class Meta:
-        model = models.Observation
+        model = models.Specimen
         fields = {
             'id': ['exact'],
             'species': ['exact'],

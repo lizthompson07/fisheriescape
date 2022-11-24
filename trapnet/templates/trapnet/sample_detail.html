@@ -145,28 +145,29 @@
               <a class="btn btn-primary btn-sm" href="{% url 'trapnet:sample_data_entry' object.id %}">{% trans "Add / Modify" %}</a>
             {% endif %}
           </div>
-          {% trans "Observations" %}
+          {% trans "Specimens" %}
+          {% if object.specimens.exists %} ({{ object.specimens.count }}) {% endif %}
         </div>
         <div class="card-body">
-          {% if not object.observations.exists %}
-            <em>{% trans "There are no observations associated with this sample." %}</em>
+          {% if not object.specimens.exists %}
+            <em>{% trans "There are no specimens associated with this sample." %}</em>
           {% else %}
             <table class="table table-sm table-hover table-small-10 sortable">
               <thead>
               <tr>
-                {% for field in obs_field_list %}
+                {% for field in specimen_field_list %}
                   <th>
-                    {% get_verbose_label object.observations.first field %}
+                    {% get_verbose_label object.specimens.first field %}
                   </th>
                 {% endfor %}
               </tr>
               </thead>
               <tbody>
-              {% for obs in object.observations.all %}
-                <tr href="{% url 'trapnet:obs_detail' obs.id %}">
-                  {% for field in obs_field_list %}
+              {% for specimen in object.specimens.all %}
+                <tr href="{% url 'trapnet:specimen_detail' specimen.id %}">
+                  {% for field in specimen_field_list %}
                     <td>
-                      {% get_field_value obs field %}
+                      {% get_field_value specimen field %}
                     </td>
                   {% endfor %}
                 </tr>

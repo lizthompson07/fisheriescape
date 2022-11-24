@@ -116,8 +116,8 @@ class Species(MetadataFields):
         return reverse("trapnet:species_detail", kwargs={"pk": self.id})
 
     @property
-    def observation_count(self):
-        return self.observations.count()
+    def specimen_count(self):
+        return self.specimens.count()
 
 
 class Electrofisher(SimpleLookup):
@@ -138,6 +138,9 @@ class Sample(MetadataFields):
     departure_date = models.DateTimeField(verbose_name="departure date/time")
     samplers = models.TextField(blank=True, null=True)
     notes = models.TextField(blank=True, null=True)
+
+    age_thresh_0_1 = models.IntegerField(blank=True, null=True, verbose_name=_("salmon site-specific age threshold (0+ to 1+)"))
+    age_thresh_1_2 = models.IntegerField(blank=True, null=True, verbose_name=_("salmon site-specific age threshold (1+ to 2+)"))
 
     # electro
     crew_probe = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("crew (probe)"))
@@ -340,14 +343,14 @@ class Sample(MetadataFields):
 
     @property
     def species_list(self):
-        spp = Species.objects.filter(Q(observations__sample=self) | Q(observations__sweep__sample=self)).distinct()
-        my_list = list([f"{sp} ({sp.observations.filter(Q(sample=self) | Q(sweep__sample=self)).count()})" for sp in spp])
+        spp = Species.objects.filter(Q(specimens__sample=self) | Q(specimens__sweep__sample=self)).distinct()
+        my_list = list([f"{sp} ({sp.specimens.filter(Q(sample=self) | Q(sweep__sample=self)).count()})" for sp in spp])
         my_list.sort()
         return mark_safe(listrify(my_list, "<br>"))
 
     @property
     def tag_list(self):
-        my_list = list([obs.tag_number for obs in self.observations.filter(tag_number__isnull=False)])
+        my_list = list([specimen.tag_number for specimen in self.specimens.filter(tag_number__isnull=False)])
         my_list.sort()
         return mark_safe(listrify(my_list))
 
@@ -464,8 +467,8 @@ class Sweep(MetadataFields):
         unique_together = (("sample","sweep_number"), )
 
     @property
-    def observation_count(self):
-        return self.observations.count()
+    def specimen_count(self):
+        return self.specimens.count()
 
     def __str__(self):
         return f"Sweep {self.sweep_number}"
@@ -475,14 +478,14 @@ class Sweep(MetadataFields):
 
     @property
     def species_list(self):
-        spp = Species.objects.filter(observations__sweep=self).distinct()
-        my_list = list([f"{sp} ({sp.observations.filter(sweep=self).count()})" for sp in spp])
+        spp = Species.objects.filter(specimens__sweep=self).distinct()
+        my_list = list([f"{sp} ({sp.specimens.filter(sweep=self).count()})" for sp in spp])
         my_list.sort()
         return mark_safe(listrify(my_list, "<br>"))
 
     @property
     def tag_list(self):
-        my_list = list([obs.tag_number for obs in self.observations.filter(tag_number__isnull=False)])
+        my_list = list([specimen.tag_number for specimen in self.specimens.filter(tag_number__isnull=False)])
         my_list.sort()
         return mark_safe(listrify(my_list))
 
@@ -503,13 +506,13 @@ class Maturity(CodeModel):
     pass
 
 
-class Observation(MetadataFields):
-    species = models.ForeignKey(Species, on_delete=models.DO_NOTHING, related_name="observations")
-    life_stage = models.ForeignKey(LifeStage, related_name='observations', on_delete=models.DO_NOTHING, blank=True, null=True)
-    reproductive_status = models.ForeignKey(ReproductiveStatus, related_name='observations', on_delete=models.DO_NOTHING, blank=True, null=True)
+class Specimen(MetadataFields):
+    species = models.ForeignKey(Species, on_delete=models.DO_NOTHING, related_name="specimens")
+    life_stage = models.ForeignKey(LifeStage, related_name='specimens', on_delete=models.DO_NOTHING, blank=True, null=True)
+    reproductive_status = models.ForeignKey(ReproductiveStatus, related_name='specimens', on_delete=models.DO_NOTHING, blank=True, null=True)
 
-    status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, related_name="observations", blank=False, null=True)
-    sex = models.ForeignKey(Sex, on_delete=models.DO_NOTHING, related_name="observations", blank=True, null=True)
+    status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, related_name="specimens", blank=False, null=True)
+    sex = models.ForeignKey(Sex, on_delete=models.DO_NOTHING, related_name="specimens", blank=True, null=True)
     adipose_condition = models.IntegerField(blank=True, null=True, verbose_name=_("adipose condition"), choices=model_choices.adipose_condition_choices)
 
     fork_length = models.FloatField(blank=True, null=True, verbose_name=_("fork length (mm)"))
@@ -526,16 +529,17 @@ class Observation(MetadataFields):
 
     notes = models.TextField(blank=True, null=True)
 
-    sample = models.ForeignKey(Sample, on_delete=models.CASCADE, related_name="observations", blank=True, null=True)
-    sweep = models.ForeignKey(Sweep, on_delete=models.CASCADE, related_name="observations", blank=True, null=True)
+    sample = models.ForeignKey(Sample, on_delete=models.CASCADE, related_name="specimens", blank=True, null=True)
+    sweep = models.ForeignKey(Sweep, on_delete=models.CASCADE, related_name="specimens", blank=True, null=True)
     old_id = models.CharField(max_length=25, null=True, blank=True, editable=False)
 
     # to be deleted eventually
-    origin = models.ForeignKey(Origin, on_delete=models.DO_NOTHING, related_name="observations", blank=True, null=True, editable=False)
+    origin = models.ForeignKey(Origin, on_delete=models.DO_NOTHING, related_name="specimens", blank=True, null=True, editable=False)
 
     def save(self, *args, **kwargs):
         if self.sweep:
             self.sample = self.sweep.sample
+        # if self.fork_length and self.sample.age_thresh_0_1
         return super().save(*args, **kwargs)
 
     def __str__(self):
@@ -551,14 +555,17 @@ class Observation(MetadataFields):
     @property
     def first_tagging(self):
         if self.tag_number and self.is_recapture:
-            first_obs_qs = Observation.objects.filter(~Q(id=self.id)).filter(tag_number=self.tag_number)
-            if first_obs_qs.exists():
-                return first_obs_qs.first()
+            first_specimen_qs = Specimen.objects.filter(~Q(id=self.id)).filter(tag_number=self.tag_number)
+            if first_specimen_qs.exists():
+                return first_specimen_qs.first()
+
+
+
 
 
 def file_directory_path(instance, filename):
     # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
-    return 'trapnet/observation_{0}/{1}'.format(instance.observation.id, filename)
+    return 'trapnet/specimen_{0}/{1}'.format(instance.specimen.id, filename)
 
 
 def sample_file_directory_path(instance, filename):
@@ -566,7 +573,7 @@ def sample_file_directory_path(instance, filename):
 
 
 class File(MetadataFields):
-    observation = models.ForeignKey(Observation, related_name="files", on_delete=models.CASCADE, editable=False)
+    specimen = models.ForeignKey(Specimen, related_name="files", on_delete=models.CASCADE, editable=False)
     caption = models.CharField(max_length=255)
     image = models.ImageField(upload_to=file_directory_path)
 

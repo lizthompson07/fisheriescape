@@ -17,7 +17,7 @@ from .. import models
 
 
 def delete_rst_data():
-    models.Observation.objects.filter(sample__sample_type=1).delete()
+    models.Specimen.objects.filter(sample__sample_type=1).delete()
     models.Entry.objects.all().delete()
     models.Sweep.objects.filter(sample__sample_type=1).delete()
     models.Sample.objects.filter(sample_type=1).delete()
@@ -47,7 +47,7 @@ def get_number_suffix(mystr):
             return int(result)
 
 
-def check_entries_2_obs():
+def check_entries_2_specimen():
     for entry in models.Entry.objects.filter(
             first_tag__isnull=False,
             last_tag__isnull=True,
@@ -57,9 +57,9 @@ def check_entries_2_obs():
             print(entry.first_tag, entry.frequency)
 
 
-def create_obs(kwargs):
+def create_specimen(kwargs):
     try:
-        models.Observation.objects.create(**kwargs)
+        models.Specimen.objects.create(**kwargs)
     except IntegrityError:
         print("dealing with dup")
         old_tag = kwargs.get("tag_number")
@@ -67,12 +67,12 @@ def create_obs(kwargs):
         new_tag = f'{old_tag}.{randint(1, 1000)}'
         kwargs["tag_number"] = new_tag
         print("Duplicate tag number!! ", old_tag, " to ", new_tag)
-        models.Observation.objects.create(**kwargs)
+        models.Specimen.objects.create(**kwargs)
 
 
-def entries_2_obs():
-    # remove all previous observations from rst
-    models.Observation.objects.filter(sample__sample_type=1).delete()
+def entries_2_specimen():
+    # remove all previous specimens from rst
+    models.Specimen.objects.filter(sample__sample_type=1).delete()
     now = timezone.now()
     j = 1
     for entry in models.Entry.objects.all():
@@ -95,10 +95,10 @@ def entries_2_obs():
                 "created_at": now,
             }
 
-            # determine if this is a single observation
+            # determine if this is a single specimen
             if not entry.last_tag and (entry.frequency == 1 or entry.frequency is None):
-                # this means we are dealing with a single observation
-                create_obs(kwargs)
+                # this means we are dealing with a single specimen
+                create_specimen(kwargs)
             else:
                 start_tag_prefix = get_prefix(entry.first_tag)
                 start_tag = get_number_suffix(entry.first_tag)
@@ -109,17 +109,17 @@ def entries_2_obs():
                     for i in range(0, diff):
                         tag = f"{start_tag_prefix}{start_tag + i}"
                         kwargs["tag_number"] = tag
-                        create_obs(kwargs)
+                        create_specimen(kwargs)
                 elif start_tag and entry.frequency:
                     for i in range(0, entry.frequency):
                         tag = f"{start_tag_prefix}{start_tag + i}"
                         kwargs["tag_number"] = tag
-                        create_obs(kwargs)
+                        create_specimen(kwargs)
                 elif entry.frequency:
                     for i in range(0, entry.frequency):
-                        create_obs(kwargs)
+                        create_specimen(kwargs)
                 else:
-                    create_obs(kwargs)
+                    create_specimen(kwargs)
         j += 1
 
 
@@ -438,7 +438,7 @@ def import_smolt_data():
             )
 
             if samples.count() == 0:
-                print("big problem for obs id={}. no sample found for site={}, date={}/{}/{}".format(
+                print("big problem for specimen id={}. no sample found for site={}, date={}/{}/{}".format(
                     row["id"],
                     site,
                     row["Year"],
@@ -447,7 +447,7 @@ def import_smolt_data():
                 ))
 
             elif samples.count() > 1:
-                print("small problem for obs id={}. multiple samples found for site={}, date={}/{}/{}".format(
+                print("small problem for specimen id={}. multiple samples found for site={}, date={}/{}/{}".format(
                     row["id"],
                     site,
                     row["Year"],
@@ -456,10 +456,10 @@ def import_smolt_data():
                 ))
                 for s in samples:
                     print(s.arrival_date, row["Time.Start"])
-                print("going to put all observations in the first sample")
+                print("going to put all specimens in the first sample")
             if samples.exists():
-                # there has been  1 or more hits and we can create the observation in the db
-                my_obs, created = models.Entry.objects.get_or_create(
+                # there has been  1 or more hits and we can create the specimen in the db
+                my_specimen, created = models.Entry.objects.get_or_create(
                     id=int(row["id"]),
                 )
                 if created:
@@ -483,35 +483,35 @@ def import_smolt_data():
                             f'Species={row["Species"]} Status={row["Status"]} '
                             f'Origin={row["Origin"]} Sex={row["Sex"]}'
                         )
-                    my_obs.species = species
-                    my_obs.sample = samples.first()
-                    my_obs.first_tag = row["First.Tag"].strip() if row["First.Tag"] else None
-                    my_obs.last_tag = row["Last.Tag"].strip() if row["Last.Tag"] else None
-                    my_obs.status = status
-                    my_obs.origin = origin
-                    my_obs.frequency = row["Freq"].strip() if row["Freq"] else None
-                    my_obs.fork_length = row["ForkLength"].strip() if row["ForkLength"] else None
-                    my_obs.total_length = row["Total.Length"].strip() if row["Total.Length"] else None
-                    my_obs.weight = row["Weight"].strip() if row["Weight"] else None
-                    my_obs.sex = sex
-                    my_obs.smolt_age = row["Smolt.Age"].strip() if row["Smolt.Age"] else None
-                    my_obs.scale_id_number = row["Scale ID Number"].strip() if row["Scale ID Number"] else None
-                    my_obs.tags_removed = row["tags removed"].strip() if row["tags removed"] else None
-                    my_obs.notes = row["Comments"].strip() if row["Comments"] else None
+                    my_specimen.species = species
+                    my_specimen.sample = samples.first()
+                    my_specimen.first_tag = row["First.Tag"].strip() if row["First.Tag"] else None
+                    my_specimen.last_tag = row["Last.Tag"].strip() if row["Last.Tag"] else None
+                    my_specimen.status = status
+                    my_specimen.origin = origin
+                    my_specimen.frequency = row["Freq"].strip() if row["Freq"] else None
+                    my_specimen.fork_length = row["ForkLength"].strip() if row["ForkLength"] else None
+                    my_specimen.total_length = row["Total.Length"].strip() if row["Total.Length"] else None
+                    my_specimen.weight = row["Weight"].strip() if row["Weight"] else None
+                    my_specimen.sex = sex
+                    my_specimen.smolt_age = row["Smolt.Age"].strip() if row["Smolt.Age"] else None
+                    my_specimen.scale_id_number = row["Scale ID Number"].strip() if row["Scale ID Number"] else None
+                    my_specimen.tags_removed = row["tags removed"].strip() if row["tags removed"] else None
+                    my_specimen.notes = row["Comments"].strip() if row["Comments"] else None
 
                     try:
-                        my_obs.save()
+                        my_specimen.save()
                     except Exception as e:
                         print(e)
-                        print(my_obs.id)
+                        print(my_specimen.id)
 
             i += 1
 
 
 def transfer_life_stage():
-    for obs in models.Observation.objects.filter(species__life_stage__isnull=False):
-        obs.life_stage_id = obs.species.life_stage_id
-        obs.save()
+    for specimen in models.Specimen.objects.filter(species__life_stage__isnull=False):
+        specimen.life_stage_id = specimen.species.life_stage_id
+        specimen.save()
 
 
 def clean_up_species_table():
@@ -523,22 +523,22 @@ def clean_up_species_table():
         if obj["dcount"] > 1:
             duplicate_tsns.append(obj["tsn"])
 
-    # for each TSN, we want to keep the one with the most observations as the authoritative
+    # for each TSN, we want to keep the one with the most specimens as the authoritative
     for tsn in duplicate_tsns:
         qs = models.Species.objects.filter(tsn=tsn)
         keeper = qs.first()  # arbitrarily set to the first in line
-        max_observations = 0
+        max_specimens = 0
         for sp in qs:
-            print(sp.id, sp, sp.observations.count())
-            if sp.observations.count() > max_observations:
+            print(sp.id, sp, sp.specimens.count())
+            if sp.specimens.count() > max_specimens:
                 keeper = sp
-        # now that we have a keeper, transfer over the other observations to that sp and delete bad spp
+        # now that we have a keeper, transfer over the other specimens to that sp and delete bad spp
         # qs = qs.filter(~Q(id=keeper.id))
         # for sp in qs:
-        #     for obs in sp.observations.all():
-        #         obs.species_id = keeper.id
-        #         obs.save()
-        #     print(sp.observations.count())
+        #     for specimen in sp.specimens.all():
+        #         specimen.species_id = keeper.id
+        #         specimen.save()
+        #     print(sp.specimens.count())
         # sp.delete()
 
 
@@ -549,15 +549,15 @@ def clean_up_lamprey():
     life_stage_ammocoete, created = models.LifeStage.objects.get_or_create(name="ammocoete")
     life_stage_silver, created = models.LifeStage.objects.get_or_create(name="silver")
 
-    for obs in s151.observations.all():
-        obs.species_id = s150.id
-        obs.life_stage_id = life_stage_ammocoete.id
-        obs.save()
+    for specimen in s151.specimens.all():
+        specimen.species_id = s150.id
+        specimen.life_stage_id = life_stage_ammocoete.id
+        specimen.save()
 
-    for obs in s152.observations.all():
-        obs.species_id = s150.id
-        obs.life_stage_id = life_stage_silver.id
-        obs.save()
+    for specimen in s152.specimens.all():
+        specimen.species_id = s150.id
+        specimen.life_stage_id = life_stage_silver.id
+        specimen.save()
 
     s151.delete()
     s152.delete()
@@ -573,19 +573,19 @@ def create_river_areas():
 
 def find_duplicate_scales():
     # get the unique list of scale ids
-    observations = models.Observation.objects.filter(scale_id_number__isnull=False)
-    scale_ids = set([o.scale_id_number for o in observations])
+    specimens = models.Specimen.objects.filter(scale_id_number__isnull=False)
+    scale_ids = set([o.scale_id_number for o in specimens])
 
     for sid in scale_ids:
-        if observations.filter(scale_id_number=sid).count() > 1:
+        if specimens.filter(scale_id_number=sid).count() > 1:
             print(f"duplicate records found for: {sid}")
 
 
 def annotate_scales():
     # get the unique list of scale ids
-    observations = models.Observation.objects.filter(scale_id_number__isnull=False)
+    specimens = models.Specimen.objects.filter(scale_id_number__isnull=False)
 
-    for o in observations:
+    for o in specimens:
         o.scale_id_number += f" {o.sample.season}"
         o.save()
 
@@ -593,45 +593,45 @@ def annotate_scales():
 
 
 def populate_len():
-    fl_observations = models.Observation.objects.filter(fork_length__isnull=False, length__isnull=True)
-    for o in fl_observations:
+    fl_specimens = models.Specimen.objects.filter(fork_length__isnull=False, length__isnull=True)
+    for o in fl_specimens:
         o.length = o.fork_length
         o.length_type = 1
         o.save()
 
-    tot_observations = models.Observation.objects.filter(total_length__isnull=False, length__isnull=True)
-    for o in tot_observations:
+    tot_specimens = models.Specimen.objects.filter(total_length__isnull=False, length__isnull=True)
+    for o in tot_specimens:
         o.length = o.total_length
         o.length_type = 2
         o.save()
 
 
 def reverse_len():
-    len_observations = models.Observation.objects.filter(fork_length__isnull=True, total_length__isnull=True, length__isnull=False)
-    for o in len_observations:
+    len_specimens = models.Specimen.objects.filter(fork_length__isnull=True, total_length__isnull=True, length__isnull=False)
+    for o in len_specimens:
         if o.length_type == 1:
             o.fork_length = o.length
         else:
             o.total_length = o.length
         o.save()
 
-    problem_observations_1 = models.Observation.objects.filter(fork_length__isnull=False, length__isnull=False, length_type=1)
-    for o in problem_observations_1:
+    problem_specimens_1 = models.Specimen.objects.filter(fork_length__isnull=False, length__isnull=False, length_type=1)
+    for o in problem_specimens_1:
         if o.length != o.fork_length:
-            print("bad observation", o.id)
-    problem_observations_2 = models.Observation.objects.filter(total_length__isnull=False, length__isnull=False, length_type=2)
-    for o in problem_observations_2:
+            print("bad specimen", o.id)
+    problem_specimens_2 = models.Specimen.objects.filter(total_length__isnull=False, length__isnull=False, length_type=2)
+    for o in problem_specimens_2:
         if o.length != o.total_length:
-            print("bad observation", o.id)
+            print("bad specimen", o.id)
 
 
 
 def delete_tags_removed():
-    observations = models.Observation.objects.filter(tags_removed__isnull=False, tag_number__isnull=False)
-    for obs in observations:
+    specimens = models.Specimen.objects.filter(tags_removed__isnull=False, tag_number__isnull=False)
+    for specimen in specimens:
 
         # get a list of tags from the removed_tags
-        removed_tags = obs.tags_removed.split(" ")
+        removed_tags = specimen.tags_removed.split(" ")
         # trim away any whitespace
         removed_tags = [tag.strip() for tag in removed_tags]
         # determine the number of digits in the tag. all the tags should have the same number of digits
@@ -642,11 +642,11 @@ def delete_tags_removed():
         else:
             # we are good to proceed
             digits = len(removed_tags[0])
-            # if the observation tag number is not the same length as the reference tag number, we'll have to do some surgery
-            if not digits == len(obs.tag_number):
-                # print(obs.tag_number, "does not conform to the format of tags removed:", removed_tags)
-                pos = len(obs.tag_number) - 1
-                new_tag = f"{obs.tag_number[0]}0{obs.tag_number[-pos:]}"
+            # if the specimen tag number is not the same length as the reference tag number, we'll have to do some surgery
+            if not digits == len(specimen.tag_number):
+                # print(specimen.tag_number, "does not conform to the format of tags removed:", removed_tags)
+                pos = len(specimen.tag_number) - 1
+                new_tag = f"{specimen.tag_number[0]}0{specimen.tag_number[-pos:]}"
                 if not digits == len(new_tag):
                     # try adding another zero
                     pos = len(new_tag) - 1
@@ -662,12 +662,12 @@ def delete_tags_removed():
                     # print("still bad:", new_tag, "first char is different:", removed_tags)
                     pass
                 else:
-                    obs.tag_number = new_tag
-                    obs.save()
+                    specimen.tag_number = new_tag
+                    specimen.save()
 
-            if obs.tag_number in removed_tags:
-                print("This observation is being deleted:", obs.tag_number, removed_tags)
-                obs.delete()
+            if specimen.tag_number in removed_tags:
+                print("This specimen is being deleted:", specimen.tag_number, removed_tags)
+                specimen.delete()
 
 
 def import_smolt_ages():
@@ -678,19 +678,19 @@ def import_smolt_ages():
         my_csv = csv.DictReader(csv_read_file)
         for row in my_csv:
             scale_id = row["Scale ID Number"].strip()
-            qs = models.Observation.objects.filter(scale_id_number=scale_id)
+            qs = models.Specimen.objects.filter(scale_id_number=scale_id)
             if not qs.exists():
                 scale_id = scale_id + f' {row["Year"]}'
-                qs = models.Observation.objects.filter(scale_id_number=scale_id)
+                qs = models.Specimen.objects.filter(scale_id_number=scale_id)
                 if not qs.exists():
                     print("cannot find scale number:", scale_id)
                 elif qs.count() > 1:
                     print("too many results:", scale_id)
                 else:
                     # print(f"ready to insert age for scale_id {scale_id}: {row['Smolt.Age']}")
-                    obs = qs.first()
-                    obs.river_age = row['Smolt.Age']
-                    obs.save()
+                    specimen = qs.first()
+                    specimen.river_age = row['Smolt.Age']
+                    specimen.save()
             else:
                 # let's deal with the ones with multiple frequencies
                 freq = int(row["Freq"])
@@ -717,7 +717,7 @@ def import_smolt_ages():
 
                 if freq > 1:
                     # find out how many exist from that date
-                    qs = models.Observation.objects.filter(
+                    qs = models.Specimen.objects.filter(
                         sample__site=site,
                         sample__arrival_date=arrival_date,
                         tag_number__isnull=True,
@@ -727,11 +727,11 @@ def import_smolt_ages():
                     )
                     print(qs.count(), freq, qs.count() > freq)
                     i = 1
-                    for obs in qs:
-                        obs.river_age = row['Smolt.Age']
-                        obs.save()
-                        print("updating:", i, obs.id)
-                        qs0 = models.Observation.objects.filter(
+                    for specimen in qs:
+                        specimen.river_age = row['Smolt.Age']
+                        specimen.save()
+                        print("updating:", i, specimen.id)
+                        qs0 = models.Specimen.objects.filter(
                             sample__site=site,
                             sample__arrival_date=arrival_date,
                             tag_number__isnull=True,
@@ -746,7 +746,7 @@ def import_smolt_ages():
                     species = int(row["species"])
                     life_stage_id = row["life_stage_id"]
                     if species == 79 and life_stage_id == "1":
-                        qs = models.Observation.objects.filter(
+                        qs = models.Specimen.objects.filter(
                             sample__site=site,
                             sample__arrival_date=arrival_date,
                             tag_number__isnull=True,
@@ -755,11 +755,11 @@ def import_smolt_ages():
                             notes__icontains=row["Comments"],
                         )
                         if qs.count() == 1:
-                            obs = qs.first()
-                            obs.river_age = row['Smolt.Age']
-                            obs.save()
+                            specimen = qs.first()
+                            specimen.river_age = row['Smolt.Age']
+                            specimen.save()
                     if species == 79 and life_stage_id == "2":
-                        qs = models.Observation.objects.filter(
+                        qs = models.Specimen.objects.filter(
                             sample__site=site,
                             sample__arrival_date=arrival_date,
                             tag_number__isnull=True,
@@ -769,12 +769,12 @@ def import_smolt_ages():
                             fork_length=row["ForkLength"]
                         )
                         if qs.count() == 1:
-                            obs = qs.first()
-                            obs.river_age = row['Smolt.Age']
-                            obs.save()
+                            specimen = qs.first()
+                            specimen.river_age = row['Smolt.Age']
+                            specimen.save()
 
                     if species == 24:
-                        qs = models.Observation.objects.filter(
+                        qs = models.Specimen.objects.filter(
                             sample__site=site,
                             sample__arrival_date=arrival_date,
                             tag_number__isnull=True,
@@ -784,11 +784,11 @@ def import_smolt_ages():
                         )
                         print(qs.count())
                         if qs.count() == 1:
-                            obs = qs.first()
-                            obs.river_age = row['Smolt.Age']
-                            obs.save()
+                            specimen = qs.first()
+                            specimen.river_age = row['Smolt.Age']
+                            specimen.save()
                     elif species == 54:
-                        qs = models.Observation.objects.filter(
+                        qs = models.Specimen.objects.filter(
                             sample__site=site,
                             sample__arrival_date=arrival_date,
                             tag_number__isnull=True,
@@ -799,18 +799,18 @@ def import_smolt_ages():
                             notes__icontains=row["Comments"],
                         )
                         if qs.count() == 1:
-                            obs = qs.first()
-                            obs.river_age = row['Smolt.Age']
-                            obs.save()
+                            specimen = qs.first()
+                            specimen.river_age = row['Smolt.Age']
+                            specimen.save()
 
 
 def populate_adipose_condition():
     print("first part:")
-    for o in models.Observation.objects.filter(origin__code__iexact="ha"):
+    for o in models.Specimen.objects.filter(origin__code__iexact="ha"):
         o.adipose_condition = 0
         o.save()
 
     print("second part:")
-    for o in models.Observation.objects.filter(origin__code__iexact="w"):
+    for o in models.Specimen.objects.filter(origin__code__iexact="w"):
         o.adipose_condition = 1
         o.save()

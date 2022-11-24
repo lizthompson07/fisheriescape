@@ -18,7 +18,7 @@ class SpeciesSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-class ObservationSerializer(serializers.ModelSerializer):
+class SpecimenSerializer(serializers.ModelSerializer):
     species_object = serializers.SerializerMethodField()
     species_display = serializers.SerializerMethodField()
     sex_display = serializers.SerializerMethodField()
@@ -49,7 +49,7 @@ class ObservationSerializer(serializers.ModelSerializer):
         return SpeciesSerializer(instance.species).data
 
     class Meta:
-        model = models.Observation
+        model = models.Specimen
         fields = "__all__"
 
     def validate(self, attrs):
