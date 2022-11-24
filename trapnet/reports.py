@@ -98,9 +98,9 @@ def generate_specimen_csv(year, fishing_areas, rivers, sites):
         if field.attname not in field_names:
             field_names.append(field.attname)
     header_row = [field for field in field_names]  # starter
-    header_row.extend(["site", "site_id", "arrival_date", "departure_date"])
+    header_row.extend(["adipose_condition_display"])
+    header_row.extend(["site", "site_id", "arrival_date", "departure_date", "full_wetted_width"])
     header_row.extend(["sweep_number", "sweep_time"])
-
 
     pseudo_buffer = Echo()
     writer = csv.writer(pseudo_buffer)
@@ -108,7 +108,10 @@ def generate_specimen_csv(year, fishing_areas, rivers, sites):
 
     for obj in qs:
         data_row = [str(nz(getattr(obj, field), "")).encode("utf-8").decode('utf-8') for field in field_names]  # starter
-        data_row.extend([obj.sample.site, obj.sample.site_id, obj.sample.arrival_date, obj.sample.departure_date])
+        data_row.extend([obj.get_adipose_condition_display()])
+        data_row.extend(
+            [obj.sample.site, obj.sample.site_id, obj.sample.arrival_date, obj.sample.departure_date, obj.sample.get_full_wetted_width(show_errors=False)]
+        )
         if obj.sweep:
             data_row.extend([obj.sweep.sweep_number, obj.sweep.sweep_time])
         yield writer.writerow(data_row)
