@@ -335,7 +335,8 @@ class CSASRequestPDFView(LoginAccessRequiredMixin, PDFTemplateView):
     def get_object_list(self):
         qp = self.request.GET
         csas_requests = qp.get("csas_requests") if qp.get("csas_requests") and qp.get("csas_requests") != "None" else None
-        fiscal_year = qp.get("fiscal_year") if qp.get("fiscal_year") and qp.get("fiscal_year") != "None" else None
+        advice_fys = qp.get("advice_fys") if qp.get("advice_fys") and qp.get("advice_fys") != "None" else None
+        request_fys = qp.get("request_fys") if qp.get("request_fys") and qp.get("request_fys") != "None" else None
         request_status = qp.get("request_status") if qp.get("request_status") and qp.get("request_status") != "None" else None
         region = qp.get("region") if qp.get("region") and qp.get("region") != "None" else None
         sector = qp.get("sector") if qp.get("sector") and qp.get("sector") != "None" else None
@@ -348,8 +349,12 @@ class CSASRequestPDFView(LoginAccessRequiredMixin, PDFTemplateView):
             csas_requests = qp.get("csas_requests").split(",")
             qs = qs.filter(id__in=csas_requests)
         else:
-            if fiscal_year:
-                qs = qs.filter(advice_fiscal_year_id=fiscal_year)
+            if advice_fys:
+                advice_fys = advice_fys.split(",")
+                qs = qs.filter(advice_fiscal_year_id__in=advice_fys)
+            if request_fys:
+                request_fys = request_fys.split(",")
+                qs = qs.filter(fiscal_year_id__in=request_fys)
             if request_status:
                 qs = qs.filter(status=request_status)
             if region:
@@ -1402,9 +1407,11 @@ class ReportSearchFormView(CsasAdminRequiredMixin, CommonFormView):
     template_name = 'csas2/report_search.html'
     form_class = forms.ReportSearchForm
     h1 = gettext_lazy("CSAS Reports")
+    home_url_name = "csas2:index"
 
     def form_valid(self, form):
         report = int(form.cleaned_data["report"])
+        fy = form.cleaned_data["fiscal_year"] if form.cleaned_data["fiscal_year"] else "None"
         fy = form.cleaned_data["fiscal_year"] if form.cleaned_data["fiscal_year"] else "None"
         request_status = form.cleaned_data["request_status"] if form.cleaned_data["request_status"] else "None"
         region = form.cleaned_data["region"] if form.cleaned_data["region"] else "None"
@@ -1413,6 +1420,8 @@ class ReportSearchFormView(CsasAdminRequiredMixin, CommonFormView):
         division = form.cleaned_data["division"] if form.cleaned_data["division"] else "None"
         section = form.cleaned_data["section"] if form.cleaned_data["section"] else "None"
         csas_requests = listrify(form.cleaned_data["csas_requests"], ",") if form.cleaned_data["csas_requests"] else "None"
+        advice_fys = listrify(form.cleaned_data["advice_fys"], ",") if form.cleaned_data["advice_fys"] else "None"
+        request_fys = listrify(form.cleaned_data["request_fys"], ",") if form.cleaned_data["request_fys"] else "None"
         process_status = form.cleaned_data["process_status"] if form.cleaned_data["process_status"] else "None"
         process_type = form.cleaned_data["process_type"] if form.cleaned_data["process_type"] else "None"
         lead_region = form.cleaned_data["lead_region"] if form.cleaned_data["lead_region"] else "None"
@@ -1422,7 +1431,8 @@ class ReportSearchFormView(CsasAdminRequiredMixin, CommonFormView):
             return HttpResponseRedirect(f"{reverse('csas2:meeting_report')}?fiscal_year={fy}&is_posted={is_posted}")
         elif report == 2:
             return HttpResponseRedirect(f"{reverse('csas2:request_pdf')}?"
-                                        f"fiscal_year={fy}&"
+                                        f"advice_fys={advice_fys}&"
+                                        f"request_fys={request_fys}&"
                                         f"request_status={request_status}&"
                                         f"region={region}&"
                                         f"sector={sector}&"
@@ -1433,7 +1443,8 @@ class ReportSearchFormView(CsasAdminRequiredMixin, CommonFormView):
                                         )
         elif report == 3:
             return HttpResponseRedirect(f"{reverse('csas2:request_list_report')}?"
-                                        f"fiscal_year={fy}&"
+                                        f"advice_fys={advice_fys}&"
+                                        f"request_fys={request_fys}&"
                                         f"request_status={request_status}&"
                                         f"region={region}&"
                                         f"sector={sector}&"
@@ -1489,7 +1500,8 @@ def meeting_report(request):
 def request_list_report(request):
     qp = request.GET
     csas_requests = qp.get("csas_requests") if qp.get("csas_requests") and qp.get("csas_requests") != "None" else None
-    fiscal_year = qp.get("fiscal_year") if qp.get("fiscal_year") and qp.get("fiscal_year") != "None" else None
+    advice_fys = qp.get("advice_fys") if qp.get("advice_fys") and qp.get("advice_fys") != "None" else None
+    request_fys = qp.get("request_fys") if qp.get("request_fys") and qp.get("request_fys") != "None" else None
     request_status = qp.get("request_status") if qp.get("request_status") and qp.get("request_status") != "None" else None
     region = qp.get("region") if qp.get("region") and qp.get("region") != "None" else None
     sector = qp.get("sector") if qp.get("sector") and qp.get("sector") != "None" else None
@@ -1502,8 +1514,12 @@ def request_list_report(request):
         csas_requests = qp.get("csas_requests").split(",")
         qs = qs.filter(id__in=csas_requests)
     else:
-        if fiscal_year:
-            qs = qs.filter(fiscal_year_id=fiscal_year)
+        if advice_fys:
+            advice_fys = advice_fys.split(",")
+            qs = qs.filter(advice_fiscal_year_id__in=advice_fys)
+        if request_fys:
+            request_fys = request_fys.split(",")
+            qs = qs.filter(fiscal_year_id__in=request_fys)
         if request_status:
             qs = qs.filter(status=request_status)
         if region:

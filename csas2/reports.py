@@ -226,9 +226,11 @@ def generate_request_list(requests, site_url):
         'fiscal_year',
         'advice_fiscal_year',
         'target_advice_date|{}'.format(_("advice date")),
+        'prioritization|{}'.format(_("client prioritization")),
         'status',
         'review.decision|{}'.format(_("recommendation")),
         'review.decision_text|{}'.format(_("recommendation explanation")),
+        'review.is_other_mandate|{}'.format(_("falls under other scientific mandate")),
         'has_process|{}'.format(_("has process?")),
         'coordinator',
         'client',
@@ -260,7 +262,7 @@ def generate_request_list(requests, site_url):
             elif "advisors" in field:
                 my_val = listrify(obj.process.advisors.all())
                 my_ws.write(i, j, my_val, normal_format)
-            elif "date" in field:
+            elif "_date" in field:
                 my_val = obj.target_advice_date.strftime("%m/%d/%Y") if obj.target_advice_date else "---"
                 my_ws.write(i, j, my_val, date_format)
             elif "decision|" in field:
