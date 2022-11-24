@@ -808,7 +808,7 @@ class ProcessDeleteView(CanModifyProcessRequiredMixin, CommonDeleteView):
     model = models.Process
     success_url = reverse_lazy('csas2:process_list')
     template_name = 'csas2/confirm_delete.html'
-    delete_protection = False
+    delete_protection = True
     grandparent_crumb = {"title": gettext_lazy("Processes"), "url": reverse_lazy("csas2:process_list")}
 
     def get_parent_crumb(self):
