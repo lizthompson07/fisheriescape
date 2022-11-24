@@ -288,6 +288,12 @@
             </tr>
 
             <tr>
+              <th class="text-left" v-html="reviewLabels.is_other_mandate"></th>
+              <td class="text-left">${request.review.is_other_mandate|yesNo}</td>
+            </tr>
+
+
+            <tr>
               <th class="text-left" v-html="reviewLabels.advice_date"></th>
               <td class="text-left">${request.review.advice_date_display}</td>
             </tr>
@@ -341,6 +347,7 @@
       reviewLabels: {},
       errors: null,
       yesNoChoices: [],
+      boolChoices: [],
       yesNoUnsureChoices: [],
       decisionChoices: [],
       notes: [],
@@ -434,6 +441,7 @@
         apiService(`/api/csas/meta/models/request-review/`).then(data => {
           this.reviewLabels = data.labels;
           this.yesNoChoices = data.yes_no_choices;
+          this.boolChoices = data.bool_choices;
           this.yesNoUnsureChoices = data.yes_no_unsure_choices;
           this.decisionChoices = data.decision_choices;
         });

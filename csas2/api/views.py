@@ -922,8 +922,10 @@ class RequestReviewModelMetaAPIView(APIView):
         yes_no_choices.insert(0, dict(text="-----", value=None))
         yes_no_unsure_choices = [dict(text=c[1], value=c[0]) for c in model_choices.yes_no_unsure_choices_int]
         yes_no_unsure_choices.insert(0, dict(text="-----", value=None))
+        bool_choices = [dict(text=c[1], value=c[0]) for c in models.YES_NO_CHOICES]
         data['yes_no_choices'] = yes_no_choices
         data['yes_no_unsure_choices'] = yes_no_unsure_choices
+        data['bool_choices'] = bool_choices
         data['decision_choices'] = decision_choices
         return Response(data)
 

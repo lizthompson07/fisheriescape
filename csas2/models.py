@@ -489,6 +489,7 @@ class CSASRequestReview(MetadataFields):
     decision_date = models.DateTimeField(null=True, blank=True, verbose_name=_("recommendation date"))
     advice_date = models.DateTimeField(verbose_name=_("advice required by (final)"), blank=True, null=True)
     deferred_text = models.TextField(null=True, blank=True, verbose_name=_("rationale for alternate scheduling"))
+    is_other_mandate = models.BooleanField(default=False, verbose_name=_("does this fall under another scientific mandate?"), choices=YES_NO_CHOICES)
     notes = models.TextField(blank=True, null=True, verbose_name=_("administrative notes"))
 
     # non-editable
@@ -497,6 +498,9 @@ class CSASRequestReview(MetadataFields):
     def save(self, *args, **kwargs):
         if self.is_valid == 0 or self.is_feasible == 0:
             self.decision = 2  # the decision MUST be to withdraw
+
+        if self.decision != 2:
+            self.is_other_mandate = False  # the only time this can ever be true is when it has been returned to client
 
         # if there is a decision, but no decision date, it should be populated
         if self.decision and not self.decision_date:

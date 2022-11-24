@@ -26,13 +26,16 @@
     <div id="">
       <div>
         {% include "shared_models/_generic_breadcrumbs.html" %}
-        <div class="row mb-3">
+        <div class="mb-3">
+          <div class="row">
           <div class="col-sm-1">
             <span class="mdi mdi-file-document h1"></span>
           </div>
           <div class="col">
             <h2 class="">{{ h1|safe }}</h2>
           </div>
+          </div>
+          <p class="lead text-muted mt-1 mb-0">{% trans "Document ID:" %} {{ object.id }}</p>
         </div>
         {% bootstrap_messages %}
         <div v-if="canModify" class="alert alert-primary no-print" role="alert" style="width: 100%">
@@ -70,10 +73,6 @@
           <button v-if="currentUser.is_staff" class="btn btn-sm btn-dark" @click="unconfirmDoc">
             <span class="mdi mdi-cancel text-light mr-1"></span> {% trans "Cancel Confirmation" %}
           </button>
-{#          <button v-else class="btn btn-sm btn-secondary" disabled data-toggle="tooltip"#}
-{#                  :title="'{% trans "Only NCR CSAS staff members can cancel the confirmation status of a document" %}'">#}
-{#            <span class="mdi mdi-cancel text-light mr-1"></span> {% trans "Remove Confirmation" %}#}
-{#          </button>#}
         </span>
 
 
