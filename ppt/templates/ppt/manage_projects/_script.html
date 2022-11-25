@@ -53,16 +53,21 @@ var app = new Vue({
     currentSortTable: "",
 
     projects_loading: true,
+    errorTooManyPY: false,
     errorTooBigStaff: false,
     errorTooSmallStaff: false,
     errorTooBigFinancial: false,
     errorTooSmallFinancial: false,
+    errorTooBigStatusReports: false,
     projectYears: [],
+    allPyIds: [],
     staff: [],
     staff_type_summary: [],
     staff_level_summary: [],
     staff_funding_summary: [],
     dmas: [],
+    statusReports: [],
+    uniqueStatusReports: [],
     financials: [],
     next: null,
     previous: null,
@@ -71,6 +76,9 @@ var app = new Vue({
     // filters
     filter: {
       statuses: []
+    },
+
+    status_report_filter: {
     },
 
     showColumnLeads: true,
@@ -239,6 +247,7 @@ var app = new Vue({
       if (this.filter.has_field_component === true || this.filter.has_field_component === false) endpoint += `has_field_component=${this.filter.has_field_component}&`;
       if (this.filter.has_data_component === true || this.filter.has_data_component === false) endpoint += `has_data_component=${this.filter.has_data_component}&`;
       if (this.filter.has_lab_component === true || this.filter.has_lab_component === false) endpoint += `has_lab_component=${this.filter.has_lab_component}&`;
+      if (this.status_report_filter.has_status_report === true || this.status_report_filter.has_status_report === false) endpoint += `has_status_report=${this.status_report_filter.has_status_report}&`;
       return endpoint
     },
     getDMAFilterString() {
@@ -252,7 +261,9 @@ var app = new Vue({
     },
     getStatusReportFilterString() {
       let endpoint = "";
-      if (this.project_year_id_list) endpoint += `project_years=${this.project_year_id_list}&`;
+      if (this.project_year_id_list) endpoint += `project_years=${this.allPyIds}&`;
+      if (this.status_report_filter.created_at) endpoint += `created_at=${this.status_report_filter.created_at}&`;
+      if (this.status_report_filter.status) endpoint += `status=${this.status_report_filter.status}&`;
       return endpoint
     },
     getProjectYearsEndpoint(pageSize = 25) {
@@ -284,6 +295,20 @@ var app = new Vue({
               this.next = response.next;
               this.previous = response.previous;
               this.count = response.count;
+
+              if (this.count < 200) {
+                  this.errorTooManyPY = false;
+                  endpointAll = this.getProjectYearsEndpoint(200)
+                  apiService(endpointAll)
+                      .then(response => {
+                          if (response.results) {
+                                 this.allPyIds = response.results.map(py => py.id)
+                          }
+                      })
+              } else {
+                  this.errorTooManyPY = true;
+              }
+
               // make all tabs reload with new list
               for (const tabLoadingKey in this.tabAPILoading) {
                 this.tabAPILoading[tabLoadingKey] = true;
@@ -339,6 +364,10 @@ var app = new Vue({
       this.filter = {};
       this.updateResults()
     },
+    clearStatusReportFilters() {
+      this.status_report_filter = {};
+      this.getStatusReports()
+    },
     updateResults() {
       this.clearProjectYears();
       this.getProjectYears();
@@ -387,33 +416,19 @@ var app = new Vue({
         this.errorTooBigStaff = true;
       } else {
         // first get the full list of project years
-        let endpoint1 = this.getProjectYearsEndpoint(pageSize = 150)
-        apiService(endpoint1)
-            .then(response => {
-              if (response.results) {
-                if (response.next) {
-                  this.errorTooBigStaff = true
-                } else {
-
-                  // need a list of projectYears
-                  pyIds = []
-                  for (var i = 0; i < response.results.length; i++) {
-                    pyIds.push(response.results[i].id)
-                  }
-
-                  let endpoint2 = `/api/ppt/staffing/?year=${this.filter.fiscal_year}&ids=${pyIds}`;
-                  apiService(endpoint2)
-                      .then(response => {
-                        this.tabAPILoading.staffList = false;
-                        this.staff = response.results;
-                        this.staff_level_summary = response.level_summary;
-                        this.staff_type_summary = response.type_summary;
-                        this.staff_funding_summary = response.funding_summary;
-                      })
-                }
-              }
-
-            })
+        if (this.errorTooManyPY) {
+            this.errorTooBigStaff = true
+        } else {
+            let endpoint = `/api/ppt/staffing/?year=${this.filter.fiscal_year}&ids=${this.allPyIds}`;
+            apiService(endpoint)
+                .then(response => {
+                    this.tabAPILoading.staffList = false;
+                    this.staff = response.results;
+                    this.staff_level_summary = response.level_summary;
+                    this.staff_type_summary = response.type_summary;
+                    this.staff_funding_summary = response.funding_summary;
+                })
+        }
       }
     },
     getDMAs() {
@@ -427,37 +442,49 @@ var app = new Vue({
     },
     getStatusReports() {
       this.tabAPILoading.statusReports = true;
-      let endpoint1 = this.getStatusReportEndpoint()
-      apiService(endpoint1)
-          .then(response => {
-            this.tabAPILoading.statusReports = false;
-            let nullSr = Object.assign({}, response[0])
-            Object.keys(nullSr).forEach((i) => nullSr[i] = "");
+      this.errorTooBigStatusReports = false;
 
-            var uniqueStatusReports = response.reduce(function (outArr, srStep) {
-              // the following is #efficient
-              // Copy the response array, remove the srStep object from the copy.
-              let compArray = response.slice(0);
-              let srIndex = compArray.indexOf(srStep);
-              compArray.splice(srIndex, 1);
-              // if the next status report's project year is not found in the response array, or if it has the most
-              // recent created_at date, push the object into the output array
-              if (!compArray.some(function (sr) { return sr.project_year === srStep.project_year && sr.created_at > srStep.created_at})) {
-                  outArr.push(srStep);
-              }
-              return outArr;
-            }, []);
+      if (this.errorTooManyPY) {
+        this.tabAPILoading.statusReports = false;
+        this.errorTooBigStatusReports = true;
+      } else {
+        let endpoint = this.getStatusReportEndpoint(pageSize=200)
+        apiService(endpoint)
+            .then(response => {
+                this.tabAPILoading.statusReports = false;
+                this.statusReports = response;
 
-            for (var i = 0; i < this.projectYears.length; i++) {
-              this.projectYears[i].status_report = uniqueStatusReports.find(sr => sr.project_year === this.projectYears[i].id)
-              if (typeof this.projectYears[i].status_report === 'undefined') {
-                this.projectYears[i].has_status_report = false;
-                this.projectYears[i].status_report = nullSr;
-              } else {
-                  this.projectYears[i].has_status_report = true;
-              }
-            }
-          })
+                this.uniqueStatusReports = response.reduce(function (outArr, srStep) {
+                    // the following is #efficient
+                    // Copy the response array, remove the srStep object from the copy.
+                    let compArray = response.slice(0);
+                    let srIndex = compArray.indexOf(srStep);
+                    compArray.splice(srIndex, 1);
+                    // if the next status report's project year is not found in the response array, or if it has the most
+                    // recent created_at date, push the object into the output array
+                    if (!compArray.some(function (sr) {
+                        return sr.project_year === srStep.project_year && sr.created_at > srStep.created_at
+                    })) {
+                        outArr.push(srStep);
+                    }
+                    return outArr;
+                }, []);
+
+                let nullSr = Object.assign({}, response[0])
+                Object.keys(nullSr).forEach((i) => nullSr[i] = "")
+
+                //assign each project year a status report or the null status report
+                for (let i = 0; i < this.projectYears.length; i++) {
+                    this.projectYears[i].status_report = this.uniqueStatusReports.find(sr => sr.project_year === this.projectYears[i].id)
+                    if (typeof this.projectYears[i].status_report === 'undefined') {
+                        this.projectYears[i].has_status_report = false;
+                        this.projectYears[i].status_report = nullSr;
+                    } else {
+                        this.projectYears[i].has_status_report = true;
+                    }
+                }
+            })
+      }
     },
     getFinancials() {
       this.tabAPILoading.financialSummary = true;
@@ -467,33 +494,15 @@ var app = new Vue({
       if (!this.projectYears.length) {
         this.tabAPILoading.financialSummary = false;
         this.errorTooSmallFinancial = true;
-      } else if (this.count > 200) {
+      } else if (this.errorTooManyPY) {
         this.tabAPILoading.financialSummary = false;
         this.errorTooBigFinancial = true;
       } else {
-        // first get the full list of project years
-        let endpoint1 = this.getProjectYearsEndpoint(pageSize = 200)
-        apiService(endpoint1)
+        let endpoint = `/api/ppt/financials/?ids=${this.allPyIds}`;
+        apiService(endpoint)
             .then(response => {
-              if (response.results) {
-
-                if (response.next) {
-                  this.errorTooBigFinancial = true
-                } else {
-                  // need a list of projectYears
-                  pyIds = []
-                  for (var i = 0; i < response.results.length; i++) {
-                    pyIds.push(response.results[i].id)
-                  }
-                  let endpoint2 = `/api/ppt/financials/?ids=${pyIds}`;
-                  apiService(endpoint2)
-                      .then(response => {
-                        this.tabAPILoading.financialSummary = false;
-                        this.financials = response;
-                      })
-                }
-              }
-
+              this.tabAPILoading.financialSummary = false;
+              this.financials = response;
             })
       }
     },
@@ -714,6 +723,24 @@ var app = new Vue({
       }
     },
 
+    sortedProjectYearsStatusReports() {
+        if (this.status_report_filter.has_status_report && !this.tabAPILoading.statusReports) {
+          return this.sortedProjectYears.filter(function(py) {
+            return py.has_status_report;
+          })
+        } else {
+          return this.sortedProjectYears;
+        }
+    },
+
+    statusReportCount(){
+        if (this.uniqueStatusReports.length < this.count && this.status_report_filter.has_status_report) {
+            return this.uniqueStatusReports.length;
+        } else {
+            return this.count;
+        }
+    },
+
     sortedStaffLevelSummary() {
         if (this.currentSortTable !== "sortedStaffLevelSummary"){
           return this.staff_level_summary;
@@ -784,13 +811,6 @@ var app = new Vue({
               }
             }
           return false;
-        }
-    },
-    project_year_id_list() {
-        if (this.projectYears) {
-            return this.projectYears.map(py => py.id)
-        } else {
-            return []
         }
     },
 
