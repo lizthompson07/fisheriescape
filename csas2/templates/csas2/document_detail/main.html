@@ -28,12 +28,12 @@
         {% include "shared_models/_generic_breadcrumbs.html" %}
         <div class="mb-3">
           <div class="row">
-          <div class="col-sm-1">
-            <span class="mdi mdi-file-document h1"></span>
-          </div>
-          <div class="col">
-            <h2 class="">{{ h1|safe }}</h2>
-          </div>
+            <div class="col-sm-1">
+              <span class="mdi mdi-file-document h1"></span>
+            </div>
+            <div class="col">
+              <h2 class="">{{ h1|safe }}</h2>
+            </div>
           </div>
           <p class="lead text-muted mt-1 mb-0">{% trans "Document ID:" %} {{ object.id }}</p>
         </div>
@@ -102,6 +102,10 @@
             <tr>
               <th class="text-left">{% trans "Type" %}</th>
               <td class="text-left" v-html="document.document_type"></td>
+            </tr>
+            <tr>
+              <th class="text-left" v-html="documentLabels.lead_office"></th>
+              <td class="text-left" v-html="document.lead_office_display"></td>
             </tr>
             <tr>
               <th class="text-left" v-html="documentLabels.due_date"></th>

@@ -240,6 +240,11 @@ class DocumentSerializer(serializers.ModelSerializer):
     pub_number_request_date_display = serializers.SerializerMethodField()
     due_date_display = serializers.SerializerMethodField()
     can_confirm = serializers.SerializerMethodField()
+    lead_office_display = serializers.SerializerMethodField()
+
+    def get_lead_office_display(self, instance):
+        if instance.lead_office:
+            return str(instance.lead_office)
 
     def get_can_confirm(self, instance):
         return instance.can_confirm

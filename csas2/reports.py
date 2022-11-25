@@ -1,7 +1,7 @@
 import os
 from io import BytesIO
+
 import xlsxwriter
-from django.template.defaultfilters import date
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import activate, deactivate, gettext as _
@@ -10,7 +10,6 @@ from docx import Document
 from dm_apps import settings
 from lib.functions.custom_functions import listrify
 from lib.templatetags.verbose_names import get_verbose_label, get_field_value
-from . import models
 
 
 def generate_tor(tor, lang):
@@ -303,6 +302,7 @@ def generate_request_list(requests, site_url):
     workbook.close()
     return target_url
 
+
 def generate_process_list(processes, site_url):
     # figure out the filename
     target_dir = os.path.join(settings.BASE_DIR, 'media', 'temp')
@@ -411,7 +411,6 @@ def generate_process_list(processes, site_url):
     return target_url
 
 
-
 def generate_unpublished_publications_report(documents, site_url):
     # figure out the filename
     target_dir = os.path.join(settings.BASE_DIR, 'media', 'temp')
@@ -434,10 +433,6 @@ def generate_unpublished_publications_report(documents, site_url):
         'id|{}'.format(_("Document ID")),
         'lead_office.region|{}'.format(_("lead region")),
         'other_regions|{}'.format(_("other regions")),
-        'meeting_date|{}'.format(_("meeting date")),
-        'meeting_year|{}'.format(_("meeting year")),
-        'meeting_title_en|{}'.format(_("meeting title (EN)")),
-        'meeting_title_fr|{}'.format(_("meeting title (FR)")),
         'document_type',
         'pub_number',
         'title_en|{}'.format(_("document title (EN)")),
@@ -446,6 +441,10 @@ def generate_unpublished_publications_report(documents, site_url):
         'other_authors|{}'.format(_("other authors")),
         'status',
         'is_past_due|{}'.format(_("past product due date?")),
+        'meeting_date|{}'.format(_("meeting date")),
+        'meeting_year|{}'.format(_("meeting year")),
+        'meeting_title_en|{}'.format(_("meeting title (EN)")),
+        'meeting_title_fr|{}'.format(_("meeting title (FR)")),
     ]
 
     # define the header
@@ -475,6 +474,12 @@ def generate_unpublished_publications_report(documents, site_url):
                 my_val = listrify(authors_qs.all())
                 my_ws.write(i, j, my_val, normal_format)
 
+            if field in ["title_en", "title_fr"]:
+                my_val = get_field_value(obj, field)
+                my_ws.write_url(i, j,
+                                url=f'{site_url}/{reverse("csas2:document_detail", args=[obj.id])}',
+                                string=my_val,
+                                cell_format=hyperlink_format)
             elif "meeting" in field:
                 last_meeting = obj.last_meeting
                 if not last_meeting:
