@@ -501,13 +501,14 @@ class Sex(CodeModel):
 
 
 class Maturity(CodeModel):
-    pass
+    description = models.TextField(blank=True, null=True)
 
 
 class Specimen(MetadataFields):
     species = models.ForeignKey(Species, on_delete=models.DO_NOTHING, related_name="specimens")
     life_stage = models.ForeignKey(LifeStage, related_name='specimens', on_delete=models.DO_NOTHING, blank=True, null=True)
     reproductive_status = models.ForeignKey(ReproductiveStatus, related_name='specimens', on_delete=models.DO_NOTHING, blank=True, null=True)
+    maturity = models.ForeignKey(Maturity, related_name='specimens', on_delete=models.DO_NOTHING, blank=True, null=True)
 
     status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, related_name="specimens", blank=False, null=True)
     sex = models.ForeignKey(Sex, on_delete=models.DO_NOTHING, related_name="specimens", blank=True, null=True)
