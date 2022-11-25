@@ -493,17 +493,6 @@ def generate_unpublished_publications_report(documents, site_url):
                     elif "year" in field:
                         my_val = last_meeting.start_date.year
                         my_ws.write(i, j, my_val, normal_format)
-
-
-            elif "connected" in field:
-                requests = obj.csas_requests.all()
-                if requests.count() == 1:
-                    my_ws.write_url(i, j,
-                                    url=f'{site_url}/{reverse("csas2:request_detail", args=[requests.first().id])}',
-                                    string=f"{requests.first()} ({requests.first().id})",
-                                    cell_format=hyperlink_format)
-                elif requests.exists():
-                    my_ws.write(i, j, listrify([f"{r} ({r.id})" for r in requests], "\n"), normal_format)
             else:
                 my_val = str(get_field_value(obj, field))
                 my_ws.write(i, j, my_val, normal_format)
