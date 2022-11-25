@@ -1,11 +1,9 @@
-import os
 import statistics
 
 from django.contrib.auth.models import User
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import Q
-from django.dispatch import receiver
 from django.template.defaultfilters import date
 from django.urls import reverse
 from django.utils import timezone
@@ -464,7 +462,7 @@ class Sweep(MetadataFields):
     notes = models.TextField(blank=True, null=True)
 
     class Meta:
-        unique_together = (("sample","sweep_number"), )
+        unique_together = (("sample", "sweep_number"),)
 
     @property
     def specimen_count(self):
@@ -516,6 +514,7 @@ class Specimen(MetadataFields):
     adipose_condition = models.IntegerField(blank=True, null=True, verbose_name=_("adipose condition"), choices=model_choices.adipose_condition_choices)
 
     fork_length = models.FloatField(blank=True, null=True, verbose_name=_("fork length (mm)"))
+    fork_length_bin_interval = models.FloatField(default=1, verbose_name=_("fork length bin interval (mm)"))
     total_length = models.FloatField(blank=True, null=True, verbose_name=_("total length (mm)"))
 
     weight = models.FloatField(blank=True, null=True, verbose_name=_("weight (g)"))
@@ -560,9 +559,6 @@ class Specimen(MetadataFields):
                 return first_specimen_qs.first()
 
 
-
-
-
 def file_directory_path(instance, filename):
     # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
     return 'trapnet/specimen_{0}/{1}'.format(instance.specimen.id, filename)
@@ -595,66 +591,138 @@ class SampleFile(MetadataFields):
     def __str__(self):
         return self.caption
 
-
-@receiver(models.signals.post_delete, sender=File)
-def auto_delete_file_on_delete(sender, instance, **kwargs):
-    """
-    Deletes file from filesystem
-    when corresponding `MediaFile` object is deleted.
-    """
-    if instance.image:
-        if os.path.isfile(instance.image.path):
-            os.remove(instance.image.path)
+#### NEW WILD STUFF
 
 
-@receiver(models.signals.pre_save, sender=File)
-def auto_delete_file_on_change(sender, instance, **kwargs):
-    """
-    Deletes old file from filesystem
-    when corresponding `MediaFile` object is updated
-    with new file.
-    """
-    if not instance.pk:
-        return False
-
-    try:
-        old_file = File.objects.get(pk=instance.pk).image
-    except File.DoesNotExist:
-        return False
-
-    new_file = instance.image
-    if not old_file == new_file:
-        if os.path.isfile(old_file.path):
-            os.remove(old_file.path)
-
-
-@receiver(models.signals.post_delete, sender=SampleFile)
-def auto_delete_sample_file_on_delete(sender, instance, **kwargs):
-    """
-    Deletes file from filesystem
-    when corresponding `MediaFile` object is deleted.
-    """
-    if instance.file:
-        if os.path.isfile(instance.file.path):
-            os.remove(instance.file.path)
-
-
-@receiver(models.signals.pre_save, sender=SampleFile)
-def auto_delete_sample_file_on_change(sender, instance, **kwargs):
-    """
-    Deletes old file from filesystem
-    when corresponding `MediaFile` object is updated
-    with new file.
-    """
-    if not instance.pk:
-        return False
-
-    try:
-        old_file = File.objects.get(pk=instance.pk).file
-    except File.DoesNotExist:
-        return False
-
-    new_file = instance.file
-    if not old_file == new_file:
-        if os.path.isfile(old_file.path):
-            os.remove(old_file.path)
+# class Specimen2(MetadataFields):
+#     species = models.ForeignKey(Species, on_delete=models.DO_NOTHING, related_name="specimens")
+#     notes = models.TextField(blank=True, null=True)
+#     sample = models.ForeignKey(Sample, on_delete=models.CASCADE, related_name="specimens", blank=True, null=True)
+#     sweep = models.ForeignKey(Sweep, on_delete=models.CASCADE, related_name="specimens", blank=True, null=True)
+#     old_id = models.CharField(max_length=25, null=True, blank=True, editable=False)
+#
+#
+# class ObservationType(Lookup, MetadataFields):
+#     # choices for data_type
+#     DATA_TYPE_CHOICES = (
+#         (1, _("integer/categorical")),
+#         (2, _("float")),
+#         (3, _("string")),
+#     )
+#     data_type = models.IntegerField(choices=DATA_TYPE_CHOICES, verbose_name=_("data type"))
+#     units_to_display = models.IntegerField(blank=True, null=True, verbose_name=_("units to display"), choices=measurement_unit_codes.get_all_choices(),
+#                                            help_text=_("Are there units associated with this observation type that should be displayed to an end-user?"))
+#     special_type = models.IntegerField(blank=True, null=True, choices=special_observation_types.get_choices(),
+#                                        verbose_name=_("Is this the official observation type for a specific measurement?"),
+#                                        help_text=_(
+#                                            "Certain observation types have hard-coded roles within the system. Those types are identified vis a vis this field."))
+#     notes = models.TextField(blank=True, null=True, verbose_name=_("notes"), help_text=_(
+#         "Use this field to capture any important notes; especially things that will be important for others to consider when making future adjustments."))
+#
+#     @property
+#     def metadata(self):
+#         return get_metadata_string(self.created_at, self.created_by, self.updated_at, self.last_modified_by)
+#
+#     class Meta:
+#         ordering = [_("name"), ]
+#         verbose_name = _("observation type")
+#
+#     def get_absolute_url(self):
+#         return reverse('shared_models:ot_detail', kwargs={'pk': self.id})
+#
+#     @property
+#     def display_categories(self):
+#         return mark_safe(nz(listrify([obj for obj in self.categories.all()], "; "), ""))
+#
+#     @property
+#     def display_categories_br(self):
+#         return mark_safe(nz(listrify([obj for obj in self.categories.all()], "<br>"), ""))
+#
+#     @property
+#     def list_categories(self):
+#         return [obj.id for obj in self.categories.all()]
+#
+#     def save(self, *args, **kwargs):
+#         if not self.uuid:
+#             self.uuid = uuid.uuid4()
+#         if self.special_type:
+#             for ot in ObservationType.objects.filter(special_type=self.special_type):
+#                 ot.special_type = None
+#                 ot.save()
+#         super().save(*args, **kwargs)
+#
+#     @property
+#     def category_count(self):
+#         return self.categories.count()
+#
+#
+#
+# class ObservationTypeCategory(CodeLookup):
+#     # Choices for unit type
+#     observation_type = models.ForeignKey(ObservationType, on_delete=models.CASCADE, related_name="categories")
+#     code = models.CharField(max_length=3)  # need this to be a char and not an Integer field
+#     uuid = models.UUIDField(editable=False, unique=True, blank=True, null=True, verbose_name=_("UUID"))
+#
+#     # metadata
+#     created_at = models.DateTimeField(auto_now_add=True, editable=False)
+#     updated_at = models.DateTimeField(auto_now=True, editable=False)
+#     created_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="created_by_obs_type_cat", blank=True, null=True)
+#     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="last_mod_by_obs_type_cat", blank=True, null=True)
+#
+#     @property
+#     def metadata(self):
+#         return get_metadata_string(self.created_at, self.created_by, self.updated_at, self.last_modified_by)
+#
+#     @property
+#     def tname(self):
+#         return self.tdescription
+#
+#     def __str__(self):
+#         return "{}-{}".format(self.code, self.tdescription)
+#
+#     class Meta:
+#         unique_together = ['observation_type', 'code']
+#         ordering = ['observation_type', 'code']
+#         verbose_name = _("observation type category")
+#
+#     def save(self, *args, **kwargs):
+#         if not self.uuid:
+#             self.uuid = uuid.uuid4()
+#         super().save(*args, **kwargs)
+#         ot = self.observation_type
+#         ot.last_modified_by = self.last_modified_by
+#         ot.updated_at = self.updated_at
+#         ot.save()
+#
+#
+#
+#
+# class Observation(MetadataFields):
+#     specimen = models.ForeignKey(Specimen, on_delete=models.DO_NOTHING, related_name="specimens")
+#     life_stage = models.ForeignKey(LifeStage, related_name='specimens', on_delete=models.DO_NOTHING, blank=True, null=True)
+#     reproductive_status = models.ForeignKey(ReproductiveStatus, related_name='specimens', on_delete=models.DO_NOTHING, blank=True, null=True)
+#
+#     status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, related_name="specimens", blank=False, null=True)
+#     sex = models.ForeignKey(Sex, on_delete=models.DO_NOTHING, related_name="specimens", blank=True, null=True)
+#     adipose_condition = models.IntegerField(blank=True, null=True, verbose_name=_("adipose condition"), choices=model_choices.adipose_condition_choices)
+#
+#     fork_length = models.FloatField(blank=True, null=True, verbose_name=_("fork length (mm)"))
+#     fork_length_bin_interval = models.FloatField(default=1, verbose_name=_("fork length bin interval (mm)"))
+#     total_length = models.FloatField(blank=True, null=True, verbose_name=_("total length (mm)"))
+#
+#     weight = models.FloatField(blank=True, null=True, verbose_name=_("weight (g)"))
+#     tag_number = models.CharField(max_length=12, blank=True, null=True, verbose_name=_("tag number"))
+#     scale_id_number = models.CharField(max_length=50, blank=True, null=True, verbose_name=_("scale ID number"), unique=True)
+#
+#     # downstream
+#     age_type = models.IntegerField(blank=True, null=True, verbose_name=_("age type"), choices=model_choices.age_type_choices)
+#     river_age = models.IntegerField(blank=True, null=True, verbose_name=_("river age"))
+#     ocean_age = models.IntegerField(blank=True, null=True, verbose_name=_("ocean age"))
+#
+#     # to be deleted eventually
+#     origin = models.ForeignKey(Origin, on_delete=models.DO_NOTHING, related_name="specimens", blank=True, null=True, editable=False)
+#
+#     class Meta:
+#         abstract = True
+#
+#
