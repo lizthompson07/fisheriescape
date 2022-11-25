@@ -67,6 +67,7 @@ var app = new Vue({
     staff_funding_summary: [],
     dmas: [],
     statusReports: [],
+    uniqueStatusReports: [],
     financials: [],
     next: null,
     previous: null,
@@ -453,7 +454,7 @@ var app = new Vue({
                 this.tabAPILoading.statusReports = false;
                 this.statusReports = response;
 
-                let uniqueStatusReports = response.reduce(function (outArr, srStep) {
+                this.uniqueStatusReports = response.reduce(function (outArr, srStep) {
                     // the following is #efficient
                     // Copy the response array, remove the srStep object from the copy.
                     let compArray = response.slice(0);
@@ -474,7 +475,7 @@ var app = new Vue({
 
                 //assign each project year a status report or the null status report
                 for (let i = 0; i < this.projectYears.length; i++) {
-                    this.projectYears[i].status_report = uniqueStatusReports.find(sr => sr.project_year === this.projectYears[i].id)
+                    this.projectYears[i].status_report = this.uniqueStatusReports.find(sr => sr.project_year === this.projectYears[i].id)
                     if (typeof this.projectYears[i].status_report === 'undefined') {
                         this.projectYears[i].has_status_report = false;
                         this.projectYears[i].status_report = nullSr;
@@ -729,6 +730,14 @@ var app = new Vue({
           })
         } else {
           return this.sortedProjectYears;
+        }
+    },
+
+    statusReportCount(){
+        if (this.uniqueStatusReports.length < this.count && this.status_report_filter.has_status_report) {
+            return this.uniqueStatusReports.length;
+        } else {
+            return this.count;
         }
     },
 

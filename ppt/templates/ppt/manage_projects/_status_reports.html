@@ -7,7 +7,7 @@
 
   <div v-if="!tabAPILoading.statusReports">
     <div class="text-center">
-      <p class="font-italic font-weight-bold">${projectYears.length} of ${count} loaded</p>
+      <p class="font-italic font-weight-bold">${sortedProjectYearsStatusReports.length} of ${statusReportCount} loaded</p>
     </div>
   </div>
   <div v-if="errorTooBigStatusReports">
@@ -86,7 +86,7 @@
             {% trans "Project Status" %}
           </th>
           <th @click="sort('has_status_report')" class="clickable w75">
-            {% trans "Status Report Done" %}
+            {% trans "Has Status Report" %}
           </th>
           <th @click="sort('status_report.status_display')" class="clickable w75">
             {% trans "Status" %}
@@ -140,7 +140,7 @@
     </div>
     <div v-else>
       <div class="text-center">
-        <p class="font-italic font-weight-bold">${projectYears.length} of ${count} loaded</p>
+      <p class="font-italic font-weight-bold">${sortedProjectYearsStatusReports.length} of ${statusReportCount} loaded</p>
         <button v-if="next" @click="loadMoreResults" class="btn btn-primary btn-sm">
           {% trans "Load more results..." %}
         </button>
