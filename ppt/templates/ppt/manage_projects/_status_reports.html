@@ -24,13 +24,13 @@
           <div class="col">
             <label class="text-muted small" for="filter.has_status_report">{% trans "Has Stauts Report" %}</label>
             <select
-              v-model="filter.has_status_report"
+              v-model="status_report_filter.has_status_report"
               @change="updateResults"
               class="form-control form-control-sm" id="filter.has_status_report"
             >
               <option value="">------</option>
               <option :value="true">{% trans "Yes" %}</option>
-              {% comment %}<option :value="false">{% trans "No" %}</option>{% endcomment %}
+              <option :value="false">{% trans "No" %}</option>
             </select>
           </div>
 
@@ -43,10 +43,25 @@
               class="form-control form-control-sm" id="status_report_filter.created_at">
           </div>
 
-          <div class="col">
-            <br>
-            <a href="." class="btn btn-secondary btn-sm">{% trans "Clear" %}</a>
+          <div class="form-group">
+            <label class="text-muted small" for="status_report_filter.status">{% trans "Status" %}</label>
+            <select
+              v-model="status_report_filter.status"
+              @change="getStatusReports"
+              class="form-control form-control-sm" id="status_report_filter.status"
+            >
+              <option value="">{% trans "all" %}</option>
+              {%  for obj in status_report_status_choices %}
+                <option value="{{ obj.id }}">{{obj.full}}</option>
+              {% endfor %}
+            </select>
           </div>
+
+
+           <div class="col">
+             <button @click="clearStatusReportFilters" class="btn btn-sm btn-warning">{% trans "Clear filters" %}</button>
+           </div>
+
         </div>
       </form>
 
@@ -91,7 +106,7 @@
         </thead>
         <tbody>
         <tr
-          v-for="(p, index) in sortedProjectYears"
+          v-for="(p, index) in sortedProjectYearsStatusReports"
           @mouseover="hover = true"
           @mouseleave="hover = false"
         >

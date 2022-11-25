@@ -13,9 +13,6 @@ chosen_js = {"class": "chosen-select-contains"}
 class ProjectYearsInFilter(django_filters.BaseInFilter, django_filters.NumberFilter):
     pass
 
-class StatusReportsInFilter(django_filters.BaseInFilter, django_filters.NumberFilter):
-    pass
-
 
 class StaffFilter(django_filters.FilterSet):
     fiscal_year = django_filters.ChoiceFilter(field_name='project_year__fiscal_year', lookup_expr='exact')
@@ -88,6 +85,7 @@ class ProjectYearChildFilter(django_filters.FilterSet):
 class StatusReportFilter(django_filters.FilterSet):
     project_years = ProjectYearsInFilter(field_name='project_year', lookup_expr="in")
     created_at = django_filters.DateFilter(field_name='created_at', lookup_expr="gte")
+    status = django_filters.NumberFilter(field_name='status')
 
 
 class DMAFilter(django_filters.FilterSet):
@@ -128,7 +126,7 @@ class ProjectYearFilter(django_filters.FilterSet):
     has_field_component = django_filters.BooleanFilter(field_name="has_field_component")
     has_data_component = django_filters.BooleanFilter(field_name="has_data_component")
     has_lab_component = django_filters.BooleanFilter(field_name="has_lab_component")
-    status_report = StatusReportsInFilter(field_name="reports", lookup_expr="in")
+    has_status_report = django_filters.BooleanFilter(field_name="reports", method='has_status_report_filter')
 
     approval_status = django_filters.NumberFilter(field_name='review__approval_status')
     approval_level = django_filters.NumberFilter(field_name='review__approval_level')
@@ -146,4 +144,11 @@ class ProjectYearFilter(django_filters.FilterSet):
                                  Q(salaryallocation__funding_source=value) |
                                  Q(capitalallocation__funding_source=value)).distinct()
 
+        return out_qs
+
+    def has_status_report_filter(self, queryset, name, value):
+        # flip the value so that has_status_report = True corresponds to project years with status reports:
+        # (reports__isnull=False)
+        filter_value = not value
+        out_qs = queryset.filter(reports__isnull=filter_value).distinct()
         return out_qs

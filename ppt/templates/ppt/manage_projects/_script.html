@@ -78,7 +78,6 @@ var app = new Vue({
     },
 
     status_report_filter: {
-        created_at: null,
     },
 
     showColumnLeads: true,
@@ -247,8 +246,7 @@ var app = new Vue({
       if (this.filter.has_field_component === true || this.filter.has_field_component === false) endpoint += `has_field_component=${this.filter.has_field_component}&`;
       if (this.filter.has_data_component === true || this.filter.has_data_component === false) endpoint += `has_data_component=${this.filter.has_data_component}&`;
       if (this.filter.has_lab_component === true || this.filter.has_lab_component === false) endpoint += `has_lab_component=${this.filter.has_lab_component}&`;
-
-      if (this.filter.has_status_report === true) endpoint += `status_report=${this.status_report_id_list}&`;
+      if (this.status_report_filter.has_status_report === true || this.status_report_filter.has_status_report === false) endpoint += `has_status_report=${this.status_report_filter.has_status_report}&`;
       return endpoint
     },
     getDMAFilterString() {
@@ -264,6 +262,7 @@ var app = new Vue({
       let endpoint = "";
       if (this.project_year_id_list) endpoint += `project_years=${this.allPyIds}&`;
       if (this.status_report_filter.created_at) endpoint += `created_at=${this.status_report_filter.created_at}&`;
+      if (this.status_report_filter.status) endpoint += `status=${this.status_report_filter.status}&`;
       return endpoint
     },
     getProjectYearsEndpoint(pageSize = 25) {
@@ -364,6 +363,10 @@ var app = new Vue({
       this.filter = {};
       this.updateResults()
     },
+    clearStatusReportFilters() {
+      this.status_report_filter = {};
+      this.getStatusReports()
+    },
     updateResults() {
       this.clearProjectYears();
       this.getProjectYears();
@@ -450,7 +453,7 @@ var app = new Vue({
                 this.tabAPILoading.statusReports = false;
                 this.statusReports = response;
 
-                var uniqueStatusReports = response.reduce(function (outArr, srStep) {
+                let uniqueStatusReports = response.reduce(function (outArr, srStep) {
                     // the following is #efficient
                     // Copy the response array, remove the srStep object from the copy.
                     let compArray = response.slice(0);
@@ -467,7 +470,7 @@ var app = new Vue({
                 }, []);
 
                 let nullSr = Object.assign({}, response[0])
-                Object.keys(nullSr).forEach((i) => nullSr[i] = "");
+                Object.keys(nullSr).forEach((i) => nullSr[i] = "")
 
                 //assign each project year a status report or the null status report
                 for (let i = 0; i < this.projectYears.length; i++) {
@@ -719,6 +722,16 @@ var app = new Vue({
       }
     },
 
+    sortedProjectYearsStatusReports() {
+        if (this.status_report_filter.has_status_report && !this.tabAPILoading.statusReports) {
+          return this.sortedProjectYears.filter(function(py) {
+            return py.has_status_report;
+          })
+        } else {
+          return this.sortedProjectYears;
+        }
+    },
+
     sortedStaffLevelSummary() {
         if (this.currentSortTable !== "sortedStaffLevelSummary"){
           return this.staff_level_summary;
@@ -789,13 +802,6 @@ var app = new Vue({
               }
             }
           return false;
-        }
-    },
-    status_report_id_list() {
-        if (this.statusReports) {
-            return this.statusReports.map(sr => sr.id)
-        } else {
-            return []
         }
     },
 
