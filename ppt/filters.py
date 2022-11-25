@@ -83,6 +83,7 @@ class ProjectYearChildFilter(django_filters.FilterSet):
 
 
 class StatusReportFilter(django_filters.FilterSet):
+    project_year = django_filters.NumberFilter(field_name='project_year')
     project_years = ProjectYearsInFilter(field_name='project_year', lookup_expr="in")
     created_at = django_filters.DateFilter(field_name='created_at', lookup_expr="gte")
     status = django_filters.NumberFilter(field_name='status')
