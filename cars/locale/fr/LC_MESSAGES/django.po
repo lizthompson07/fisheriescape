@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-11-21 11:11-0400\n"
+"POT-Creation-Date: 2022-11-25 11:42-0400\n"
 "PO-Revision-Date: 2022-11-18 14:05-0400\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -18,7 +18,7 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "X-Generator: Poedit 3.2\n"
 
-#: .\cars\emails.py:19 .\cars\models.py:96 .\cars\views.py:420
+#: .\cars\emails.py:19 .\cars\models.py:99 .\cars\views.py:432
 msgid "custodian"
 msgstr "gardien de véhicules"
 
@@ -56,7 +56,7 @@ msgstr "Recherche"
 msgid "Click to select a range of dates.."
 msgstr "Cliquez pour sélectionner une intervalle de dates.."
 
-#: .\cars\forms.py:67
+#: .\cars\forms.py:74
 msgid ""
 "I have signed the <a target='_blank' href='{url}'>Acknowledgement of Motor "
 "Vehicle Operator Role and Responsibilities Form</a>."
@@ -64,7 +64,7 @@ msgstr ""
 "J'ai signé le <a target='_blank' href='{url}'>Formulaire de reconnaissance "
 "du rôle et des responsabilités du conducteur d’un véhicule motorisé</a>."
 
-#: .\cars\forms.py:70
+#: .\cars\forms.py:77
 #, fuzzy
 #| msgid ""
 #| "I have signed off on the safe work procedure <a href='{url}'>Driving a "
@@ -76,211 +76,223 @@ msgstr ""
 "J'ai signé la procédure de travail sécuritaire<a href='{url}'>Conduite d'un "
 "véhicule routier</a>."
 
-#: .\cars\forms.py:72
+#: .\cars\forms.py:79
 msgid "I have my manager's authorization to proceed."
 msgstr "J'ai l'autorisation de mon supérieur pour procéder."
 
-#: .\cars\forms.py:77
+#: .\cars\forms.py:84
 msgid "You must select a primary driver!"
 msgstr "Vous devez sélectionner un conducteur principal !"
 
-#: .\cars\forms.py:99
+#: .\cars\forms.py:106
 msgid "Sorry, the time requested overlaps with another approved reservation."
 msgstr "Désolé, l'heure demandée chevauche une autre réservation approuvée."
 
-#: .\cars\forms.py:107
+#: .\cars\forms.py:114
 msgid "What dates are you looking for?"
 msgstr "Quelles sont les dates que vous recherchez ?"
 
-#: .\cars\forms.py:111
+#: .\cars\forms.py:118
 msgid "Pick-up location"
 msgstr "Emplacement"
 
-#: .\cars\forms.py:111 .\cars\forms.py:114 .\cars\forms.py:116
-#: .\cars\forms.py:117
+#: .\cars\forms.py:118 .\cars\forms.py:121 .\cars\forms.py:124
+#: .\cars\forms.py:126 .\cars\forms.py:127
 msgid "leave blank for all"
 msgstr "laisser vide pour tous"
 
-#: .\cars\forms.py:114
+#: .\cars\forms.py:121
 msgid "Vehicle type"
 msgstr "Type de véhicule"
 
-#: .\cars\forms.py:116
+#: .\cars\forms.py:124
+#, fuzzy
+#| msgid "location"
+msgid "DFO Section"
+msgstr "emplacement"
+
+#: .\cars\forms.py:126
 msgid "Vehicle"
 msgstr "Véhicule"
 
-#: .\cars\forms.py:117
+#: .\cars\forms.py:127
 msgid "Passenger minimum capacity"
 msgstr "Capacité minimale de passagers"
 
-#: .\cars\models.py:14
+#: .\cars\models.py:17
 msgid "Yes"
 msgstr "Oui"
 
-#: .\cars\models.py:14
+#: .\cars\models.py:17
 msgid "No"
 msgstr "Non"
 
-#: .\cars\models.py:18
+#: .\cars\models.py:21
 msgid "DM Apps user"
 msgstr "Utilisateur de Applis GD"
 
-#: .\cars\models.py:19
+#: .\cars\models.py:22
 msgid "regional administrator?"
 msgstr "administrateur régional ?"
 
-#: .\cars\models.py:20
+#: .\cars\models.py:23
 msgid "app administrator?"
 msgstr "administrateur de l'application ?"
 
-#: .\cars\models.py:35
+#: .\cars\models.py:38
 msgid "address"
 msgstr "adresse"
 
-#: .\cars\models.py:36
+#: .\cars\models.py:39
 msgid "city"
 msgstr "ville"
 
-#: .\cars\models.py:37 .\cars\models.py:38
+#: .\cars\models.py:40 .\cars\models.py:41
 msgid "postal code"
 msgstr "code postale"
 
-#: .\cars\models.py:47
+#: .\cars\models.py:50
 msgid "View map"
 msgstr "Voir la carte"
 
-#: .\cars\models.py:95 .\cars\views.py:262
+#: .\cars\models.py:98 .\cars\views.py:271
 msgid "location"
 msgstr "emplacement"
 
-#: .\cars\models.py:97
+#: .\cars\models.py:100
 msgid "DFO section"
 msgstr ""
 
-#: .\cars\models.py:98
+#: .\cars\models.py:101
 msgid "vehicle type"
 msgstr "type de véhicule"
 
-#: .\cars\models.py:99
+#: .\cars\models.py:102
 msgid "reference number"
 msgstr "numéro de référence"
 
-#: .\cars\models.py:100
+#: .\cars\models.py:103
 msgid "make"
 msgstr "marque"
 
-#: .\cars\models.py:101
+#: .\cars\models.py:104
 msgid "model"
 msgstr "modèle"
 
-#: .\cars\models.py:102
+#: .\cars\models.py:105
 msgid "year"
 msgstr "année"
 
-#: .\cars\models.py:103
+#: .\cars\models.py:106
 msgid "max passengers"
 msgstr "passagers max"
 
-#: .\cars\models.py:104
+#: .\cars\models.py:107
 msgid "is in commission?"
 msgstr "est en service ?"
 
-#: .\cars\models.py:105
+#: .\cars\models.py:108
 msgid ""
 "Vehicles that are not in commission will not show up in the reservation list"
 msgstr ""
 "Les véhicules qui ne sont pas en service n'apparaîtront pas dans la liste "
 "des réservations"
 
-#: .\cars\models.py:106
+#: .\cars\models.py:109
 msgid "comments"
 msgstr "commentaires"
 
-#: .\cars\models.py:107
+#: .\cars\models.py:110
 msgid "thumbnail"
 msgstr "vignette"
 
-#: .\cars\models.py:142
+#: .\cars\models.py:143
 msgid "vehicle"
 msgstr "véhicule"
 
-#: .\cars\models.py:143
+#: .\cars\models.py:144
 msgid "primary driver"
 msgstr "nom du conducteur"
 
-#: .\cars\models.py:144
+#: .\cars\models.py:145
 msgid "departure date"
 msgstr "date de départ"
 
-#: .\cars\models.py:145
+#: .\cars\models.py:146
 msgid "return date"
 msgstr "date de retour"
 
-#: .\cars\models.py:146
+#: .\cars\models.py:147
 msgid "destination"
 msgstr "destination"
 
-#: .\cars\models.py:147
+#: .\cars\models.py:148
 msgid "other drivers"
 msgstr "autres conducteurs"
 
-#: .\cars\models.py:148
+#: .\cars\models.py:149
 msgid "additional comments"
 msgstr "commentaires supplémentaires"
 
-#: .\cars\models.py:165
+#: .\cars\models.py:166
 msgid "Reservation for {car} by {user}"
 msgstr "Réservation de {car} par {user}"
 
-#: .\cars\models.py:169
+#: .\cars\models.py:170
 msgid "{arrival} &rarr; {departure}"
 msgstr "{arrival} &rarr; {departure}"
 
-#: .\cars\models.py:176
+#: .\cars\models.py:177
+#, fuzzy
+#| msgid "{arrival} &rarr; {departure}"
+msgid "{arrival} to {departure}"
+msgstr "{arrival} &rarr; {departure}"
+
+#: .\cars\models.py:195
 msgid "question (en)"
 msgstr "question (an)"
 
-#: .\cars\models.py:177
+#: .\cars\models.py:196
 msgid "question (fr)"
 msgstr "question (fr)"
 
-#: .\cars\models.py:178
+#: .\cars\models.py:197
 msgid "answer (en)"
 msgstr "réponse (an)"
 
-#: .\cars\models.py:179
+#: .\cars\models.py:198
 msgid "answer (fr)"
 msgstr "réponse (fr)"
 
-#: .\cars\models.py:182 .\cars\models.py:187 .\cars\models.py:188
+#: .\cars\models.py:201 .\cars\models.py:206 .\cars\models.py:207
 msgid "question_en"
 msgstr "question_fr"
 
-#: .\cars\models.py:197 .\cars\models.py:198
+#: .\cars\models.py:216 .\cars\models.py:217
 msgid "answer_en"
 msgstr "answer_fr"
 
-#: .\cars\models.py:211
+#: .\cars\models.py:230
 msgid "url (English)"
 msgstr "url (anglais)"
 
-#: .\cars\models.py:212
+#: .\cars\models.py:231
 msgid "url (French)"
 msgstr "url (français)"
 
-#: .\cars\models.py:213
+#: .\cars\models.py:232
 msgid "file attachment (English)"
 msgstr "pièce jointe (anglais)"
 
-#: .\cars\models.py:214
+#: .\cars\models.py:233
 msgid "file attachment (French)"
 msgstr "pièce jointe (français)"
 
-#: .\cars\models.py:221 .\cars\models.py:222
+#: .\cars\models.py:240 .\cars\models.py:241
 msgid "file_en"
 msgstr "file_fr"
 
-#: .\cars\models.py:230 .\cars\models.py:231
+#: .\cars\models.py:249 .\cars\models.py:250
 msgid "url_en"
 msgstr "url_fr"
 
@@ -304,37 +316,44 @@ msgstr ""
 msgid "Home"
 msgstr "Accueil"
 
-#: .\cars\templates\cars\base\_nav_left_auth.html:12
+# David - Can we remove the word "help" and just use Resources / FAQ? Thanks
+#: .\cars\templates\cars\base\_nav_left_auth.html:8 .\cars\views.py:538
+#, fuzzy
+#| msgid "Resources"
+msgid "Reports"
+msgstr "Ressources"
+
+#: .\cars\templates\cars\base\_nav_left_auth.html:16
 msgid "Admin"
 msgstr "Admin"
 
-#: .\cars\templates\cars\base\_nav_left_auth.html:17
+#: .\cars\templates\cars\base\_nav_left_auth.html:21
 msgid "Vehicle Types"
 msgstr "Types de véhicules"
 
-#: .\cars\templates\cars\base\_nav_left_auth.html:22
+#: .\cars\templates\cars\base\_nav_left_auth.html:26
 msgid "Locations"
 msgstr "Emplacements"
 
-#: .\cars\templates\cars\base\_nav_left_auth.html:27 .\cars\views.py:235
-#: .\cars\views.py:248 .\cars\views.py:259 .\cars\views.py:287
+#: .\cars\templates\cars\base\_nav_left_auth.html:31 .\cars\views.py:244
+#: .\cars\views.py:257 .\cars\views.py:268 .\cars\views.py:296
 msgid "Vehicles"
 msgstr "Véhicules"
 
-#: .\cars\templates\cars\base\_nav_left_auth.html:32
+#: .\cars\templates\cars\base\_nav_left_auth.html:36
 msgid "FAQ"
 msgstr "FAQ"
 
-#: .\cars\templates\cars\base\_nav_left_auth.html:37 .\cars\views.py:480
-#: .\cars\views.py:488 .\cars\views.py:501 .\cars\views.py:511
+#: .\cars\templates\cars\base\_nav_left_auth.html:41 .\cars\views.py:493
+#: .\cars\views.py:501 .\cars\views.py:514 .\cars\views.py:524
 msgid "Reference Materials"
 msgstr "Documents de référence"
 
-#: .\cars\templates\cars\base\_nav_left_auth.html:42
+#: .\cars\templates\cars\base\_nav_left_auth.html:46
 msgid "All Reservations"
 msgstr "Toutes les réservations"
 
-#: .\cars\templates\cars\base\_nav_left_auth.html:47
+#: .\cars\templates\cars\base\_nav_left_auth.html:51
 msgid "User Permissions"
 msgstr "Permissions des utilisateurs"
 
@@ -366,7 +385,7 @@ msgstr ""
 msgid "Calendar"
 msgstr "Calendrier"
 
-#: .\cars\templates\cars\index.html:25 .\cars\views.py:133
+#: .\cars\templates\cars\index.html:25 .\cars\views.py:137
 msgid "Find a Vehicle"
 msgstr "Trouver un véhicule"
 
@@ -418,7 +437,7 @@ msgstr "Gérez vos véhicules"
 msgid "active requests"
 msgstr "demandes en cours"
 
-#: .\cars\templates\cars\index.html:59 .\cars\views.py:341
+#: .\cars\templates\cars\index.html:59 .\cars\views.py:350
 msgid "Reservations"
 msgstr "Réservations"
 
@@ -441,7 +460,7 @@ msgstr ""
 msgid "New Reservation"
 msgstr "Nouvelle réservation"
 
-#: .\cars\templates\cars\index.html:68 .\cars\views.py:338
+#: .\cars\templates\cars\index.html:68 .\cars\views.py:347
 msgid "Your Reservations"
 msgstr "Vos réservations"
 
@@ -449,8 +468,10 @@ msgstr "Vos réservations"
 msgid "Requests for Your Vehicles"
 msgstr "Demandes pour vos véhicules"
 
-#: .\cars\templates\cars\report_search.html:12
-msgid "Please select a report"
+#: .\cars\templates\cars\report_search.html:18
+#, fuzzy
+#| msgid "Please select a report"
+msgid "Please Select a Report"
 msgstr "Veuillez sélectionner un rapport"
 
 #: .\cars\templates\cars\rsvp_detail.html:9
@@ -485,8 +506,16 @@ msgstr "réinitialiser le statut à \"demandé\"."
 msgid "Do you want to approve this reservation request?"
 msgstr "Voulez-vous approuver cette demande de réservation ?"
 
+#: .\cars\templates\cars\rsvp_detail.html:88
+msgid "Surounding RSVPs"
+msgstr ""
+
+#: .\cars\templates\cars\rsvp_detail.html:104
+msgid "There are no RSVPs immediately surrounding this reservation."
+msgstr ""
+
 #: .\cars\templates\cars\vehicle_detail.html:42
-#: .\cars\templates\cars\vehicle_list.html:71
+#: .\cars\templates\cars\vehicle_list.html:81
 msgid "Reserve"
 msgstr "Réserver"
 
@@ -494,32 +523,32 @@ msgstr "Réserver"
 msgid "Bookings for this Vehicle"
 msgstr "Réservations pour ce véhicule"
 
-#: .\cars\templates\cars\vehicle_list.html:15
-#: .\cars\templates\cars\vehicle_list.html:105
+#: .\cars\templates\cars\vehicle_list.html:24
+#: .\cars\templates\cars\vehicle_list.html:115
 msgid "New Search"
 msgstr "Nouvelle recherche"
 
-#: .\cars\templates\cars\vehicle_list.html:18
+#: .\cars\templates\cars\vehicle_list.html:27
 msgid "New vehicle"
 msgstr "Nouveau véhicule"
 
-#: .\cars\templates\cars\vehicle_list.html:44
+#: .\cars\templates\cars\vehicle_list.html:53
 msgid "Location"
 msgstr "Emplacement"
 
-#: .\cars\templates\cars\vehicle_list.html:65
+#: .\cars\templates\cars\vehicle_list.html:75
 msgid "Manage"
 msgstr "Gérer"
 
-#: .\cars\templates\cars\vehicle_list.html:67
+#: .\cars\templates\cars\vehicle_list.html:77
 msgid "View Details"
 msgstr "Afficher les détails"
 
-#: .\cars\templates\cars\vehicle_list.html:79
+#: .\cars\templates\cars\vehicle_list.html:89
 msgid "Reserve Now!"
 msgstr "Réservez dès maintenant !"
 
-#: .\cars\templates\cars\vehicle_list.html:101
+#: .\cars\templates\cars\vehicle_list.html:111
 msgid "Your search did not return any results"
 msgstr "Votre recherche n'a donné aucun résultat"
 
@@ -550,50 +579,43 @@ msgstr ""
 msgid "You are the custodian for this vehicle"
 msgstr "Vous êtes le gardien de ce véhicule"
 
-#: .\cars\views.py:223
+#: .\cars\views.py:232
 msgid "Your Search Results"
 msgstr "Vos résultats de recherche"
 
-#: .\cars\views.py:261
+#: .\cars\views.py:270
 msgid "region"
 msgstr "région"
 
-#: .\cars\views.py:297
+#: .\cars\views.py:306
 msgid "Vehicle Calendar"
 msgstr "Calendrier des véhicules"
 
-#: .\cars\views.py:340
+#: .\cars\views.py:349
 msgid "Pending Requests for Your Vehicles"
 msgstr "Demandes en attente pour vos véhicules"
 
-#: .\cars\views.py:421
+#: .\cars\views.py:433
 #, fuzzy
 #| msgid "location"
 msgid "section"
 msgstr "emplacement"
 
-#: .\cars\views.py:424
+#: .\cars\views.py:436
 msgid "Arrival/departure"
 msgstr "Arrivée/départ"
 
-#: .\cars\views.py:471
+#: .\cars\views.py:484
 msgid "name"
 msgstr "nom"
 
-#: .\cars\views.py:472
+#: .\cars\views.py:485
 msgid "URL"
 msgstr "URL"
 
-#: .\cars\views.py:473
+#: .\cars\views.py:486
 msgid "File"
 msgstr "Fichier"
-
-# David - Can we remove the word "help" and just use Resources / FAQ? Thanks
-#: .\cars\views.py:525
-#, fuzzy
-#| msgid "Resources"
-msgid "Reports"
-msgstr "Ressources"
 
 #~ msgid "Vehicle RSVP"
 #~ msgstr "RSVP pour les véhicules"
