@@ -474,12 +474,7 @@ def generate_unpublished_publications_report(documents, site_url):
                 my_val = listrify(authors_qs.all())
                 my_ws.write(i, j, my_val, normal_format)
 
-            elif field in ["title_en", "title_fr"]:
-                my_val = get_field_value(obj, field)
-                my_ws.write_url(i, j,
-                                url=f'{site_url}/{reverse("csas2:document_detail", args=[obj.id])}',
-                                string=my_val,
-                                cell_format=hyperlink_format)
+
             elif "meeting" in field:
                 last_meeting = obj.last_meeting
                 if not last_meeting:
@@ -498,6 +493,14 @@ def generate_unpublished_publications_report(documents, site_url):
                     elif "year" in field:
                         my_val = last_meeting.start_date.year
                         my_ws.write(i, j, my_val, normal_format)
+
+            elif "title_" in field:  # must be placed after "meeting title" field
+                my_val = get_field_value(obj, field)
+                my_ws.write_url(i, j,
+                                url=f'{site_url}/{reverse("csas2:document_detail", args=[obj.id])}',
+                                string=my_val,
+                                cell_format=hyperlink_format)
+
             else:
                 my_val = str(get_field_value(obj, field))
                 my_ws.write(i, j, my_val, normal_format)
