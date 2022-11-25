@@ -474,7 +474,7 @@ def generate_unpublished_publications_report(documents, site_url):
                 my_val = listrify(authors_qs.all())
                 my_ws.write(i, j, my_val, normal_format)
 
-            if field in ["title_en", "title_fr"]:
+            elif field in ["title_en", "title_fr"]:
                 my_val = get_field_value(obj, field)
                 my_ws.write_url(i, j,
                                 url=f'{site_url}/{reverse("csas2:document_detail", args=[obj.id])}',
