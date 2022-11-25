@@ -444,7 +444,7 @@ def run_process_fish():
                                         species = models.Species.objects.get(tsn=r["SPECIES_ITIS_CODE"])
                                     except models.Species.DoesNotExist:
                                         writer.writerow(
-                                            [r[key] for key in r] + [7, f"Cannot find species with TSN {r['SPECIES_ITIS_CODE']} in db", sample.old_id, 1])
+                                            [r[key] for key in r] + [7, f"Cannot find species with TSN {r['SPECIES_ITIS_CODE']} in db", sample.old_id, 0])
                                     else:
                                         # life stage
                                         life_stage = life_stage_lookup.get(int(r['SPECIES_LIFE_STAGE']))
