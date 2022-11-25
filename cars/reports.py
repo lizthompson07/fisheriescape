@@ -63,11 +63,8 @@ def generate_vehicle_report(qs, site_url):
         j = 0
         for field in field_list:
 
-            if "custodian office" in field or "vehicle_type" in field:
-                my_val = str(obj.custodian)
-                my_ws.write(i, j, my_val, normal_format)
 
-            elif "display" in field:
+            if "display" in field:
                 my_val = str(obj)
                 my_ws.write_url(i, j,
                                 url=f'{site_url}/{reverse("cars:vehicle_detail", args=[obj.id])}',

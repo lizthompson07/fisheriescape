@@ -31,15 +31,13 @@ def generate_sample_csv(year, fishing_areas, rivers, sites):
     for field in fields:
         if field.attname not in field_names:
             field_names.append(field.attname)
-    header_row = []  # starter
-    header_row.extend([field for field in field_names])
+    header_row = [field for field in field_names] + ["full_wetted_width"]
     pseudo_buffer = Echo()
     writer = csv.writer(pseudo_buffer)
     yield writer.writerow(header_row)
 
     for obj in qs:
-        data_row = []  # starter
-        data_row.extend([str(nz(getattr(obj, field), "")).encode("utf-8").decode('utf-8') for field in field_names])
+        data_row = [str(nz(getattr(obj, field), "")).encode("utf-8").decode('utf-8') for field in field_names] + [obj.get_full_wetted_width(show_errors=False)]
         yield writer.writerow(data_row)
 
 
@@ -77,7 +75,7 @@ def generate_sweep_csv(year, fishing_areas, rivers, sites):
         yield writer.writerow(data_row)
 
 
-def generate_obs_csv(year, fishing_areas, rivers, sites):
+def generate_specimen_csv(year, fishing_areas, rivers, sites):
     """Returns a generator for an HTTP Streaming Response"""
 
     filter_kwargs = {}
@@ -90,8 +88,8 @@ def generate_obs_csv(year, fishing_areas, rivers, sites):
     if sites != "":
         filter_kwargs["sample__site_id__in"] = sites.split(",")
 
-    qs = models.Observation.objects.filter(**filter_kwargs).iterator()
-    random_obj = models.Observation.objects.first()
+    qs = models.Specimen.objects.filter(**filter_kwargs).iterator()
+    random_obj = models.Specimen.objects.first()
     fields = random_obj._meta.fields
     field_names = [field.name for field in fields]
 
@@ -100,7 +98,9 @@ def generate_obs_csv(year, fishing_areas, rivers, sites):
         if field.attname not in field_names:
             field_names.append(field.attname)
     header_row = [field for field in field_names]  # starter
-    header_row.extend(["site", "site_id", "arrival_date", "departure_date"])
+    header_row.extend(["adipose_condition_display"])
+    header_row.extend(["site", "site_id", "arrival_date", "departure_date", "full_wetted_width"])
+    header_row.extend(["sweep_number", "sweep_time"])
 
     pseudo_buffer = Echo()
     writer = csv.writer(pseudo_buffer)
@@ -108,13 +108,18 @@ def generate_obs_csv(year, fishing_areas, rivers, sites):
 
     for obj in qs:
         data_row = [str(nz(getattr(obj, field), "")).encode("utf-8").decode('utf-8') for field in field_names]  # starter
-        data_row.extend([obj.sample.site, obj.sample.site_id, obj.sample.arrival_date, obj.sample.departure_date])
+        data_row.extend([obj.get_adipose_condition_display()])
+        data_row.extend(
+            [obj.sample.site, obj.sample.site_id, obj.sample.arrival_date, obj.sample.departure_date, obj.sample.get_full_wetted_width(show_errors=False)]
+        )
+        if obj.sweep:
+            data_row.extend([obj.sweep.sweep_number, obj.sweep.sweep_time])
         yield writer.writerow(data_row)
 
 
-def generate_obs_csv_v1(qs):
+def generate_specimen_csv_v1(qs):
     """Returns a generator for an HTTP Streaming Response"""
-    random_obj = models.Observation.objects.first()
+    random_obj = models.Specimen.objects.first()
     header_row = [
         "Site",
         "Year",
@@ -219,7 +224,7 @@ def generate_electro_juv_salmon_report(year, fishing_areas, rivers):
     ]
 
     # get a comprehensive list of life stages
-    life_stages = models.LifeStage.objects.filter(observations__sweep__in=qs, observations__species__tsn=161996).distinct().order_by("id")
+    life_stages = models.LifeStage.objects.filter(specimens__sweep__in=qs, specimens__species__tsn=161996).distinct().order_by("id")
     for ls in life_stages:
         headers.append(f"# of {ls}")
 
@@ -238,7 +243,7 @@ def generate_electro_juv_salmon_report(year, fishing_areas, rivers):
             sweep.sweep_time,
         ]
         for ls in life_stages:
-            data_row.append(sweep.observations.filter(life_stage=ls).count())
+            data_row.append(sweep.specimens.filter(life_stage=ls).count())
         yield writer.writerow(data_row)
 
 

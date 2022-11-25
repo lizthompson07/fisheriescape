@@ -2,7 +2,11 @@
 {% load static %}
 {% load bootstrap4 %}
 {% load i18n %}
-{% block content %}
+
+{% block title_area %}
+{% endblock %}
+
+{% block subcontent %}
 
   <br>
   {# <img src="{% static 'glf_data_management/img/data.jpg' %}" class="img-fluid max-width" alt="file not found"> #}
@@ -52,6 +56,8 @@
     $(".process_status_div").addClass("gone");
     $(".process_type_div").addClass("gone");
     $(".lead_region_div").addClass("gone");
+    $(".advice_fys_div").addClass("gone");
+    $(".request_fys_div").addClass("gone");
 
     $("#id_fiscal_year").prop("required", false);
     $("#id_is_posted").prop("required", false);
@@ -65,7 +71,8 @@
     $("#process_status").prop("required", false);
     $("#process_type").prop("required", false);
     $("#lead_region").prop("required", false);
-
+    $("#id_advice_fys").prop("required", false);
+    $("#id_request_fys").prop("required", false);
   }
 
   function configureForm() {
@@ -77,7 +84,8 @@
       $(".is_posted_div").removeClass("gone");
       $("#id_is_posted").prop("required", false);
     } else if (reportChoice === "2" || reportChoice === "3") {
-      $(".fiscal_year_div").removeClass("gone");
+      $(".advice_fys_div").removeClass("gone");
+      $(".request_fys_div").removeClass("gone");
       $(".request_status_div").removeClass("gone");
       $(".region_div").removeClass("gone");
       $(".sector_div").removeClass("gone");
@@ -253,4 +261,4 @@
 
   </script>
 
-{% endblock content %}
+{% endblock  %}

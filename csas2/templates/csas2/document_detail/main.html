@@ -26,13 +26,16 @@
     <div id="">
       <div>
         {% include "shared_models/_generic_breadcrumbs.html" %}
-        <div class="row mb-3">
+        <div class="mb-3">
+          <div class="row">
           <div class="col-sm-1">
             <span class="mdi mdi-file-document h1"></span>
           </div>
           <div class="col">
             <h2 class="">{{ h1|safe }}</h2>
           </div>
+          </div>
+          <p class="lead text-muted mt-1 mb-0">{% trans "Document ID:" %} {{ object.id }}</p>
         </div>
         {% bootstrap_messages %}
         <div v-if="canModify" class="alert alert-primary no-print" role="alert" style="width: 100%">
@@ -70,10 +73,6 @@
           <button v-if="currentUser.is_staff" class="btn btn-sm btn-dark" @click="unconfirmDoc">
             <span class="mdi mdi-cancel text-light mr-1"></span> {% trans "Cancel Confirmation" %}
           </button>
-{#          <button v-else class="btn btn-sm btn-secondary" disabled data-toggle="tooltip"#}
-{#                  :title="'{% trans "Only NCR CSAS staff members can cancel the confirmation status of a document" %}'">#}
-{#            <span class="mdi mdi-cancel text-light mr-1"></span> {% trans "Remove Confirmation" %}#}
-{#          </button>#}
         </span>
 
 
@@ -115,10 +114,6 @@
             <tr>
               <th class="text-left">{% trans "Translation Status" %}</th>
               <td class="text-left" v-html="document.tstatus_display"></td>
-            </tr>
-            <tr>
-              <th class="text-left" v-html="documentLabels.year"></th>
-              <td class="text-left">${document.year|nz}</td>
             </tr>
             <tr>
               <th class="text-left" v-html="documentLabels.pub_number"></th>
@@ -295,16 +290,20 @@
         });
       },
       getPubNumber() {
-        this.pubNumberError = null;
-        let endpoint = `/api/csas/documents/${this.documentId}/?get_pub_number=true`;
-        apiService(endpoint, "POST").then(data => {
-          if (data.pub_number) {
-            this.document.tracking.pub_number = data.pub_number;
-            this.updateTracking({})
-          } else {
-            this.pubNumberError = data[0];
-          }
-        });
+        let msg = "{% trans "Are you certain you want to generate a pub number for this document? \n\nA confirmation email will be sent to the generic inbox of the lead regional office." %}";
+        let userInput = confirm(msg);
+        if (userInput) {
+          this.pubNumberError = null;
+          let endpoint = `/api/csas/documents/${this.documentId}/?get_pub_number=true`;
+          apiService(endpoint, "POST").then(data => {
+            if (data.id) {
+              this.getDocument();
+            } else {
+              this.pubNumberError = data[0];
+            }
+          });
+        }
+
       },
       getDueDate() {
         this.dueDateError = null;
@@ -443,6 +442,10 @@
           }
         }
       },
+      cleanData(data) {
+        for (const dataKey in data) if (data[dataKey] === "") data[dataKey] = null;
+        return data;
+      },
       updateTracking(data) {
         if (!data.target) {
           if (data.is_date) {
@@ -452,9 +455,10 @@
           }
         } else {
           // data is an event
-          this._prepDates()
+          this._prepDates();
         }
-        data = this.document.tracking
+        data = this.document.tracking;
+        data = this.cleanData(data);
         this.errors = null;
         let endpoint = `/api/csas/doc-tracking/${this.document.tracking.id}/`;
         apiService(endpoint, "PATCH", data).then(data => {

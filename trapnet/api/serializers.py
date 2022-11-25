@@ -18,23 +18,23 @@ class SpeciesSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-class ObservationSerializer(serializers.ModelSerializer):
+class SpecimenSerializer(serializers.ModelSerializer):
     species_object = serializers.SerializerMethodField()
     species_display = serializers.SerializerMethodField()
     sex_display = serializers.SerializerMethodField()
     status_display = serializers.SerializerMethodField()
-    origin_display = serializers.SerializerMethodField()
     life_stage_display = serializers.SerializerMethodField()
     reproductive_status_display = serializers.SerializerMethodField()
+    adipose_condition_display = serializers.SerializerMethodField()
+
+    def get_adipose_condition_display(self, instance):
+        return instance.get_adipose_condition_display()
 
     def get_reproductive_status_display(self, instance):
         return str(instance.reproductive_status) if instance.reproductive_status else None
 
     def get_life_stage_display(self, instance):
         return str(instance.life_stage) if instance.life_stage else None
-
-    def get_origin_display(self, instance):
-        return str(instance.origin) if instance.origin else None
 
     def get_status_display(self, instance):
         return str(instance.status) if instance.status else None
@@ -49,7 +49,7 @@ class ObservationSerializer(serializers.ModelSerializer):
         return SpeciesSerializer(instance.species).data
 
     class Meta:
-        model = models.Observation
+        model = models.Specimen
         fields = "__all__"
 
     def validate(self, attrs):

@@ -27,26 +27,26 @@
             <thead>
             <tr>
                 <th scope="col">#</th>
-                {% for field in obs_field_list %}
+                {% for field in specimen_field_list %}
                     {% if field == "species" or field == "status" or field == "notes" %}
                         {% if field == "notes" %}
-                            <th scope="col" style="width: 150px">{% get_verbose_label my_obs_object field %}</th>
+                            <th scope="col" style="width: 150px">{% get_verbose_label my_specimen_object field %}</th>
                         {% else %}
-                            <th scope="col">{% get_verbose_label my_obs_object field %}</th>
+                            <th scope="col">{% get_verbose_label my_specimen_object field %}</th>
                         {% endif %}
                     {% else %}
-                        <th scope="col" class="center-col">{% get_verbose_label my_obs_object field %}</th>
+                        <th scope="col" class="center-col">{% get_verbose_label my_specimen_object field %}</th>
                     {% endif %}
                 {% endfor %}
             </tr>
             </thead>
             <tbody>
             {% for object in sample.entries.all %}
-                {% url 'trapnet:obs_edit' object.id as my_url %}
+                {% url 'trapnet:specimen_edit' object.id as my_url %}
                 <tr pop href="{{ my_url }}">
                     <td>{{ forloop.counter }}</td>
 
-                    {% for field in obs_field_list %}
+                    {% for field in specimen_field_list %}
                         {% if field == "species" or field == "status" or field == "notes" %}
                             <td>{% get_field_value object field nullmark="--" %}</td>
 
@@ -56,7 +56,7 @@
                     {% endfor %}
                     <td>
                       <a href="#" class="delete-me" val="{{ object.id }}"><span class="mdi mdi-delete"></span></a>
-                      <a class="stop" href="{% url 'trapnet:obs_delete' object.id %}" id="secrect-delete-btn-{{ object.id }}"></a>
+                      <a class="stop" href="{% url 'trapnet:specimen_delete' object.id %}" id="secrect-delete-btn-{{ object.id }}"></a>
                     </td>
                 </tr>
             {% endfor %}

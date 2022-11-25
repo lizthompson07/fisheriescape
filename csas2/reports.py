@@ -226,9 +226,11 @@ def generate_request_list(requests, site_url):
         'fiscal_year',
         'advice_fiscal_year',
         'target_advice_date|{}'.format(_("advice date")),
+        'prioritization|{}'.format(_("client prioritization")),
         'status',
         'review.decision|{}'.format(_("recommendation")),
         'review.decision_text|{}'.format(_("recommendation explanation")),
+        'review.is_other_mandate|{}'.format(_("falls under other scientific mandate")),
         'has_process|{}'.format(_("has process?")),
         'coordinator',
         'client',
@@ -260,7 +262,7 @@ def generate_request_list(requests, site_url):
             elif "advisors" in field:
                 my_val = listrify(obj.process.advisors.all())
                 my_ws.write(i, j, my_val, normal_format)
-            elif "date" in field:
+            elif "_date" in field:
                 my_val = obj.target_advice_date.strftime("%m/%d/%Y") if obj.target_advice_date else "---"
                 my_ws.write(i, j, my_val, date_format)
             elif "decision|" in field:
@@ -376,6 +378,123 @@ def generate_process_list(processes, site_url):
                                 url=f'{site_url}/{reverse("csas2:process_detail", args=[obj.id])}',
                                 string=f"{my_val}",
                                 cell_format=hyperlink_format)
+            elif "connected" in field:
+                requests = obj.csas_requests.all()
+                if requests.count() == 1:
+                    my_ws.write_url(i, j,
+                                    url=f'{site_url}/{reverse("csas2:request_detail", args=[requests.first().id])}',
+                                    string=f"{requests.first()} ({requests.first().id})",
+                                    cell_format=hyperlink_format)
+                elif requests.exists():
+                    my_ws.write(i, j, listrify([f"{r} ({r.id})" for r in requests], "\n"), normal_format)
+            else:
+                my_val = str(get_field_value(obj, field))
+                my_ws.write(i, j, my_val, normal_format)
+
+            # adjust the width of the columns based on the max string length in each col
+            ## replace col_max[j] if str length j is bigger than stored value
+
+            # if new value > stored value... replace stored value
+            if len(str(my_val)) > col_max[j]:
+                if len(str(my_val)) < 50:
+                    col_max[j] = len(str(my_val))
+                else:
+                    col_max[j] = 50
+            j += 1
+        i += 1
+
+        # set column widths
+        for j in range(0, len(col_max)):
+            my_ws.set_column(j, j, width=col_max[j] * 1.1)
+
+    workbook.close()
+    return target_url
+
+
+
+def generate_unpublished_publications_report(documents, site_url):
+    # figure out the filename
+    target_dir = os.path.join(settings.BASE_DIR, 'media', 'temp')
+    target_file = "temp_data_export_{}.xlsx".format(timezone.now().strftime("%Y-%m-%d"))
+    target_file_path = os.path.join(target_dir, target_file)
+    target_url = os.path.join(settings.MEDIA_ROOT, 'temp', target_file)
+    # create workbook and worksheets
+    workbook = xlsxwriter.Workbook(target_file_path)
+
+    # create formatting variables
+    title_format = workbook.add_format({'bold': True, "align": 'normal', 'font_size': 24, })
+    subtitle_format = workbook.add_format({'bold': False, "align": 'normal', 'font_size': 18, })
+    header_format = workbook.add_format(
+        {'bold': True, 'border': 1, 'border_color': 'black', "align": 'normal', "text_wrap": True})
+    normal_format = workbook.add_format({"align": 'left', "text_wrap": True, 'border': 1, 'border_color': 'black', })
+    hyperlink_format = workbook.add_format({'border': 1, 'border_color': 'black', "font_color": "blue", "underline": True})
+    date_format = workbook.add_format({'num_format': "mm/dd/yyyy", "align": 'left', 'border': 1, 'border_color': 'black', })
+
+    field_list = [
+        'id|{}'.format(_("Document ID")),
+        'lead_office.region|{}'.format(_("lead region")),
+        'other_regions|{}'.format(_("other regions")),
+        'meeting_date|{}'.format(_("meeting date")),
+        'meeting_year|{}'.format(_("meeting year")),
+        'meeting_title_en|{}'.format(_("meeting title (EN)")),
+        'meeting_title_fr|{}'.format(_("meeting title (FR)")),
+        'document_type',
+        'pub_number',
+        'title_en|{}'.format(_("document title (EN)")),
+        'title_fr|{}'.format(_("document title (FR)")),
+        'lead_authors|{}'.format(_("lead authors")),
+        'other_authors|{}'.format(_("other authors")),
+        'status',
+        'is_past_due|{}'.format(_("past product due date?")),
+    ]
+
+    # define the header
+    header = [get_verbose_label(documents.first(), field) for field in field_list]
+    title = _("Unpublished Publication Report")
+    subtitle = _("All of the confirmed publications that have not been published")
+
+    # define a worksheet
+    my_ws = workbook.add_worksheet(name="report")
+    my_ws.write(0, 0, title, title_format)
+    my_ws.write(1, 0, subtitle, subtitle_format)
+    my_ws.write_row(3, 0, header, header_format)
+    col_max = [len(str(d)) if len(str(d)) <= 100 else 100 for d in header]
+
+    i = 4
+    for obj in documents:
+        # create the col_max column to store the length of each header
+        # should be a maximum column width to 100
+        j = 0
+        for field in field_list:
+
+            if "other_regions" in field:
+                my_val = listrify(obj.other_regions.all())
+                my_ws.write(i, j, my_val, normal_format)
+            elif "authors" in field:
+                authors_qs = get_field_value(obj, field)
+                my_val = listrify(authors_qs.all())
+                my_ws.write(i, j, my_val, normal_format)
+
+            elif "meeting" in field:
+                last_meeting = obj.last_meeting
+                if not last_meeting:
+                    my_ws.write(i, j, "", normal_format)
+                else:
+                    if "title" in field:
+                        attr = "name" if "(EN)" in field else "nom"
+                        mystr = getattr(last_meeting, attr) if getattr(last_meeting, attr) else " --- "
+                        my_ws.write_url(i, j,
+                                        url=f'{site_url}/{reverse("csas2:meeting_detail", args=[last_meeting.id])}',
+                                        string=mystr,
+                                        cell_format=hyperlink_format)
+                    elif "date" in field:
+                        my_val = last_meeting.start_date.strftime("%m/%d/%Y")
+                        my_ws.write(i, j, my_val, date_format)
+                    elif "year" in field:
+                        my_val = last_meeting.start_date.year
+                        my_ws.write(i, j, my_val, normal_format)
+
+
             elif "connected" in field:
                 requests = obj.csas_requests.all()
                 if requests.count() == 1:

@@ -4,7 +4,7 @@
 <script type="text/x-template" id="multiple-overlay-template">
 <div class="">
 
-  <button v-if="obs.status" class="btn btn-sm btn-success" @click="openDialog" type="button" ref="dup">
+  <button v-if="specimen.status" class="btn btn-sm btn-success" @click="openDialog" type="button" ref="dup">
     <span class="mdi mdi-content-duplicate text-light mr-2"></span> {% trans "Add Multiple" %}
   </button>
   <button v-else class="btn btn-sm btn-success" disabled type="button">
@@ -25,11 +25,11 @@
             <div v-if="!scenario">
               <div class="mb-3 text-center">
                 <button type="button" class="btn btn-primary" @click="scenario=1;">
-                  {% trans "Total Observations" %}
+                  {% trans "Total Specimens" %}
                 </button>
               </div>
               <div class="mb-3 text-center">
-                <button type="button" class="btn btn-primary" @click="scenario=2;" :disabled="!obs.tag_number">
+                <button type="button" class="btn btn-primary" @click="scenario=2;" :disabled="!specimen.tag_number">
                   {% trans "End Tag #" %}
                 </button>
               </div>
@@ -39,8 +39,8 @@
             <div v-if="scenario===1">
               <form @submit.prevent="onSubmit">
                 <div class="form-group">
-                  <label for="">{% trans "How many observations would you like to add?" %}</label>
-                  <input v-model="totalObservations" type="number" class="form-control" required>
+                  <label for="">{% trans "How many specimens would you like to add?" %}</label>
+                  <input v-model="totalSpecimens" type="number" class="form-control" required>
                 </div>
                 <div class="form-group" v-if="this.shouldIncrement">
                   <p class="text-muted">
@@ -102,7 +102,7 @@ Vue.component("multiple-overlay", {
   delimiters: ["${", "}"],
   name: "multiple-overlay",
   props: {
-    obs: {
+    specimen: {
       required: true
     }
   },
@@ -113,14 +113,14 @@ Vue.component("multiple-overlay", {
       scenario: null,
       endTag: null,
       shouldIncrement: false,
-      totalObservations: null,
+      totalSpecimens: null,
     };
   },
   methods: {
     openDialog() {
       this.error = null;
       this.overlay = true;
-      this.shouldIncrement = !!this.obs.tag_number;
+      this.shouldIncrement = !!this.specimen.tag_number;
     },
     closeDialog() {
       this.error = null;
@@ -128,17 +128,17 @@ Vue.component("multiple-overlay", {
       this.scenario = null;
       this.endTag = null;
       this.shouldIncrement = false;
-      this.totalObservations = null
+      this.totalSpecimens = null
     },
     onSubmit() {
-      let msg = '{% trans 'Warning: by proceeding you will be creating more than 10 observations. Are you sure you want to continue?' %}'
+      let msg = '{% trans 'Warning: by proceeding you will be creating more than 10 specimens. Are you sure you want to continue?' %}'
       let proceed = true;
-      if (this.totalObservations && this.totalObservations > 10) proceed = confirm(msg);
+      if (this.totalSpecimens && this.totalSpecimens > 10) proceed = confirm(msg);
       if (proceed) {
         this.error = null;
         returnObj = {
           shouldIncrement: this.shouldIncrement,
-          totalObservations: this.totalObservations,
+          totalSpecimens: this.totalSpecimens,
           tagPrefix: this.tagPrefix,
         }
         if(this.startTagNumber) {
@@ -147,13 +147,13 @@ Vue.component("multiple-overlay", {
         }
 
         if (this.endTag) {
-          // we have to figure out the total number of observations based on the endTag number
+          // we have to figure out the total number of specimens based on the endTag number
           let startNumber = this.startTagNumber.number;
           let endNumber = extractNumber(this.endTag).number;
           if (endNumber < startNumber) this.error = '{% trans 'The end tag number is smaller than the start tag number' %}'
           else {
             returnObj.shouldIncrement = true; // always for this scenario!
-            returnObj.totalObservations = endNumber - startNumber + 1;
+            returnObj.totalSpecimens = endNumber - startNumber + 1;
           }
         }
         if (!this.error) {
@@ -168,13 +168,13 @@ Vue.component("multiple-overlay", {
   },
   computed: {
     tagPrefix() {
-      if (this.obs.tag_number) {
-        return extractPrefix(this.obs.tag_number)
+      if (this.specimen.tag_number) {
+        return extractPrefix(this.specimen.tag_number)
       }
     },
     startTagNumber() {
-      if (this.obs.tag_number) {
-        return extractNumber(this.obs.tag_number)
+      if (this.specimen.tag_number) {
+        return extractNumber(this.specimen.tag_number)
       }
     },
     paddedStartTagNumber() {

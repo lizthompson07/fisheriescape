@@ -651,7 +651,13 @@ class DocumentViewSet(viewsets.ModelViewSet):
                         num_list.sort()
                         p_num = '{:03d}'.format(num_list[-1] + 1)
                 pub_number = f"{year}/{p_num}"
-                return Response(dict(pub_number=pub_number), status=status.HTTP_200_OK)
+                tracking = doc.tracking
+                tracking.pub_number = pub_number
+                tracking.save()
+                # send email
+                email = emails.PublicationNumberConfirmationEmail(request, doc)
+                email.send()
+                return Response(serializers.DocumentTrackingSerializer(tracking).data, status=status.HTTP_200_OK)
             raise ValidationError(_("Cannot generate a pub number if there is no anticipated posting date."))
         elif qp.get("get_due_date"):
             # due date can be guessed based on the document type
@@ -916,8 +922,10 @@ class RequestReviewModelMetaAPIView(APIView):
         yes_no_choices.insert(0, dict(text="-----", value=None))
         yes_no_unsure_choices = [dict(text=c[1], value=c[0]) for c in model_choices.yes_no_unsure_choices_int]
         yes_no_unsure_choices.insert(0, dict(text="-----", value=None))
+        bool_choices = [dict(text=c[1], value=c[0]) for c in models.YES_NO_CHOICES]
         data['yes_no_choices'] = yes_no_choices
         data['yes_no_unsure_choices'] = yes_no_unsure_choices
+        data['bool_choices'] = bool_choices
         data['decision_choices'] = decision_choices
         return Response(data)
 

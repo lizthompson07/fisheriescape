@@ -60,6 +60,16 @@ class PublicationNumberRequestEmail(Email):
         return [csas_generic_email]
 
 
+class PublicationNumberConfirmationEmail(Email):
+    email_template_path = 'csas2/emails/pub_number_confirmation.html'
+    subject_en = "Publication number assigned"
+    subject_fr = "numéro de publication"
+
+    def get_recipient_list(self):
+        # should go to all emails associated with csas office
+        return self.instance.lead_office.generic_email  # where instance is a document
+
+
 class PostingRequestEmail(Email):
     email_template_path = 'csas2/emails/posting_request.html'
     subject_en = 'Request to post new CSAS meeting'
@@ -305,7 +315,6 @@ class RequestChangesRequestedEmail(Email):
 
     def get_recipient_list(self):
         return [self.instance.csas_request.client.email]
-
 
 
 class RequestReviewReminderEmail(Email):

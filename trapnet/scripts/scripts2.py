@@ -99,8 +99,8 @@ species_conversion_dict = {
 
 
 def delete_rst_data():
-    observations = models.Observation.objects.filter(sample__sample_type=1, sample__season__lte=2021)
-    observations.delete()
+    specimens = models.Specimen.objects.filter(sample__sample_type=1, sample__season__lte=2021)
+    specimens.delete()
 
 
 def convert_river_to_site(river):
@@ -238,9 +238,9 @@ def get_number_digits(mystr):
             return len(result)
 
 
-def create_obs(kwargs):
+def create_specimen(kwargs):
     try:
-        models.Observation.objects.create(**kwargs)
+        models.Specimen.objects.create(**kwargs)
     except IntegrityError as e:
         print(e, kwargs)
 
@@ -289,7 +289,7 @@ def parse_row(row):
 
 
 def import_smolt_data():
-    # delete all observations from this datafile
+    # delete all specimens from this datafile
     delete_rst_data()
     # open the csv we want to read
     my_target_data_file = os.path.join(settings.BASE_DIR, 'trapnet', 'misc', 'master_smolt_data_DJF_June_2022_GD.csv')
@@ -308,7 +308,7 @@ def import_smolt_data():
             # only proceed is there is a species and sample
             new_row = parse_row(row)
             if new_row.species_id and new_row.sample_id:
-                # this is a single observation
+                # this is a single specimen
                 kwargs = {
                     "sample_id": new_row.sample_id,
                     "species_id": new_row.species_id,
@@ -326,7 +326,7 @@ def import_smolt_data():
                     "created_at": now(),
                 }
                 if new_row.freq == 1:
-                    create_obs(kwargs)
+                    create_specimen(kwargs)
                 else:
                     start_tag_prefix = get_prefix(new_row.first_tag)
                     start_tag = get_number_suffix(new_row.first_tag)
@@ -343,7 +343,7 @@ def import_smolt_data():
                                 print("not adding tag:", tag)
                             else:
                                 kwargs["tag_number"] = tag
-                                create_obs(kwargs)
+                                create_specimen(kwargs)
 
                     elif start_tag and new_row.freq:
                         for i in range(0, new_row.freq):
@@ -354,32 +354,32 @@ def import_smolt_data():
                                 print("not adding tag:", tag)
                             else:
                                 kwargs["tag_number"] = tag
-                                create_obs(kwargs)
+                                create_specimen(kwargs)
 
                     else:
                         kwargs["tag_number"] = None
                         for i in range(0, new_row.freq):
-                            create_obs(kwargs)
+                            create_specimen(kwargs)
 
             row_i += 1
 
 
 def find_duplicate_scales():
     # get the unique list of scale ids
-    observations = models.Observation.objects.filter(scale_id_number__isnull=False)
-    scale_ids = set([o.scale_id_number for o in observations])
+    specimens = models.Specimen.objects.filter(scale_id_number__isnull=False)
+    scale_ids = set([o.scale_id_number for o in specimens])
 
     for sid in scale_ids:
-        if observations.filter(scale_id_number=sid).count() > 1:
+        if specimens.filter(scale_id_number=sid).count() > 1:
             print(f"duplicate records found for: {sid}")
 
 
 def delete_tags_removed():
-    observations = models.Observation.objects.filter(tags_removed__isnull=False, tag_number__isnull=False)
-    for obs in observations:
+    specimens = models.Specimen.objects.filter(tags_removed__isnull=False, tag_number__isnull=False)
+    for specimen in specimens:
 
         # get a list of tags from the removed_tags
-        removed_tags = obs.tags_removed.split(" ")
+        removed_tags = specimen.tags_removed.split(" ")
         # trim away any whitespace
         removed_tags = [tag.strip() for tag in removed_tags]
         # determine the number of digits in the tag. all the tags should have the same number of digits
@@ -390,11 +390,11 @@ def delete_tags_removed():
         else:
             # we are good to proceed
             digits = len(removed_tags[0])
-            # if the observation tag number is not the same length as the reference tag number, we'll have to do some surgery
-            if not digits == len(obs.tag_number):
-                # print(obs.tag_number, "does not conform to the format of tags removed:", removed_tags)
-                pos = len(obs.tag_number) - 1
-                new_tag = f"{obs.tag_number[0]}0{obs.tag_number[-pos:]}"
+            # if the specimen tag number is not the same length as the reference tag number, we'll have to do some surgery
+            if not digits == len(specimen.tag_number):
+                # print(specimen.tag_number, "does not conform to the format of tags removed:", removed_tags)
+                pos = len(specimen.tag_number) - 1
+                new_tag = f"{specimen.tag_number[0]}0{specimen.tag_number[-pos:]}"
                 if not digits == len(new_tag):
                     # try adding another zero
                     pos = len(new_tag) - 1
@@ -410,9 +410,9 @@ def delete_tags_removed():
                     # print("still bad:", new_tag, "first char is different:", removed_tags)
                     pass
                 else:
-                    obs.tag_number = new_tag
-                    obs.save()
+                    specimen.tag_number = new_tag
+                    specimen.save()
 
-            if obs.tag_number in removed_tags:
-                print("This observation is being deleted:", obs.tag_number, removed_tags)
-                obs.delete()
+            if specimen.tag_number in removed_tags:
+                print("This specimen is being deleted:", specimen.tag_number, removed_tags)
+                specimen.delete()
