@@ -196,34 +196,90 @@ def run_process_samples():
                                     "electrofisher_voltage": r["ELECTROFISHER_FREQUENCY"],
                                     "electrofisher_frequency": r["ELECTROFISHER_VOLTAGE"],
                                     "site_type": 2 if r["BARRIER_PRESENT"] else 1,
-                                    "crew_probe": r["CREW_PROBE"],
-                                    "crew_seine": r["CREW_SEINE"],
-                                    "crew_dipnet": r["CREW_DIPNET"],
-                                    "seine_type": r["APRONSEINE_TYPE"],
                                     "monitoring_program_id": 1,
 
                                 }
 
-                                # deal with the extra samplers
-                                extras = str()
-                                if r["CREW_BUCKET"]:
-                                    extras = f'BUCKET: {r["CREW_BUCKET"]} / '
-                                if r["CREW_RECORDER"]:
-                                    extras = f'RECORDER: {r["CREW_RECORDER"]} / '
-                                others = [
-                                    r["CREW_OTHER1"],
-                                    r["CREW_OTHER2"],
-                                    r["CREW_OTHER3"],
-                                    r["CREW_OTHER4"],
-                                    r["CREW_OTHER5"],
-                                ]
-                                while None in others: others.remove(None)
-                                if len(others):
-                                    extras = f'OTHERS: {listrify(others)}'
+                                # deal with seine type
+                                seine_type = r["APRONSEINE_TYPE"]
+                                if not seine_type:
+                                    remarks = r["REMARK"]
+                                    if remarks:
+                                        remarks = remarks.lower()
+                                        if "seine" in remarks and ("one man" in remarks or "1 man" in remarks):
+                                            seine_type = 1
+                                kwargs["seine_type"] = seine_type
 
-                                if extras.endswith(" / "):
-                                    extras = extras[:-3]
-                                kwargs["crew_extras"] = extras
+
+
+                                # deal with the crew fields
+
+                                # there will be two different approaches, depending on the catchment and the year.
+                                # specifically on the Restigouche, beginning in 2009 a convention was adopted that the prober was identified using an
+                                # asterix next to their name.
+                                if "resti" in r["CATCHMENT_NAME"].lower() and int(r["SURVEY"]) >= 2009:
+                                    crew_probe = None
+                                    crew_seine = None
+                                    crew_dipnet = None
+                                    crew_extras = None
+                                    # make a list of all the sampler names:
+                                    total_crew = [
+                                        r["CREW_OTHER1"],
+                                        r["CREW_OTHER2"],
+                                        r["CREW_OTHER3"],
+                                        r["CREW_OTHER4"],
+                                        r["CREW_OTHER5"],
+                                        r["CREW_PROBE"],
+                                        r["CREW_SEINE"],
+                                        r["CREW_DIPNET"],
+                                        r["CREW_BUCKET"],
+                                        r["CREW_RECORDER"],
+                                    ]
+                                    while None in total_crew: total_crew.remove(None)
+                                    if len(total_crew):
+                                        prober = None
+                                        for sampler in total_crew:
+                                            if "*" in sampler:
+                                                # remove that sampler from the total list
+                                                total_crew.remove(sampler)
+                                                # clean up the name of the sampler
+                                                prober = sampler.replace("*","").trim()
+                                                # end the loop
+                                                break
+                                        crew_probe = prober
+                                        crew_extras = f'{listrify(total_crew)}'
+                                else:
+                                    crew_probe = r["CREW_PROBE"]
+                                    crew_seine = r["CREW_SEINE"]
+                                    crew_dipnet = r["CREW_DIPNET"]
+                                    crew_extras = None
+                                    extras = str()
+
+                                    if r["CREW_BUCKET"]:
+                                        extras = f'{r["CREW_BUCKET"]} (bucket) / '
+                                    if r["CREW_RECORDER"]:
+                                        extras = f'{r["CREW_RECORDER"]} (recorder) / '
+                                    others = [
+                                        r["CREW_OTHER1"],
+                                        r["CREW_OTHER2"],
+                                        r["CREW_OTHER3"],
+                                        r["CREW_OTHER4"],
+                                        r["CREW_OTHER5"],
+                                    ]
+                                    while None in others: others.remove(None)
+                                    if len(others):
+                                        extras = f'{listrify(others)} (others)'
+
+                                    if extras.endswith(" / "):
+                                        extras = extras[:-3]
+
+                                    if len(extras):
+                                        crew_extras = extras
+
+                                kwargs["crew_probe"] = crew_probe
+                                kwargs["crew_seine"] = crew_seine
+                                kwargs["crew_dipnet"] = crew_dipnet
+                                kwargs["crew_extras"] = crew_extras
 
                                 # there is a bit of a pickle concerning efisher current / output
                                 # in the masterfile, there are two columns, CURRENT and OUTPUT. It is not clear what the differences are between these two.
@@ -474,6 +530,14 @@ def run_process_fish():
                                         if sex:
                                             sex = models.Sex.objects.get(code__iexact=sex)
 
+                                        # maturity
+                                        maturity = r['MATURITY']
+                                        reproductive_status = None
+                                        if maturity:
+                                            maturity = models.Maturity.objects.get(code=int(maturity))
+                                            if maturity.code == 4:
+                                                reproductive_status = models.ReproductiveStatus.objects.get(code__iexact="p")
+
                                         age_type = r["AGE_TYPE"]
                                         if age_type:
                                             if age_type == "SCALE":
@@ -489,13 +553,14 @@ def run_process_fish():
                                             "sweep": sweep,
                                             "species": species,
                                             "life_stage": life_stage,
-                                            "reproductive_status": None,
                                             "status": status,
                                             "adipose_condition": adipose_condition,
                                             "fork_length": r["FORK_LENGTH"],
                                             "total_length": r["TOTAL_LENGTH"],
                                             "weight": r["TOTAL_LENGTH"],
                                             "sex": sex,
+                                            "maturity": maturity,
+                                            "reproductive_status": reproductive_status,
                                             "age_type": age_type,
                                             "river_age": r["RIVER_AGE"],
                                             "scale_id_number": f'{r["SCALE_SAMPLE_ID"]} {sample.arrival_date.year}' if r["SCALE_SAMPLE_ID"] else None,

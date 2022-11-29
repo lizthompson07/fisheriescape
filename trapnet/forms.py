@@ -76,7 +76,14 @@ class SampleForm(forms.ModelForm):
                 ))
         return percent_cloud_cover
 
+    def clean_monitoring_program(self):
+        monitoring_program = self.cleaned_data['monitoring_program']
 
+        if not monitoring_program:
+            raise forms.ValidationError(
+                gettext("You must select a monitoring program!")
+            )
+        return monitoring_program
 
     def clean(self):
         cleaned_data = super().clean()

@@ -46,7 +46,7 @@ class SampleFilter(django_filters.FilterSet):
         super().__init__(*args, **kwargs)
 
         season = self.data.get("year")
-        if season:
+        if season and int(season > 1):
             site_choices = [(obj.id, str(obj)) for obj in models.RiverSite.objects.filter(samples__arrival_date__year=season).distinct()]
             river_choices = [(obj.id, str(obj)) for obj in shared_models.River.objects.filter(sites__samples__arrival_date__year=season).distinct()]
         else:

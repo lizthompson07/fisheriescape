@@ -130,7 +130,7 @@ class Sample(MetadataFields):
     site = models.ForeignKey(RiverSite, related_name='samples', on_delete=models.DO_NOTHING)
     sample_type = models.IntegerField(choices=model_choices.sample_type_choices)
     monitoring_program = models.ForeignKey(MonitoringProgram, on_delete=models.DO_NOTHING, verbose_name=_("monitoring program"),
-                                           help_text=_("The sample was collected under which monitoring program"), related_name="samples", blank=False,
+                                           help_text=_("The sample was collected under which monitoring program"), related_name="samples", blank=True,
                                            null=True)
     arrival_date = models.DateTimeField(verbose_name="arrival date/time")
     departure_date = models.DateTimeField(verbose_name="departure date/time")
@@ -212,7 +212,8 @@ class Sample(MetadataFields):
     operating_condition_comment = models.CharField(max_length=255, blank=True, null=True)
 
     # ef
-    seine_type = models.IntegerField(blank=True, null=True, choices=model_choices.seine_type_choices, verbose_name=_("type of seine"))
+    seine_type = models.IntegerField(blank=True, null=True, choices=model_choices.seine_type_choices, verbose_name=_("type of seine"), default=2)
+    didymo = models.IntegerField(blank=True, null=True, verbose_name=_("didymo presence / absence"), choices=model_choices.didymo_choices)
     site_type = models.IntegerField(blank=True, null=True, choices=model_choices.site_type_choices, verbose_name=_("type of site"))
     electrofisher = models.ForeignKey(Electrofisher, related_name='samples', on_delete=models.DO_NOTHING, verbose_name=_("electrofisher"), blank=True,
                                       null=True)

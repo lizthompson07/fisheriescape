@@ -53,8 +53,8 @@ site_type_choices = (
 )
 
 seine_type_choices = (
-    (1, _("2 man lip seine (3m wide X 1m high)")),
-    (2, _("1 man seine (1m wide X 1m high)")),
+    (1, _("1 man seine (1m wide X 1m high)")),
+    (2, _("2 man lip seine (3m wide X 1m high)")),
 )
 
 pulse_type_choices = (
@@ -64,6 +64,13 @@ pulse_type_choices = (
 )
 
 adipose_condition_choices = (
+    (None, _("Not checked")),
+    (0, _("Absent")),
+    (1, _("Present")),
+)
+
+didymo_choices = (
+    (None, _("Not checked")),
     (0, _("Absent")),
     (1, _("Present")),
 )
