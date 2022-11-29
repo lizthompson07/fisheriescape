@@ -198,7 +198,7 @@ class ProjectViewSet(ModelViewSet):
 
 class ProjectYearViewSet(ModelViewSet):
     queryset = models.ProjectYear.objects.all().order_by("start_date")\
-        .select_related("project", "project__section", "fiscal_year","project__functional_group",
+        .select_related("project", "project__section", "fiscal_year", "project__functional_group",
                         "project__default_funding_source", "project__activity_type")\
         .prefetch_related('staff_set__funding_source',
                           'omcost_set__funding_source',
