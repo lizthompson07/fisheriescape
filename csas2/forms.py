@@ -502,7 +502,6 @@ class DocumentForm(forms.ModelForm):
             person_choices = [(p.id, f"{p} ({p.email})") for p in Person.objects.all()]
             self.fields["lead_authors"].choices = person_choices
             self.fields["other_authors"].choices = person_choices
-            del self.fields["year"]
             del self.fields["pages_en"]
             del self.fields["pages_fr"]
             del self.fields["url_en"]
