@@ -216,7 +216,7 @@ def run_process_samples():
                                 if remarks:
                                     remarks = remarks.lower()
                                     if "didymo" in remarks:
-                                        if "present" in remarks or "high presence" in remarks:
+                                        if "present" in remarks or "high presence" in remarks or "didymo pom pom" in remarks:
                                             didymo = 1
                                         elif "absent" in remarks:
                                             didymo = 0
