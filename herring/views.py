@@ -987,9 +987,12 @@ class ProgressReportListView(HerringCRUD, CommonListView):
         {"name": "sampler_ref_number"},
         {"name": 'sampler', },
         {"name": '|Lengths (measured vs. histogram)', },
-        {"name": '|Lab processed', },
-        {"name": '|Eggs processed', },
-        {"name": '|Otoliths processed', },
+        {"name": '|Lab processed date', },
+        {"name": '|Lab progress', },
+        {"name": '|Eggs processed date', },
+        {"name": '|Eggs progress', },
+        {"name": '|Otoliths processed date', },
+        {"name": '|Otoliths progress', },
     ]
 
     def get_h1(self):

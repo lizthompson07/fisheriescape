@@ -25,35 +25,48 @@
       <td>{{ sample.sampler }}</td>
 
 
-
       <td class="{% if sample.total_fish_measured|nz:0 == sample.lf_count %}good{% else %}bad{% endif %}">
         {{ sample.lf_count }} vs. {{ sample.total_fish_measured|nz:0 }}
       </td>
 
 
-      <td class="{% if sample.lab_processing_complete %}good{% else %}bad{% endif %}">
-        {{ sample.lab_complete_fish.count }} of {{ sample.total_fish_preserved|nz:0 }}
+      {# lab #}
+
+      <td>
         {% if sample.fish_details.last.lab_processed_date %}
-          ({{ sample.fish_details.last.lab_processed_date|date:"Y-m-d" }})
+          {{ sample.fish_details.last.lab_processed_date|date:"Y-m-d" }}
         {% endif %}
       </td>
+      <td class="{% if sample.lab_processing_complete %}good{% else %}bad{% endif %}">
+        {{ sample.lab_complete_fish.count }} of {{ sample.total_fish_preserved|nz:0 }}
+      </td>
+
+
+      {# eggs #}
 
       {% if sample.total_egg_fish.exists %}
+        <td>
+          {% if sample.total_egg_fish.last.egg_processed_date %}
+            {{ sample.total_egg_fish.last.egg_processed_date|date:"Y-m-d" }}
+          {% endif %}
+        </td>
         <td class="{% if sample.egg_processing_complete %}good{% else %}bad{% endif %}">
           {{ sample.egg_complete_fish.count }} of {{ sample.total_egg_fish.count }}
-          {% if sample.total_egg_fish.last.egg_processed_date %}
-            ({{ sample.total_egg_fish.last.egg_processed_date|date:"Y-m-d" }})
-          {% endif %}
         </td>
       {% else %}
         <td></td>
+        <td></td>
       {% endif %}
 
+      {# oto #}
+
+      <td>
+        {% if sample.fish_details.last.otolith_processed_date %}
+          {{ sample.fish_details.last.otolith_processed_date|date:"Y-m-d" }}
+        {% endif %}
+      </td>
       <td class="{% if sample.otolith_processing_complete %}good{% else %}bad{% endif %}">
         {{ sample.oto_complete_fish.count }} of {{ sample.total_fish_preserved|nz:0 }}
-        {% if sample.fish_details.last.otolith_processed_date %}
-          ({{ sample.fish_details.last.otolith_processed_date|date:"Y-m-d" }})
-        {% endif %}
       </td>
 
 
