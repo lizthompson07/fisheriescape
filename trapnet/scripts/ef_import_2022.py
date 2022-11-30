@@ -215,10 +215,12 @@ def run_process_samples():
                                 remarks = r["REMARK"]
                                 if remarks:
                                     remarks = remarks.lower()
-                                    if "seine" in remarks and ("one man" in remarks or "1 man" in remarks):
-                                        seine_type = 1
-                                kwargs["seine_type"] = seine_type
-
+                                    if "didymo" in remarks:
+                                        if "present" in remarks or "high presence" in remarks:
+                                            didymo = 1
+                                        elif "absent" in remarks:
+                                            didymo = 0
+                                kwargs["didymo"] = didymo
 
 
                                 # deal with the crew fields
@@ -252,7 +254,7 @@ def run_process_samples():
                                                 # remove that sampler from the total list
                                                 total_crew.remove(sampler)
                                                 # clean up the name of the sampler
-                                                prober = sampler.replace("*","").trim()
+                                                prober = sampler.replace("*","").strip()
                                                 # end the loop
                                                 break
                                         crew_probe = prober
