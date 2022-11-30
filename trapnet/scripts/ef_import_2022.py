@@ -210,6 +210,15 @@ def run_process_samples():
                                             seine_type = 1
                                 kwargs["seine_type"] = seine_type
 
+                                # deal with didymo
+                                didymo = None
+                                remarks = r["REMARK"]
+                                if remarks:
+                                    remarks = remarks.lower()
+                                    if "seine" in remarks and ("one man" in remarks or "1 man" in remarks):
+                                        seine_type = 1
+                                kwargs["seine_type"] = seine_type
+
 
 
                                 # deal with the crew fields
