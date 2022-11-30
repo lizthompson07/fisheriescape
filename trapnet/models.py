@@ -213,7 +213,7 @@ class Sample(MetadataFields):
 
     # ef
     seine_type = models.IntegerField(blank=True, null=True, choices=model_choices.seine_type_choices, verbose_name=_("type of seine"), default=2)
-    didymo = models.IntegerField(blank=True, null=True, verbose_name=_("didymo presence / absence"), choices=model_choices.didymo_choices)
+    didymo = models.IntegerField(blank=True, null=True, verbose_name=_("presence / absence of Didymosphenia geminata"), choices=model_choices.didymo_choices)
     site_type = models.IntegerField(blank=True, null=True, choices=model_choices.site_type_choices, verbose_name=_("type of site"))
     electrofisher = models.ForeignKey(Electrofisher, related_name='samples', on_delete=models.DO_NOTHING, verbose_name=_("electrofisher"), blank=True,
                                       null=True)

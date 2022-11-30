@@ -59,7 +59,6 @@ class SpecimenViewSet(ModelViewSet):
             status_choices.insert(0, dict(text="-----", value=None))
             data['status_choices'] = status_choices
             adipose_condition_choices = [dict(text=obj[1], value=obj[0]) for obj in model_choices.adipose_condition_choices]
-            adipose_condition_choices.insert(0, dict(text="-----", value=None))
             data['adipose_condition_choices'] = adipose_condition_choices
             sex_choices = [dict(text=obj.choice, value=obj.id) for obj in models.Sex.objects.all()]
             sex_choices.insert(0, dict(text="-----", value=None))

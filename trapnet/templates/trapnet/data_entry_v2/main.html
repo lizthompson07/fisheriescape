@@ -462,9 +462,9 @@
               if (!response.id) alert(groomJSON(response));
               else {
                 // capture the memories
-                this.memory.lastSpecies = response.species;
-                this.memory.lastStatus = response.status;
-                this.memory.lastOrigin = response.origin;
+                this.memory.lastSpecies = nz(response.species);
+                this.memory.lastStatus = nz(response.status);
+                this.memory.lastOrigin = nz(response.origin);
                 response.edit = false;
                 this.specimens.push(response);
               }
@@ -553,9 +553,13 @@
         return {
           sample: sampleId,
           sweep: sweepId,
-          origin: this.lastOrigin,
-          species: this.lastSpecies,
-          status: this.lastStatus,
+          origin: this.memory.lastOrigin,
+          species: this.memory.lastSpecies,
+          status: this.memory.lastStatus,
+          adipose_condition: null,
+          reproductive_status: null,
+          life_stage: null,
+          sex: null,
         };
       },
     },

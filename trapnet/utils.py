@@ -59,6 +59,7 @@ def get_sample_field_list(sample=None):
         'max_overhanging_veg_display|{}'.format(_("max overhanging vegetation (m)")) if is_electro else None,
         "electrofisher" if is_electro else None,
         'electrofisher_params|{}'.format(_("electrofisher settings")) if is_electro else None,
+        'didymo|{}'.format(_("Didymosphenia geminata?")) if is_electro else None,
 
         'species_list|{}'.format(_("species caught")),
         'tag_list|{}'.format(_("tags issued")),
