@@ -74,3 +74,14 @@ def get_sample_field_list(sample=None):
     remove_nulls(my_list)
 
     return my_list
+
+
+def get_age_from_length(length, t0=None, t1=None):
+    if t0 and t1:
+        if length < t0:
+            return 0
+        elif length >= t1:
+            return 2
+        else:
+            return 1
+    return None

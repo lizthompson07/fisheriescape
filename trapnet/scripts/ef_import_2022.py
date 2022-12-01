@@ -568,7 +568,7 @@ def run_process_fish():
                                             "adipose_condition": adipose_condition,
                                             "fork_length": r["FORK_LENGTH"],
                                             "total_length": r["TOTAL_LENGTH"],
-                                            "weight": r["TOTAL_LENGTH"],
+                                            "weight": r["WEIGHT"],
                                             "sex": sex,
                                             "maturity": maturity,
                                             "reproductive_status": reproductive_status,

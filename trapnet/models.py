@@ -17,6 +17,7 @@ from shared_models import models as shared_models
 from shared_models.models import MetadataFields, SimpleLookup, LatLongFields, Lookup
 from shared_models.utils import remove_nulls
 from trapnet import model_choices
+from trapnet.utils import get_age_from_length
 
 YES_NO_CHOICES = [(True, _("Yes")), (False, _("No")), ]
 
@@ -232,6 +233,13 @@ class Sample(MetadataFields):
     reviewed_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, editable=False, related_name='trapnet_reviewed_by')
     reviewed_at = models.DateTimeField(blank=True, null=True, editable=False)
     old_id = models.CharField(max_length=25, null=True, blank=True, editable=False, unique=True)
+
+    def get_detailed_salmon(self):
+        return self.specimens.filter(species__tsn=161996, fork_length__isnull=False, weight__isnull=False)
+
+    @property
+    def has_thresholds(self):
+        return bool(self.age_thresh_0_1 and self.age_thresh_1_2)
 
     @property
     def julian_day(self):
@@ -533,14 +541,25 @@ class Specimen(MetadataFields):
     sample = models.ForeignKey(Sample, on_delete=models.CASCADE, related_name="specimens", blank=True, null=True)
     sweep = models.ForeignKey(Sweep, on_delete=models.CASCADE, related_name="specimens", blank=True, null=True)
     old_id = models.CharField(max_length=25, null=True, blank=True, editable=False)
+    # smart_river_age = models.IntegerField(null=True, blank=True, editable=False)
 
     # to be deleted eventually
     origin = models.ForeignKey(Origin, on_delete=models.DO_NOTHING, related_name="specimens", blank=True, null=True, editable=False)
 
+    def get_smart_river_age(self):
+        """ only applies to salmon who have fork lengths. If ever there was a river age assigned, this trumps any calculated ages"""
+        if not self.river_age and (self.is_salmon and self.fork_length):
+            return get_age_from_length(self.fork_length, self.sample.age_thresh_0_1, self.sample.age_thresh_1_2)
+        return self.river_age
+
+    @property
+    def is_salmon(self):
+        return self.species.tsn == "161996"
+
     def save(self, *args, **kwargs):
         if self.sweep:
             self.sample = self.sweep.sample
-        # if self.fork_length and self.sample.age_thresh_0_1
+        # self.smart_river_age = self.get_smart_river_age()
         return super().save(*args, **kwargs)
 
     def __str__(self):

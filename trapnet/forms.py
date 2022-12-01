@@ -123,6 +123,14 @@ class SampleForm(forms.ModelForm):
                 gettext("Either substrate characterization must be left null or must equal to 100")
             )
 
+        # make sure the age thresholds make sense
+        age_thresh_0_1 = cleaned_data.get("age_thresh_0_1")
+        age_thresh_1_2 = cleaned_data.get("age_thresh_1_2")
+        if age_thresh_0_1 and age_thresh_1_2 and age_thresh_1_2 < age_thresh_0_1:
+            self.add_error('age_thresh_1_2', gettext(
+                "the 1-2 age threshold must be greater than that for the 0-1 age threshold!"
+                ))
+
 
 class SweepForm(forms.ModelForm):
     class Meta:

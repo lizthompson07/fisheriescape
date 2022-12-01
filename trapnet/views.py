@@ -1,3 +1,6 @@
+import json
+import math
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.db.models import TextField, Value
@@ -20,8 +23,8 @@ from . import forms
 from . import models
 from . import reports
 from .mixins import TrapNetCRUDRequiredMixin, TrapNetAdminRequiredMixin, SuperuserOrAdminRequiredMixin, TrapNetBasicMixin
-from .utils import get_sample_field_list, is_crud_user
-
+from .utils import get_sample_field_list, is_crud_user, get_age_from_length
+import numpy as np
 
 class IndexTemplateView(TrapNetBasicMixin, CommonTemplateView):
     template_name = 'trapnet/index.html'
@@ -515,6 +518,7 @@ class SampleDetailView(TrapNetBasicMixin, CommonDetailView):
         return get_sample_field_list(self.get_object())
 
     def get_context_data(self, **kwargs):
+        obj = self.get_object()
         context = super().get_context_data(**kwargs)
         context['specimen_field_list'] = [
             'species',
@@ -535,6 +539,60 @@ class SampleDetailView(TrapNetBasicMixin, CommonDetailView):
             "sweep_time",
             "specimen_count|{}".format("# specimens"),
         ]
+        detailed_salmon = obj.get_detailed_salmon()
+        if detailed_salmon.exists():
+            pairs = [dict(x=s.fork_length, y=s.weight) for s in detailed_salmon]
+            context['lw_pairs'] = json.dumps(pairs)
+            lengths = [item["x"] for item in pairs]
+            weights = [item["y"] for item in pairs]
+            lw_colors = list()
+            for length in lengths:
+                age = get_age_from_length(length, obj.age_thresh_0_1, obj.age_thresh_1_2)
+                if age == 0:  # green
+                    lw_colors.append('rgba(75, 192, 192, 0.5)')
+                elif age == 1:  # purple
+                    lw_colors.append('rgba(153, 102, 255, 0.5)')
+                elif age == 2:  # red
+                    lw_colors.append('rgba(255, 99, 132, 0.5)')
+                else:  # grey
+                    lw_colors.append('rgba(16,16,16,0.5)')
+            context['lw_colors'] = json.dumps(lw_colors)
+
+
+            len_range = range(math.floor(min(lengths)), math.ceil(max(lengths)))
+            calc_pairs = list()
+            for l in len_range:
+                a = 0.00561
+                b = 3.125999999999999
+                wgt = (a * l ** b)/1000
+                calc_pairs.append(dict(x=l, y=wgt))
+            context['calc_lw_pairs'] = json.dumps(calc_pairs)
+
+            # get the data for the histogram
+            counts, bins = np.histogram(lengths,bins=math.ceil(len(len_range)*0.5))
+            hist_zip = zip(bins, counts)
+            hist_data = list()
+            hist_colors = list()
+            hist_labels = list()
+            for item in hist_zip:
+                hist_data.append(dict(x=item[0], y=item[1], color="red"))
+                age = get_age_from_length(item[0], obj.age_thresh_0_1, obj.age_thresh_1_2)
+                if age == 0:  # green
+                    hist_colors.append('rgba(75, 192, 192, 0.5)')
+                elif age == 1:  # purple
+                    hist_colors.append('rgba(153, 102, 255, 0.5)')
+                elif age == 2:  # red
+                    hist_colors.append('rgba(255, 99, 132, 0.5)')
+                else:  # grey
+                    hist_colors.append('rgba(16,16,16,0.5)')
+                hist_labels.append('age not assigned')
+
+            context['hist_data'] = hist_data
+            context['hist_colors'] = hist_colors
+            context['hist_labels'] = hist_labels
+            context['hist_max_count'] = max(counts)
+            context['max_weight'] = max(weights)
+
 
         return context
 

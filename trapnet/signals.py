@@ -1,9 +1,9 @@
 import os
 
-from django.db.models.signals import pre_save, post_delete
+from django.db.models.signals import pre_save, post_delete, post_save
 from django.dispatch import receiver
 
-from trapnet.models import SampleFile, File
+from trapnet.models import SampleFile, File, Sample
 
 
 @receiver(post_delete, sender=File)
