@@ -235,7 +235,10 @@ class Sample(MetadataFields):
     old_id = models.CharField(max_length=25, null=True, blank=True, editable=False, unique=True)
 
     def get_detailed_salmon(self):
-        return self.specimens.filter(species__tsn=161996, fork_length__isnull=False, weight__isnull=False)
+        return self.get_salmon_with_lengths().filter(weight__isnull=False)
+
+    def get_salmon_with_lengths(self):
+        return self.specimens.filter(species__tsn=161996, fork_length__isnull=False)
 
     @property
     def has_thresholds(self):

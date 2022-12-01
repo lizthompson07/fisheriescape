@@ -539,25 +539,50 @@ class SampleDetailView(TrapNetBasicMixin, CommonDetailView):
             "sweep_time",
             "specimen_count|{}".format("# specimens"),
         ]
+        salmon_with_lengths = obj.get_salmon_with_lengths()
+        if salmon_with_lengths.exists():
+            hist = dict(data=list(), colors=list(), max_count=0)
+            lengths = [item.fork_length for item in salmon_with_lengths]
+
+            # get the data for the histogram
+            len_range = range(math.floor(min(lengths)), math.ceil(max(lengths)))
+            counts, bins = np.histogram(lengths, bins=math.ceil(len(len_range) * 0.5))
+            hist_zip = zip(bins, counts)
+
+            for item in hist_zip:
+                length = item[0]
+                count = item[1]
+                hist["data"].append(dict(x=length, y=count))
+                age = get_age_from_length(length, obj.age_thresh_0_1, obj.age_thresh_1_2)
+                if age == 0:  # green
+                    hist["colors"].append('rgba(75, 192, 192, 0.5)')
+                elif age == 1:  # purple
+                    hist["colors"].append('rgba(153, 102, 255, 0.5)')
+                elif age == 2:  # red
+                    hist["colors"].append('rgba(255, 99, 132, 0.5)')
+                else:  # grey
+                    hist["colors"].append('rgba(16,16,16,0.5)')
+                if count > hist["max_count"]:
+                    hist["max_count"] = count
+            context['hist'] = hist
+
         detailed_salmon = obj.get_detailed_salmon()
         if detailed_salmon.exists():
-            pairs = [dict(x=s.fork_length, y=s.weight) for s in detailed_salmon]
-            context['lw_pairs'] = json.dumps(pairs)
-            lengths = [item["x"] for item in pairs]
-            weights = [item["y"] for item in pairs]
-            lw_colors = list()
+            lw = dict(obs_data=list(), exp_data=list(), colors=list())
+            obs_data = [dict(x=s.fork_length, y=s.weight) for s in detailed_salmon]
+            lw['obs_data'] = obs_data
+            lengths = [item["x"] for item in obs_data]
+            weights = [item["y"] for item in obs_data]
             for length in lengths:
                 age = get_age_from_length(length, obj.age_thresh_0_1, obj.age_thresh_1_2)
                 if age == 0:  # green
-                    lw_colors.append('rgba(75, 192, 192, 0.5)')
+                    lw["colors"].append('rgba(75, 192, 192, 0.5)')
                 elif age == 1:  # purple
-                    lw_colors.append('rgba(153, 102, 255, 0.5)')
+                    lw["colors"].append('rgba(153, 102, 255, 0.5)')
                 elif age == 2:  # red
-                    lw_colors.append('rgba(255, 99, 132, 0.5)')
+                    lw["colors"].append('rgba(255, 99, 132, 0.5)')
                 else:  # grey
-                    lw_colors.append('rgba(16,16,16,0.5)')
-            context['lw_colors'] = json.dumps(lw_colors)
-
+                    lw["colors"].append('rgba(16,16,16,0.5)')
 
             len_range = range(math.floor(min(lengths)), math.ceil(max(lengths)))
             calc_pairs = list()
@@ -565,8 +590,8 @@ class SampleDetailView(TrapNetBasicMixin, CommonDetailView):
                 a = 0.00561
                 b = 3.125999999999999
                 wgt = (a * l ** b)/1000
-                calc_pairs.append(dict(x=l, y=wgt))
-            context['calc_lw_pairs'] = json.dumps(calc_pairs)
+                lw["exp_data"].append(dict(x=l, y=wgt))
+            context['lw'] = json.dumps(lw)
 
             # get the data for the histogram
             counts, bins = np.histogram(lengths,bins=math.ceil(len(len_range)*0.5))

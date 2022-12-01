@@ -84,4 +84,8 @@ def get_age_from_length(length, t0=None, t1=None):
             return 2
         else:
             return 1
+    elif t0 and length < t0:
+        return 0
+    elif t1 and length >= t1:
+        return 2
     return None

@@ -81,7 +81,7 @@
         </div>
       </div>
 
-      {% if object.get_detailed_salmon.exists %}
+      {% if lw %}
 
         <div class="card">
           <div class="card-header lead">
@@ -91,7 +91,8 @@
             <canvas id="length-weight" width="100%"></canvas>
           </div>
         </div>
-
+      {% endif %}
+      {% if hist %}
         <div class="card">
           <div class="card-header lead">
             {% trans "Salmon Length-frequency Distribution" %}
@@ -238,35 +239,99 @@
         </div>
       </div>
     {% endif %}
-
+    {{ hist }}
   </div>
 
 {% endblock %}
 
 {% block body_js %}
-  {% if object.get_detailed_salmon.exists %}
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+  {% if hist %}
+    <script type="application/javascript">
+    var hist = {{ hist|safe }};
+    new Chart(document.getElementById("bar-chart"), {
+      type: 'bar',
+      data: {
+        datasets: [
+          {
+            data: hist.data,
+            backgroundColor: hist.colors,
+            borderColor: "black",
+            borderWidth: 0.5,
+            fill: false,
+            tension: 0.4,
+            type: "bar",
+            barThickness: 5
+          },
+          {% if object.age_thresh_0_1 %}
+            {
+              type: 'bar',
+              data: [
+                {x: {{ object.age_thresh_0_1 }}, y: hist.max_count},
+              ],
+              barThickness: 1,
+              backgroundColor: 'black',
+            },
+          {% endif %}
+          {% if object.age_thresh_1_2 %}
+            {
+              type: 'bar',
+              data: [
+                {x: {{ object.age_thresh_1_2 }}, y: hist.max_count}
+              ],
+              barThickness: 1,
+              backgroundColor: 'blue',
+            },
+          {% endif %}
+        ]
+      },
+      options: {
+        plugins: {
+          legend: {display: false},
+        },
+        title: {
+          display: false,
+        },
+        scales: {
+          x: {
+            type: 'linear',
+            position: 'bottom',
+            title: {
+              display: true,
+              text: 'Length (mm)'
+            },
+          },
+          y: {
+            type: 'linear',
+            title: {
+              display: true,
+              text: 'Counts'
+            },
+          }
+        }
+      }
+    });
+
+    </script>
+  {% endif %}
+
+  {% if lw %}
     <script type="application/javascript">
 
-    var lwPairsObserved = {{ lw_pairs|safe }};
-    var lwPairsExpected = {{ calc_lw_pairs|safe }};
-    var lwColors = {{ lw_colors|safe }};
-    var histData = {{ hist_data|safe }};
-    var histColors = {{ hist_colors|safe }};
-    var histLabels = {{ hist_labels|safe }};
+    var lw = {{ lw|safe }};
 
     const data = {
       datasets: [
         {
           type: 'scatter',
           label: 'Observed',
-          data: lwPairsObserved,
-          backgroundColor: lwColors
+          data: lw.obs_data,
+          backgroundColor: lw.colors
         },
         {
           label: 'Expected',
-          data: lwPairsExpected,
+          data: lw.exp_data,
           borderDash: [2],
           borderColor: "black",
           borderWidth: 0.5,
@@ -275,17 +340,27 @@
           tension: 0.4,
           type: "line"
         },
-        {% if object.has_thresholds %}
+        {% if object.age_thresh_0_1 %}
           {
-            label: 'Age thresholds',
+            label: 'Age threshold (0-1)',
             type: 'bar',
             data: [
               {x: {{ object.age_thresh_0_1 }}, y: {{max_weight}}},
-              {x: {{ object.age_thresh_1_2 }}, y: {{max_weight}}}
             ],
             barThickness: 1,
             backgroundColor: 'black',
-          }
+          },
+        {% endif %}
+        {% if object.age_thresh_1_2 %}
+          {
+            label: 'Age threshold (1-2+)',
+            type: 'bar',
+            data: [
+              {x: {{ object.age_thresh_1_2 }}, y: {{max_weight}}}
+            ],
+            barThickness: 1,
+            backgroundColor: 'blue',
+          },
         {% endif %}
 
       ],
@@ -317,61 +392,6 @@
 
     new Chart(document.getElementById("length-weight"), scatterConfig);
 
-
-    new Chart(document.getElementById("bar-chart"), {
-      type: 'bar',
-      data: {
-        datasets: [
-          {
-            data: histData,
-            label: histLabels,
-            backgroundColor: histColors,
-            borderColor: "black",
-            borderWidth: 0.5,
-            fill: false,
-            tension: 0.4,
-            type: "bar",
-            barThickness: 5
-          },
-          {% if object.has_thresholds %}
-            {
-              type: 'bar',
-              data: [
-                {x: {{ object.age_thresh_0_1 }}, y: {{hist_max_count}}},
-                {x: {{ object.age_thresh_1_2 }}, y: {{hist_max_count}}}
-              ],
-              barThickness: 1,
-              backgroundColor: 'black',
-            }
-          {% endif %}
-        ]
-      },
-      options: {
-        plugins: {
-          legend: {display: false},
-        },
-        title: {
-          display: false,
-        },
-        scales: {
-          x: {
-            type: 'linear',
-            position: 'bottom',
-            title: {
-              display: true,
-              text: 'Length (mm)'
-            },
-          },
-          y: {
-            type: 'linear',
-            title: {
-              display: true,
-              text: 'Counts'
-            },
-          }
-        }
-      }
-    });
 
     </script>
   {% endif %}
