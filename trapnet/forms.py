@@ -129,7 +129,7 @@ class SampleForm(forms.ModelForm):
         if age_thresh_0_1 and age_thresh_1_2 and age_thresh_1_2 < age_thresh_0_1:
             self.add_error('age_thresh_1_2', gettext(
                 "the 1-2 age threshold must be greater than that for the 0-1 age threshold!"
-                ))
+            ))
 
 
 class SweepForm(forms.ModelForm):
