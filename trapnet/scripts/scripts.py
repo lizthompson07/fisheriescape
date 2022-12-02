@@ -814,3 +814,25 @@ def populate_adipose_condition():
     for o in models.Specimen.objects.filter(origin__code__iexact="w"):
         o.adipose_condition = 1
         o.save()
+
+
+def check_for_didymo():
+    from trapnet import models
+    samples = models.Sample.objects.filter(notes__icontains="didymo")
+    for sample in samples:
+        remarks = sample.notes.lower()
+        if "absent" in remarks:
+            sample.didymo = 0
+        else:
+            sample.didymo = 1
+        sample.save()
+
+    samples = models.Sample.objects.filter(sweeps__notes__icontains="didymo").distinct()
+    for sample in samples:
+        remarks = sample.notes.lower()
+        if "absent" in remarks:
+            sample.didymo = 0
+        else:
+            sample.didymo = 1
+        sample.save()
+

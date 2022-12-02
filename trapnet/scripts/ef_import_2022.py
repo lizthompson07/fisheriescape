@@ -197,7 +197,8 @@ def run_process_samples():
                                     "electrofisher_frequency": r["ELECTROFISHER_VOLTAGE"],
                                     "site_type": 2 if r["BARRIER_PRESENT"] else 1,
                                     "monitoring_program_id": 1,
-
+                                    "created_by_id": 50,
+                                    "updated_by_id": 50,
                                 }
 
                                 # deal with seine type
@@ -433,6 +434,7 @@ def run_process_fish():
 
     life_stage_lookup = get_life_stage_lookup()
     models.Specimen.objects.filter(old_id__istartswith="gd").delete()
+    models.BiologicalDetailing.objects.filter(old_id__istartswith="gd").delete()
 
     with open(os.path.join(rootdir, 'problematic_fish_data.csv'), 'w') as wf:
         writer = csv.writer(wf, delimiter=',', lineterminator='\n')
@@ -450,6 +452,8 @@ def run_process_fish():
                         r[key] = r[key].strip()  # remove any trailing spaces
                         if r[key] in ['', "NA"]:  # if there is a null value of any kind, replace with NoneObject
                             r[key] = None
+
+                    file_type = r["FILE_TYPE"]
 
                     raw_date = r["SITE_EVENT_DATE"]
                     # only continue if there is a date
@@ -493,10 +497,10 @@ def run_process_fish():
                                 sweeps = sample.sweeps.filter(sweep_number=sweep_number)
                                 if not sweeps.exists():
                                     # here we need to add some complicated logic
-                                    if sweep_number == 0:
+                                    if sweep_number == 0 and file_type != "2":
                                         sweep = None
                                         writer.writerow(
-                                            [r[key] for key in r] + [5, "sweep number is zero and there is no corresponding sweep time in the site data",
+                                            [r[key] for key in r] + [5, "sweep number is zero and there is no corresponding sweep time in the site data (FILE_TYPE != 2)",
                                                                      sample.old_id, 0])
                                     else:
                                         sweep = models.Sweep.objects.create(sample=sample, sweep_number=sweep_number, sweep_time=0)
@@ -505,7 +509,7 @@ def run_process_fish():
                                     # cannot be more than one sweep per sample with the same number because of the unique_together constraint
                                     sweep = sweeps.first()
 
-                                if sweep:
+                                if sweep or file_type == 2:
                                     # get the species
                                     try:
                                         species = models.Species.objects.get(tsn=r["SPECIES_ITIS_CODE"])
@@ -514,7 +518,7 @@ def run_process_fish():
                                             [r[key] for key in r] + [7, f"Cannot find species with TSN {r['SPECIES_ITIS_CODE']} in db", sample.old_id, 0])
                                     else:
                                         # life stage
-                                        life_stage = life_stage_lookup.get(int(r['SPECIES_LIFE_STAGE']))
+                                        life_stage = life_stage_lookup.get(r['SPECIES_LIFE_STAGE'])
                                         if life_stage:
                                             life_stage = models.LifeStage.objects.get(code__iexact=life_stage)
 
@@ -575,18 +579,26 @@ def run_process_fish():
                                             "age_type": age_type,
                                             "river_age": r["RIVER_AGE"],
                                             "scale_id_number": f'{r["SCALE_SAMPLE_ID"]} {sample.arrival_date.year}' if r["SCALE_SAMPLE_ID"] else None,
+                                            "created_by_id": 50,
+                                            "updated_by_id": 50,
                                         }
                                         notes = str()
                                         notes = add_note(notes, r["BIOLOGICAL_REMARKS"])
                                         if not len(notes.strip()):
                                             notes = None
                                         fish_kwargs["notes"] = notes
-                                        catch_frequency = r["CATCH_FREQUENCY"]
-                                        if catch_frequency and int(catch_frequency) > 0:
-                                            for x in range(0, int(catch_frequency)):
-                                                models.Specimen.objects.create(**fish_kwargs)
+
+                                        if file_type == "2":
+                                            del fish_kwargs["sweep"]
+                                            fish_kwargs["sample"] = sample
+                                            models.BiologicalDetailing.objects.create(**fish_kwargs)
                                         else:
-                                            writer.writerow([r[key] for key in r] + [10, f"Catch frequency null or zero", sample.old_id, 0])
+                                            catch_frequency = r["CATCH_FREQUENCY"]
+                                            if catch_frequency and int(catch_frequency) > 0:
+                                                for x in range(0, int(catch_frequency)):
+                                                    models.Specimen.objects.create(**fish_kwargs)
+                                            else:
+                                                writer.writerow([r[key] for key in r] + [10, f"Catch frequency null or zero", sample.old_id, 0])
                     else:
                         writer.writerow([r[key] for key in r] + [0, "Fish specimen has no date/time", "", 0])
                     bar()
