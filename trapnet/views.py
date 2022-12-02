@@ -24,7 +24,7 @@ from . import forms
 from . import models
 from . import reports
 from .mixins import TrapNetCRUDRequiredMixin, TrapNetAdminRequiredMixin, SuperuserOrAdminRequiredMixin, TrapNetBasicMixin
-from .utils import get_sample_field_list, is_crud_user, get_age_from_length
+from .utils import get_sample_field_list, is_crud_user, get_age_from_length, get_ef_field_list
 
 
 class IndexTemplateView(TrapNetBasicMixin, CommonTemplateView):
@@ -524,16 +524,29 @@ class SampleCreateView(TrapNetCRUDRequiredMixin, CommonCreateView):
 
 class SampleDetailView(TrapNetBasicMixin, CommonDetailView):
     model = models.Sample
-    template_name = 'trapnet/sample_detail.html'
+    template_name = 'trapnet/sample_detail/basic.html'
     home_url_name = "trapnet:index"
     parent_crumb = {"title": _("Samples"), "url": reverse_lazy("trapnet:sample_list")}
 
-    def get_field_list(self):
-        return get_sample_field_list(self.get_object())
+    def get_template_names(self):
+        obj = self.get_object()
+        if obj.sample_type == 1:
+            return 'trapnet/sample_detail/rst.html'
+        elif obj.sample_type == 2:
+            return 'trapnet/sample_detail/ef.html'
+        elif obj.sample_type == 3:
+            return 'trapnet/sample_detail/trapnet.html'
+        else:
+            return self.template_name
 
     def get_context_data(self, **kwargs):
         obj = self.get_object()
         context = super().get_context_data(**kwargs)
+        context['basic_field_list'] = get_sample_field_list()
+        context['ef_field_list'] = get_ef_field_list()
+        context['rst_field_list'] = get_sample_field_list()
+        context['trapnet_field_list'] = get_sample_field_list()
+
         context['specimen_field_list'] = [
             'species',
             'status',

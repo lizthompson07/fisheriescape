@@ -152,7 +152,7 @@ class Sample(MetadataFields):
     age_thresh_0_1 = models.IntegerField(blank=True, null=True, verbose_name=_("salmon site-specific age threshold (0+ to 1+)"))
     age_thresh_1_2 = models.IntegerField(blank=True, null=True, verbose_name=_("salmon site-specific age threshold (1+ to 2+)"))
     age_thresh_parr_smolt = models.IntegerField(blank=True, null=True, verbose_name=_("salmon site-specific age threshold (parr to smolt)"))
-
+    didymo = models.IntegerField(blank=True, null=True, verbose_name=_("presence / absence of Didymosphenia geminata"), choices=model_choices.didymo_choices)
     notes = models.TextField(blank=True, null=True)
 
     ##################
@@ -179,7 +179,6 @@ class Sample(MetadataFields):
     overhanging_veg_right = models.FloatField(blank=True, null=True, verbose_name=_("Overhanging Vegetation (%) - Right"),
                                               validators=(MinValueValidator(0), MaxValueValidator(100)))
     max_overhanging_veg_right = models.FloatField(blank=True, null=True, verbose_name=_("Max Overhanging Vegetation (m) - Right"))
-    didymo = models.IntegerField(blank=True, null=True, verbose_name=_("presence / absence of Didymosphenia geminata"), choices=model_choices.didymo_choices)
 
 
     # water
@@ -408,16 +407,24 @@ class Sample(MetadataFields):
 
     @property
     def air_temp(self):
-        return _("<u>arrival:</u> {arrival}; <u>max:</u> {max} <u>min:</u> {min}").format(
+        return _("<u>arrival:</u> {arrival}<br> <u>max:</u> {max}<br> <u>min:</u> {min}").format(
             arrival=nz(self.air_temp_arrival, "---"),
             max=nz(self.max_air_temp, "---"),
             min=nz(self.min_air_temp, "---"),
         )
 
     @property
+    def thresholds(self):
+        return _("<u>0+ to 1+:</u> {t01}<br> <u>1+ to 2+:</u> {t12}<br> <u>parr to smolt:</u> {tps}").format(
+            t01=nz(self.age_thresh_0_1, "---"),
+            t12=nz(self.age_thresh_1_2, "---"),
+            tps=nz(self.age_thresh_parr_smolt, "---"),
+        )
+
+    @property
     def water_depth_display(self):
         if self.sample_type == 1:
-            return mark_safe(_("<u>depth (m):</u> {depth}&plusmn;{delta}; <u>discharge (m<sup>3</sup>/s):</u> {dischard}").format(
+            return mark_safe(_("<u>depth (m):</u> {depth}&plusmn;{delta}<br> <u>discharge (m<sup>3</sup>/s):</u> {dischard}").format(
                 depth=nz(self.water_depth_m, "---"),
                 delta=nz(self.water_level_delta_m, "---"),
                 dischard=nz(self.discharge_m3_sec, "---"),
@@ -507,7 +514,6 @@ class EFSample(MetadataFields):
     overhanging_veg_right = models.FloatField(blank=True, null=True, verbose_name=_("Overhanging Vegetation (%) - Right"),
                                               validators=(MinValueValidator(0), MaxValueValidator(100)))
     max_overhanging_veg_right = models.FloatField(blank=True, null=True, verbose_name=_("Max Overhanging Vegetation (m) - Right"))
-    didymo = models.IntegerField(blank=True, null=True, verbose_name=_("presence / absence of Didymosphenia geminata"), choices=model_choices.didymo_choices)
 
     # water
     width_lower = models.FloatField(null=True, blank=True, verbose_name=_("width - lower (m)"))

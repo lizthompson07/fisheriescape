@@ -126,6 +126,7 @@ class SampleForm(forms.ModelForm):
         # make sure the age thresholds make sense
         age_thresh_0_1 = cleaned_data.get("age_thresh_0_1")
         age_thresh_1_2 = cleaned_data.get("age_thresh_1_2")
+        age_thresh_parr_smolt = cleaned_data.get("age_thresh_parr_smolt")
         if age_thresh_0_1 and age_thresh_1_2 and age_thresh_1_2 < age_thresh_0_1:
             self.add_error('age_thresh_1_2', gettext(
                 "the 1-2 age threshold must be greater than that for the 0-1 age threshold!"
