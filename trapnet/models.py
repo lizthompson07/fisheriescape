@@ -583,6 +583,40 @@ class Specimen(MetadataFields):
                 return first_specimen_qs.first()
 
 
+class BiologicalDetailing(MetadataFields):
+    '''for historical data'''
+    species = models.ForeignKey(Species, on_delete=models.DO_NOTHING, related_name="biological_detailings")
+    reproductive_status = models.ForeignKey(ReproductiveStatus, related_name='biological_detailings', on_delete=models.DO_NOTHING, blank=True, null=True)
+    maturity = models.ForeignKey(Maturity, related_name='biological_detailings', on_delete=models.DO_NOTHING, blank=True, null=True)
+    status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, related_name="biological_detailings", blank=False, null=True)
+    sex = models.ForeignKey(Sex, on_delete=models.DO_NOTHING, related_name="biological_detailings", blank=True, null=True)
+    adipose_condition = models.IntegerField(blank=True, null=True, verbose_name=_("adipose condition"), choices=model_choices.adipose_condition_choices)
+    life_stage = models.ForeignKey(LifeStage, related_name='biological_detailings', on_delete=models.DO_NOTHING, blank=True, null=True)
+
+    fork_length = models.FloatField(blank=True, null=True, verbose_name=_("fork length (mm)"))
+    fork_length_bin_interval = models.FloatField(default=1, verbose_name=_("fork length bin interval (mm)"))
+    total_length = models.FloatField(blank=True, null=True, verbose_name=_("total length (mm)"))
+
+    weight = models.FloatField(blank=True, null=True, verbose_name=_("weight (g)"))
+    tag_number = models.CharField(max_length=12, blank=True, null=True, verbose_name=_("tag number"))
+    scale_id_number = models.CharField(max_length=50, blank=True, null=True, verbose_name=_("scale ID number"), unique=True)
+
+    # downstream
+    age_type = models.IntegerField(blank=True, null=True, verbose_name=_("age type"), choices=model_choices.age_type_choices)
+    river_age = models.IntegerField(blank=True, null=True, verbose_name=_("river age"))
+
+    notes = models.TextField(blank=True, null=True)
+
+    sample = models.ForeignKey(Sample, on_delete=models.CASCADE, related_name="biological_detailings", blank=True, null=True)
+    old_id = models.CharField(max_length=25, null=True, blank=True, editable=False)
+
+    def __str__(self):
+        return f"{self.species} ({self.id})"
+
+    class Meta:
+        ordering = ["sample__arrival_date"]
+
+
 def file_directory_path(instance, filename):
     # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
     return 'trapnet/specimen_{0}/{1}'.format(instance.specimen.id, filename)

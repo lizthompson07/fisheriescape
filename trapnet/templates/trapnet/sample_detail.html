@@ -239,9 +239,49 @@
         </div>
       </div>
     {% endif %}
-    {{ hist }}
-  </div>
 
+
+    {% if object.biological_detailings.exists %}
+      <div class="card">
+        <div class="card-header lead">
+          <div class="float-right">
+            {% if not object.is_reviewed %}
+              <a class="btn btn-primary btn-sm" href="{% url 'trapnet:sample_data_entry' object.id %}">
+                <span class="mdi mdi-fish text-light mr-1"></span> {% trans "Field Data Entry Form" %}
+              </a>
+            {% endif %}
+          </div>
+          {% trans "Historical Biological Data" %} ({{ object.biological_detailings.count }})
+        </div>
+        <div class="card-body">
+
+            <table class="table table-sm table-hover table-small-10 sortable">
+              <thead>
+              <tr>
+                {% for field in historical_file_field_list %}
+                  <th>
+                    {% get_verbose_label object.biological_detailings.first field %}
+                  </th>
+                {% endfor %}
+              </tr>
+              </thead>
+              <tbody>
+              {% for specimen in object.biological_detailings.all %}
+                <tr newtab href="{% url 'trapnet:biological_detailing_detail' specimen.id %}">
+                  {% for field in historical_file_field_list %}
+                    <td>
+                      {% get_field_value specimen field %}
+                    </td>
+                  {% endfor %}
+                </tr>
+              {% endfor %}
+              </tbody>
+            </table>
+        </div>
+      </div>
+    {% endif %}
+
+  </div>
 {% endblock %}
 
 {% block body_js %}

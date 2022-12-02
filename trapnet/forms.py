@@ -350,3 +350,9 @@ MonitoringProgramFormset = modelformset_factory(
     form=MonitoringProgramForm,
     extra=1,
 )
+
+
+class BiologicalDetailingForm(forms.ModelForm):
+    class Meta:
+        model = models.BiologicalDetailing
+        fields = "__all__"

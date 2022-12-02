@@ -84,3 +84,17 @@ class SpecimenFilter(django_filters.FilterSet):
         self.filters["sample__sample_type"].label = gettext("Sample type")
         self.filters["sample__site__river"].label = gettext("River")
         self.filters["sample__site"].label = gettext("Site")
+
+
+class BiologicalDetailingFilter(django_filters.FilterSet):
+    class Meta:
+        model = models.BiologicalDetailing
+        fields = {
+            'id': ['exact'],
+            'old_id': ['exact'],
+            'species': ['exact'],
+            'sample__site__river': ['exact'],
+            'sample__site': ['exact'],
+            'sample__sample_type': ['exact'],
+            'sample_id': ['exact'],
+        }

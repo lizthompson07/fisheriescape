@@ -1,6 +1,7 @@
 import json
 import math
 
+import numpy as np
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.db.models import TextField, Value
@@ -24,7 +25,7 @@ from . import models
 from . import reports
 from .mixins import TrapNetCRUDRequiredMixin, TrapNetAdminRequiredMixin, SuperuserOrAdminRequiredMixin, TrapNetBasicMixin
 from .utils import get_sample_field_list, is_crud_user, get_age_from_length
-import numpy as np
+
 
 class IndexTemplateView(TrapNetBasicMixin, CommonTemplateView):
     template_name = 'trapnet/index.html'
@@ -179,6 +180,7 @@ class MonitoringProgramFormsetView(TrapNetAdminRequiredMixin, CommonFormsetView)
     home_url_name = "trapnet:index"
     delete_url_name = "trapnet:delete_monitoring_program"
 
+
 class MonitoringProgramHardDeleteView(TrapNetAdminRequiredMixin, CommonHardDeleteView):
     model = models.MonitoringProgram
     success_url = reverse_lazy("trapnet:manage_monitoring_programs")
@@ -194,8 +196,8 @@ class SpeciesListView(TrapNetBasicMixin, CommonFilterView):
         search_term=Concat('common_name_eng', Value(" "),
                            'common_name_fre', Value(" "),
                            'scientific_name', Value(" "),
-                           'code',Value(" "),
-                           'tsn',Value(" "),
+                           'code', Value(" "),
+                           'tsn', Value(" "),
                            output_field=TextField()))
     new_object_url_name = "trapnet:species_new"
     row_object_url_name = "trapnet:species_detail"
@@ -490,7 +492,8 @@ class SampleUpdateView(TrapNetCRUDRequiredMixin, CommonUpdateView):
     def get_initial(self):
         obj = self.get_object()
         if obj.percent_cloud_cover:
-            return dict(percent_cloud_cover=obj.percent_cloud_cover*100)
+            return dict(percent_cloud_cover=obj.percent_cloud_cover * 100)
+
 
 class SampleCreateView(TrapNetCRUDRequiredMixin, CommonCreateView):
     model = models.Sample
@@ -534,6 +537,21 @@ class SampleDetailView(TrapNetBasicMixin, CommonDetailView):
             'scale_id_number',
             'notes',
         ]
+
+        context['historical_file_field_list'] = [
+            "species",
+            "maturity",
+            "status",
+            "sex",
+            "life_stage",
+            "fork_length",
+            "total_length",
+            "weight",
+            "age_type",
+            "river_age",
+            "old_id",
+        ]
+
         context['sweep_field_list'] = [
             "sweep_number",
             "sweep_time",
@@ -589,12 +607,12 @@ class SampleDetailView(TrapNetBasicMixin, CommonDetailView):
             for l in len_range:
                 a = 0.00561
                 b = 3.125999999999999
-                wgt = (a * l ** b)/1000
+                wgt = (a * l ** b) / 1000
                 lw["exp_data"].append(dict(x=l, y=wgt))
             context['lw'] = json.dumps(lw)
 
             # get the data for the histogram
-            counts, bins = np.histogram(lengths,bins=math.ceil(len(len_range)*0.5))
+            counts, bins = np.histogram(lengths, bins=math.ceil(len(len_range) * 0.5))
             hist_zip = zip(bins, counts)
             hist_data = list()
             hist_colors = list()
@@ -617,7 +635,6 @@ class SampleDetailView(TrapNetBasicMixin, CommonDetailView):
             context['hist_labels'] = hist_labels
             context['hist_max_count'] = max(counts)
             context['max_weight'] = max(weights)
-
 
         return context
 
@@ -991,7 +1008,8 @@ class ReportSearchFormView(TrapNetCRUDRequiredMixin, CommonFormView):
         elif report == 3:
             return HttpResponseRedirect(reverse("trapnet:specimen_report") + f"?year={year}&fishing_areas={fishing_areas}&rivers={rivers}&sites={sites}")
         elif report == 4:
-            return HttpResponseRedirect(reverse("trapnet:export_specimen_data_v1") + f"?year={year}&fishing_areas={fishing_areas}&rivers={rivers}&sites={sites}&sample_type={sample_type}")
+            return HttpResponseRedirect(reverse(
+                "trapnet:export_specimen_data_v1") + f"?year={year}&fishing_areas={fishing_areas}&rivers={rivers}&sites={sites}&sample_type={sample_type}")
 
         # electrofishing
         elif report == 10:
@@ -1116,3 +1134,68 @@ def electro_juv_salmon_report(request):
     )
     response['Content-Disposition'] = f'attachment;filename={filename}'
     return response
+
+
+###########
+
+class BiologicalDetailingListView(TrapNetBasicMixin, CommonFilterView):
+    template_name = 'trapnet/list.html'
+    model = models.BiologicalDetailing
+    filterset_class = filters.BiologicalDetailingFilter
+    home_url_name = "trapnet:index"
+    row_object_url_name = "trapnet:biological_detailing_detail"
+    container_class = "container-fluid"
+    paginate_by = 10
+    fields = [
+        "sample",
+        "old_id",
+        "species",
+        "reproductive_status",
+        "maturity",
+        "status",
+        "sex",
+        "adipose_condition",
+        "life_stage",
+        "fork_length",
+        "total_length",
+        "weight",
+        "age_type",
+        "river_age",
+        "notes",
+    ]
+
+
+class BiologicalDetailingDetailView(TrapNetBasicMixin, CommonDetailView):
+    model = models.BiologicalDetailing
+    template_name = 'trapnet/detail.html'
+    # edit_url_name = "trapnet:biological_detailing_edit"
+    # delete_url_name = "trapnet:biological_detailing_delete"
+    home_url_name = "trapnet:index"
+    parent_crumb = {"title": gettext_lazy("Biological Detailings"), "url": reverse_lazy("trapnet:biological_detailing_list")}
+    container_class = "container"
+
+
+# class BiologicalDetailingUpdateView(TrapNetCRUDRequiredMixin, CommonUpdateView):
+#     model = models.BiologicalDetailing
+#     form_class = forms.BiologicalDetailingForm
+#     template_name = 'trapnet/form.html'
+#     home_url_name = "trapnet:index"
+#     grandparent_crumb = {"title": gettext_lazy("Biological Detailings"), "url": reverse_lazy("trapnet:biological_detailing_list")}
+#     container_class = "container"
+#
+#     def get_parent_crumb(self):
+#         return {"title": self.get_object(), "url": reverse("trapnet:biological_detailing_detail", args=[self.get_object().id])}
+#
+#
+# class BiologicalDetailingDeleteView(TrapNetCRUDRequiredMixin, CommonDeleteView):
+#     model = models.BiologicalDetailing
+#     success_url = reverse_lazy('trapnet:biological_detailing_list')
+#     success_message = 'The Biological Detailing was successfully deleted!'
+#     template_name = 'trapnet/confirm_delete.html'
+#     container_class = "container"
+#     delete_protection = False
+#     home_url_name = "trapnet:index"
+#     grandparent_crumb = {"title": gettext_lazy("Biological Detailings"), "url": reverse_lazy("trapnet:biological_detailing_list")}
+#
+#     def get_parent_crumb(self):
+#         return {"title": self.get_object(), "url": reverse("trapnet:biological_detailing_detail", args=[self.get_object().id])}

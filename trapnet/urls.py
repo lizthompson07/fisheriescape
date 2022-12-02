@@ -32,8 +32,6 @@ urlpatterns = [
     path('settings/monitoring-programs/', views.MonitoringProgramFormsetView.as_view(), name="manage_monitoring_programs"),
     path('settings/monitoring-program/<int:pk>/delete/', views.MonitoringProgramHardDeleteView.as_view(), name="delete_monitoring_program"),
 
-
-    
     # SPECIES #
     ###########
     path('species/', views.SpeciesListView.as_view(), name="species_list"),
@@ -98,6 +96,12 @@ urlpatterns = [
     path('file/<int:pk>/edit/', views.FileUpdateView.as_view(), name='file_edit'),
     path('file/<int:pk>/delete/', views.FileDeleteView.as_view(), name='file_delete'),
 
+    # biological-detailing
+    path('biological-detailings/', views.BiologicalDetailingListView.as_view(), name="biological_detailing_list"),  # tested
+    # path('biological-detailings/edit/<int:pk>/', views.BiologicalDetailingUpdateView.as_view(), name="biological_detailing_edit"),  # tested
+    # path('biological-detailings/delete/<int:pk>/', views.BiologicalDetailingDeleteView.as_view(), name="biological_detailing_delete"),  # tested
+    path('biological-detailings/view/<int:pk>/', views.BiologicalDetailingDetailView.as_view(), name="biological_detailing_detail"),  # tested
+
     # Reports #
     ###########
     path('reports/', views.ReportSearchFormView.as_view(), name="reports"),
@@ -110,7 +114,7 @@ urlpatterns = [
     path('reports/opendata/wms/lang/<int:lang>/', views.export_open_data_ver1_wms, name="od1_wms"),
     path('reports/specimens/v1/', views.export_specimen_data_v1, name="export_specimen_data_v1"),
 
-    #electro
+    # electro
     path('reports/electrofishing/juv_salmon_report/', views.electro_juv_salmon_report, name="electro_juv_salmon_report"),
 
 ]
