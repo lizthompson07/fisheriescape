@@ -1,0 +1,26 @@
+{% extends 'trapnet/sample_form/basic.html' %}
+
+{% load bootstrap4 %}
+{% load i18n %}
+{% load custom_tags %}
+
+
+{% block more_fields %}
+
+    <div class="card info-card mb-5">
+      <div class="card-header bg-primary text-light">
+        <h4 class="card-title">
+          {% trans "Trapnet Specific" %}
+        </h4>
+      </div>
+      <div class="card-body">
+        {% bootstrap_field form.samplers placeholder="" %}
+        {% bootstrap_field form.water_temp_trap_c placeholder="" %}
+        {% bootstrap_field form.time_released placeholder="" %}
+      </div>
+    </div>
+
+
+
+{% endblock %}
+

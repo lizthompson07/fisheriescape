@@ -70,7 +70,7 @@ adipose_condition_choices = (
 )
 
 didymo_choices = (
-    (None, _("Not checked")),
+    (None, _("No data")),
     (0, _("Absent")),
     (1, _("Present")),
 )

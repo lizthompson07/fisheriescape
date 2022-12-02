@@ -477,9 +477,20 @@ class SampleListView(TrapNetBasicMixin, CommonFilterView):
 class SampleUpdateView(TrapNetCRUDRequiredMixin, CommonUpdateView):
     model = models.Sample
     form_class = forms.SampleForm
-    template_name = 'trapnet/sample_form.html'
+    template_name = 'trapnet/sample_form/basic.html'
     home_url_name = "trapnet:index"
     grandparent_crumb = {"title": _("Samples"), "url": reverse_lazy("trapnet:sample_list")}
+
+    def get_template_names(self):
+        obj = self.get_object()
+        if obj.sample_type == 1:
+            return 'trapnet/sample_form/rst.html'
+        elif obj.sample_type == 2:
+            return 'trapnet/sample_form/ef.html'
+        elif obj.sample_type == 3:
+            return 'trapnet/sample_form/trapnet.html'
+        else:
+            return self.template_name
 
     def get_parent_crumb(self):
         return {"title": self.get_object(), "url": reverse("trapnet:sample_detail", args=[self.get_object().id])}
@@ -498,7 +509,7 @@ class SampleUpdateView(TrapNetCRUDRequiredMixin, CommonUpdateView):
 class SampleCreateView(TrapNetCRUDRequiredMixin, CommonCreateView):
     model = models.Sample
     form_class = forms.SampleForm
-    template_name = 'trapnet/sample_form.html'
+    template_name = 'trapnet/sample_form/basic.html'
     home_url_name = "trapnet:index"
     parent_crumb = {"title": _("Samples"), "url": reverse_lazy("trapnet:sample_list")}
 
