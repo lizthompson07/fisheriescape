@@ -38,27 +38,6 @@ def can_access(user):
 #         'water_temp|{}'.format(_("water temperature (°C)")),
 #         'water_depth_display|{}'.format(_("water depth")),
 #
-#         'rpms|{}'.format(_("RPMs")) if is_rst else None,
-#         'time_released' if is_rst else None,
-#         'operating_condition' if is_rst else None,
-#         'operating_condition_comment' if is_rst else None,
-#         'samplers' if is_rst else None,
-#
-#         'site_type' if is_electro else None,
-#         'seine_type' if is_electro else None,
-#         'site_profile|{}'.format(_("site profile")) if is_electro else None,
-#         'substrate_profile|{}'.format(_("substrate profile")) if is_electro else None,
-#         'crew_display|{}'.format(_("crew")) if is_electro else None,
-#         "water_cond" if is_electro else None,
-#         'full_wetted_width|{}'.format(_("full wetted width (sq meters)")) if is_electro else None,
-#         'avg_depth_lower|{}'.format(_("mean lower depth (cm)")) if is_electro else None,
-#         'avg_depth_middle|{}'.format(_("mean middle depth (cm)")) if is_electro else None,
-#         'avg_depth_upper|{}'.format(_("mean upper depth (cm)")) if is_electro else None,
-#         'overhanging_veg_display|{}'.format(_("overhanging vegetation (%)")) if is_electro else None,
-#         'max_overhanging_veg_display|{}'.format(_("max overhanging vegetation (m)")) if is_electro else None,
-#         "electrofisher" if is_electro else None,
-#         'electrofisher_params|{}'.format(_("electrofisher settings")) if is_electro else None,
-#         'didymo|{}'.format(_("Didymosphenia geminata?")) if is_electro else None,
 #
 #         'species_list|{}'.format(_("species caught")),
 #         'tag_list|{}'.format(_("tags issued")),
@@ -99,7 +78,7 @@ def get_sample_field_list():
     return my_list
 
 
-def get_ef_field_list(sample=None):
+def get_ef_field_list():
     my_list = [
         'site_type',
         'seine_type',
@@ -120,6 +99,27 @@ def get_ef_field_list(sample=None):
     ]
 
     return my_list
+
+
+def get_rst_field_list():
+    my_list = [
+        'rpms|{}'.format(_("RPMs")),
+        'time_released',
+        'operating_condition',
+        'operating_condition_comment',
+        'samplers',
+    ]
+    return my_list
+
+
+def get_trapnet_field_list():
+    my_list = [
+        "water_temp_trap_c",
+        "time_released",
+        "samplers",
+    ]
+    return my_list
+
 
 
 def get_age_from_length(length, t0=None, t1=None):

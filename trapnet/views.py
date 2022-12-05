@@ -24,7 +24,7 @@ from . import forms
 from . import models
 from . import reports
 from .mixins import TrapNetCRUDRequiredMixin, TrapNetAdminRequiredMixin, SuperuserOrAdminRequiredMixin, TrapNetBasicMixin
-from .utils import get_sample_field_list, is_crud_user, get_age_from_length, get_ef_field_list
+from .utils import get_sample_field_list, is_crud_user, get_age_from_length, get_ef_field_list, get_trapnet_field_list, get_rst_field_list
 
 
 class IndexTemplateView(TrapNetBasicMixin, CommonTemplateView):
@@ -544,8 +544,8 @@ class SampleDetailView(TrapNetBasicMixin, CommonDetailView):
         context = super().get_context_data(**kwargs)
         context['basic_field_list'] = get_sample_field_list()
         context['ef_field_list'] = get_ef_field_list()
-        context['rst_field_list'] = get_sample_field_list()
-        context['trapnet_field_list'] = get_sample_field_list()
+        context['rst_field_list'] = get_rst_field_list()
+        context['trapnet_field_list'] = get_trapnet_field_list()
 
         context['specimen_field_list'] = [
             'species',

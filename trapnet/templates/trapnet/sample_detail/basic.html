@@ -46,10 +46,6 @@
   </div>
 
 
-
-
-
-
   <div class="row mb-5">
 
     <div class="col-6">
@@ -97,214 +93,36 @@
 
 
 
-
-  <div class="mb-5">
-    <div class="row">
-      {% if lw %}
-        <div class="col">
-          <div class="card">
-            <div class="card-header lead">
-              {% trans "Salmon Length vs. Weight" %}
-            </div>
-            <div class="card-body">
-              <canvas id="length-weight" width="100%"></canvas>
-            </div>
-          </div>
-        </div>
-      {% endif %}
-
-      {% if hist %}
-        <div class="col">
-          <div class="card">
-            <div class="card-header lead">
-              {% trans "Salmon Length-frequency Distribution" %}
-            </div>
-            <div class="card-body">
-              <canvas id="bar-chart" width="100%"></canvas>
-            </div>
-          </div>
-        </div>
-
-      {% endif %}
-
-    </div>
+  {# CHARTS #}
+  <div class="">
+    {% include "trapnet/sample_detail/_charts.html" %}
   </div>
 
-  <div class="mb-5">
-
-    <div class="card">
-      <div class="card-header lead">
-        <div class="float-right">
-          {% if not object.is_reviewed %}
-            <a href="#" pop-href="{% url 'trapnet:sample_file_new' object.id %}" class="btn btn-sm btn-primary">{% trans "Add" %}</a>
-          {% endif %}
-        </div>
-        {% trans "Attachments" %}
-      </div>
-      <div class="card-body">
-        {% if not object.files.exists %}
-          <em>{% trans "No files have been attached to this sample." %}</em>
-        {% else %}
-          {% for file in object.files.all %}
-            <div class="mb-3">
-              <div class="row">
-                <div class="col">
-                  <div class="mb-1">
-                    {{ file.caption }}<br>
-                  </div>
-                </div>
-                <div class="col">
-                  <div class="mb-1">
-                    <span class="small">{{ file.metadata }}</span>
-                  </div>
-                </div>
-                <div class="col">
-                  <div class="btn-group" style="vertical-align: top">
-                    <a href="{{ file.file.url }}" class="btn btn-sm btn-light"><span class="mdi mdi-download mr-1"></span> {% trans "Download" %}
-                    </a>
-                    {% if not object.is_reviewed %}
-                      <a href="#" pop-href="{% url 'trapnet:sample_file_edit' file.id %}" class="btn btn-sm btn-warning"><span
-                        class="mdi mdi-pencil"></span></a>
-                      <a href="#" pop-href="{% url 'trapnet:sample_file_delete' file.id %}" class="btn btn-sm btn-danger"><span
-                        class="mdi mdi-delete text-light"></span></a>
-                    {% endif %}
-                  </div>
-                </div>
-              </div>
-            </div>
-            <hr>
-          {% endfor %}
-
-        {% endif %}
-      </div>
-    </div>
+  {# SWEEPS #}
+  <div class="">
+    {% include "trapnet/sample_detail/_sweeps.html" %}
   </div>
 
-  <div class="mb-5">
-
-    {% if object.sample_type == 1 or object.sample_type == 3 %}
-      <div class="card">
-        <div class="card-header lead">
-          <div class="float-right">
-            {% if not object.is_reviewed %}
-              <a class="btn btn-primary btn-sm" href="{% url 'trapnet:sample_data_entry' object.id %}">{% trans "Add / Modify" %}</a>
-            {% endif %}
-          </div>
-          {% trans "Specimens" %}
-          {% if object.specimens.exists %} ({{ object.specimens.count }}) {% endif %}
-        </div>
-        <div class="card-body">
-          {% if not object.specimens.exists %}
-            <em>{% trans "There are no specimens associated with this sample." %}</em>
-          {% else %}
-            <table class="table table-sm table-hover table-small-10 sortable">
-              <thead>
-              <tr>
-                {% for field in specimen_field_list %}
-                  <th>
-                    {% get_verbose_label object.specimens.first field %}
-                  </th>
-                {% endfor %}
-              </tr>
-              </thead>
-              <tbody>
-              {% for specimen in object.specimens.all %}
-                <tr href="{% url 'trapnet:specimen_detail' specimen.id %}">
-                  {% for field in specimen_field_list %}
-                    <td>
-                      {% get_field_value specimen field %}
-                    </td>
-                  {% endfor %}
-                </tr>
-              {% endfor %}
-              </tbody>
-            </table>
-          {% endif %}
-        </div>
-      </div>
-    {% endif %}
-
-    {% if object.sample_type == 2 %}
-      <div class="card">
-        <div class="card-header lead">
-          <div class="float-right">
-            <a class="btn btn-success btn-sm" href="{% url 'trapnet:sweep_new' object.id %}">{% trans "New" %}</a>
-          </div>
-          {% trans "Sweeps" %}
-        </div>
-        <div class="card-body">
-          {% if not object.sweeps.exists %}
-            <em>{% trans "There are no sweeps associated with this sample." %}</em>
-          {% else %}
-            <table class="table table-sm table-hover sortable">
-              <thead>
-              <tr>
-                {% for field in sweep_field_list %}
-                  <th>
-                    {% get_verbose_label object.sweeps.first field %}
-                  </th>
-                {% endfor %}
-              </tr>
-              </thead>
-              <tbody>
-              {% for sweep in object.sweeps.all %}
-                <tr href="{% url 'trapnet:sweep_detail' sweep.id %}">
-                  {% for field in sweep_field_list %}
-                    <td>
-                      {% get_field_value sweep field %}
-                    </td>
-                  {% endfor %}
-                </tr>
-              {% endfor %}
-              </tbody>
-            </table>
-          {% endif %}
-        </div>
-      </div>
-    {% endif %}
-
-
-    {% if object.biological_detailings.exists %}
-      <div class="card">
-        <div class="card-header lead">
-          <div class="float-right">
-            {% if not object.is_reviewed %}
-              <a class="btn btn-primary btn-sm" href="{% url 'trapnet:sample_data_entry' object.id %}">
-                <span class="mdi mdi-fish text-light mr-1"></span> {% trans "Field Data Entry Form" %}
-              </a>
-            {% endif %}
-          </div>
-          {% trans "Historical Biological Data" %} ({{ object.biological_detailings.count }})
-        </div>
-        <div class="card-body">
-
-          <table class="table table-sm table-hover table-small-10 sortable">
-            <thead>
-            <tr>
-              {% for field in historical_file_field_list %}
-                <th>
-                  {% get_verbose_label object.biological_detailings.first field %}
-                </th>
-              {% endfor %}
-            </tr>
-            </thead>
-            <tbody>
-            {% for specimen in object.biological_detailings.all %}
-              <tr newtab href="{% url 'trapnet:biological_detailing_detail' specimen.id %}">
-                {% for field in historical_file_field_list %}
-                  <td>
-                    {% get_field_value specimen field %}
-                  </td>
-                {% endfor %}
-              </tr>
-            {% endfor %}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    {% endif %}
-
+  {# FILES #}
+  <div class="">
+    {% include "trapnet/sample_detail/_files.html" %}
   </div>
+
+  {# SPECIMENS #}
+  <div class="">
+    {% include "trapnet/sample_detail/_specimens.html" %}
+  </div>
+
+
+
+  {# BIOLOGICAL DETAILING #}
+  <div class="">
+    {% include "trapnet/sample_detail/_detailings.html" %}
+  </div>
+
+
+
+
 {% endblock %}
 
 {% block body_js %}
