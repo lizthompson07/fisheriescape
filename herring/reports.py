@@ -234,6 +234,11 @@ def generate_fish_detail_report(year, species):
         'otolith_season',
         'otolith_image_remote_filepath',
         'otolith_processed_date',
+        'egg_sampler',
+        'gonad_sub_sample_weight',
+        'gonad_count',
+        'gonad_photo_id',
+        'gonad_photo_magnification',
     ])
 
     for fish_detail in qs:
