@@ -194,13 +194,6 @@ def generate_fish_detail_report(year, species):
     response['Content-Disposition'] = 'attachment; filename="herring_fish_detail_report_{}.csv"'.format(year)
     writer = csv.writer(response)
 
-    # write the header information
-    # writer.writerow(['{} Fish Detail Export'.format(year), "", "", "", "", "",
-    #                  'Report generated on {}'.format(timezone.now().strftime('%Y-%m-%d %H:%M')), ])
-
-    # write the header for the bottle table
-    # writer.writerow(["", ])
-
     writer.writerow([
         'sample_id',
         'season',
@@ -242,41 +235,37 @@ def generate_fish_detail_report(year, species):
     ])
 
     for fish_detail in qs:
+        sampler = None
         if fish_detail.sample.sampler:
-            sampler = "{} {}".format(fish_detail.sample.sampler.first_name, fish_detail.sample.sampler.last_name)
-        else:
-            sampler = None
+            sampler = str(fish_detail.sample.sampler)
 
+        lab_sampler = None
         if fish_detail.lab_sampler:
-            lab_sampler = "{} {}".format(fish_detail.lab_sampler.first_name, fish_detail.lab_sampler.last_name)
-        else:
-            lab_sampler = None
+            lab_sampler = str(lab_sampler)
 
+        otolith_sampler = None
         if fish_detail.otolith_sampler:
-            otolith_sampler = "{} {}".format(fish_detail.otolith_sampler.first_name,
-                                             fish_detail.otolith_sampler.last_name)
-        else:
-            otolith_sampler = None
+            otolith_sampler = str(fish_detail.otolith_sampler)
 
+        egg_sampler = None
+        if fish_detail.egg_sampler:
+            egg_sampler = str(fish_detail.egg_sampler)
+
+        sample_date = None
         if fish_detail.sample.sample_date:
             sample_date = fish_detail.sample.sample_date.strftime('%Y-%m-%d')
-        else:
-            sample_date = None
 
+        lab_processed_date = None
         if fish_detail.lab_processed_date:
             lab_processed_date = fish_detail.lab_processed_date.strftime('%Y-%m-%d')
-        else:
-            lab_processed_date = None
 
+        otolith_processed_date = None
         if fish_detail.otolith_processed_date:
             otolith_processed_date = fish_detail.otolith_processed_date.strftime('%Y-%m-%d')
-        else:
-            otolith_processed_date = None
 
+        district = None
         if fish_detail.sample.district:
             district = "{}{}".format(fish_detail.sample.district.province_id, fish_detail.sample.district.district_id)
-        else:
-            district = None
 
         writer.writerow(
             [
@@ -312,6 +301,11 @@ def generate_fish_detail_report(year, species):
                 fish_detail.otolith_season,
                 fish_detail.otolith_image_remote_filepath,
                 otolith_processed_date,
+                egg_sampler,
+                fish_detail.gonad_sub_sample_weight,
+                fish_detail.gonad_count,
+                fish_detail.gonad_photo_id,
+                fish_detail.gonad_photo_magnification,
             ])
 
     return response
