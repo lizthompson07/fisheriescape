@@ -151,6 +151,7 @@ class Sample(MetadataFields):
 
     age_thresh_0_1 = models.IntegerField(blank=True, null=True, verbose_name=_("salmon site-specific age threshold (0+ to 1+)"))
     age_thresh_1_2 = models.IntegerField(blank=True, null=True, verbose_name=_("salmon site-specific age threshold (1+ to 2+)"))
+    age_thresh_2_3 = models.IntegerField(blank=True, null=True, verbose_name=_("salmon site-specific age threshold (2+ to 3+)"))
     age_thresh_parr_smolt = models.IntegerField(blank=True, null=True, verbose_name=_("salmon site-specific age threshold (parr to smolt)"))
     didymo = models.IntegerField(blank=True, null=True, verbose_name=_("presence / absence of Didymosphenia geminata"), choices=model_choices.didymo_choices)
     notes = models.TextField(blank=True, null=True)

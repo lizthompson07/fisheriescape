@@ -83,6 +83,24 @@
           {% bootstrap_field form.age_thresh_parr_smolt placeholder="" %}
         </div>
       </div>
+
+      <label for="">{% trans "Salmon Site-specific age Thresholds" %}</label>
+      <table class="table table-bordered">
+        <tr>
+          <td>{% trans "0+ to 1+" %}</td>
+          <td>{% trans "1+ to 2+" %}</td>
+          <td>{% trans "2+ to 3+" %}</td>
+          <td>{% trans "parr to smolt" %}</td>
+        </tr>
+        <tr>
+          <td>{% bootstrap_field form.age_thresh_0_1 show_label=False placeholder="" %}</td>
+          <td>{% bootstrap_field form.age_thresh_1_2 show_label=False placeholder="" %}</td>
+          <td>{% bootstrap_field form.age_thresh_2_3 show_label=False placeholder="" %}</td>
+          <td>{% bootstrap_field form.age_thresh_parr_smolt show_label=False placeholder="" %}</td>
+        </tr>
+      </table>
+
+
     </div>
   </div>
 
