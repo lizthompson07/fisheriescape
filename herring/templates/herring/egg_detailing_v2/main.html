@@ -124,7 +124,7 @@
                 <th class="text-primary">${labels[field]}</th>
                 <td>
                   <input @change="update(field)" class="form-control" :ref="`cell_${field}`" v-model="fish[field]" @focusin="currentField=field">
-                <small v-if="field === 'gonad_photo_magnification'" class="text-muted">Use code 99 for when magnification is absent</small>
+                  <small v-if="field === 'gonad_photo_magnification'" class="text-muted">Use code 99 for when magnification is absent</small>
                 </td>
               </tr>
             </template>
@@ -207,7 +207,8 @@
     },
     methods: {
       goNext() {
-        this.$refs.next.click()
+        this.update(null);
+        this.$refs.next.click();
       },
       togglePreview() {
         this.$refs.toggle_button.click()
@@ -264,24 +265,28 @@
       },
 
       update(field) {
-        var data = {};
-        data[field] = this.fish[field]
-        apiService(`/api/herman/fish-details/${this.fishId}/?egg=true`, "PATCH", data)
-            .then(response => {
-              if (!response.id) {
-                alert(groomJSON(response));
-                this.$refs[`cell_${field}`][0].select()
-              } else {
-                this.fish = response;
-                var contiune = this.dealWithFlags();
-                if (contiune) {
-                  audio.play();
-                  var nextFieldRef = this.$refs[`cell_${this.fields[this.fields.indexOf(field) + 1]}`]
-                  if (nextFieldRef) this.focusElement(nextFieldRef[0]);
-                  // Deal with the flags
+        if (!field) {
+          apiService(`/api/herman/fish-details/${this.fishId}/`, "PUT", this.fish)
+        } else {
+          var data = {};
+          data[field] = this.fish[field]
+          apiService(`/api/herman/fish-details/${this.fishId}/?egg=true`, "PATCH", data)
+              .then(response => {
+                if (!response.id) {
+                  alert(groomJSON(response));
+                  this.$refs[`cell_${field}`][0].select()
+                } else {
+                  this.fish = response;
+                  var contiune = this.dealWithFlags();
+                  if (contiune) {
+                    audio.play();
+                    var nextFieldRef = this.$refs[`cell_${this.fields[this.fields.indexOf(field) + 1]}`]
+                    if (nextFieldRef) this.focusElement(nextFieldRef[0]);
+                    // Deal with the flags
+                  }
                 }
-              }
-            })
+              })
+        }
       },
       dealWithFlags() {
         if (this.unacceptedFlags.length) {

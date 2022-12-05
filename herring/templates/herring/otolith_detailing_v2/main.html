@@ -111,7 +111,10 @@
             <template>
               <tr v-for="field, index in fields" :key="`field_${index}`">
                 <th class="text-primary">${labels[field]}</th>
-                <td v-if="!selectFields.includes(field)">
+                <td v-if="field === 'remarks'">
+                  <input @change="update(field)" class="form-control" :ref="`cell_${field}`" v-model="fish[field]" @focusin="currentField=field">
+                </td>
+                <td v-else-if="!selectFields.includes(field)">
                   <input @change="update(field)" class="form-control" :ref="`cell_${field}`" v-model="fish[field]" @focusin="currentField=field">
                   <small class="text-muted">Use code -99 for uncountable</small>
                 </td>
@@ -128,10 +131,10 @@
               <tr v-for="field, index in previewFields" :key="`pfield_${index}`">
                 <th class="text-muted">${labels[field]}</th>
                 <td v-if="!selectFields.includes(field)">
-                  <input disabled @change="update(field)" class="form-control"  v-model="fish[field]" >
+                  <input disabled @change="update(field)" class="form-control" v-model="fish[field]">
                 </td>
                 <td v-else>
-                  <select disabled class="form-control" v-model="fish[field]" >
+                  <select disabled class="form-control" v-model="fish[field]">
                     <option :value="null">-----</option>
                     <option v-for="c, index in choices[field]" :value="c.value" :key="`choice_${field}_${index}`">${c.text}</option>
                   </select>
@@ -144,7 +147,6 @@
           </table>
         </div>
         <div class="col">
-
 
 
           <div v-if="fish.id && relevantFlags.length" class="mb-5">
@@ -205,6 +207,7 @@
       fields: [
         'annulus_count',
         'otolith_season',
+        'remarks',
       ],
       previewFields: [
         "fish_length",
@@ -225,29 +228,30 @@
     },
     methods: {
       goNext() {
-        this.$refs.next.click()
+        this.update(null);
+        this.$refs.next.click();
       },
       togglePreview() {
-        this.$refs.toggle_button.click()
+        this.$refs.toggle_button.click();
       },
       goPrev() {
-        this.$refs.prev.click()
+        this.$refs.prev.click();
       },
       goBack() {
-        this.$refs.back.click()
+        this.$refs.back.click();
       },
       goUp() {
-        prevField = this.fields[this.fields.indexOf(this.currentField) - 1]
-        var prevFieldRef = this.$refs[`cell_${prevField}`]
+        prevField = this.fields[this.fields.indexOf(this.currentField) - 1];
+        var prevFieldRef = this.$refs[`cell_${prevField}`];
         if (prevFieldRef) this.focusElement(prevFieldRef[0]);
       },
       goDown() {
-        nextField = this.fields[this.fields.indexOf(this.currentField) + 1]
-        var nextFieldRef = this.$refs[`cell_${nextField}`]
+        nextField = this.fields[this.fields.indexOf(this.currentField) + 1];
+        var nextFieldRef = this.$refs[`cell_${nextField}`];
         if (nextFieldRef) this.focusElement(nextFieldRef[0]);
       },
       focusElement(el) {
-        if (el.type === "select-one") el.focus()
+        if (el.type === "select-one") el.focus();
         else el.select()
       },
       get() {
@@ -263,25 +267,31 @@
             })
       },
       update(field) {
-        var data = {};
-        data[field] = this.fish[field]
-        apiService(`/api/herman/fish-details/${this.fishId}/?otolith=true`, "PATCH", data)
-            .then(response => {
-              if (!response.id) {
-                alert(groomJSON(response));
-                this.$refs[`cell_${field}`][0].select()
-              } else {
-                this.fish = response;
-                var contiune = this.dealWithFlags();
-                if (contiune) {
-                  audio.play();
-                  var nextFieldRef = this.$refs[`cell_${this.fields[this.fields.indexOf(field) + 1]}`]
-                  if (nextFieldRef) this.focusElement(nextFieldRef[0]);
-                  // Deal with the flags
+        if (!field) {
+          apiService(`/api/herman/fish-details/${this.fishId}/`, "PUT", this.fish)
+        } else {
+          var data = {};
+          data[field] = this.fish[field]
+          apiService(`/api/herman/fish-details/${this.fishId}/?otolith=true`, "PATCH", data)
+              .then(response => {
+                if (!response.id) {
+                  alert(groomJSON(response));
+                  this.$refs[`cell_${field}`][0].select()
+                } else {
+                  this.fish = response;
+                  var contiune = this.dealWithFlags();
+                  if (contiune) {
+                    audio.play();
+                    var nextFieldRef = this.$refs[`cell_${this.fields[this.fields.indexOf(field) + 1]}`]
+                    if (nextFieldRef) this.focusElement(nextFieldRef[0]);
+                    // Deal with the flags
+                  }
                 }
-              }
-            })
+              })
+        }
+
       },
+
       dealWithFlags() {
         if (this.unacceptedFlags.length) {
           for (const flag of this.unacceptedFlags) {
