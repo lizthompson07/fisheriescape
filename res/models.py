@@ -360,7 +360,7 @@ class Achievement(MetadataFields):
             mystr += f"{self.date.year}."
         if self.detail:
             mystr += f" {self.detail}"
-        return mystr
+        return connect_refs(mystr, self.user.achievements.all())
 
     @property
     def achievement_display_no_code(self):
@@ -378,7 +378,8 @@ class Achievement(MetadataFields):
         if self.detail:
             mystr += f" {self.detail}"
 
-        return truncate(mystr, max_length=1000)
+        mystr = truncate(mystr, max_length=1000)
+        return connect_refs(mystr, self.user.achievements.all())
 
     @property
     def is_publication(self):
