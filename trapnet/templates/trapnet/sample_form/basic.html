@@ -107,7 +107,9 @@
 
     </div>
   </div>
-
+  {% if sub_form %}
+  {% bootstrap_form_errors sub_form %}
+  {% endif %}
   {% block more_fields %}{% endblock %}
 
 

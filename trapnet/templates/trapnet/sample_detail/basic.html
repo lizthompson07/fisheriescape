@@ -86,8 +86,31 @@
       </div>
     </div>
     <div class="col">
-      {% block sample_subtype %}
-      {% endblock %}
+
+      <div class="card">
+        <div class="card-header lead">
+          {% if object.sample_type == 1 %}
+            {% trans "Rotary Crew Trap (RST) Details" %}
+          {% elif object.sample_type == 2 %}
+            {% trans "Electrofishing Specific Details" %}
+          {% elif object.sample_type == 3 %}
+            {% trans "Trapnet-specific Details" %}
+          {% endif %}
+
+        </div>
+        <div class="card-body">
+          <table class="table table-sm table-bordered">
+            {% for field in sub_field_list %}
+              {% if field == "samplers" %}
+                {% verbose_td_display sub_obj field to_html=True %}
+              {% else %}
+                {% verbose_td_display sub_obj field display_time=True %}
+              {% endif %}
+            {% endfor %}
+          </table>
+        </div>
+      </div>
+
     </div>
   </div>
 

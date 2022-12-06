@@ -17,7 +17,7 @@
     {% if not object.specimens.exists %}
       <em>{% trans "There are no specimens associated with this sample." %}</em>
     {% else %}
-      <table class="table table-sm table-hover table-small-10 sortable">
+      <table class="table table-sm table-small-10 sortable">
         <thead>
         <tr>
           {% for field in specimen_field_list %}
@@ -29,12 +29,22 @@
         </thead>
         <tbody>
         {% for specimen in object.specimens.all %}
-          <tr href="{% url 'trapnet:specimen_detail' specimen.id %}">
+          <tr>
             {% for field in specimen_field_list %}
               <td>
                 {% get_field_value specimen field %}
               </td>
             {% endfor %}
+            <td>
+              <a class="btn btn-dark btn-xs" href="{% url 'trapnet:specimen_detail' specimen.id %}">
+                <span class="mdi mdi-arrow-top-right text-light mr-1"></span>
+                {% trans "View detail" %}
+              </a>
+              <a class="btn btn-warning btn-xs under-dev" href="#">
+                <span class="mdi mdi-eye-check mr-1"></span>
+                {% trans "Enter scale reading" %}
+              </a>
+            </td>
           </tr>
         {% endfor %}
         </tbody>

@@ -78,6 +78,17 @@ def get_sample_field_list():
     return my_list
 
 
+def get_sub_field_list(sample):
+    field_list = None
+    if sample.sample_type == 1:
+        field_list = get_rst_field_list()
+    elif sample.sample_type == 2:
+        field_list = get_ef_field_list()
+    elif sample.sample_type == 3:
+        field_list = get_trapnet_field_list()
+    return field_list
+
+
 def get_ef_field_list():
     my_list = [
         'site_type',
@@ -121,7 +132,6 @@ def get_trapnet_field_list():
         "samplers",
     ]
     return my_list
-
 
 
 def get_age_from_length(length, t0=None, t1=None):

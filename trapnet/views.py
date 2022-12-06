@@ -1,6 +1,5 @@
 import json
 import math
-from copy import deepcopy
 
 import numpy as np
 from django.contrib import messages
@@ -13,6 +12,7 @@ from django.urls import reverse_lazy, reverse
 from django.utils import timezone
 from django.utils.timezone import now
 from django.utils.translation import gettext_lazy, gettext as _
+from html2text import html2text
 
 from lib.functions.custom_functions import listrify
 from lib.templatetags.custom_filters import nz
@@ -24,9 +24,8 @@ from . import filters
 from . import forms
 from . import models
 from . import reports
-from .api.serializers import EFSampleSerializer
 from .mixins import TrapNetCRUDRequiredMixin, TrapNetAdminRequiredMixin, SuperuserOrAdminRequiredMixin, TrapNetBasicMixin
-from .utils import get_sample_field_list, is_crud_user, get_age_from_length, get_ef_field_list, get_trapnet_field_list, get_rst_field_list
+from .utils import get_sample_field_list, is_crud_user, get_age_from_length, get_sub_field_list
 
 
 class IndexTemplateView(TrapNetBasicMixin, CommonTemplateView):
@@ -501,7 +500,6 @@ class SampleUpdateView(TrapNetCRUDRequiredMixin, CommonUpdateView):
             form = forms.RSTSampleForm
         elif obj.sample_type == 2:
             form = forms.EFSampleForm
-            print(EFSampleSerializer(obj.ef_sample).data)
         elif obj.sample_type == 3:
             form = forms.TrapnetSampleForm
         return form
@@ -527,7 +525,11 @@ class SampleUpdateView(TrapNetCRUDRequiredMixin, CommonUpdateView):
                 sub_data[key] = self.request.POST[key]
         sub_form = self.get_sub_form_class()(data=sub_data, instance=sub_obj)
 
-        print(sub_form.is_valid())
+        if not sub_form.is_valid():
+            context = self.get_context_data(form=form)
+            context["sub_form"] = sub_form
+            return self.render_to_response(context)
+
         sub_form.save()
 
         return super().form_valid(form)
@@ -560,25 +562,13 @@ class SampleDetailView(TrapNetBasicMixin, CommonDetailView):
     home_url_name = "trapnet:index"
     parent_crumb = {"title": _("Samples"), "url": reverse_lazy("trapnet:sample_list")}
 
-    def get_template_names(self):
-        obj = self.get_object()
-        if obj.sample_type == 1:
-            return 'trapnet/sample_detail/rst.html'
-        elif obj.sample_type == 2:
-            return 'trapnet/sample_detail/ef.html'
-        elif obj.sample_type == 3:
-            return 'trapnet/sample_detail/trapnet.html'
-        else:
-            return self.template_name
-
     def get_context_data(self, **kwargs):
         obj = self.get_object()
         context = super().get_context_data(**kwargs)
         context['basic_field_list'] = get_sample_field_list()
-        context['ef_field_list'] = get_ef_field_list()
-        context['rst_field_list'] = get_rst_field_list()
-        context['trapnet_field_list'] = get_trapnet_field_list()
+        context['sub_field_list'] = get_sub_field_list(obj)
         context["sub_obj"] = obj.get_sub_obj()
+        context["sub_title"] = obj.get_sub_obj()
         context['specimen_field_list'] = [
             'species',
             'status',
