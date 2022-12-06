@@ -60,6 +60,9 @@ class SampleForm(forms.ModelForm):
         site_choices = [(obj.id, f"{obj.river} --> {obj.name} ({nz(obj.province, 'unknown prov.')})") for obj in models.RiverSite.objects.all()]
         site_choices.insert(0, (None, "-----"))
         self.fields["site"].choices = site_choices
+        if kwargs.get("instance"):
+            del self.fields["sample_type"]
+
 
     def clean_percent_cloud_cover(self):
         percent_cloud_cover = self.cleaned_data['percent_cloud_cover']
@@ -96,6 +99,27 @@ class SampleForm(forms.ModelForm):
                 "The departure date must be after the arrival date!"
             ))
 
+        # make sure the age thresholds make sense
+        age_thresh_0_1 = cleaned_data.get("age_thresh_0_1")
+        age_thresh_1_2 = cleaned_data.get("age_thresh_1_2")
+        age_thresh_parr_smolt = cleaned_data.get("age_thresh_parr_smolt")
+        if age_thresh_0_1 and age_thresh_1_2 and age_thresh_1_2 < age_thresh_0_1:
+            self.add_error('age_thresh_1_2', gettext(
+                "the 1-2 age threshold must be greater than that for the 0-1 age threshold!"
+            ))
+
+
+class EFSampleForm(forms.ModelForm):
+    class Meta:
+        model = models.EFSample
+        fields = "__all__"
+        widgets = {
+            "time_released": forms.DateTimeInput(attrs={"type": "datetime-local"}, format="%Y-%m-%dT%H:%M:%S"),
+        }
+
+    def clean(self):
+        cleaned_data = super().clean()
+
         # make sure site characterization is null or 1
         percent_riffle = cleaned_data.get("percent_riffle")
         percent_run = cleaned_data.get("percent_run")
@@ -123,14 +147,23 @@ class SampleForm(forms.ModelForm):
                 gettext("Either substrate characterization must be left null or must equal to 100")
             )
 
-        # make sure the age thresholds make sense
-        age_thresh_0_1 = cleaned_data.get("age_thresh_0_1")
-        age_thresh_1_2 = cleaned_data.get("age_thresh_1_2")
-        age_thresh_parr_smolt = cleaned_data.get("age_thresh_parr_smolt")
-        if age_thresh_0_1 and age_thresh_1_2 and age_thresh_1_2 < age_thresh_0_1:
-            self.add_error('age_thresh_1_2', gettext(
-                "the 1-2 age threshold must be greater than that for the 0-1 age threshold!"
-            ))
+
+class TrapnetSampleForm(forms.ModelForm):
+    class Meta:
+        model = models.TrapnetSample
+        fields = "__all__"
+        widgets = {
+            "time_released": forms.DateTimeInput(attrs={"type": "datetime-local"}, format="%Y-%m-%dT%H:%M:%S"),
+        }
+
+
+class RSTSampleForm(forms.ModelForm):
+    class Meta:
+        model = models.RSTSample
+        fields = "__all__"
+        widgets = {
+            "time_released": forms.DateTimeInput(attrs={"type": "datetime-local"}, format="%Y-%m-%dT%H:%M:%S"),
+        }
 
 
 class SweepForm(forms.ModelForm):

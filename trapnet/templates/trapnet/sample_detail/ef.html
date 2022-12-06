@@ -14,7 +14,7 @@
     <div class="card-body">
       <table class="table table-sm table-bordered">
         {% for field in ef_field_list %}
-            {% verbose_td_display object field display_time=True %}
+            {% verbose_td_display sub_obj field display_time=True %}
         {% endfor %}
       </table>
     </div>

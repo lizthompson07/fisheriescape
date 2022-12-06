@@ -625,7 +625,6 @@ def reverse_len():
             print("bad specimen", o.id)
 
 
-
 def delete_tags_removed():
     specimens = models.Specimen.objects.filter(tags_removed__isnull=False, tag_number__isnull=False)
     for specimen in specimens:
@@ -836,3 +835,24 @@ def check_for_didymo():
             sample.didymo = 1
         sample.save()
 
+
+def samples_to_sub_types():
+    sample_fields = [field.name for field in models.Sample._meta.fields]
+    sample_fields.remove("id")
+
+    for s in models.Sample.objects.all():
+        s.save()
+        if s.sample_type == 1:
+            sub = s.rst_sample
+        elif s.sample_type == 2:
+            sub = s.ef_sample
+        else:
+            sub = s.trapnet_sample
+
+        sub_fields = [f.name for f in sub._meta.fields]
+        sub_fields.remove("id")
+        for f in sub_fields:
+            if f in sample_fields and getattr(s, f):
+                setattr(sub, f, getattr(s, f))
+
+        sub.save()

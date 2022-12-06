@@ -14,7 +14,11 @@
     <div class="card-body">
       <table class="table table-sm table-bordered">
         {% for field in trapnet_field_list %}
-            {% verbose_td_display object field display_time=True %}
+          {% if field == "samplers" %}
+            {% verbose_td_display sub_obj field display_time=True to_html=True %}
+          {% else %}
+            {% verbose_td_display sub_obj field display_time=True %}
+          {% endif %}
         {% endfor %}
       </table>
     </div>

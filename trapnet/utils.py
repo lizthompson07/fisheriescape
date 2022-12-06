@@ -89,9 +89,6 @@ def get_ef_field_list():
         "water_cond",
         "water_ph",
         'full_wetted_width|{}'.format(_("full wetted width (sq meters)")),
-        'avg_depth_lower|{}'.format(_("mean lower depth (cm)")),
-        'avg_depth_middle|{}'.format(_("mean middle depth (cm)")),
-        'avg_depth_upper|{}'.format(_("mean upper depth (cm)")),
         'overhanging_veg_display|{}'.format(_("overhanging vegetation (%)")),
         'max_overhanging_veg_display|{}'.format(_("max overhanging vegetation (m)")),
         "electrofisher",
@@ -103,7 +100,12 @@ def get_ef_field_list():
 
 def get_rst_field_list():
     my_list = [
-        'rpms|{}'.format(_("RPMs")),
+        'water_temp_trap_c',
+        'water_depth_m',
+        'water_level_delta_m',
+        'discharge_m3_sec',
+        'rpm_arrival',
+        'rpm_departure',
         'time_released',
         'operating_condition',
         'operating_condition_comment',

@@ -24,7 +24,11 @@
           {% bootstrap_field form.departure_date placeholder="" %}
         </div>
       </div>
-      {% bootstrap_field form.sample_type placeholder="" %}
+
+      {% if form.sample_type %}
+        {% bootstrap_field form.sample_type placeholder="" %}
+      {% endif %}
+
       {% if not object.sample_type %}
         <div class="red-font mb-4">
           {% blocktrans %}

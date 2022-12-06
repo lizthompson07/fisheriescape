@@ -1,5 +1,6 @@
 import json
 import math
+from copy import deepcopy
 
 import numpy as np
 from django.contrib import messages
@@ -23,6 +24,7 @@ from . import filters
 from . import forms
 from . import models
 from . import reports
+from .api.serializers import EFSampleSerializer
 from .mixins import TrapNetCRUDRequiredMixin, TrapNetAdminRequiredMixin, SuperuserOrAdminRequiredMixin, TrapNetBasicMixin
 from .utils import get_sample_field_list, is_crud_user, get_age_from_length, get_ef_field_list, get_trapnet_field_list, get_rst_field_list
 
@@ -492,12 +494,42 @@ class SampleUpdateView(TrapNetCRUDRequiredMixin, CommonUpdateView):
         else:
             return self.template_name
 
+    def get_sub_form_class(self):
+        obj = self.get_object()
+        form = None
+        if obj.sample_type == 1:
+            form = forms.RSTSampleForm
+        elif obj.sample_type == 2:
+            form = forms.EFSampleForm
+            print(EFSampleSerializer(obj.ef_sample).data)
+        elif obj.sample_type == 3:
+            form = forms.TrapnetSampleForm
+        return form
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        obj = self.get_object()
+        context["sub_form"] = self.get_sub_form_class()(instance=obj.get_sub_obj())
+        return context
+
     def get_parent_crumb(self):
         return {"title": self.get_object(), "url": reverse("trapnet:sample_detail", args=[self.get_object().id])}
 
     def form_valid(self, form):
         obj = form.save(commit=False)
         obj.updated_by = self.request.user
+        sub_obj = obj.get_sub_obj()
+
+        sub_data = dict()
+        sub_fields = [f.name for f in sub_obj._meta.fields]
+        for key in self.request.POST:
+            if key in sub_fields:
+                sub_data[key] = self.request.POST[key]
+        sub_form = self.get_sub_form_class()(data=sub_data, instance=sub_obj)
+
+        print(sub_form.is_valid())
+        sub_form.save()
+
         return super().form_valid(form)
 
     def get_initial(self):
@@ -546,18 +578,15 @@ class SampleDetailView(TrapNetBasicMixin, CommonDetailView):
         context['ef_field_list'] = get_ef_field_list()
         context['rst_field_list'] = get_rst_field_list()
         context['trapnet_field_list'] = get_trapnet_field_list()
-
+        context["sub_obj"] = obj.get_sub_obj()
         context['specimen_field_list'] = [
             'species',
             'status',
-            'life_stage',
-            'reproductive_status',
-            'adipose_condition',
             'fork_length',
-            'total_length',
             'weight',
-            'sex',
             'tag_number',
+            "smart_river_age|{}".format("smart river age"),
+            # 'age_type',
             'scale_id_number',
             'notes',
         ]
@@ -1197,7 +1226,6 @@ class BiologicalDetailingDetailView(TrapNetBasicMixin, CommonDetailView):
     home_url_name = "trapnet:index"
     parent_crumb = {"title": gettext_lazy("Biological Detailings"), "url": reverse_lazy("trapnet:biological_detailing_list")}
     container_class = "container"
-
 
 # class BiologicalDetailingUpdateView(TrapNetCRUDRequiredMixin, CommonUpdateView):
 #     model = models.BiologicalDetailing

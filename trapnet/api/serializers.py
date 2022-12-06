@@ -70,3 +70,9 @@ class SampleSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Sample
         fields = "__all__"
+
+class EFSampleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.EFSample
+        fields = "__all__"
+

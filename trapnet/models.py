@@ -159,90 +159,94 @@ class Sample(MetadataFields):
     ##################
     # ELECTROFISHING #
     ##################
-    site_type = models.IntegerField(blank=True, null=True, choices=model_choices.site_type_choices, verbose_name=_("type of site"))
-    seine_type = models.IntegerField(blank=True, null=True, choices=model_choices.seine_type_choices, verbose_name=_("type of seine"), default=2)
-
+    site_type = models.IntegerField(editable=False, blank=True, null=True, choices=model_choices.site_type_choices, verbose_name=_("type of site"))
+    seine_type = models.IntegerField(editable=False, blank=True, null=True, choices=model_choices.seine_type_choices, verbose_name=_("type of seine"),
+                                     default=2)
 
     # site description
-    percent_riffle = models.IntegerField(blank=True, null=True, verbose_name=_("riffle"), validators=(MinValueValidator(0), MaxValueValidator(100)))
-    percent_run = models.IntegerField(blank=True, null=True, verbose_name=_("run"), validators=(MinValueValidator(0), MaxValueValidator(100)))
-    percent_flat = models.IntegerField(blank=True, null=True, verbose_name=_("flat"), validators=(MinValueValidator(0), MaxValueValidator(100)))
-    percent_pool = models.IntegerField(blank=True, null=True, verbose_name=_("pool"), validators=(MinValueValidator(0), MaxValueValidator(100)))
-
+    percent_riffle = models.IntegerField(editable=False, blank=True, null=True, verbose_name=_("riffle"),
+                                         validators=(MinValueValidator(0), MaxValueValidator(100)))
+    percent_run = models.IntegerField(editable=False, blank=True, null=True, verbose_name=_("run"), validators=(MinValueValidator(0), MaxValueValidator(100)))
+    percent_flat = models.IntegerField(editable=False, blank=True, null=True, verbose_name=_("flat"), validators=(MinValueValidator(0), MaxValueValidator(100)))
+    percent_pool = models.IntegerField(editable=False, blank=True, null=True, verbose_name=_("pool"), validators=(MinValueValidator(0), MaxValueValidator(100)))
 
     # river description
-    bank_length_left = models.FloatField(null=True, blank=True, verbose_name=_("bank length - left (m)"))
-    overhanging_veg_left = models.FloatField(blank=True, null=True, verbose_name=_("Overhanging Vegetation (%) - Left"),
+    bank_length_left = models.FloatField(editable=False, null=True, blank=True, verbose_name=_("bank length - left (m)"))
+    overhanging_veg_left = models.FloatField(editable=False, blank=True, null=True, verbose_name=_("Overhanging Vegetation (%) - Left"),
                                              validators=(MinValueValidator(0), MaxValueValidator(100)))
-    max_overhanging_veg_left = models.FloatField(blank=True, null=True, verbose_name=_("Max Overhanging Vegetation (m) - Left"))
+    max_overhanging_veg_left = models.FloatField(editable=False, blank=True, null=True, verbose_name=_("Max Overhanging Vegetation (m) - Left"))
 
-    bank_length_right = models.FloatField(null=True, blank=True, verbose_name=_("bank length - right (m)"))
-    overhanging_veg_right = models.FloatField(blank=True, null=True, verbose_name=_("Overhanging Vegetation (%) - Right"),
+    bank_length_right = models.FloatField(editable=False, null=True, blank=True, verbose_name=_("bank length - right (m)"))
+    overhanging_veg_right = models.FloatField(editable=False, blank=True, null=True, verbose_name=_("Overhanging Vegetation (%) - Right"),
                                               validators=(MinValueValidator(0), MaxValueValidator(100)))
-    max_overhanging_veg_right = models.FloatField(blank=True, null=True, verbose_name=_("Max Overhanging Vegetation (m) - Right"))
-
+    max_overhanging_veg_right = models.FloatField(editable=False, blank=True, null=True, verbose_name=_("Max Overhanging Vegetation (m) - Right"))
 
     # water
-    width_lower = models.FloatField(null=True, blank=True, verbose_name=_("width - lower (m)"))
-    depth_1_lower = models.FloatField(null=True, blank=True, verbose_name=_("depth #1 - lower (cm)"))
-    depth_2_lower = models.FloatField(null=True, blank=True, verbose_name=_("depth #2 - lower (cm)"))
-    depth_3_lower = models.FloatField(null=True, blank=True, verbose_name=_("depth #3 - lower (cm)"))
-    width_middle = models.FloatField(null=True, blank=True, verbose_name=_("width - middle (m)"))
-    depth_1_middle = models.FloatField(null=True, blank=True, verbose_name=_("depth #1 - middle (cm)"))
-    depth_2_middle = models.FloatField(null=True, blank=True, verbose_name=_("depth #2 - middle (cm)"))
-    depth_3_middle = models.FloatField(null=True, blank=True, verbose_name=_("depth #3 - middle (cm)"))
-    width_upper = models.FloatField(null=True, blank=True, verbose_name=_("width - upper (m)"))
-    depth_1_upper = models.FloatField(null=True, blank=True, verbose_name=_("depth #1 - upper (cm)"))
-    depth_2_upper = models.FloatField(null=True, blank=True, verbose_name=_("depth #2 - upper (cm)"))
-    depth_3_upper = models.FloatField(null=True, blank=True, verbose_name=_("depth #3 - upper (cm)"))
-    max_depth = models.FloatField(null=True, blank=True, verbose_name=_("max depth (cm)"), help_text=_("max depth found within the whole site"))
-    water_cond = models.FloatField(null=True, blank=True, verbose_name="specific conductivity (µS)",
+    width_lower = models.FloatField(editable=False, null=True, blank=True, verbose_name=_("width - lower (m)"))
+    depth_1_lower = models.FloatField(editable=False, null=True, blank=True, verbose_name=_("depth #1 - lower (cm)"))
+    depth_2_lower = models.FloatField(editable=False, null=True, blank=True, verbose_name=_("depth #2 - lower (cm)"))
+    depth_3_lower = models.FloatField(editable=False, null=True, blank=True, verbose_name=_("depth #3 - lower (cm)"))
+    width_middle = models.FloatField(editable=False, null=True, blank=True, verbose_name=_("width - middle (m)"))
+    depth_1_middle = models.FloatField(editable=False, null=True, blank=True, verbose_name=_("depth #1 - middle (cm)"))
+    depth_2_middle = models.FloatField(editable=False, null=True, blank=True, verbose_name=_("depth #2 - middle (cm)"))
+    depth_3_middle = models.FloatField(editable=False, null=True, blank=True, verbose_name=_("depth #3 - middle (cm)"))
+    width_upper = models.FloatField(editable=False, null=True, blank=True, verbose_name=_("width - upper (m)"))
+    depth_1_upper = models.FloatField(editable=False, null=True, blank=True, verbose_name=_("depth #1 - upper (cm)"))
+    depth_2_upper = models.FloatField(editable=False, null=True, blank=True, verbose_name=_("depth #2 - upper (cm)"))
+    depth_3_upper = models.FloatField(editable=False, null=True, blank=True, verbose_name=_("depth #3 - upper (cm)"))
+    max_depth = models.FloatField(editable=False, null=True, blank=True, verbose_name=_("max depth (cm)"), help_text=_("max depth found within the whole site"))
+    water_cond = models.FloatField(editable=False, null=True, blank=True, verbose_name="specific conductivity (µS)",
                                    help_text=_("The measurement is to 1 decimal place in micro siemens (µS)"))
-    water_ph = models.FloatField(null=True, blank=True, verbose_name="water acidity (pH)")
+    water_ph = models.FloatField(editable=False, null=True, blank=True, verbose_name="water acidity (pH)")
 
     # substrate
-    percent_fine = models.FloatField(blank=True, null=True, verbose_name=_("fine silt or clay"), validators=(MinValueValidator(0), MaxValueValidator(100)))
-    percent_sand = models.FloatField(blank=True, null=True, verbose_name=_("sand"), validators=(MinValueValidator(0), MaxValueValidator(100)))
-    percent_gravel = models.FloatField(blank=True, null=True, verbose_name=_("gravel"), validators=(MinValueValidator(0), MaxValueValidator(100)))
-    percent_pebble = models.FloatField(blank=True, null=True, verbose_name=_("pebble"), validators=(MinValueValidator(0), MaxValueValidator(100)))
-    percent_cobble = models.FloatField(blank=True, null=True, verbose_name=_("cobble"), validators=(MinValueValidator(0), MaxValueValidator(100)))
-    percent_rocks = models.FloatField(blank=True, null=True, verbose_name=_("rocks"), validators=(MinValueValidator(0), MaxValueValidator(100)))
-    percent_boulder = models.FloatField(blank=True, null=True, verbose_name=_("boulder"), validators=(MinValueValidator(0), MaxValueValidator(100)))
-    percent_bedrock = models.FloatField(blank=True, null=True, verbose_name=_("bedrock"), validators=(MinValueValidator(0), MaxValueValidator(100)))
+    percent_fine = models.FloatField(editable=False, blank=True, null=True, verbose_name=_("fine silt or clay"),
+                                     validators=(MinValueValidator(0), MaxValueValidator(100)))
+    percent_sand = models.FloatField(editable=False, blank=True, null=True, verbose_name=_("sand"), validators=(MinValueValidator(0), MaxValueValidator(100)))
+    percent_gravel = models.FloatField(editable=False, blank=True, null=True, verbose_name=_("gravel"),
+                                       validators=(MinValueValidator(0), MaxValueValidator(100)))
+    percent_pebble = models.FloatField(editable=False, blank=True, null=True, verbose_name=_("pebble"),
+                                       validators=(MinValueValidator(0), MaxValueValidator(100)))
+    percent_cobble = models.FloatField(editable=False, blank=True, null=True, verbose_name=_("cobble"),
+                                       validators=(MinValueValidator(0), MaxValueValidator(100)))
+    percent_rocks = models.FloatField(editable=False, blank=True, null=True, verbose_name=_("rocks"), validators=(MinValueValidator(0), MaxValueValidator(100)))
+    percent_boulder = models.FloatField(editable=False, blank=True, null=True, verbose_name=_("boulder"),
+                                        validators=(MinValueValidator(0), MaxValueValidator(100)))
+    percent_bedrock = models.FloatField(editable=False, blank=True, null=True, verbose_name=_("bedrock"),
+                                        validators=(MinValueValidator(0), MaxValueValidator(100)))
 
     # efisher
     electrofisher = models.ForeignKey(Electrofisher, related_name='samples', on_delete=models.DO_NOTHING, verbose_name=_("electrofisher"), blank=True,
-                                      null=True)
-    electrofisher_voltage = models.FloatField(null=True, blank=True, verbose_name=_("electrofisher voltage (V)"))
-    electrofisher_output_low = models.FloatField(null=True, blank=True, verbose_name=_("electrofisher output, low (amps)"))
-    electrofisher_output_high = models.FloatField(null=True, blank=True, verbose_name=_("electrofisher output, high (amps)"))
-    electrofisher_frequency = models.FloatField(null=True, blank=True, verbose_name=_("electrofisher frequency (Hz)"))
+                                      null=True, editable=False)
+    electrofisher_voltage = models.FloatField(editable=False, null=True, blank=True, verbose_name=_("electrofisher voltage (V)"))
+    electrofisher_output_low = models.FloatField(editable=False, null=True, blank=True, verbose_name=_("electrofisher output, low (amps)"))
+    electrofisher_output_high = models.FloatField(editable=False, null=True, blank=True, verbose_name=_("electrofisher output, high (amps)"))
+    electrofisher_frequency = models.FloatField(editable=False, null=True, blank=True, verbose_name=_("electrofisher frequency (Hz)"))
     electrofisher_pulse_type = models.IntegerField(blank=True, null=True, choices=model_choices.pulse_type_choices, verbose_name=_("type of pulse"))
-    duty_cycle = models.IntegerField(blank=True, null=True, verbose_name=_("duty cycle (%)"), validators=(MinValueValidator(0), MaxValueValidator(100)))
+    duty_cycle = models.IntegerField(editable=False, blank=True, null=True, verbose_name=_("duty cycle (%)"),
+                                     validators=(MinValueValidator(0), MaxValueValidator(100)))
 
     # crew
-    crew_probe = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("crew (probe)"))
-    crew_seine = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("crew (seine)"))
-    crew_dipnet = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("crew (dipnet)"))
-    crew_extras = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("crew (extras)"))
+    crew_probe = models.CharField(editable=False, max_length=255, blank=True, null=True, verbose_name=_("crew (probe)"))
+    crew_seine = models.CharField(editable=False, max_length=255, blank=True, null=True, verbose_name=_("crew (seine)"))
+    crew_dipnet = models.CharField(editable=False, max_length=255, blank=True, null=True, verbose_name=_("crew (dipnet)"))
+    crew_extras = models.CharField(editable=False, max_length=255, blank=True, null=True, verbose_name=_("crew (extras)"))
 
     #######
     # RST #
     #######
 
     # water data
-    water_temp_trap_c = models.FloatField(null=True, blank=True, verbose_name="water temperature at trap (°C)")
-    water_depth_m = models.FloatField(null=True, blank=True, verbose_name="water depth (m)")
-    water_level_delta_m = models.FloatField(null=True, blank=True, verbose_name="water level delta (m)")
-    discharge_m3_sec = models.FloatField(null=True, blank=True, verbose_name="discharge (m3/s)")
-    rpm_arrival = models.FloatField(null=True, blank=True, verbose_name="RPM at start")
-    rpm_departure = models.FloatField(null=True, blank=True, verbose_name="RPM at end")
-    time_released = models.DateTimeField(verbose_name="time released", blank=True, null=True)
-    operating_condition = models.IntegerField(blank=True, null=True, choices=model_choices.operating_condition_choices)
-    operating_condition_comment = models.CharField(max_length=255, blank=True, null=True)
-    samplers = models.TextField(blank=True, null=True)
-
-
+    water_temp_trap_c = models.FloatField(editable=False, null=True, blank=True, verbose_name="water temperature at trap (°C)")
+    water_depth_m = models.FloatField(editable=False, null=True, blank=True, verbose_name="water depth (m)")
+    water_level_delta_m = models.FloatField(editable=False, null=True, blank=True, verbose_name="water level delta (m)")
+    discharge_m3_sec = models.FloatField(editable=False, null=True, blank=True, verbose_name="discharge (m3/s)")
+    rpm_arrival = models.FloatField(editable=False, null=True, blank=True, verbose_name="RPM at start")
+    rpm_departure = models.FloatField(editable=False, null=True, blank=True, verbose_name="RPM at end")
+    time_released = models.DateTimeField(editable=False, verbose_name="time released", blank=True, null=True)
+    operating_condition = models.IntegerField(editable=False, blank=True, null=True, choices=model_choices.operating_condition_choices)
+    operating_condition_comment = models.CharField(editable=False, max_length=255, blank=True, null=True)
+    samplers = models.TextField(editable=False, blank=True, null=True)
 
     # non-editable
     created_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, editable=False, related_name='trapnet_sample_created_by')
@@ -252,6 +256,38 @@ class Sample(MetadataFields):
     reviewed_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, editable=False, related_name='trapnet_reviewed_by')
     reviewed_at = models.DateTimeField(blank=True, null=True, editable=False)
     old_id = models.CharField(max_length=25, null=True, blank=True, editable=False, unique=True)
+
+    def save(self, *args, **kwargs):
+        self.season = self.arrival_date.year
+        self.last_modified = timezone.now()
+        super().save(*args, **kwargs)
+
+        if self.sample_type == 1:
+            RSTSample.objects.get_or_create(sample=self)
+        elif self.sample_type == 2:
+            EFSample.objects.get_or_create(sample=self)
+        elif self.sample_type == 3:
+            TrapnetSample.objects.get_or_create(sample=self)
+
+    class Meta:
+        ordering = ['-arrival_date', ]
+        # unique_together = [["start_date", "station"], ]
+
+    def get_absolute_url(self):
+        return reverse("trapnet:sample_detail", kwargs={"pk": self.id})
+
+    def __str__(self):
+        return "{} ({})".format(self.get_sample_type_display(), self.id)
+
+    def get_sub_obj(self):
+        sub = None
+        if self.sample_type == 1:
+            sub = self.rst_sample
+        elif self.sample_type == 2:
+            sub = self.ef_sample
+        elif self.sample_type == 3:
+            sub = self.trapnet_sample
+        return sub
 
     def get_detailed_salmon(self):
         return self.get_salmon_with_lengths().filter(weight__isnull=False)
@@ -274,94 +310,6 @@ class Sample(MetadataFields):
         return gettext("Reviewed by {user} on {time}").format(user=self.reviewed_by, time=date(self.reviewed_at))
 
     @property
-    def full_wetted_width(self):
-        return self.get_full_wetted_width()
-
-    def get_full_wetted_width(self, show_errors=True):
-        """
-        Full wetted width:
-        (average of the left and right bank lengths)    X    (average of the lower, middle, and upper stream widths)
-        """
-        errors = list()
-        if not self.bank_length_left:
-            errors.append("missing left bank length")
-        if not self.bank_length_right:
-            errors.append("missing right bank length")
-        if not self.width_lower:
-            errors.append("missing lower stream width")
-        if not self.width_middle:
-            errors.append("missing middle stream width")
-        if not self.width_upper:
-            errors.append("missing upper stream width")
-        if len(errors):
-            if show_errors:
-                return mark_safe(f"<em class='text-muted'>{listrify(errors)}</em>")
-        else:
-            return statistics.mean([self.bank_length_left, self.bank_length_right]) * statistics.mean(
-                [self.width_lower, self.width_middle, self.width_upper])
-
-    @property
-    def substrate_profile(self):
-        my_str = ""
-        substrates = [
-            "fine",
-            "sand",
-            "gravel",
-            "pebble",
-            "cobble",
-            "rocks",
-            "boulder",
-            "bedrock",
-        ]
-        substrates_string = [
-            gettext("fine"),
-            gettext("sand"),
-            gettext("gravel"),
-            gettext("pebble"),
-            gettext("cobble"),
-            gettext("rocks"),
-            gettext("boulder"),
-            gettext("bedrock"),
-        ]
-        for substrate in substrates:
-            attr = getattr(self, f"percent_{substrate}")
-            substrate = gettext(substrate)
-            if attr and attr > 0:
-                my_str += f"{attr}% {substrate}<br> "
-        return mark_safe(my_str)
-
-    def get_avg_depth(self, which_depth):
-        d1 = getattr(self, f"depth_1_{which_depth}")
-        d2 = getattr(self, f"depth_2_{which_depth}")
-        d3 = getattr(self, f"depth_3_{which_depth}")
-        depths = [d1, d2, d3]
-        remove_nulls(depths)
-        if len(depths):
-            return round(statistics.mean(depths), 3)
-
-    @property
-    def site_profile(self):
-        my_str = ""
-        substrates = [
-            "riffle",
-            "run",
-            "flat",
-            "pool",
-        ]
-        substrates_string = [
-            gettext("riffle"),
-            gettext("run"),
-            gettext("flat"),
-            gettext("pool"),
-        ]
-        for substrate in substrates:
-            attr = getattr(self, f"percent_{substrate}")
-            substrate = gettext(substrate)
-            if attr and attr > 0:
-                my_str += f"{attr}% {substrate}<br> "
-        return mark_safe(my_str)
-
-    @property
     def duration(self):
         diff = self.departure_date - self.arrival_date
         days, seconds = diff.days, diff.seconds
@@ -382,21 +330,6 @@ class Sample(MetadataFields):
         my_list = list([specimen.tag_number for specimen in self.specimens.filter(tag_number__isnull=False)])
         my_list.sort()
         return mark_safe(listrify(my_list))
-
-    def save(self, *args, **kwargs):
-        self.season = self.arrival_date.year
-        self.last_modified = timezone.now()
-        super().save(*args, **kwargs)
-
-    class Meta:
-        ordering = ['-arrival_date', ]
-        # unique_together = [["start_date", "station"], ]
-
-    def get_absolute_url(self):
-        return reverse("trapnet:sample_detail", kwargs={"pk": self.id})
-
-    def __str__(self):
-        return "{} ({})".format(self.get_sample_type_display(), self.id)
 
     @property
     def arrival_departure(self):
@@ -423,51 +356,6 @@ class Sample(MetadataFields):
         )
 
     @property
-    def water_depth_display(self):
-        if self.sample_type == 1:
-            return mark_safe(_("<u>depth (m):</u> {depth}&plusmn;{delta}<br> <u>discharge (m<sup>3</sup>/s):</u> {dischard}").format(
-                depth=nz(self.water_depth_m, "---"),
-                delta=nz(self.water_level_delta_m, "---"),
-                dischard=nz(self.discharge_m3_sec, "---"),
-            ))
-        elif self.sample_type == 2:
-            return mark_safe(_("<u>avg. lower depth (cm):</u> {d1}<br> <u>avg. middle depth (cm):</u> {d2}<br> <u>avg. upper depth (cm):</u> {d3}").format(
-                d1=nz(self.get_avg_depth("lower"), "---"),
-                d2=nz(self.get_avg_depth("middle"), "---"),
-                d3=nz(self.get_avg_depth("upper"), "---"),
-            ))
-
-    @property
-    def rpms(self):
-        return mark_safe(_("<u>@start (m):</u> {start}; <u>@end:</u> {end}").format(
-            start=nz(self.rpm_arrival, "---"),
-            end=nz(self.rpm_departure, "---"),
-        ))
-
-    @property
-    def overhanging_veg_display(self):
-        return mark_safe(_("<u>left:</u> {left}; <u>right:</u> {right}").format(
-            left=nz(self.overhanging_veg_left, "---"),
-            right=nz(self.overhanging_veg_right, "---"),
-        ))
-
-    @property
-    def max_overhanging_veg_display(self):
-        return mark_safe(_("<u>left:</u> {left}; <u>right:</u> {right}").format(
-            left=nz(self.max_overhanging_veg_left, "---"),
-            right=nz(self.max_overhanging_veg_right, "---"),
-        ))
-
-    @property
-    def crew_display(self):
-        return mark_safe(_("<u>probe:</u> {probe}<br> <u>seine:</u> {seine}<br> <u>dipnet:</u> {dipnet}<br> <u>extras:</u> {extras}").format(
-            probe=nz(self.crew_probe, "---"),
-            seine=nz(self.crew_seine, "---"),
-            dipnet=nz(self.crew_dipnet, "---"),
-            extras=nz(self.crew_extras, "---"),
-        ))
-
-    @property
     def wind(self):
         return _("<u>speed:</u> {speed}; <u>direction:</u> {dir}").format(
             speed=nz(self.get_wind_speed_display(), "---"),
@@ -481,20 +369,9 @@ class Sample(MetadataFields):
             my_str += _("<br><u>@trap:</u> {trap}").format(trap=nz(self.water_temp_trap_c, "---"))
         return my_str
 
-    @property
-    def electrofisher_params(self):
-        return mark_safe(
-            f"voltage (V): {nz(self.electrofisher_voltage, '---')} "
-            f"<br>output, low (amps): {nz(self.electrofisher_output_low, '---')}"
-            f"<br>output, high (amps): {nz(self.electrofisher_output_high, '---')} "
-            f"<br>frequency (Hz): {nz(self.electrofisher_frequency, '---')} "
-            f"<br>type of pulse: {nz(self.get_electrofisher_pulse_type_display(), '---')} "
-            f"<br>duty cycle (%): {nz(self.duty_cycle, '---')} "
-        )
 
-
-class EFSample(MetadataFields):
-    sample = models.OneToOneField(Sample, related_name='ef_sample', on_delete=models.CASCADE)
+class EFSample(models.Model):
+    sample = models.OneToOneField(Sample, related_name='ef_sample', on_delete=models.CASCADE, editable=False)
 
     site_type = models.IntegerField(blank=True, null=True, choices=model_choices.site_type_choices, verbose_name=_("type of site"))
     seine_type = models.IntegerField(blank=True, null=True, choices=model_choices.seine_type_choices, verbose_name=_("type of seine"), default=2)
@@ -560,9 +437,141 @@ class EFSample(MetadataFields):
     crew_dipnet = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("crew (dipnet)"))
     crew_extras = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("crew (extras)"))
 
+    @property
+    def full_wetted_width(self):
+        return self.get_full_wetted_width()
 
-class RSTSample(MetadataFields):
-    sample = models.OneToOneField(Sample, related_name='rst_sample', on_delete=models.CASCADE)
+    def get_full_wetted_width(self, show_errors=True):
+        """
+        Full wetted width:
+        (average of the left and right bank lengths)    X    (average of the lower, middle, and upper stream widths)
+        """
+        errors = list()
+        if not self.bank_length_left:
+            errors.append("missing left bank length")
+        if not self.bank_length_right:
+            errors.append("missing right bank length")
+        if not self.width_lower:
+            errors.append("missing lower stream width")
+        if not self.width_middle:
+            errors.append("missing middle stream width")
+        if not self.width_upper:
+            errors.append("missing upper stream width")
+        if len(errors):
+            if show_errors:
+                return mark_safe(f"<em class='text-muted'>{listrify(errors)}</em>")
+        else:
+            return statistics.mean([self.bank_length_left, self.bank_length_right]) * statistics.mean(
+                [self.width_lower, self.width_middle, self.width_upper])
+
+    @property
+    def substrate_profile(self):
+        my_str = ""
+        substrates = [
+            "fine",
+            "sand",
+            "gravel",
+            "pebble",
+            "cobble",
+            "rocks",
+            "boulder",
+            "bedrock",
+        ]
+        substrates_string = [
+            gettext("fine"),
+            gettext("sand"),
+            gettext("gravel"),
+            gettext("pebble"),
+            gettext("cobble"),
+            gettext("rocks"),
+            gettext("boulder"),
+            gettext("bedrock"),
+        ]
+        for substrate in substrates:
+            attr = getattr(self, f"percent_{substrate}")
+            substrate = gettext(substrate)
+            if attr and attr > 0:
+                my_str += f"{attr}% {substrate}<br> "
+        return mark_safe(my_str)
+
+    @property
+    def site_profile(self):
+        my_str = ""
+        substrates = [
+            "riffle",
+            "run",
+            "flat",
+            "pool",
+        ]
+        substrates_string = [
+            gettext("riffle"),
+            gettext("run"),
+            gettext("flat"),
+            gettext("pool"),
+        ]
+        for substrate in substrates:
+            attr = getattr(self, f"percent_{substrate}")
+            substrate = gettext(substrate)
+            if attr and attr > 0:
+                my_str += f"{attr}% {substrate}<br> "
+        return mark_safe(my_str)
+
+    def get_avg_depth(self, which_depth):
+        d1 = getattr(self, f"depth_1_{which_depth}")
+        d2 = getattr(self, f"depth_2_{which_depth}")
+        d3 = getattr(self, f"depth_3_{which_depth}")
+        depths = [d1, d2, d3]
+        remove_nulls(depths)
+        if len(depths):
+            return round(statistics.mean(depths), 3)
+
+    @property
+    def water_depth_display(self):
+        return mark_safe(
+            _("<u>avg. lower depth (cm):</u> {d1}<br> <u>avg. middle depth (cm):</u> {d2}<br> <u>avg. upper depth (cm):</u> {d3}<br> <u>max depth (cm):</u> {d4}").format(
+                d1=nz(self.get_avg_depth("lower"), "---"),
+                d2=nz(self.get_avg_depth("middle"), "---"),
+                d3=nz(self.get_avg_depth("upper"), "---"),
+                d4=nz(self.max_depth, "---"),
+            ))
+
+    @property
+    def overhanging_veg_display(self):
+        return mark_safe(_("<u>left:</u> {left}; <u>right:</u> {right}").format(
+            left=nz(self.overhanging_veg_left, "---"),
+            right=nz(self.overhanging_veg_right, "---"),
+        ))
+
+    @property
+    def max_overhanging_veg_display(self):
+        return mark_safe(_("<u>left:</u> {left}; <u>right:</u> {right}").format(
+            left=nz(self.max_overhanging_veg_left, "---"),
+            right=nz(self.max_overhanging_veg_right, "---"),
+        ))
+
+    @property
+    def crew_display(self):
+        return mark_safe(_("<u>probe:</u> {probe}<br> <u>seine:</u> {seine}<br> <u>dipnet:</u> {dipnet}<br> <u>extras:</u> {extras}").format(
+            probe=nz(self.crew_probe, "---"),
+            seine=nz(self.crew_seine, "---"),
+            dipnet=nz(self.crew_dipnet, "---"),
+            extras=nz(self.crew_extras, "---"),
+        ))
+
+    @property
+    def electrofisher_params(self):
+        return mark_safe(
+            f"voltage (V): {nz(self.electrofisher_voltage, '---')} "
+            f"<br>output, low (amps): {nz(self.electrofisher_output_low, '---')}"
+            f"<br>output, high (amps): {nz(self.electrofisher_output_high, '---')} "
+            f"<br>frequency (Hz): {nz(self.electrofisher_frequency, '---')} "
+            f"<br>type of pulse: {nz(self.get_electrofisher_pulse_type_display(), '---')} "
+            f"<br>duty cycle (%): {nz(self.duty_cycle, '---')} "
+        )
+
+
+class RSTSample(models.Model):
+    sample = models.OneToOneField(Sample, related_name='rst_sample', on_delete=models.CASCADE, editable=False)
     water_temp_trap_c = models.FloatField(null=True, blank=True, verbose_name="water temperature at trap (°C)")
     water_depth_m = models.FloatField(null=True, blank=True, verbose_name="water depth (m)")
     water_level_delta_m = models.FloatField(null=True, blank=True, verbose_name="water level delta (m)")
@@ -574,9 +583,24 @@ class RSTSample(MetadataFields):
     operating_condition_comment = models.CharField(max_length=255, blank=True, null=True)
     samplers = models.TextField(blank=True, null=True)
 
+    @property
+    def rpms(self):
+        return mark_safe(_("<u>@start (m):</u> {start}; <u>@end:</u> {end}").format(
+            start=nz(self.rpm_arrival, "---"),
+            end=nz(self.rpm_departure, "---"),
+        ))
 
-class TrapnetSample(MetadataFields):
-    sample = models.OneToOneField(Sample, related_name='trapnet_sample', on_delete=models.CASCADE)
+    @property
+    def water_display(self):
+        return mark_safe(_("<u>depth (m):</u> {depth}&plusmn;{delta}<br> <u>discharge (m<sup>3</sup>/s):</u> {discharge}").format(
+            depth=nz(self.water_depth_m, "---"),
+            delta=nz(self.water_level_delta_m, "---"),
+            discharge=nz(self.discharge_m3_sec, "---"),
+        ))
+
+
+class TrapnetSample(models.Model):
+    sample = models.OneToOneField(Sample, related_name='trapnet_sample', on_delete=models.CASCADE, editable=False)
     water_temp_trap_c = models.FloatField(null=True, blank=True, verbose_name="water temperature at trap (°C)")
     time_released = models.DateTimeField(verbose_name="time released", blank=True, null=True)
     samplers = models.TextField(blank=True, null=True)
@@ -665,11 +689,13 @@ class Specimen(MetadataFields):
     # to be deleted eventually
     origin = models.ForeignKey(Origin, on_delete=models.DO_NOTHING, related_name="specimens", blank=True, null=True, editable=False)
 
-    def get_smart_river_age(self):
+    @property
+    def smart_river_age(self):
         """ only applies to salmon who have fork lengths. If ever there was a river age assigned, this trumps any calculated ages"""
-        if not self.river_age and (self.is_salmon and self.fork_length):
+        if self.river_age is None and (self.is_salmon and self.fork_length):
             return get_age_from_length(self.fork_length, self.sample.age_thresh_0_1, self.sample.age_thresh_1_2)
         return self.river_age
+
 
     @property
     def is_salmon(self):
