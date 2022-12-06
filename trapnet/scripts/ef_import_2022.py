@@ -340,18 +340,23 @@ def run_process_samples():
                                 if len(notes):
                                     kwargs["notes"] = notes
 
-                                sample = models.Sample.objects.create(**kwargs)
 
+                                sample_kwargs = dict()
+                                ef_kwargs = dict()
+
+                                sample_fields = [f.name for f in models.Sample._meta.fields]
+                                for key in kwargs:
+                                    if key in sample_fields:
+                                        sample_kwargs[key] = kwargs[key]
+                                    else:
+                                        ef_kwargs[key] = kwargs[key]
+
+                                sample = models.Sample.objects.create(**sample_kwargs)
+                                ef_sample = sample.ef_sample
+                                for key in ef_kwargs:
+                                    setattr(ef_sample, key, ef_kwargs[key])
+                                ef_sample.save()
                                 # now that we have a sample, it is time to deal with sweeps
-                                temps = [
-                                    r["WATER_TEMPERATURE_ARRIVAL"],
-                                    r["WATER_TEMPERATURE_DEPART"],
-                                    r["WATER_TEMP1"],
-                                    r["WATER_TEMP2"],
-                                    r["WATER_TEMP3"],
-                                ]
-                                while None in temps: temps.remove(None)
-                                while 0 in temps: temps.remove(0)
 
                                 # get a list of sweep times and figure out where to draw a line with respect to seconds vs. minutes
                                 # sweeps_times = [s.sweep_time for s in models.Sweep.objects.all().order_by("sweep_time")]

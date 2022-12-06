@@ -2,9 +2,12 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.template.defaultfilters import date
 from django.urls import reverse
+from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _, gettext, get_language, activate
+from html2text import html2text
+from jinja2.sandbox import unsafe
 from markdown import markdown
 
 from lib.functions.custom_functions import fiscal_year, truncate
@@ -380,6 +383,10 @@ class Achievement(MetadataFields):
 
         mystr = truncate(mystr, max_length=1000)
         return connect_refs(mystr, self.user.achievements.all())
+
+    @property
+    def achievement_display_text(self):
+        return html2text(self.achievement_display_no_code).replace("'","").replace("\n", "")
 
     @property
     def is_publication(self):

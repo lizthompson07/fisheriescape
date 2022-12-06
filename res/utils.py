@@ -2,9 +2,11 @@ from django.contrib.auth.models import Group
 # open basic access up to anybody who is logged in
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _, gettext
 from markdown import markdown
 
+from lib.functions.custom_functions import truncate
 from res import models
 from shared_models.models import Section, Division, Branch, Sector, Region
 
@@ -241,7 +243,7 @@ def connect_refs(txt, achievements_qs):
         pk = ref.lower().replace("ref", "").strip()
         try:
             a = achievements_qs.get(pk=pk)
-            tip = a.achievement_display_no_code
+            tip = a.achievement_display_text
             if a.category:
                 code = a.category.code
             text_class = "text-primary"
