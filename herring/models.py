@@ -190,6 +190,7 @@ class Sample(models.Model):
     SAMPLE_TYPE_CHOICES = (
         (1, 'Port'),
         (2, 'Sea'),
+        (3, 'Trap'),
     )
     season_type_choices = (
         (1, "spring"),
