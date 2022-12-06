@@ -11,7 +11,6 @@ from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
-from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.utils.timezone import make_aware, utc
 from django.utils.translation import gettext_lazy, gettext as _
@@ -806,7 +805,28 @@ class ProcessUpdateView(CanModifyProcessRequiredMixin, CommonUpdateView):
     def form_valid(self, form):
         obj = form.save(commit=False)
         obj.updated_by = self.request.user
-        return super().form_valid(form)
+
+        old_obj = models.Process.objects.get(pk=obj.id)
+        old_lead_office = str(old_obj.lead_office)
+        old_other_offices = listrify(old_obj.other_offices.all())
+
+        obj.save()
+        super().form_valid(form)
+
+        new_lead_office = str(obj.lead_office)
+        new_other_offices = listrify(obj.other_offices.all())
+
+        # now for the piece about NCR email
+        if obj.has_tor and obj.tor.meeting.is_posted and (
+                old_lead_office != new_lead_office or old_other_offices != new_other_offices):
+            email = emails.UpdatedMeetingEmail(self.request, obj.tor.meeting,
+                                               new_lead_office=new_lead_office,
+                                               old_lead_office=old_lead_office,
+                                               new_other_offices=new_other_offices,
+                                               old_other_offices=old_other_offices,
+                                               )
+            email.send()
+        return HttpResponseRedirect(self.get_success_url())
 
 
 class ProcessDeleteView(CanModifyProcessRequiredMixin, CommonDeleteView):
@@ -951,7 +971,6 @@ class TermsOfReferenceSubmitView(TermsOfReferenceUpdateView):
 
         utils.tor_approval_seeker(obj, self.request)
         return HttpResponseRedirect(self.get_success_url())
-
 
     def get_grandparent_crumb(self):
         return {"title": "{} {}".format(_("Process"), self.get_object().process.id),
@@ -1111,7 +1130,6 @@ class MeetingUpdateView(CanModifyProcessRequiredMixin, CommonUpdateView):
         if self.request.GET.get("somp"):
             return forms.MeetingSoMPForm
         return forms.MeetingForm
-
 
     def get_h3(self):
         obj = self.get_object()
@@ -1471,7 +1489,6 @@ class ReportSearchFormView(CsasAdminRequiredMixin, CommonFormView):
                                         # f"lead_region={lead_region}&"
                                         )
 
-
         messages.error(self.request, "Report is not available. Please select another report.")
         return HttpResponseRedirect(reverse("csas2:reports"))
 
@@ -1587,6 +1604,7 @@ def process_list_report(request):
             response['Content-Disposition'] = f'inline; filename="CSAS processes export.xlsx"'
             return response
     raise Http404
+
 
 @login_required()
 def unpublished_publications_report(request):
