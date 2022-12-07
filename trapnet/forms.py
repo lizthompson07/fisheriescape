@@ -208,15 +208,21 @@ class ReportSearchForm(forms.Form):
         (None, ""),
         (None, "RAW DATA"),
         (None, "------------"),
-        (1, "sample data export (csv)"),
-        (2, "sweep data export (csv)"),
-        (3, "specimen data export (csv)"),
-        (4, "Atlantic salmon individual specimen event report (csv)"),
+        (1, "sample data (csv)"),
+        (2, "sweep data - EF Only (csv)"),
+        (3, "specimen data (csv)"),
+        (5, "historical biological detail data (csv)"),
 
         (None, ""),
-        (None, "ELECTROFISHING"),
+        (None, "CUSTOM ELECTROFISHING"),
         (None, "------------"),
         (10, "juvenile salmon CSAS report (csv)"),
+
+        (None, ""),
+        (None, "CUSTOM - OTHER"),
+        (None, "------------"),
+        (4, "Atlantic salmon individual specimen event report (csv)"),
+
 
         (None, ""),
         (None, "OPEN DATA"),
@@ -230,8 +236,8 @@ class ReportSearchForm(forms.Form):
 
     leave_blank_text = gettext_lazy("leave blank for all")
     report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
-    year = forms.CharField(required=False, widget=forms.NumberInput(), label="Year", help_text=leave_blank_text)
     sample_type = forms.ChoiceField(required=False, label="Sample type", help_text=leave_blank_text)
+    year = forms.CharField(required=False, widget=forms.NumberInput(), label="Year", help_text=leave_blank_text)
     fishing_areas = forms.MultipleChoiceField(required=False, label="Fishing areas", help_text=leave_blank_text)
     rivers = forms.MultipleChoiceField(required=False, label="Rivers", help_text=leave_blank_text)
     sites = forms.MultipleChoiceField(required=False, label="Sites", help_text=leave_blank_text)

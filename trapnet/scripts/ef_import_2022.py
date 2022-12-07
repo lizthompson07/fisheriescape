@@ -106,6 +106,9 @@ def run_process_samples():
 
     # delete previously imported samples
     models.Sample.objects.filter(old_id__istartswith="gd").delete()
+    mp1 = models.MonitoringProgram.objects.get(pk=1)
+    mp2 = models.MonitoringProgram.objects.get(pk=2)
+
 
     # ok I think we are ready to tackle the sample
     with open(os.path.join(rootdir, 'problematic_site_data.csv'), 'w') as wf:
@@ -196,7 +199,7 @@ def run_process_samples():
                                     "electrofisher_voltage": r["ELECTROFISHER_FREQUENCY"],
                                     "electrofisher_frequency": r["ELECTROFISHER_VOLTAGE"],
                                     "site_type": 2 if r["BARRIER_PRESENT"] else 1,
-                                    "monitoring_program_id": 1,
+                                    "monitoring_program": mp1,
                                     "created_by_id": 50,
                                     "updated_by_id": 50,
                                 }
@@ -391,7 +394,7 @@ def run_process_samples():
                                             # if this is sweep 0, there is a special note to be added and to set the program type as non-monitoring
                                             if sweep_key == sweep_keys[0]:
                                                 notes = add_note(notes, "sweep number zero used as there is missing information about sampling protocol.")
-                                                sample.monitoring_program_id = 2
+                                                sample.monitoring_program =mp2
                                                 sample.save()
                                             models.Sweep.objects.create(
                                                 sample=sample,
@@ -609,8 +612,9 @@ def run_process_fish():
                     bar()
 
 
-def process_master_files(process_samples=False, process_fish=False, skip_checks=False):
-    if not skip_checks:
+def process_master_files(process_samples=False, process_fish=False, qc_checks=False):
+    if qc_checks:
+        print("RUNNING INITIAL CHECKS")
         run_spp_checks()
         run_river_checks()
 

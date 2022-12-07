@@ -1045,16 +1045,20 @@ class ReportSearchFormView(TrapNetCRUDRequiredMixin, CommonFormView):
 
         # raw reports
         if report == 1:
-            return HttpResponseRedirect(reverse("trapnet:sample_report") + f"?year={year}&fishing_areas={fishing_areas}&rivers={rivers}&sites={sites}")
+            return HttpResponseRedirect(reverse("trapnet:sample_report") + f"?sample_type={sample_type}&year={year}&fishing_areas={fishing_areas}&rivers={rivers}&sites={sites}")
         elif report == 2:
             return HttpResponseRedirect(reverse("trapnet:sweep_report") + f"?year={year}&fishing_areas={fishing_areas}&rivers={rivers}&sites={sites}")
         elif report == 3:
-            return HttpResponseRedirect(reverse("trapnet:specimen_report") + f"?year={year}&fishing_areas={fishing_areas}&rivers={rivers}&sites={sites}")
+            return HttpResponseRedirect(reverse("trapnet:specimen_report") + f"?year={year}&fishing_areas={fishing_areas}&rivers={rivers}&sites={sites}&sample_type={sample_type}")
+        elif report == 5:
+            return HttpResponseRedirect(reverse("trapnet:biological_detailing_report") + f"?year={year}&fishing_areas={fishing_areas}&rivers={rivers}&sites={sites}&sample_type={sample_type}")
+
+        # custom - other
         elif report == 4:
             return HttpResponseRedirect(reverse(
                 "trapnet:export_specimen_data_v1") + f"?year={year}&fishing_areas={fishing_areas}&rivers={rivers}&sites={sites}&sample_type={sample_type}")
 
-        # electrofishing
+        # custom - electrofishing
         elif report == 10:
             return HttpResponseRedirect(reverse("trapnet:electro_juv_salmon_report") + f"?year={year}&fishing_areas={fishing_areas}&rivers={rivers}")
 
@@ -1075,13 +1079,36 @@ class ReportSearchFormView(TrapNetCRUDRequiredMixin, CommonFormView):
 
 
 def export_sample_data(request):
+    sample_type = request.GET.get("sample_type")
     year = request.GET.get("year")
     fishing_areas = request.GET.get("fishing_areas")
     rivers = request.GET.get("rivers")
     sites = request.GET.get("sites")
-    filename = "sample data export ({}).csv".format(now().strftime("%Y-%m-%d"))
+
+    filename_prefix = ""
+    filter_kwargs = {}
+    if year != "":
+        filter_kwargs["season"] = year
+    if sample_type != "":
+        filter_kwargs["sample_type"] = sample_type
+        if sample_type == "1":
+            filename_prefix = "RST "
+        elif sample_type == "2":
+            filename_prefix = "EF "
+        elif sample_type == "3":
+            filename_prefix = "trapnet "
+    if fishing_areas != "":
+        filter_kwargs["site__river__fishing_area_id__in"] = fishing_areas.split(",")
+    if rivers != "":
+        filter_kwargs["site__river_id__in"] = rivers.split(",")
+    if sites != "":
+        filter_kwargs["site_id__in"] = sites.split(",")
+
+    qs = models.Sample.objects.filter(**filter_kwargs)
+    filename = f"{filename_prefix}sample data ({now().strftime('%Y-%m-%d')}).csv"
+
     response = StreamingHttpResponse(
-        streaming_content=(reports.generate_sample_csv(year, fishing_areas, rivers, sites)),
+        streaming_content=(reports.generate_sample_csv(qs)),
         content_type='text/csv',
     )
     response['Content-Disposition'] = f'attachment;filename={filename}'
@@ -1093,9 +1120,22 @@ def export_sweep_data(request):
     fishing_areas = request.GET.get("fishing_areas")
     rivers = request.GET.get("rivers")
     sites = request.GET.get("sites")
-    filename = "sweep data export ({}).csv".format(now().strftime("%Y-%m-%d"))
+
+    filter_kwargs = {}
+    if year != "":
+        filter_kwargs["sample__season"] = year
+    if fishing_areas != "":
+        filter_kwargs["sample__site__river__fishing_area_id__in"] = fishing_areas.split(",")
+    if rivers != "":
+        filter_kwargs["sample__site__river_id__in"] = rivers.split(",")
+    if sites != "":
+        filter_kwargs["sample__site_id__in"] = sites.split(",")
+
+    qs = models.Sweep.objects.filter(**filter_kwargs)
+    filename = "EF sweep data ({}).csv".format(now().strftime("%Y-%m-%d"))
+
     response = StreamingHttpResponse(
-        streaming_content=(reports.generate_sweep_csv(year, fishing_areas, rivers, sites)),
+        streaming_content=(reports.generate_sweep_csv(qs)),
         content_type='text/csv',
     )
     response['Content-Disposition'] = f'attachment;filename={filename}'
@@ -1103,14 +1143,66 @@ def export_sweep_data(request):
 
 
 def export_specimen_data(request):
+    sample_type = request.GET.get("sample_type")
     year = request.GET.get("year")
     fishing_areas = request.GET.get("fishing_areas")
     rivers = request.GET.get("rivers")
     sites = request.GET.get("sites")
-    filename = "specimen data export ({}).csv".format(now().strftime("%Y-%m-%d"))
+
+    filename_prefix = ""
+    filter_kwargs = {}
+    if year != "":
+        filter_kwargs["sample__season"] = year
+    if sample_type != "":
+        filter_kwargs["sample__sample_type"] = sample_type
+        if sample_type == "1":
+            filename_prefix = "RST "
+        elif sample_type == "2":
+            filename_prefix = "EF "
+        elif sample_type == "3":
+            filename_prefix = "trapnet "
+    if fishing_areas != "":
+        filter_kwargs["sample__site__river__fishing_area_id__in"] = fishing_areas.split(",")
+    if rivers != "":
+        filter_kwargs["sample__site__river_id__in"] = rivers.split(",")
+    if sites != "":
+        filter_kwargs["sample__site_id__in"] = sites.split(",")
+
+    qs = models.Specimen.objects.filter(**filter_kwargs).iterator()
+    filename = f"{filename_prefix}specimen data ({now().strftime('%Y-%m-%d')}).csv"
 
     response = StreamingHttpResponse(
-        streaming_content=(reports.generate_specimen_csv(year, fishing_areas, rivers, sites)),
+        streaming_content=(reports.generate_specimen_csv(qs, int(sample_type))),
+        content_type='text/csv',
+    )
+    response['Content-Disposition'] = f'attachment;filename={filename}'
+    return response
+
+
+def export_biological_detailing_data(request):
+    sample_type = request.GET.get("sample_type")
+    year = request.GET.get("year")
+    fishing_areas = request.GET.get("fishing_areas")
+    rivers = request.GET.get("rivers")
+    sites = request.GET.get("sites")
+
+    filter_kwargs = {}
+    if year != "":
+        filter_kwargs["sample__season"] = year
+    if sample_type != "":
+        filter_kwargs["sample__sample_type"] = sample_type
+    if fishing_areas != "":
+        filter_kwargs["sample__site__river__fishing_area_id__in"] = fishing_areas.split(",")
+    if rivers != "":
+        filter_kwargs["sample__site__river_id__in"] = rivers.split(",")
+    if sites != "":
+        filter_kwargs["sample__site_id__in"] = sites.split(",")
+
+    qs = models.Specimen.objects.filter(**filter_kwargs).iterator()
+    filename = f"historical biological data ({now().strftime('%Y-%m-%d')}).csv"
+
+    response = StreamingHttpResponse(
+        streaming_content=(reports.generate_biological_detailing_csv(qs)),
         content_type='text/csv',
     )
     response['Content-Disposition'] = f'attachment;filename={filename}'
@@ -1170,6 +1262,19 @@ def electro_juv_salmon_report(request):
     year = request.GET.get("year")
     fishing_areas = request.GET.get("fishing_areas")
     rivers = request.GET.get("rivers")
+
+    filter_kwargs = {
+        "sample__sample_type": 2
+    }
+    if year != "":
+        filter_kwargs["sample__season"] = year
+    if fishing_areas != "":
+        filter_kwargs["sample__site__river__fishing_area_id__in"] = fishing_areas.split(",")
+    if rivers != "":
+        filter_kwargs["sample__site__river_id__in"] = rivers.split(",")
+
+    qs = models.Sweep.objects.filter(**filter_kwargs)
+
     filename = "juv_salmon_csas_report.csv"
     response = StreamingHttpResponse(
         streaming_content=(reports.generate_electro_juv_salmon_report(year, fishing_areas, rivers)),

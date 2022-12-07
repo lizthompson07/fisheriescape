@@ -108,6 +108,7 @@ urlpatterns = [
     path('reports/samples/', views.export_sample_data, name="sample_report"),
     path('reports/sweeps/', views.export_sweep_data, name="sweep_report"),
     path('reports/specimens/', views.export_specimen_data, name="specimen_report"),
+    path('reports/biological-details/', views.export_biological_detailing_data, name="biological_detailing_report"),
     path('reports/opendata1/<str:year>/<str:sites>/', views.export_open_data_ver1, name="od1_report"),
     path('reports/opendata1/dictionary/', views.export_open_data_ver1_dictionary, name="od1_dictionary"),
     path('reports/opendata1/species-list/', views.export_spp_list, name="od_spp_list"),

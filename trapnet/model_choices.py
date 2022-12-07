@@ -75,6 +75,14 @@ didymo_choices = (
     (1, _("Present")),
 )
 
+sea_lice_choices = (
+    (None, "None"),
+    (1, "< 5"),
+    (2, "5-15"),
+    (3, "15-50"),
+    (4, "> 50"),
+)
+
 age_type_choices = (
     (1, _("scale")),
     (2, _("length-frequency")),

@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 import unicodecsv as csv
 from django.db.models import Sum, Avg
 from django.http import HttpResponse
@@ -9,112 +11,222 @@ from lib.templatetags.custom_filters import nz
 from . import models
 
 
-def generate_sample_csv(year, fishing_areas, rivers, sites):
+def generate_sample_csv(qs):
     """Returns a generator for an HTTP Streaming Response"""
 
-    filter_kwargs = {}
-    if year != "":
-        filter_kwargs["season"] = year
-    if fishing_areas != "":
-        filter_kwargs["site__river__fishing_area_id__in"] = fishing_areas.split(",")
-    if rivers != "":
-        filter_kwargs["site__river_id__in"] = rivers.split(",")
-    if sites != "":
-        filter_kwargs["site_id__in"] = sites.split(",")
-
-    qs = models.Sample.objects.filter(**filter_kwargs)
-    random_obj = models.Sample.objects.first()
-    fields = random_obj._meta.fields
+    fields = models.Sample._meta.fields
     field_names = [field.name for field in fields]
 
     # add any FKs
     for field in fields:
         if field.attname not in field_names:
             field_names.append(field.attname)
-    header_row = [field for field in field_names] + ["full_wetted_width"]
+
+    header_row = deepcopy(field_names)
+    header_row += [
+        "sample_type_display",
+        "precipitation_category_display",
+        "wind_speed_display",
+        "wind_direction_display",
+        "didymo_display",
+    ]
+
+    # now we need to determine what fields to append from the sample subtype
+    is_ef = False
+    is_rst = False
+    is_trapnet = False
+    sub_field_names = list()
+    if qs.exists():
+        sub_obj = qs.first().get_sub_obj()
+        sub_field_names = [field.name for field in sub_obj._meta.fields]
+        sub_field_names.remove("sample")
+        sub_field_names.remove("id")
+        header_row += sub_field_names
+        if isinstance(sub_obj, models.EFSample):
+            is_ef = True
+            header_row += [
+                "site_type_display",
+                "seine_type_display",
+                "electrofisher_pulse_type_display",
+                "full_wetted_width"
+            ]
+        elif isinstance(sub_obj, models.RSTSample):
+            is_rst = True
+            header_row += [
+                "operating_condition_display",
+            ]
+        elif isinstance(sub_obj, models.TrapnetSample):
+            is_trapnet = True
+            header_row += [
+                "sea_lice_display",
+            ]
+
     pseudo_buffer = Echo()
     writer = csv.writer(pseudo_buffer)
-    yield writer.writerow(header_row)
+    sorted_header = sorted(header_row)
+    yield writer.writerow(sorted_header)
 
     for obj in qs:
-        data_row = [str(nz(getattr(obj, field), "")).encode("utf-8").decode('utf-8') for field in field_names] + [obj.get_full_wetted_width(show_errors=False)]
-        yield writer.writerow(data_row)
+        sub_obj = obj.get_sub_obj()
+        data_row = [str(nz(getattr(obj, field), "")).encode("utf-8").decode('utf-8') for field in field_names]
+        data_row += [
+            obj.get_sample_type_display(),
+            obj.get_precipitation_category_display(),
+            obj.get_wind_speed_display(),
+            obj.get_wind_direction_display(),
+            obj.get_didymo_display(),
+        ]
+        data_row += [str(nz(getattr(sub_obj, field), "")).encode("utf-8").decode('utf-8') for field in sub_field_names]
+        if is_ef:
+            data_row += [
+                sub_obj.get_site_type_display(),
+                sub_obj.get_seine_type_display(),
+                sub_obj.get_electrofisher_pulse_type_display(),
+                sub_obj.get_full_wetted_width(show_errors=False),
+            ]
+        elif is_rst:
+            data_row += [
+                sub_obj.get_operating_condition_display(),
+            ]
+        elif is_trapnet:
+            data_row += [
+                sub_obj.get_sea_lice_display(),
+            ]
+
+        sorted_data_row = [x for _, x in sorted(zip(header_row, data_row))]
+        yield writer.writerow(sorted_data_row)
 
 
-def generate_sweep_csv(year, fishing_areas, rivers, sites):
+def generate_sweep_csv(qs):
     """Returns a generator for an HTTP Streaming Response"""
 
-    filter_kwargs = {}
-    if year != "":
-        filter_kwargs["sample__season"] = year
-    if fishing_areas != "":
-        filter_kwargs["sample__site__river__fishing_area_id__in"] = fishing_areas.split(",")
-    if rivers != "":
-        filter_kwargs["sample__site__river_id__in"] = rivers.split(",")
-    if sites != "":
-        filter_kwargs["sample__site_id__in"] = sites.split(",")
-
-    qs = models.Sweep.objects.filter(**filter_kwargs)
-    random_obj = models.Sweep.objects.first()
-    fields = random_obj._meta.fields
+    fields = models.Sweep._meta.fields
     field_names = [field.name for field in fields]
 
     # add any FKs
     for field in fields:
         if field.attname not in field_names:
             field_names.append(field.attname)
-    header_row = []  # starter
-    header_row.extend([field for field in field_names])
+
+    field_names.sort()
     pseudo_buffer = Echo()
     writer = csv.writer(pseudo_buffer)
-    yield writer.writerow(header_row)
+    yield writer.writerow(field_names)
 
     for obj in qs:
-        data_row = []  # starter
-        data_row.extend([str(nz(getattr(obj, field), "")).encode("utf-8").decode('utf-8') for field in field_names])
+        data_row = [str(nz(getattr(obj, field), "")).encode("utf-8").decode('utf-8') for field in field_names]
         yield writer.writerow(data_row)
 
 
-def generate_specimen_csv(year, fishing_areas, rivers, sites):
+
+
+
+def generate_specimen_csv(qs, sample_type):
     """Returns a generator for an HTTP Streaming Response"""
 
-    filter_kwargs = {}
-    if year != "":
-        filter_kwargs["sample__season"] = year
-    if fishing_areas != "":
-        filter_kwargs["sample__site__river__fishing_area_id__in"] = fishing_areas.split(",")
-    if rivers != "":
-        filter_kwargs["sample__site__river_id__in"] = rivers.split(",")
-    if sites != "":
-        filter_kwargs["sample__site_id__in"] = sites.split(",")
-
-    qs = models.Specimen.objects.filter(**filter_kwargs).iterator()
-    random_obj = models.Specimen.objects.first()
-    fields = random_obj._meta.fields
+    fields = models.Specimen._meta.fields
     field_names = [field.name for field in fields]
 
     # add any FKs
     for field in fields:
         if field.attname not in field_names:
             field_names.append(field.attname)
-    header_row = [field for field in field_names]  # starter
-    header_row.extend(["adipose_condition_display"])
-    header_row.extend(["site", "site_id", "arrival_date", "departure_date", "full_wetted_width"])
-    header_row.extend(["sweep_number", "sweep_time"])
+    field_names.remove("sweep")
+    field_names.remove("sweep_id")
+
+    header_row = deepcopy(field_names)
+    header_row += [
+        "site",
+        "site_id",
+        "arrival_date",
+        "departure_date",
+        "adipose_condition_display",
+        "age_type_display",
+        "smart_river_age",
+    ]
+
+    # now we need to determine what fields to append from the sample subtype
+    is_ef = False
+    is_rst = False
+    is_trapnet = False
+
+    if sample_type == 2:
+        is_ef = True
+        header_row += [
+            "sweep_id",
+            "sweep_number",
+            "sweep_time",
+            "full_wetted_width",
+        ]
 
     pseudo_buffer = Echo()
     writer = csv.writer(pseudo_buffer)
-    yield writer.writerow(header_row)
+    sorted_header = sorted(header_row)
+    yield writer.writerow(sorted_header)
 
     for obj in qs:
-        data_row = [str(nz(getattr(obj, field), "")).encode("utf-8").decode('utf-8') for field in field_names]  # starter
-        data_row.extend([obj.get_adipose_condition_display()])
-        data_row.extend(
-            [obj.sample.site, obj.sample.site_id, obj.sample.arrival_date, obj.sample.departure_date, obj.sample.get_full_wetted_width(show_errors=False)]
-        )
-        if obj.sweep:
-            data_row.extend([obj.sweep.sweep_number, obj.sweep.sweep_time])
-        yield writer.writerow(data_row)
+        data_row = [str(nz(getattr(obj, field), "")).encode("utf-8").decode('utf-8') for field in field_names]
+        data_row += [
+            obj.sample.site,
+            obj.sample.site_id,
+            obj.sample.arrival_date,
+            obj.sample.departure_date,
+            obj.get_adipose_condition_display(),
+            obj.get_age_type_display(),
+            obj.smart_river_age,
+        ]
+
+        if is_ef:
+            sub_obj = obj.sample.get_sub_obj()
+            data_row += [
+                obj.sweep_id,
+                obj.sweep.sweep_number,
+                obj.sweep.sweep_time,
+                sub_obj.get_full_wetted_width(show_errors=False),
+            ]
+
+        sorted_data_row = [x for _, x in sorted(zip(header_row, data_row))]
+        yield writer.writerow(sorted_data_row)
+
+def generate_biological_detailing_csv(qs):
+    """Returns a generator for an HTTP Streaming Response"""
+
+    fields = models.BiologicalDetailing._meta.fields
+    field_names = [field.name for field in fields]
+
+    # add any FKs
+    for field in fields:
+        if field.attname not in field_names:
+            field_names.append(field.attname)
+
+    header_row = deepcopy(field_names)
+    header_row += [
+        "site",
+        "site_id",
+        "arrival_date",
+        "departure_date",
+        "adipose_condition_display",
+        "age_type_display",
+    ]
+
+    pseudo_buffer = Echo()
+    writer = csv.writer(pseudo_buffer)
+    sorted_header = sorted(header_row)
+    yield writer.writerow(sorted_header)
+
+    for obj in qs:
+        data_row = [str(nz(getattr(obj, field), "")).encode("utf-8").decode('utf-8') for field in field_names]
+        data_row += [
+            obj.sample.site,
+            obj.sample.site_id,
+            obj.sample.arrival_date,
+            obj.sample.departure_date,
+            obj.get_adipose_condition_display(),
+            obj.get_age_type_display(),
+        ]
+
+        sorted_data_row = [x for _, x in sorted(zip(header_row, data_row))]
+        yield writer.writerow(sorted_data_row)
 
 
 def generate_specimen_csv_v1(qs):
@@ -194,19 +306,6 @@ def generate_specimen_csv_v1(qs):
 
 def generate_electro_juv_salmon_report(year, fishing_areas, rivers):
     """Returns a generator for an HTTP Streaming Response"""
-
-    filter_kwargs = {
-        "sample__sample_type": 2
-    }
-
-    if year != "":
-        filter_kwargs["sample__season"] = year
-    if fishing_areas != "":
-        filter_kwargs["sample__site__river__fishing_area_id__in"] = fishing_areas.split(",")
-    if rivers != "":
-        filter_kwargs["sample__site__river_id__in"] = rivers.split(",")
-
-    qs = models.Sweep.objects.filter(**filter_kwargs)
 
     pseudo_buffer = Echo()
     writer = csv.writer(pseudo_buffer)

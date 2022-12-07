@@ -270,12 +270,6 @@ class Sample(MetadataFields):
             dir=nz(self.get_wind_direction_display(), "---"),
         )
 
-    @property
-    def water_temp(self):
-        my_str = _("<u>general:</u> {shore}").format(shore=nz(self.water_temp_c, "---"))
-        if self.water_temp_trap_c:
-            my_str += _("<br><u>@trap:</u> {trap}").format(trap=nz(self.water_temp_trap_c, "---"))
-        return my_str
 
 
 class EFSample(models.Model):
@@ -511,6 +505,7 @@ class TrapnetSample(models.Model):
     sample = models.OneToOneField(Sample, related_name='trapnet_sample', on_delete=models.CASCADE, editable=False)
     water_temp_trap_c = models.FloatField(null=True, blank=True, verbose_name="water temperature at trap (°C)")
     time_released = models.DateTimeField(verbose_name="time released", blank=True, null=True)
+    sea_lice = models.IntegerField(blank=True, null=True, choices=model_choices.sea_lice_choices)
     samplers = models.TextField(blank=True, null=True)
 
 
