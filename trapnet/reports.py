@@ -346,7 +346,7 @@ def generate_electro_juv_salmon_report(qs):
 
 
 
-def generate_spp_list():
+def generate_od_sp_list(qs):
     """
     Generates the data dictionary for open data report version 1
     """
@@ -361,26 +361,17 @@ def generate_spp_list():
 
     # write the header
     header = [
-        "code",
         "common_name_en__nom_commun_en",
         "common_name_en__nom_commun_fr",
-        "life_stage_en__étape_de_vie_en",
-        "life_stage_fr__étape_de_vie_fr",
         "scientific_name__nom_scientifique",
         "ITIS_TSN",
     ]
     writer.writerow(header)
 
-    for sp in models.Species.objects.all():
-        life_stage_eng = sp.life_stage.name if sp.life_stage else None
-        life_stage_fra = sp.life_stage.nom if sp.life_stage else None
-
+    for sp in qs:
         writer.writerow([
-            sp.abbrev,
             sp.common_name_eng,
             sp.common_name_fre,
-            life_stage_eng,
-            life_stage_fra,
             sp.scientific_name,
             sp.tsn,
         ])
@@ -388,7 +379,7 @@ def generate_spp_list():
     return response
 
 
-def generate_open_data_ver_1_data_dictionary():
+def generate_od_summary_by_site_dict():
     """
     Generates the data dictionary for open data report version 1
     """
@@ -474,7 +465,7 @@ def generate_open_data_ver_1_data_dictionary():
     return response
 
 
-def generate_open_data_ver_1_report(year, sites):
+def generate_od_summary_by_site_report(year, sites):
     """
     This is a view designed for FGP / open maps view. The resulting csv will summarize data per site per year
 
@@ -578,7 +569,7 @@ def generate_open_data_ver_1_report(year, sites):
     return response
 
 
-def generate_open_data_ver_1_wms_report(lang):
+def generate_od_summary_by_site_wms(lang):
     """
     Simple report for web mapping service on FGP
     """

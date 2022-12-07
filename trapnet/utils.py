@@ -1,5 +1,7 @@
 from django.utils.translation import gettext as _
 
+from . import models
+
 
 def is_admin(user):
     if user:
@@ -147,3 +149,6 @@ def get_age_from_length(length, t0=None, t1=None):
     elif t1 and length >= t1:
         return 2
     return None
+
+def get_restigouche_rst_samples():
+    return models.Sample.objects.filter(sample_type=1, site__river__fishing_area__name__istartswith="sfa15")

@@ -207,31 +207,28 @@ class ReportSearchForm(forms.Form):
 
         (None, ""),
         (None, "RAW DATA"),
-        (None, "------------"),
+        (None, "--------------------"),
         (1, "sample data (csv)"),
         (2, "sweep data - EF Only (csv)"),
         (3, "specimen data (csv)"),
         (5, "historical biological detail data (csv)"),
 
         (None, ""),
-        (None, "CUSTOM ELECTROFISHING"),
-        (None, "------------"),
-        (10, "juvenile salmon CSAS report (csv)"),
+        (None, ""),
+        (None, "CUSTOM REPORTS"),
+        (None, "----------------------------------------"),
+        (10, "Electrofishing juvenile salmon CSAS report (csv)"),
+        (4, "Atlantic salmon individual specimen event report - Guillaume (csv)"),
 
         (None, ""),
-        (None, "CUSTOM - OTHER"),
-        (None, "------------"),
-        (4, "Atlantic salmon individual specimen event report (csv)"),
-
-
         (None, ""),
-        (None, "OPEN DATA"),
-        (None, "------------"),
-        (91, "summary by site by year (csv)"),
-        (92, "data dictionary (csv)"),
-        (93, "species list (csv)"),
-        (94, "web mapping service (WMS) report ENGLISH (csv)"),
-        (95, "web mapping service (WMS) report FRENCH (csv)"),
+        (None, "OPEN DATA - Restigouche RST"),
+        (None, "------------------------------------------------------------"),
+        (20, "species list (csv)"),
+        (21, "data dictionary (csv)"),
+        (22, "summary by site by year (csv)"),
+        (23, "web mapping service (WMS) ENGLISH (csv)"),
+        (24, "web mapping service (WMS) FRENCH (csv)"),
     )
 
     leave_blank_text = gettext_lazy("leave blank for all")

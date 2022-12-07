@@ -108,12 +108,14 @@ urlpatterns = [
     path('reports/samples/', views.export_sample_data, name="sample_report"),
     path('reports/sweeps/', views.export_sweep_data, name="sweep_report"),
     path('reports/specimens/', views.export_specimen_data, name="specimen_report"),
-    path('reports/biological-details/', views.export_biological_detailing_data, name="biological_detailing_report"),
-    path('reports/opendata1/<str:year>/<str:sites>/', views.export_open_data_ver1, name="od1_report"),
-    path('reports/opendata1/dictionary/', views.export_open_data_ver1_dictionary, name="od1_dictionary"),
-    path('reports/opendata1/species-list/', views.export_spp_list, name="od_spp_list"),
-    path('reports/opendata/wms/lang/<int:lang>/', views.export_open_data_ver1_wms, name="od1_wms"),
     path('reports/specimens/v1/', views.export_specimen_data_v1, name="export_specimen_data_v1"),
+    path('reports/biological-details/', views.export_biological_detailing_data, name="biological_detailing_report"),
+
+    # od - summary by site
+    path('reports/open-data/species-list/', views.od_sp_list, name="od_sp_list"),
+    path('reports/open-data/summary-by-site-dictionary/', views.od_summary_by_site_dict, name="od_summary_by_site_dict"),
+    path('reports/open-data/summary-by-site-report/', views.od_summary_by_site_report, name="od_summary_by_site_report"),
+    path('reports/open-data/summary-by-site-wms/', views.od_summary_by_site_wms, name="od_summary_by_site_wms"),
 
     # electro
     path('reports/electrofishing/juv_salmon_report/', views.electro_juv_salmon_report, name="electro_juv_salmon_report"),

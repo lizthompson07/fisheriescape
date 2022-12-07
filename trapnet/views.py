@@ -24,7 +24,7 @@ from . import forms
 from . import models
 from . import reports
 from .mixins import TrapNetCRUDRequiredMixin, TrapNetAdminRequiredMixin, SuperuserOrAdminRequiredMixin, TrapNetBasicMixin
-from .utils import get_sample_field_list, is_crud_user, get_age_from_length, get_sub_field_list
+from .utils import get_sample_field_list, is_crud_user, get_age_from_length, get_sub_field_list, get_restigouche_rst_samples
 
 
 class IndexTemplateView(TrapNetBasicMixin, CommonTemplateView):
@@ -316,7 +316,7 @@ class RiverDetailView(TrapNetBasicMixin, CommonDetailView):
     template_name = 'trapnet/river_detail.html'
     field_list = [
         'name',
-        'fishing_area_code',
+        'fishing_area',
         'maritime_river_code',
         'old_maritime_river_code',
         'cgndb',
@@ -1064,17 +1064,18 @@ class ReportSearchFormView(TrapNetCRUDRequiredMixin, CommonFormView):
         elif report == 10:
             return HttpResponseRedirect(reverse("trapnet:electro_juv_salmon_report") + f"?year={year}&fishing_areas={fishing_areas}&rivers={rivers}")
 
-        # Open data
-        elif report == 91:
-            return HttpResponseRedirect(reverse("trapnet:od1_report", kwargs={"year": year, "sites": sites}))
-        elif report == 92:
-            return HttpResponseRedirect(reverse("trapnet:od1_dictionary"))
-        elif report == 93:
-            return HttpResponseRedirect(reverse("trapnet:od_spp_list"))
-        elif report == 94:
-            return HttpResponseRedirect(reverse("trapnet:od1_wms", kwargs={"lang": 1}))
-        elif report == 95:
-            return HttpResponseRedirect(reverse("trapnet:od1_wms", kwargs={"lang": 2}))
+        # Open data - restigouche RST
+
+        elif report == 20:
+            return HttpResponseRedirect(reverse("trapnet:od_sp_list") + f"?which=restigouche-rst")
+        elif report == 21:
+            return HttpResponseRedirect(reverse("trapnet:od_summary_by_site_dict") + f"?report_name=restigouche-rst")
+        elif report == 22:
+            return HttpResponseRedirect(reverse("trapnet:od_summary_by_site_report") + f"?report_name=restigouche-rst")
+        elif report == 23:
+            return HttpResponseRedirect(reverse("trapnet:od_summary_by_site_wms") + f"?report_name=restigouche-rst&lang=en")
+        elif report == 24:
+            return HttpResponseRedirect(reverse("trapnet:od_summary_by_site_wms") + f"?report_name=restigouche-rst&lang=fr")
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
             return HttpResponseRedirect(reverse("trapnet:reports"))
@@ -1266,23 +1267,47 @@ def electro_juv_salmon_report(request):
     return response
 
 
-def export_open_data_ver1(request, year, sites):
-    response = reports.generate_open_data_ver_1_report(year, sites)
+def od_sp_list(request):
+    qp = request.GET
+    report_name=qp.get("report_name")
+    qs = models.Species.objects.none()
+    if report_name == "restigouche-rst":
+        samples_qs = get_restigouche_rst_samples()
+        models.Species.objects.all()
+
+
+    response = reports.generate_od_sp_list(qs)
     return response
 
 
-def export_open_data_ver1_dictionary(request):
-    response = reports.generate_open_data_ver_1_data_dictionary()
+def od_summary_by_site_dict(request):
+    qp = request.GET
+    report_name=qp.get("report_name")
+    qs = models.Sample.objects.none()
+    if report_name == "restigouche-rst":
+        qs = get_restigouche_rst_samples()
+    response = reports.generate_od_summary_by_site_dict(qs)
     return response
 
 
-def export_spp_list(request):
-    response = reports.generate_spp_list()
+def od_summary_by_site_report(request, year, sites):
+    qp = request.GET
+    report_name=qp.get("report_name")
+    qs = models.Sample.objects.none()
+    if report_name == "restigouche-rst":
+        qs = get_restigouche_rst_samples()
+    response = reports.generate_od_summary_by_site_report(qs)
     return response
 
 
-def export_open_data_ver1_wms(request, lang):
-    response = reports.generate_open_data_ver_1_wms_report(lang)
+def od_summary_by_site_wms(request):
+    qp = request.GET
+    report_name=qp.get("report_name")
+    qs = models.Sample.objects.none()
+    if report_name == "restigouche-rst":
+        qs = get_restigouche_rst_samples()
+    lang=qp.get("lang")
+    response = reports.generate_od_summary_by_site_wms(qs, lang)
     return response
 
 
