@@ -12,7 +12,6 @@ from django.urls import reverse_lazy, reverse
 from django.utils import timezone
 from django.utils.timezone import now
 from django.utils.translation import gettext_lazy, gettext as _
-from html2text import html2text
 
 from lib.functions.custom_functions import listrify
 from lib.templatetags.custom_filters import nz
@@ -1045,13 +1044,16 @@ class ReportSearchFormView(TrapNetCRUDRequiredMixin, CommonFormView):
 
         # raw reports
         if report == 1:
-            return HttpResponseRedirect(reverse("trapnet:sample_report") + f"?sample_type={sample_type}&year={year}&fishing_areas={fishing_areas}&rivers={rivers}&sites={sites}")
+            return HttpResponseRedirect(
+                reverse("trapnet:sample_report") + f"?sample_type={sample_type}&year={year}&fishing_areas={fishing_areas}&rivers={rivers}&sites={sites}")
         elif report == 2:
             return HttpResponseRedirect(reverse("trapnet:sweep_report") + f"?year={year}&fishing_areas={fishing_areas}&rivers={rivers}&sites={sites}")
         elif report == 3:
-            return HttpResponseRedirect(reverse("trapnet:specimen_report") + f"?year={year}&fishing_areas={fishing_areas}&rivers={rivers}&sites={sites}&sample_type={sample_type}")
+            return HttpResponseRedirect(
+                reverse("trapnet:specimen_report") + f"?year={year}&fishing_areas={fishing_areas}&rivers={rivers}&sites={sites}&sample_type={sample_type}")
         elif report == 5:
-            return HttpResponseRedirect(reverse("trapnet:biological_detailing_report") + f"?year={year}&fishing_areas={fishing_areas}&rivers={rivers}&sites={sites}&sample_type={sample_type}")
+            return HttpResponseRedirect(reverse(
+                "trapnet:biological_detailing_report") + f"?year={year}&fishing_areas={fishing_areas}&rivers={rivers}&sites={sites}&sample_type={sample_type}")
 
         # custom - other
         elif report == 4:
@@ -1198,7 +1200,7 @@ def export_biological_detailing_data(request):
     if sites != "":
         filter_kwargs["sample__site_id__in"] = sites.split(",")
 
-    qs = models.Specimen.objects.filter(**filter_kwargs).iterator()
+    qs = models.BiologicalDetailing.objects.filter(**filter_kwargs).iterator()
     filename = f"historical biological data ({now().strftime('%Y-%m-%d')}).csv"
 
     response = StreamingHttpResponse(
@@ -1238,26 +1240,6 @@ def export_specimen_data_v1(request):
     return response
 
 
-def export_open_data_ver1(request, year, sites):
-    response = reports.generate_open_data_ver_1_report(year, sites)
-    return response
-
-
-def export_open_data_ver1_dictionary(request):
-    response = reports.generate_open_data_ver_1_data_dictionary()
-    return response
-
-
-def export_spp_list(request):
-    response = reports.generate_spp_list()
-    return response
-
-
-def export_open_data_ver1_wms(request, lang):
-    response = reports.generate_open_data_ver_1_wms_report(lang)
-    return response
-
-
 def electro_juv_salmon_report(request):
     year = request.GET.get("year")
     fishing_areas = request.GET.get("fishing_areas")
@@ -1277,10 +1259,30 @@ def electro_juv_salmon_report(request):
 
     filename = "juv_salmon_csas_report.csv"
     response = StreamingHttpResponse(
-        streaming_content=(reports.generate_electro_juv_salmon_report(year, fishing_areas, rivers)),
+        streaming_content=(reports.generate_electro_juv_salmon_report(qs)),
         content_type='text/csv',
     )
     response['Content-Disposition'] = f'attachment;filename={filename}'
+    return response
+
+
+def export_open_data_ver1(request, year, sites):
+    response = reports.generate_open_data_ver_1_report(year, sites)
+    return response
+
+
+def export_open_data_ver1_dictionary(request):
+    response = reports.generate_open_data_ver_1_data_dictionary()
+    return response
+
+
+def export_spp_list(request):
+    response = reports.generate_spp_list()
+    return response
+
+
+def export_open_data_ver1_wms(request, lang):
+    response = reports.generate_open_data_ver_1_wms_report(lang)
     return response
 
 

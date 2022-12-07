@@ -592,9 +592,8 @@ def run_process_fish():
                                         }
                                         notes = str()
                                         notes = add_note(notes, r["BIOLOGICAL_REMARKS"])
-                                        if not len(notes.strip()):
-                                            notes = None
-                                        fish_kwargs["notes"] = notes
+                                        if len(notes.strip()):
+                                            fish_kwargs["notes"] = notes
 
                                         if file_type == "2":
                                             del fish_kwargs["sweep"]
