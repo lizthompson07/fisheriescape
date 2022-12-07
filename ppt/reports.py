@@ -1782,3 +1782,104 @@ def generate_cost_descriptions():
     workbook.close()
     return target_url
 
+
+
+
+
+def generate_dma_report(qs, site_url):
+    # figure out the filename
+    target_dir = os.path.join(settings.BASE_DIR, 'media', 'temp')
+    target_file = "temp_data_export_{}.xlsx".format(timezone.now().strftime("%Y-%m-%d"))
+    target_file_path = os.path.join(target_dir, target_file)
+    target_url = os.path.join(settings.MEDIA_ROOT, 'temp', target_file)
+    # create workbook and worksheets
+    workbook = xlsxwriter.Workbook(target_file_path)
+
+    # create formatting variables
+    title_format = workbook.add_format({'bold': True, "align": 'normal', 'font_size': 24, })
+    header_format = workbook.add_format(
+        {'bold': True, 'border': 1, 'border_color': 'black', "align": 'normal', "text_wrap": True})
+    total_format = workbook.add_format({'bold': True, "align": 'left', "text_wrap": True, 'num_format': '$#,##0'})
+    normal_format = workbook.add_format({"align": 'left', "text_wrap": False, 'border': 1, 'border_color': 'black', })
+    normal_format_br = workbook.add_format({"align": 'left', "text_wrap": True, 'border': 1, 'border_color': 'black', })
+    currency_format = workbook.add_format({'num_format': '#,##0.00', 'border': 1, 'border_color': 'black', })
+    date_format = workbook.add_format({'num_format': "yyyy-mm-dd", "align": 'left', })
+    hyperlink_format = workbook.add_format({'border': 1, 'border_color': 'black', "font_color": "blue", "underline": True, "text_wrap": True})
+
+    fields = [
+        'project',
+        'title',
+        'data_contact',
+        'status',
+        'comments',
+        'metadata_contact',
+        'metadata_tool',
+        'metadata_url',
+        'metadata_update_freq',
+        'metadata_freq_text',
+        'storage_solutions',
+        'storage_solution_text',
+        'storage_needed',
+        'raw_data_retention',
+        'data_retention',
+        'backup_plan',
+        'cloud_costs',
+        'had_sharing_agreements',
+        'sharing_agreements_text',
+        'publication_timeframe',
+        'publishing_platforms',
+        'created_by',
+        'created_at',
+        'updated_by',
+        'updated_at',
+    ]
+
+    # define the header
+    title = "Data Management Agreements"
+    if qs.exists():
+        header = [get_verbose_label(qs.first(), field) for field in fields]
+        # define a worksheet
+        my_ws = workbook.add_worksheet(name="report")
+        my_ws.write(0, 0, title, title_format)
+        my_ws.write_row(2, 0, header, header_format)
+
+        # create the col_max column to store the length of each header
+        # should be a maximum column width to 100
+        col_max = [len(str(d)) if len(str(d)) <= 100 else 100 for d in header]
+
+        i = 3
+        for obj in qs:
+            j = 0
+            for field in fields:
+                if "metadata_url" in field:
+                    val = str(obj.metadata_url)
+                    my_ws.write(i, j, val, normal_format)
+                elif field == "title":
+                    val = str(obj.title)
+                    my_ws.write_url(i, j,
+                                    url=f'{site_url}/{reverse("ppt:dma_detail", args=[obj.id])}',
+                                    string=f"{val}",
+                                    cell_format=hyperlink_format)
+
+                else:
+                    val = str(get_field_value(obj, field))
+                    my_ws.write(i, j, val, normal_format)
+
+                # adjust the width of the columns based on the max string length in each col
+                ## replace col_max[j] if str length j is bigger than stored value
+
+                # if new value > stored value... replace stored value
+                if len(str(val)) > col_max[j]:
+                    if len(str(val)) < 75:
+                        col_max[j] = len(str(val))
+                    else:
+                        col_max[j] = 75
+                j += 1
+            i += 1
+
+            # set column widths
+            for j in range(0, len(col_max)):
+                my_ws.set_column(j, j, width=col_max[j] * 1.1)
+
+    workbook.close()
+    return target_url

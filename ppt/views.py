@@ -2015,3 +2015,22 @@ def export_project_summary(request):
 
             return response
     raise Http404
+
+
+
+@login_required()
+def export_dmas(request):
+    qs = models.DMA.objects.all()
+    ids_qp = request.GET.get("ids")
+    if ids_qp:
+        ids = ids_qp.split(",")
+        qs = qs.filter(id__in=ids)
+    site_url = my_envr(request)["SITE_FULL_URL"]
+    file_url = reports.generate_dma_report(qs, site_url)
+    if os.path.exists(file_url):
+        with open(file_url, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+            response['Content-Disposition'] = f'inline; filename="data management agreements.xlsx"'
+            return response
+    raise Http404
+

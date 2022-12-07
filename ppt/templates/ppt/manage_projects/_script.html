@@ -27,20 +27,20 @@ var app = new Vue({
     loadingReport: false,
 
     showTab: {
-        projectList: true,
-        staffList: false,
-        financialSummary: false,
-        reviews: false,
-        approvals: false,
-        DMAs: false,
-        statusReports: false,
+      projectList: true,
+      staffList: false,
+      financialSummary: false,
+      reviews: false,
+      approvals: false,
+      DMAs: false,
+      statusReports: false,
     },
     // tabAPILoading keys must be in showTab
     tabAPILoading: {
-        staffList: true,
-        financialSummary: true,
-        DMAs: true,
-        statusReports: false,
+      staffList: true,
+      financialSummary: true,
+      DMAs: true,
+      statusReports: false,
     },
     showStaffList: false,
     showFinancialSummary: false,
@@ -78,8 +78,7 @@ var app = new Vue({
       statuses: []
     },
 
-    status_report_filter: {
-    },
+    status_report_filter: {},
 
     showColumnLeads: true,
     showColumnHidden: true,
@@ -137,23 +136,31 @@ var app = new Vue({
           })
     },
     goReport(reportName) {
-      let userInput = true;
-      if (this.count > 500) userInput = confirm(`You are about to generate a report for a large number of projects (i.e., ${this.count} projects). Are you sure you want to continue?`);
-      if (userInput) {
-        this.loadingReport = true;
-        endpoint = this.getProjectYearsEndpoint(5000);
-        apiService(endpoint).then(response => {
-          if (response.results) {
-            let ids = [];
-            for (const result of response.results) ids.push(result.id);
-            let reportUrl;
-            if (reportName === "basic") reportUrl = `{% url 'ppt:export_py_list' %}?ids=${ids}`;
-            else if (reportName === "long") reportUrl = `{% url 'ppt:export_py_list' %}?long=true&ids=${ids}`;
-            else if (reportName === "costs") reportUrl = `{% url 'ppt:export_costs' %}?ids=${ids}`;
-            window.location.href = reportUrl;
-            this.loadingReport = false;
-          }
-        })
+      if (reportName === "dmas") {
+        let ids = [];
+        for (const dma of this.dmas) ids.push(dma.id);
+        reportUrl = `{% url 'ppt:export_dmas' %}?ids=${ids}`;
+        window.location.href = reportUrl;
+        this.loadingReport = false;
+      } else {
+        let userInput = true;
+        if (this.count > 500) userInput = confirm(`You are about to generate a report for a large number of projects (i.e., ${this.count} projects). Are you sure you want to continue?`);
+        if (userInput) {
+          this.loadingReport = true;
+          endpoint = this.getProjectYearsEndpoint(5000);
+          apiService(endpoint).then(response => {
+            if (response.results) {
+              let ids = [];
+              for (const result of response.results) ids.push(result.id);
+              let reportUrl;
+              if (reportName === "basic") reportUrl = `{% url 'ppt:export_py_list' %}?ids=${ids}`;
+              else if (reportName === "long") reportUrl = `{% url 'ppt:export_py_list' %}?long=true&ids=${ids}`;
+              else if (reportName === "costs") reportUrl = `{% url 'ppt:export_costs' %}?ids=${ids}`;
+              window.location.href = reportUrl;
+              this.loadingReport = false;
+            }
+          })
+        }
       }
     },
     goProjectDetail(projectYear) {
@@ -164,17 +171,17 @@ var app = new Vue({
       let userInput = true;
       if (this.count > 50) userInput = confirm(`You are about to generate an  email for a large number of project leads (i.e., ${this.count} project leads). Are you sure you want to continue?`);
       if (userInput) {
-          let url = 'mailto:?bcc='
-          let contactList = []
-          for (const py of this.projectYears) {
-              if (py.primary_contact_email && !contactList.includes(py.primary_contact_email) ) {
-                contactList.push(py.primary_contact_email)
-              }
+        let url = 'mailto:?bcc='
+        let contactList = []
+        for (const py of this.projectYears) {
+          if (py.primary_contact_email && !contactList.includes(py.primary_contact_email)) {
+            contactList.push(py.primary_contact_email)
           }
-          for (const email of contactList) {
-              url = url.concat(email, ';')
-          }
-          var win = window.open(url, '_blank');
+        }
+        for (const email of contactList) {
+          url = url.concat(email, ';')
+        }
+        var win = window.open(url, '_blank');
 
       }
 
@@ -297,16 +304,16 @@ var app = new Vue({
               this.count = response.count;
 
               if (this.count < 200) {
-                  this.errorTooManyPY = false;
-                  endpointAll = this.getProjectYearsEndpoint(200)
-                  apiService(endpointAll)
-                      .then(response => {
-                          if (response.results) {
-                                 this.allPyIds = response.results.map(py => py.id)
-                          }
-                      })
+                this.errorTooManyPY = false;
+                endpointAll = this.getProjectYearsEndpoint(200)
+                apiService(endpointAll)
+                    .then(response => {
+                      if (response.results) {
+                        this.allPyIds = response.results.map(py => py.id)
+                      }
+                    })
               } else {
-                  this.errorTooManyPY = true;
+                this.errorTooManyPY = true;
               }
 
               // make all tabs reload with new list
@@ -341,7 +348,7 @@ var app = new Vue({
     comingSoon() {
       alert("this feature is coming soon!")
     },
-    sort(s, table="sortedProjectYears") {
+    sort(s, table = "sortedProjectYears") {
       // from https://www.raymondcamden.com/2018/02/08/building-table-sorting-and-pagination-in-vuejs
       //if s == current sort, reverse
       if (s === this.currentSort) {
@@ -387,16 +394,22 @@ var app = new Vue({
       this.loadActiveTab();
     },
 
-    loadActiveTab(){
+    loadActiveTab() {
       for (const tabKey in this.showTab) {
-          if (this.showTab[tabKey] && this.tabAPILoading[tabKey]) {
-              if (tabKey === "staffList"){ this.getStaff() }
-              if (tabKey === "financialSummary"){ this.getFinancials() }
-              if (tabKey === "DMAs"){ this.getDMAs() }
-              if (tabKey === "statusReports"){
-                  this.getStatusReports()
-              }
+        if (this.showTab[tabKey] && this.tabAPILoading[tabKey]) {
+          if (tabKey === "staffList") {
+            this.getStaff()
           }
+          if (tabKey === "financialSummary") {
+            this.getFinancials()
+          }
+          if (tabKey === "DMAs") {
+            this.getDMAs()
+          }
+          if (tabKey === "statusReports") {
+            this.getStatusReports()
+          }
+        }
       }
     },
 
@@ -417,17 +430,17 @@ var app = new Vue({
       } else {
         // first get the full list of project years
         if (this.errorTooManyPY) {
-            this.errorTooBigStaff = true
+          this.errorTooBigStaff = true
         } else {
-            let endpoint = `/api/ppt/staffing/?year=${this.filter.fiscal_year}&ids=${this.allPyIds}`;
-            apiService(endpoint)
-                .then(response => {
-                    this.tabAPILoading.staffList = false;
-                    this.staff = response.results;
-                    this.staff_level_summary = response.level_summary;
-                    this.staff_type_summary = response.type_summary;
-                    this.staff_funding_summary = response.funding_summary;
-                })
+          let endpoint = `/api/ppt/staffing/?year=${this.filter.fiscal_year}&ids=${this.allPyIds}`;
+          apiService(endpoint)
+              .then(response => {
+                this.tabAPILoading.staffList = false;
+                this.staff = response.results;
+                this.staff_level_summary = response.level_summary;
+                this.staff_type_summary = response.type_summary;
+                this.staff_funding_summary = response.funding_summary;
+              })
         }
       }
     },
@@ -448,41 +461,41 @@ var app = new Vue({
         this.tabAPILoading.statusReports = false;
         this.errorTooBigStatusReports = true;
       } else {
-        let endpoint = this.getStatusReportEndpoint(pageSize=200)
+        let endpoint = this.getStatusReportEndpoint(pageSize = 200)
         apiService(endpoint)
             .then(response => {
-                this.tabAPILoading.statusReports = false;
-                this.statusReports = response;
+              this.tabAPILoading.statusReports = false;
+              this.statusReports = response;
 
-                this.uniqueStatusReports = response.reduce(function (outArr, srStep) {
-                    // the following is #efficient
-                    // Copy the response array, remove the srStep object from the copy.
-                    let compArray = response.slice(0);
-                    let srIndex = compArray.indexOf(srStep);
-                    compArray.splice(srIndex, 1);
-                    // if the next status report's project year is not found in the response array, or if it has the most
-                    // recent created_at date, push the object into the output array
-                    if (!compArray.some(function (sr) {
-                        return sr.project_year === srStep.project_year && sr.created_at > srStep.created_at
-                    })) {
-                        outArr.push(srStep);
-                    }
-                    return outArr;
-                }, []);
-
-                let nullSr = Object.assign({}, response[0])
-                Object.keys(nullSr).forEach((i) => nullSr[i] = "")
-
-                //assign each project year a status report or the null status report
-                for (let i = 0; i < this.projectYears.length; i++) {
-                    this.projectYears[i].status_report = this.uniqueStatusReports.find(sr => sr.project_year === this.projectYears[i].id)
-                    if (typeof this.projectYears[i].status_report === 'undefined') {
-                        this.projectYears[i].has_status_report = false;
-                        this.projectYears[i].status_report = nullSr;
-                    } else {
-                        this.projectYears[i].has_status_report = true;
-                    }
+              this.uniqueStatusReports = response.reduce(function (outArr, srStep) {
+                // the following is #efficient
+                // Copy the response array, remove the srStep object from the copy.
+                let compArray = response.slice(0);
+                let srIndex = compArray.indexOf(srStep);
+                compArray.splice(srIndex, 1);
+                // if the next status report's project year is not found in the response array, or if it has the most
+                // recent created_at date, push the object into the output array
+                if (!compArray.some(function (sr) {
+                  return sr.project_year === srStep.project_year && sr.created_at > srStep.created_at
+                })) {
+                  outArr.push(srStep);
                 }
+                return outArr;
+              }, []);
+
+              let nullSr = Object.assign({}, response[0])
+              Object.keys(nullSr).forEach((i) => nullSr[i] = "")
+
+              //assign each project year a status report or the null status report
+              for (let i = 0; i < this.projectYears.length; i++) {
+                this.projectYears[i].status_report = this.uniqueStatusReports.find(sr => sr.project_year === this.projectYears[i].id)
+                if (typeof this.projectYears[i].status_report === 'undefined') {
+                  this.projectYears[i].has_status_report = false;
+                  this.projectYears[i].status_report = nullSr;
+                } else {
+                  this.projectYears[i].has_status_report = true;
+                }
+              }
             })
       }
     },
@@ -535,15 +548,14 @@ var app = new Vue({
         let endpoint = `/api/ppt/${type}/${this.modalAllocation.id}/`;
         apiService(endpoint, "PATCH", childAllocation).then(response => {
           if (response.id) {
-              this.modalAllocation = response;
-              if (distribute){
-                  this.showModal[which] = false;
-                  this.openDistributionModal(this.modalAllocation, distrubutionCosts);
-              } else {
-                this.closeModal(this.allocationProjectYear);
-              }
-          }
-          else {
+            this.modalAllocation = response;
+            if (distribute) {
+              this.showModal[which] = false;
+              this.openDistributionModal(this.modalAllocation, distrubutionCosts);
+            } else {
+              this.closeModal(this.allocationProjectYear);
+            }
+          } else {
             this.modalErrors = groomJSON(response);
           }
         })
@@ -553,14 +565,13 @@ var app = new Vue({
         apiService(endpoint, "POST", childAllocation).then(response => {
           if (response.id) {
             this.modalAllocation = response;
-            if (distribute){
+            if (distribute) {
               this.showModal[which] = false;
               this.openDistributionModal(this.modalAllocation, distrubutionCosts);
             } else {
               this.closeModal(this.allocationProjectYear);
             }
-          }
-          else {
+          } else {
             this.modalErrors = groomJSON(response);
           }
         })
@@ -568,35 +579,35 @@ var app = new Vue({
     },
 
     openDistributionModal(allocation, type) {
-        this.allocation2Distribute = allocation;
-        if (type === "staff") {
-            let endpoint = `/api/ppt/${type}/?project_year=${allocation.project_year}`;
-            apiService(endpoint)
-                .then(response => {
-                    this.costs2Fund = response;
-                })
-            this.showModal['salary_distribution'] = true;
-        } else if (type === "capital-costs") {
-            let endpoint = `/api/ppt/${type}/?project_year=${allocation.project_year}`;
-            apiService(endpoint)
-                .then(response => {
-                    this.costs2Fund = response.results;
-                })
-            this.showModal['capital_distribution'] = true;
+      this.allocation2Distribute = allocation;
+      if (type === "staff") {
+        let endpoint = `/api/ppt/${type}/?project_year=${allocation.project_year}`;
+        apiService(endpoint)
+            .then(response => {
+              this.costs2Fund = response;
+            })
+        this.showModal['salary_distribution'] = true;
+      } else if (type === "capital-costs") {
+        let endpoint = `/api/ppt/${type}/?project_year=${allocation.project_year}`;
+        apiService(endpoint)
+            .then(response => {
+              this.costs2Fund = response.results;
+            })
+        this.showModal['capital_distribution'] = true;
 
-        } else if (type === "om-costs") {
-            let omEndpoint = `/api/ppt/${type}/?project_year=${allocation.project_year}`;
-            apiService(omEndpoint)
-                .then(response => {
-                    this.costs2Fund = response.results;
-                })
-            let staffEndpoint = `/api/ppt/staff/?project_year=${allocation.project_year}`;
-            apiService(staffEndpoint)
-                .then(response => {
-                    this.omStaff2Fund = response;
-                })
-            this.showModal['om_distribution'] = true;
-        }
+      } else if (type === "om-costs") {
+        let omEndpoint = `/api/ppt/${type}/?project_year=${allocation.project_year}`;
+        apiService(omEndpoint)
+            .then(response => {
+              this.costs2Fund = response.results;
+            })
+        let staffEndpoint = `/api/ppt/staff/?project_year=${allocation.project_year}`;
+        apiService(staffEndpoint)
+            .then(response => {
+              this.omStaff2Fund = response;
+            })
+        this.showModal['om_distribution'] = true;
+      }
     },
 
     closeModal(updatedProjectYear) {
@@ -689,129 +700,124 @@ var app = new Vue({
   computed: {
 
     sortedProjectYears() {
-      if (this.currentSortTable !== "sortedProjectYears"){
-          return this.projectYears;
-      }
-      else {
-          return this.projectYears.sort((a, b) => {
-              let modifier = 1;
-              if (this.currentSortDir === 'desc') modifier = -1;
+      if (this.currentSortTable !== "sortedProjectYears") {
+        return this.projectYears;
+      } else {
+        return this.projectYears.sort((a, b) => {
+          let modifier = 1;
+          if (this.currentSortDir === 'desc') modifier = -1;
 
-              if (this.currentSort && this.currentSort.search("fiscal") > -1) {
-                  if (a["fiscal_year"] < b["fiscal_year"]) return -1 * modifier;
-                  if (a["fiscal_year"] > b["fiscal_year"]) return 1 * modifier;
-              } else if (this.currentSort === "id") {
-                  if (a["project"]["id"] < b["project"]["id"]) return -1 * modifier;
-                  if (a["project"]["id"] > b["project"]["id"]) return 1 * modifier;
-              } else if (this.currentSort === "functional_group") {
-                  if (a["project"]["functional_group"] < b["project"]["functional_group"]) return -1 * modifier;
-                  if (a["project"]["functional_group"] > b["project"]["functional_group"]) return 1 * modifier;
-              } else if (this.currentSort.includes(".")){
-                  let parentKey = this.currentSort.split(".")[0];
-                  let childKey = this.currentSort.split(".")[1];
-                  if (a[parentKey][childKey] < b[parentKey][childKey]) return -1 * modifier;
-                  if (a[parentKey][childKey] > b[parentKey][childKey]) return 1 * modifier;
-              } else if (this.projectYears[0][this.currentSort] == null ) {
-                  if (a["project"][this.currentSort] < b["project"][this.currentSort]) return -1 * modifier;
-                  if (a["project"][this.currentSort] > b["project"][this.currentSort]) return 1 * modifier;
-              } else {
-                  if (a[this.currentSort] < b[this.currentSort]) return -1 * modifier;
-                  if (a[this.currentSort] > b[this.currentSort]) return 1 * modifier;
-              }
-              return 0;
-          });
+          if (this.currentSort && this.currentSort.search("fiscal") > -1) {
+            if (a["fiscal_year"] < b["fiscal_year"]) return -1 * modifier;
+            if (a["fiscal_year"] > b["fiscal_year"]) return 1 * modifier;
+          } else if (this.currentSort === "id") {
+            if (a["project"]["id"] < b["project"]["id"]) return -1 * modifier;
+            if (a["project"]["id"] > b["project"]["id"]) return 1 * modifier;
+          } else if (this.currentSort === "functional_group") {
+            if (a["project"]["functional_group"] < b["project"]["functional_group"]) return -1 * modifier;
+            if (a["project"]["functional_group"] > b["project"]["functional_group"]) return 1 * modifier;
+          } else if (this.currentSort.includes(".")) {
+            let parentKey = this.currentSort.split(".")[0];
+            let childKey = this.currentSort.split(".")[1];
+            if (a[parentKey][childKey] < b[parentKey][childKey]) return -1 * modifier;
+            if (a[parentKey][childKey] > b[parentKey][childKey]) return 1 * modifier;
+          } else if (this.projectYears[0][this.currentSort] == null) {
+            if (a["project"][this.currentSort] < b["project"][this.currentSort]) return -1 * modifier;
+            if (a["project"][this.currentSort] > b["project"][this.currentSort]) return 1 * modifier;
+          } else {
+            if (a[this.currentSort] < b[this.currentSort]) return -1 * modifier;
+            if (a[this.currentSort] > b[this.currentSort]) return 1 * modifier;
+          }
+          return 0;
+        });
       }
     },
 
     sortedProjectYearsStatusReports() {
-        if (this.status_report_filter.has_status_report && !this.tabAPILoading.statusReports) {
-          return this.sortedProjectYears.filter(function(py) {
-            return py.has_status_report;
-          })
-        } else {
-          return this.sortedProjectYears;
-        }
+      if (this.status_report_filter.has_status_report && !this.tabAPILoading.statusReports) {
+        return this.sortedProjectYears.filter(function (py) {
+          return py.has_status_report;
+        })
+      } else {
+        return this.sortedProjectYears;
+      }
     },
 
-    statusReportCount(){
-        if (this.uniqueStatusReports.length < this.count && this.status_report_filter.has_status_report) {
-            return this.uniqueStatusReports.length;
-        } else {
-            return this.count;
-        }
+    statusReportCount() {
+      if (this.uniqueStatusReports.length < this.count && this.status_report_filter.has_status_report) {
+        return this.uniqueStatusReports.length;
+      } else {
+        return this.count;
+      }
     },
 
     sortedStaffLevelSummary() {
-        if (this.currentSortTable !== "sortedStaffLevelSummary"){
-          return this.staff_level_summary;
-        }
-        else {
-            return this.staff_level_summary.sort((a, b) => {
-                let modifier = 1;
-                if (this.currentSortDir === 'desc') modifier = -1;
-                if (a[this.currentSort] < b[this.currentSort]) return -1 * modifier;
-                if (a[this.currentSort] > b[this.currentSort]) return 1 * modifier;
-                return 0;
-            });
-        }
+      if (this.currentSortTable !== "sortedStaffLevelSummary") {
+        return this.staff_level_summary;
+      } else {
+        return this.staff_level_summary.sort((a, b) => {
+          let modifier = 1;
+          if (this.currentSortDir === 'desc') modifier = -1;
+          if (a[this.currentSort] < b[this.currentSort]) return -1 * modifier;
+          if (a[this.currentSort] > b[this.currentSort]) return 1 * modifier;
+          return 0;
+        });
+      }
     },
 
     sortedStaffTypeSummary() {
-        if (this.currentSortTable !== "sortedStaffTypeSummary"){
-          return this.staff_type_summary;
-        }
-        else {
-            return this.staff_type_summary.sort((a, b) => {
-                let modifier = 1;
-                if (this.currentSortDir === 'desc') modifier = -1;
-                if (a[this.currentSort] < b[this.currentSort]) return -1 * modifier;
-                if (a[this.currentSort] > b[this.currentSort]) return 1 * modifier;
-                return 0;
-            });
-        }
+      if (this.currentSortTable !== "sortedStaffTypeSummary") {
+        return this.staff_type_summary;
+      } else {
+        return this.staff_type_summary.sort((a, b) => {
+          let modifier = 1;
+          if (this.currentSortDir === 'desc') modifier = -1;
+          if (a[this.currentSort] < b[this.currentSort]) return -1 * modifier;
+          if (a[this.currentSort] > b[this.currentSort]) return 1 * modifier;
+          return 0;
+        });
+      }
     },
 
     sortedStaffFundingSummary() {
-        if (this.currentSortTable !== "sortedStaffFundingSummary"){
-          return this.staff_funding_summary;
-        }
-        else {
-            return this.staff_funding_summary.sort((a, b) => {
-                let modifier = 1;
-                if (this.currentSortDir === 'desc') modifier = -1;
-                if (a[this.currentSort] < b[this.currentSort]) return -1 * modifier;
-                if (a[this.currentSort] > b[this.currentSort]) return 1 * modifier;
-                return 0;
-            });
-        }
+      if (this.currentSortTable !== "sortedStaffFundingSummary") {
+        return this.staff_funding_summary;
+      } else {
+        return this.staff_funding_summary.sort((a, b) => {
+          let modifier = 1;
+          if (this.currentSortDir === 'desc') modifier = -1;
+          if (a[this.currentSort] < b[this.currentSort]) return -1 * modifier;
+          if (a[this.currentSort] > b[this.currentSort]) return 1 * modifier;
+          return 0;
+        });
+      }
     },
 
     sortedStaff() {
-        if (this.currentSortTable !== "sortedStaff"){
-          return this.staff;
-        }
-        else {
-            return this.staff.sort((a, b) => {
-                let modifier = 1;
-                if (this.currentSortDir === 'desc') modifier = -1;
-                if (a[this.currentSort] < b[this.currentSort]) return -1 * modifier;
-                if (a[this.currentSort] > b[this.currentSort]) return 1 * modifier;
-                return 0;
-            });
-        }
+      if (this.currentSortTable !== "sortedStaff") {
+        return this.staff;
+      } else {
+        return this.staff.sort((a, b) => {
+          let modifier = 1;
+          if (this.currentSortDir === 'desc') modifier = -1;
+          if (a[this.currentSort] < b[this.currentSort]) return -1 * modifier;
+          if (a[this.currentSort] > b[this.currentSort]) return 1 * modifier;
+          return 0;
+        });
+      }
     },
 
     console_loading() {
-        if (this.projects_loading) {
+      if (this.projects_loading) {
+        return true;
+      } else {
+        for (const showTabKey in this.showTab) {
+          if (this.showTab[showTabKey] && this.tabAPILoading[showTabKey]) {
             return true;
-        } else {
-            for (const showTabKey in this.showTab) {
-              if (this.showTab[showTabKey] && this.tabAPILoading[showTabKey]) {
-                  return true;
-              }
-            }
-          return false;
+          }
         }
+        return false;
+      }
     },
 
     financial_totals() {

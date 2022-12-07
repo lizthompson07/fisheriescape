@@ -1431,6 +1431,7 @@ class DMA(MetadataFields):
         (2, _("Complete")),
         (3, _("Encountering issues")),
         (4, _("Aborted / cancelled")),
+        (5, _("Pending new evaluation")),
     )
     frequency_choices = (
         (1, _("Daily")),
@@ -1507,6 +1508,11 @@ class DMA(MetadataFields):
                 self.status = 2  # complete
             elif last_review.decision == 1:  # compliant
                 self.status = 1  # on-track
+                # but wait, what if this is an old evaluation?
+                # if the review was more than six months old, set the status to 5
+                if (timezone.now() - last_review.created_at).days > (28*6):
+                    self.status = 5  # pending evaluation
+
             elif last_review.decision == 2:  # non-compliant
                 self.status = 3  # encountering issues
 
