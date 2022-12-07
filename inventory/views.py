@@ -1327,7 +1327,6 @@ class ResourceCertificationCreateView(CanModifyRequiredMixin, CommonPopoutCreate
         obj = form.save(commit=False)
         obj.certifying_user = self.request.user
         obj.resource_id = self.kwargs['resource']
-        obj.certification_date = timezone.now()
         obj.save()
         return super().form_valid(form)
 
@@ -1456,14 +1455,16 @@ class ReportSearchFormView(AdminRequiredMixin, FormView):
             return HttpResponseRedirect(reverse("inventory:export_batch_xml", kwargs={
                 'sections': sections,
             }))
-        if report == 2:
+        elif report == 2:
             return HttpResponseRedirect(reverse("inventory:export_odi_report"))
-        if report == 3:
+        elif report == 3:
             return HttpResponseRedirect(reverse("inventory:export_phyiscal_samples"))
-        if report == 4:
+        elif report == 4:
             return HttpResponseRedirect(reverse("inventory:export_resources") + f"?sections={sections}")
-        if report == 5:
+        elif report == 5:
             return HttpResponseRedirect(reverse("inventory:export_open_data_resources") + f"?regions={regions}")
+        elif report == 6:
+            return HttpResponseRedirect(reverse("inventory:export_custodians") + f"?regions={regions}")
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
             return HttpResponseRedirect(reverse("inventory:report_search"))
@@ -1513,6 +1514,25 @@ def export_phyiscal_samples(request):
 def export_resources(request):
     sections = request.GET.get("sections") if request.GET.get("sections") else None
     file_url = reports.generate_resources_report(sections)
+    if os.path.exists(file_url):
+        with open(file_url, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+            response['Content-Disposition'] = 'inline; filename="resources report {}.xlsx"'.format(
+                timezone.now().strftime("%Y-%m-%d"))
+            return response
+    raise Http404
+
+
+@login_required()
+def export_custodians(request):
+    regions = request.GET.get("regions") if request.GET.get("regions") else None
+
+    qs = models.Resource.objects.all()
+    if regions:
+        regions = regions.split(",")
+        qs = qs.filter(section__division__branch__sector__region_id__in=regions)
+
+    file_url = reports.generate_custodian_report(qs)
     if os.path.exists(file_url):
         with open(file_url, 'rb') as fh:
             response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")

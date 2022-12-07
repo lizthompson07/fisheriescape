@@ -3,12 +3,14 @@ import shutil
 
 import xlsxwriter as xlsxwriter
 from django.conf import settings
+from django.contrib.humanize.templatetags.humanize import naturaltime
 from django.db.models import Q
 from django.urls import reverse
 from django.utils import timezone
 from html2text import html2text
 
 from lib.functions.custom_functions import listrify
+from lib.templatetags.custom_filters import nz
 from lib.templatetags.verbose_names import get_verbose_label, get_field_value
 from shared_models import models as shared_models
 from . import models
@@ -494,7 +496,7 @@ def generate_open_data_resources_report(regions):
     # get the resource list
     # anything with resource type as "physical collection"
 
-    resources = models.Resource.objects.filter(Q(od_publication_date__isnull=False)|Q(fgp_publication_date__isnull=False))
+    resources = models.Resource.objects.filter(Q(od_publication_date__isnull=False) | Q(fgp_publication_date__isnull=False))
     if regions and regions != "None":
         regions = regions.split(",")
         resources = resources.filter(section__division__branch__sector__region_id__in=regions)
@@ -550,6 +552,101 @@ def generate_open_data_resources_report(regions):
                 my_val = listrify([obj.non_hierarchical_name_en for obj in r.keywords.all()])
             elif "region" in field:
                 my_val = str(r.section.division.branch.sector.region)
+                my_ws.write(i, j, str(my_val), normal_format)
+            else:
+                my_val = get_field_value(r, field, nullmark="")
+                my_ws.write(i, j, str(my_val), normal_format)
+
+            # adjust the width of the columns based on the max string length in each col
+            ## replace col_max[j] if str length j is bigger than stored value
+
+            # if new value > stored value... replace stored value
+            if len(str(my_val)) > col_max[j]:
+                if len(str(my_val)) < 75:
+                    col_max[j] = len(str(my_val))
+                else:
+                    col_max[j] = 75
+            j += 1
+        i += 1
+
+        # set column widths
+        for j in range(0, len(col_max)):
+            my_ws.set_column(j, j, width=col_max[j] * 1.1)
+
+    workbook.close()
+    return target_url
+
+
+def generate_custodian_report(qs):
+    # figure out the filename
+    target_dir = os.path.join(settings.BASE_DIR, 'media', 'temp')
+    target_file = "temp_data_export_{}.xlsx".format(timezone.now().strftime("%Y-%m-%d"))
+    target_file_path = os.path.join(target_dir, target_file)
+    target_url = os.path.join(settings.MEDIA_ROOT, 'temp', target_file)
+    # create workbook and worksheets
+    workbook = xlsxwriter.Workbook(target_file_path)
+    # create formatting variables
+    title_format = workbook.add_format(
+        {'bold': False, "align": 'normal', 'font_size': 14, "text_wrap": False, 'bg_color': '#006640', 'font_color': 'white'})
+    header_format = workbook.add_format(
+        {'bold': False, 'border': 1, 'border_color': 'black', 'bg_color': '#A1B7BF', "align": 'normal', "text_wrap": False})
+
+    normal_format = workbook.add_format({"align": 'left', "text_wrap": True, })
+    date_format = workbook.add_format({'num_format': "yyyy-mm-dd", "align": 'left', })
+
+    # get the resource list
+    # anything with resource type as "physical collection"
+
+    field_list = [
+        "uuid",
+        "resource_type",
+        "region",
+        "section",
+        "title_eng",
+        "custodians",
+        "points_of_contact|points of contact",
+        "last_certification_date|date of last certification",
+        "last_certification|last certification",
+    ]
+    header = [get_verbose_label(qs.first(), field) for field in field_list]
+
+    # header.append('Number of projects tagged')
+
+    # define a worksheet
+    my_ws = workbook.add_worksheet(name="query results")
+    my_ws.write_row(0, 0, header, header_format)
+
+    i = 1
+    for r in qs.order_by("id"):
+        # create the col_max column to store the length of each header
+        # should be a maximum column width to 100
+        col_max = [len(str(d)) if len(str(d)) <= 100 else 100 for d in header]
+
+        j = 0
+        for field in field_list:
+            if "title_eng" in field:
+                my_val = r.title_eng
+                my_link = f'http://dmapps{reverse("inventory:resource_detail", args=[r.id])}'
+                my_ws.write_url(i, j, url=my_link, string=my_val)
+
+            elif "custodians" in field:
+                my_val = listrify([obj.person.user.email for obj in r.resource_people.filter(role__code__iexact="RI_409")], separator="; ")
+                my_ws.write(i, j, str(my_val), normal_format)
+            elif "points_of_contact" in field:
+                my_val = nz(listrify([obj.person.user.email for obj in r.resource_people.filter(role__code__iexact="RI_414")], separator="; "), "")
+                my_ws.write(i, j, str(my_val), normal_format)
+            elif "region" in field:
+                my_val = str(r.section.division.branch.sector.region)
+                my_ws.write(i, j, str(my_val), normal_format)
+            elif "last_certification_date" in field:
+                my_val = "never"
+                if r.last_certification:
+                    my_val = r.last_certification.certification_date.strftime('%Y-%m-%d')
+                my_ws.write(i, j, str(my_val), normal_format)
+            elif "last_certification" in field:
+                my_val = "never"
+                if r.last_certification:
+                    my_val = naturaltime(r.last_certification.certification_date)
                 my_ws.write(i, j, str(my_val), normal_format)
             else:
                 my_val = get_field_value(r, field, nullmark="")

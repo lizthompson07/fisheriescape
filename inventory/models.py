@@ -336,7 +336,7 @@ class Resource(models.Model):
 
     @property
     def last_certification(self):
-        return self.certification_history.fisrt()
+        return self.certification_history.first()
 
     @property
     def last_publication(self):
@@ -477,7 +477,7 @@ class BoundingBox(models.Model):
 class ResourceCertification(models.Model):
     resource = models.ForeignKey(Resource, on_delete=models.CASCADE, related_name="certification_history", editable=False)
     certifying_user = models.ForeignKey(User, on_delete=models.DO_NOTHING, editable=False)
-    certification_date = models.DateTimeField(blank=True, null=True, verbose_name="Date published to FGP", editable=False)
+    certification_date = models.DateTimeField(auto_now_add=True, verbose_name="Date published to FGP", editable=False)
     notes = models.TextField(blank=False, null=True)
 
     class Meta:

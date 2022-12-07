@@ -90,11 +90,12 @@
             // xml batch export selected
             if (reportChoice == 1 || reportChoice == 4) {
                 $(".sections_div").removeClass("gone");
-                $("#id_sections").multiSelect()
             } else if (reportChoice === "5") {
                 $(".regions_div").removeClass("gone");
-                $("#id_regions").multiSelect()
+            } else if (reportChoice === "6") {
+                $(".regions_div").removeClass("gone");
             }
+
 
 
         }

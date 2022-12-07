@@ -131,6 +131,7 @@ urlpatterns = [
     path('reports/physical-samples/', views.export_phyiscal_samples, name="export_phyiscal_samples"),
     path('reports/general-export/', views.export_resources, name="export_resources"),
     path('reports/open-data/', views.export_open_data_resources, name="export_open_data_resources"),
+    path('reports/custodians/', views.export_custodians, name="export_custodians"),
 
     # TEMP #
     ########

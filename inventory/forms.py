@@ -93,7 +93,6 @@ class ResourceForm(forms.ModelForm):
         self.fields['resource_type'].choices = resource_type_choices
         self.fields['status'].choices = status_choices
 
-
         if kwargs.get("instance"):
             del self.fields["add_custodian"]
 
@@ -281,12 +280,13 @@ class ReportSearchForm(forms.Form):
         (3, "Physical Collections Report (xlsx)"),
         (4, "Resources Report (xlsx)"),
         (5, "Resource published to Open Data"),
-        # (2, "Organizational Report / Cue Card (PDF)"),
+        (6, "Data Custodian Report (xlsx)"),
     )
 
     report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
-    sections = forms.MultipleChoiceField(required=False, label='Region / Division / Section (Leave blank for all)')
-    regions = forms.MultipleChoiceField(required=False, label='Regions')
+    sections = forms.MultipleChoiceField(required=False, label='Section (Leave blank for all)',
+                                         widget=forms.SelectMultiple(attrs=chosen_js))
+    regions = forms.MultipleChoiceField(required=False, label='Regions (Leave blank for all)', widget=forms.SelectMultiple(attrs=chosen_js))
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
