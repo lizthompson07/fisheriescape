@@ -6,6 +6,7 @@
   <thead>
   <tr>
     <th>{% trans "Publication Type" %}</th>
+    <th class="text-center">{% trans "Starting count" %}</th>
     <th class="text-center">{% trans "Before last promotion" %}</th>
     <th class="text-center">{% trans "Since last promotion" %}</th>
     <th class="text-center">{% trans "Career total" %}</th>
@@ -15,6 +16,7 @@
   {% for row in object.achievement_summary_table %}
     <tr v-for="row, index in achievementsSummary" :key="index">
       <td>{{row.publication_type}}</td>
+      <td class="text-center">{{row.starting_count}}</td>
       <td class="text-center">{{row.before_last_promotion}}</td>
       <td class="text-center">{{row.since_last_promotion}}</td>
       <td class="text-center">{{row.total}}</td>
