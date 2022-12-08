@@ -52,7 +52,7 @@ class SpecimenViewSet(ModelViewSet):
         if qp.get("get_labels"):
             data = dict()
             data['labels'] = _get_labels(self.queryset.model)
-            species_choices = [dict(text=obj.search_name, value=obj.id) for obj in models.Species.objects.all()]
+            species_choices = [dict(text=str(obj), value=obj.id) for obj in models.Species.objects.all()]
             species_choices.insert(0, dict(text="-----", value=None))
             data['species_choices'] = species_choices
             status_choices = [dict(text=obj.choice, value=obj.id) for obj in models.Status.objects.all()]
