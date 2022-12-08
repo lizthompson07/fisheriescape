@@ -138,16 +138,6 @@ class Sample(MetadataFields):
     departure_date = models.DateTimeField(verbose_name="departure date/time")
     sample_type = models.IntegerField(choices=model_choices.sample_type_choices)
 
-    # temp/climate data
-    air_temp_arrival = models.FloatField(null=True, blank=True, verbose_name="air temperature on arrival(°C)")
-    min_air_temp = models.FloatField(null=True, blank=True, verbose_name="minimum air temperature (°C)")
-    max_air_temp = models.FloatField(null=True, blank=True, verbose_name="maximum air temperature (°C)")
-    water_temp_c = models.FloatField(null=True, blank=True, verbose_name="water temperature (°C)")
-    percent_cloud_cover = models.FloatField(null=True, blank=True, verbose_name="cloud cover", validators=[MinValueValidator(0), MaxValueValidator(1)])
-    precipitation_category = models.IntegerField(blank=True, null=True, choices=model_choices.precipitation_category_choices)
-    precipitation_comment = models.CharField(max_length=255, blank=True, null=True)
-    wind_speed = models.IntegerField(blank=True, null=True, choices=model_choices.wind_speed_choices)
-    wind_direction = models.IntegerField(blank=True, null=True, choices=model_choices.wind_direction_choices)
 
     age_thresh_0_1 = models.IntegerField(blank=True, null=True, verbose_name=_("salmon site-specific age threshold (0+ to 1+)"))
     age_thresh_1_2 = models.IntegerField(blank=True, null=True, verbose_name=_("salmon site-specific age threshold (1+ to 2+)"))
@@ -155,6 +145,19 @@ class Sample(MetadataFields):
     age_thresh_parr_smolt = models.IntegerField(blank=True, null=True, verbose_name=_("salmon site-specific age threshold (parr to smolt)"))
     didymo = models.IntegerField(blank=True, null=True, verbose_name=_("presence / absence of Didymosphenia geminata"), choices=model_choices.didymo_choices)
     notes = models.TextField(blank=True, null=True)
+
+    # to migrate then delete
+    air_temp_arrival = models.FloatField(null=True, blank=True, verbose_name="air temperature on arrival(°C)", editable=False)
+    water_temp_c = models.FloatField(null=True, blank=True, verbose_name="water temperature (°C)", editable=False)
+
+    # non-editable, historical
+    min_air_temp = models.FloatField(null=True, blank=True, verbose_name="minimum air temperature (°C)", editable=False)
+    max_air_temp = models.FloatField(null=True, blank=True, verbose_name="maximum air temperature (°C)", editable=False)
+    percent_cloud_cover = models.FloatField(null=True, blank=True, verbose_name="cloud cover", validators=[MinValueValidator(0), MaxValueValidator(1)], editable=False)
+    precipitation_category = models.IntegerField(blank=True, null=True, choices=model_choices.precipitation_category_choices, editable=False)
+    precipitation_comment = models.CharField(max_length=255, blank=True, null=True, editable=False)
+    wind_speed = models.IntegerField(blank=True, null=True, choices=model_choices.wind_speed_choices, editable=False)
+    wind_direction = models.IntegerField(blank=True, null=True, choices=model_choices.wind_direction_choices, editable=False)
 
     # non-editable
     created_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, editable=False, related_name='trapnet_sample_created_by')
@@ -257,9 +260,10 @@ class Sample(MetadataFields):
 
     @property
     def thresholds(self):
-        return _("<u>0+ to 1+:</u> {t01}<br> <u>1+ to 2+:</u> {t12}<br> <u>parr to smolt:</u> {tps}").format(
+        return _("<u>0+ to 1+:</u> {t01}<br> <u>1+ to 2+:</u> {t12}<br> <u>2+ to 3+:</u> {t23}<br> <u>parr to smolt:</u> {tps}").format(
             t01=nz(self.age_thresh_0_1, "---"),
             t12=nz(self.age_thresh_1_2, "---"),
+            t23=nz(self.age_thresh_2_3, "---"),
             tps=nz(self.age_thresh_parr_smolt, "---"),
         )
 
@@ -277,6 +281,9 @@ class EFSample(models.Model):
 
     site_type = models.IntegerField(blank=True, null=True, choices=model_choices.site_type_choices, verbose_name=_("type of site"))
     seine_type = models.IntegerField(blank=True, null=True, choices=model_choices.seine_type_choices, verbose_name=_("type of seine"), default=2)
+
+    air_temp_arrival = models.FloatField(null=True, blank=True, verbose_name="air temperature on arrival(°C)")
+    water_temp_c = models.FloatField(null=True, blank=True, verbose_name="water temperature (°C)")
 
     # site description
     percent_riffle = models.IntegerField(blank=True, null=True, verbose_name=_("riffle"), validators=(MinValueValidator(0), MaxValueValidator(100)))
@@ -474,16 +481,19 @@ class EFSample(models.Model):
 
 class RSTSample(models.Model):
     sample = models.OneToOneField(Sample, related_name='rst_sample', on_delete=models.CASCADE, editable=False)
+    air_temp_arrival = models.FloatField(null=True, blank=True, verbose_name="air temperature on arrival(°C)")
     water_temp_trap_c = models.FloatField(null=True, blank=True, verbose_name="water temperature at trap (°C)")
     water_depth_m = models.FloatField(null=True, blank=True, verbose_name="water depth (m)")
     water_level_delta_m = models.FloatField(null=True, blank=True, verbose_name="water level delta (m)")
-    discharge_m3_sec = models.FloatField(null=True, blank=True, verbose_name="discharge (m3/s)")
     rpm_arrival = models.FloatField(null=True, blank=True, verbose_name="RPM at start")
     rpm_departure = models.FloatField(null=True, blank=True, verbose_name="RPM at end")
     time_released = models.DateTimeField(verbose_name="time released", blank=True, null=True)
     operating_condition = models.IntegerField(blank=True, null=True, choices=model_choices.operating_condition_choices)
     operating_condition_comment = models.CharField(max_length=255, blank=True, null=True)
     samplers = models.TextField(blank=True, null=True)
+
+    # non-editable, historical
+    discharge_m3_sec = models.FloatField(null=True, blank=True, verbose_name="discharge (m3/s)", editable=False)
 
     @property
     def rpms(self):
@@ -494,16 +504,22 @@ class RSTSample(models.Model):
 
     @property
     def water_display(self):
-        return mark_safe(_("<u>depth (m):</u> {depth}&plusmn;{delta}<br> <u>discharge (m<sup>3</sup>/s):</u> {discharge}").format(
+        return mark_safe(_("<u>depth (m):</u> {depth}&plusmn;{delta}").format(
             depth=nz(self.water_depth_m, "---"),
             delta=nz(self.water_level_delta_m, "---"),
-            discharge=nz(self.discharge_m3_sec, "---"),
         ))
 
 
 class TrapnetSample(models.Model):
     sample = models.OneToOneField(Sample, related_name='trapnet_sample', on_delete=models.CASCADE, editable=False)
     water_temp_trap_c = models.FloatField(null=True, blank=True, verbose_name="water temperature at trap (°C)")
+    air_temp_arrival = models.FloatField(null=True, blank=True, verbose_name="air temperature on arrival(°C)")
+
+    arrival_condition = models.IntegerField(blank=True, null=True, choices=model_choices.operating_condition_choices)
+    arrival_condition_comment = models.CharField(max_length=255, blank=True, null=True)
+    departure_condition = models.IntegerField(blank=True, null=True, choices=model_choices.operating_condition_choices)
+    departure_condition_comment = models.CharField(max_length=255, blank=True, null=True)
+
     time_released = models.DateTimeField(verbose_name="time released", blank=True, null=True)
     sea_lice = models.IntegerField(blank=True, null=True, choices=model_choices.sea_lice_choices)
     samplers = models.TextField(blank=True, null=True)

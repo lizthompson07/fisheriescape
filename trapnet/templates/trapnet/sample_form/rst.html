@@ -14,16 +14,22 @@
         </h4>
       </div>
       <div class="card-body">
+        <div class="row">
+            <div class="col">
         {% bootstrap_field sub_form.water_temp_trap_c placeholder="" %}
+
+            </div>
+            <div class="col">
+            </div>
+        </div>
+
+
         <div class="row">
           <div class="col">
             {% bootstrap_field sub_form.water_depth_m placeholder="" %}
           </div>
           <div class="col">
             {% bootstrap_field sub_form.water_level_delta_m placeholder="" %}
-          </div>
-          <div class="col">
-            {% bootstrap_field sub_form.discharge_m3_sec placeholder="" %}
           </div>
         </div>
         <div class="row">

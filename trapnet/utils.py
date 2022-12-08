@@ -60,15 +60,21 @@ def get_sample_field_list():
     my_list = [
         "site",
         "monitoring_program",
-        'arrival_departure|{}'.format(_("arrival / departure")),
-        'air_temp|{}'.format(_("air temperature (°C)")),
-        'percent_cloud_cover',
-        'wind|{}'.format(_("wind")),
-        "precipitation_category",
-        "precipitation_comment",
-        "water_temp_c",
+        "arrival_date",
+        "departure_date",
+        # "age_thresh_0_1",
+        # "age_thresh_1_2",
+        # "age_thresh_2_3",
+        # "age_thresh_parr_smolt",
+        # 'arrival_departure|{}'.format(_("arrival / departure")),
+        # 'air_temp|{}'.format(_("air temperature (°C)")),
+        # 'percent_cloud_cover',
+        # 'wind|{}'.format(_("wind")),
+        # "precipitation_category",
+        # "precipitation_comment",
+        # "water_temp_c",
         'didymo|{}'.format(_("Didymosphenia geminata?")),
-        'thresholds|{}'.format(_("site-specific salmon age thresholds")),
+        'thresholds|{}'.format(_(" salmon site-specific age thresholds")),
         'species_list|{}'.format(_("species caught")),
         'tag_list|{}'.format(_("tags issued")),
         'notes',
@@ -93,6 +99,8 @@ def get_sub_field_list(sample):
 
 def get_ef_field_list():
     my_list = [
+        "air_temp_arrival",
+        "water_temp_c",
         'site_type',
         'seine_type',
         'site_profile|{}'.format(_("site profile")),
@@ -113,6 +121,7 @@ def get_ef_field_list():
 
 def get_rst_field_list():
     my_list = [
+        "air_temp_arrival",
         'water_temp_trap_c',
         'water_depth_m',
         'water_level_delta_m',
@@ -129,7 +138,12 @@ def get_rst_field_list():
 
 def get_trapnet_field_list():
     my_list = [
+        "air_temp_arrival",
         "water_temp_trap_c",
+        "arrival_condition",
+        "arrival_condition_comment",
+        "departure_condition",
+        "departure_condition_comment",
         "time_released",
         "samplers",
     ]

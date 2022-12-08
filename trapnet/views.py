@@ -606,7 +606,11 @@ class SampleDetailView(TrapNetBasicMixin, CommonDetailView):
 
             # get the data for the histogram
             len_range = range(math.floor(min(lengths)), math.ceil(max(lengths)))
-            counts, bins = np.histogram(lengths, bins=math.ceil(len(len_range) * 0.5))
+            # if the length of the length range is zero (happens when there is only a single bin), we should default to 1
+            bins = math.ceil(len(len_range) * 0.5)
+            if not bins:
+                bins = "sturges"
+            counts, bins = np.histogram(lengths, bins=bins)
             hist_zip = zip(bins, counts)
 
             for item in hist_zip:
@@ -1067,7 +1071,7 @@ class ReportSearchFormView(TrapNetCRUDRequiredMixin, CommonFormView):
         # Open data - restigouche RST
 
         elif report == 20:
-            return HttpResponseRedirect(reverse("trapnet:od_sp_list") + f"?which=restigouche-rst")
+            return HttpResponseRedirect(reverse("trapnet:od_sp_list") + f"?report_name=restigouche-rst")
         elif report == 21:
             return HttpResponseRedirect(reverse("trapnet:od_summary_by_site_dict") + f"?report_name=restigouche-rst")
         elif report == 22:
@@ -1273,9 +1277,8 @@ def od_sp_list(request):
     qs = models.Species.objects.none()
     if report_name == "restigouche-rst":
         samples_qs = get_restigouche_rst_samples()
-        models.Species.objects.all()
-
-
+        specimen_qs = models.Specimen.objects.filter(sample__in=samples_qs)
+        qs = models.Species.objects.filter(specimens__in=specimen_qs).distinct()
     response = reports.generate_od_sp_list(qs)
     return response
 
@@ -1286,17 +1289,23 @@ def od_summary_by_site_dict(request):
     qs = models.Sample.objects.none()
     if report_name == "restigouche-rst":
         qs = get_restigouche_rst_samples()
-    response = reports.generate_od_summary_by_site_dict(qs)
+    response = reports.generate_od_summary_by_site_dict(report_name)
     return response
 
 
-def od_summary_by_site_report(request, year, sites):
+def od_summary_by_site_report(request):
     qp = request.GET
-    report_name=qp.get("report_name")
+    report_name = qp.get("report_name")
     qs = models.Sample.objects.none()
     if report_name == "restigouche-rst":
         qs = get_restigouche_rst_samples()
-    response = reports.generate_od_summary_by_site_report(qs)
+
+    filename = f"open data summary by site ({timezone.now().strftime('%Y-%m-%d')}"
+    response = StreamingHttpResponse(
+        streaming_content=(reports.generate_od_summary_by_site_report(qs)),
+        content_type='text/csv',
+    )
+    response['Content-Disposition'] = f'attachment;filename={filename}'
     return response
 
 

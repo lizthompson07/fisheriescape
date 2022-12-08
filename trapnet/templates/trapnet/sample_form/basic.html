@@ -38,55 +38,7 @@
         </div>
       {% endif %}
 
-      <div class="row">
-        <div class="col">
-          {% bootstrap_field form.air_temp_arrival placeholder="" %}
-        </div>
-        <div class="col">
-          {% bootstrap_field form.min_air_temp placeholder="" %}
-        </div>
-        <div class="col">
-          {% bootstrap_field form.max_air_temp placeholder="" %}
-        </div>
-      </div>
-      <div class="row">
-        <div class="col">
-          {% bootstrap_field form.water_temp_c placeholder="" %}
-        </div>
-        <div class="col">
-          {% bootstrap_field form.percent_cloud_cover placeholder="" %}
-        </div>
-      </div>
-      <div class="row">
-        <div class="col">
-          {% bootstrap_field form.precipitation_category placeholder="" %}
-        </div>
-        <div class="col">
-          {% bootstrap_field form.precipitation_comment placeholder="" %}
-        </div>
-      </div>
-      <div class="row">
-        <div class="col">
-          {% bootstrap_field form.wind_speed placeholder="" %}
-        </div>
-        <div class="col">
-          {% bootstrap_field form.wind_direction placeholder="" %}
-        </div>
-      </div>
-      {% bootstrap_field form.didymo placeholder="" %}
-      {% bootstrap_field form.notes placeholder="" %}
 
-      <div class="row">
-        <div class="col">
-          {% bootstrap_field form.age_thresh_0_1 placeholder="" %}
-        </div>
-        <div class="col">
-          {% bootstrap_field form.age_thresh_1_2 placeholder="" %}
-        </div>
-        <div class="col">
-          {% bootstrap_field form.age_thresh_parr_smolt placeholder="" %}
-        </div>
-      </div>
 
       <label for="">{% trans "Salmon Site-specific age Thresholds" %}</label>
       <table class="table table-bordered">
@@ -104,6 +56,8 @@
         </tr>
       </table>
 
+      {% bootstrap_field form.didymo placeholder="" %}
+      {% bootstrap_field form.notes placeholder="" %}
 
     </div>
   </div>

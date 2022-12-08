@@ -247,7 +247,7 @@ class ReportSearchForm(forms.Form):
         river_choices = [(obj.id, str(obj)) for obj in River.objects.filter(sites__samples__isnull=False).distinct()]
         self.fields['rivers'].choices = river_choices
 
-        fa_choices = [(obj.id, str(obj)) for obj in FishingArea.objects.all()]
+        fa_choices = [(obj.id, f"{obj} - {obj.description}") for obj in FishingArea.objects.all()]
         self.fields['fishing_areas'].choices = fa_choices
         self.fields['fishing_areas'].widget.attrs = chosen_js
 

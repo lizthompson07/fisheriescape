@@ -44,7 +44,7 @@ status_choices = (
 sample_type_choices = (
     (1, _("Rotary Screw Trap")),
     (2, _("Electrofishing")),
-    (3, _("Trap Net")),
+    (3, _("Trapnet")),
 )
 
 site_type_choices = (

@@ -379,7 +379,7 @@ def generate_od_sp_list(qs):
     return response
 
 
-def generate_od_summary_by_site_dict():
+def generate_od_summary_by_site_dict(report_name):
     """
     Generates the data dictionary for open data report version 1
     """
@@ -465,31 +465,12 @@ def generate_od_summary_by_site_dict():
     return response
 
 
-def generate_od_summary_by_site_report(year, sites):
-    """
-    This is a view designed for FGP / open maps view. The resulting csv will summarize data per site per year
+def generate_od_summary_by_site_report(qs):
 
-    :param year: int
-    :param sites: list of river site PKs
-    :return: http response
-    """
+    pseudo_buffer = Echo()
+    writer = csv.writer(pseudo_buffer)
 
     # It is important that we remove any samples taken at MAtapedia River since these data do not belong to us.
-    if year != "None":
-        qs = models.Entry.objects.filter(sample__season=year).all()
-        filename = "open_data_ver1_report_{}.csv".format(year)
-    else:
-        qs = models.Entry.objects.all().all()
-        filename = "open_data_ver1_report_all_years.csv"
-
-    if sites != "None":
-        qs = qs.filter(sample__site_id__in=sites.split(","))
-
-    # Create the HttpResponse object with the appropriate CSV header.
-    response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="{}"'.format(filename)
-    response.write(u'\ufeff'.encode('utf8'))  # BOM (optional...Excel needs it to open UTF-8 file properly)
-    writer = csv.writer(response)
 
     # headers are based on csv provided by GD
     species_list = [models.Species.objects.get(pk=obj["species"]) for obj in qs.order_by("species").values("species").distinct()]
@@ -503,9 +484,8 @@ def generate_od_summary_by_site_report(year, sites):
         'avg_max_air_temp',
         'avg_water_temp_shore',
     ]
-
     for species in species_list:
-        if species.id == 54:
+        if species.tsn == 161127:  # eel
             addendum = [
                 "{}_abundance".format(species.abbrev),
                 "{}_avg_total_length".format(species.abbrev),
@@ -519,10 +499,9 @@ def generate_od_summary_by_site_report(year, sites):
             ]
         header_row.extend(addendum)
 
-    writer.writerow(header_row)
+    yield writer.writerow(header_row)
 
-    # lets start by getting a list of samples and years
-    # samples = [models.Sample.objects.get(pk=obj["sample"]) for obj in qs.order_by("sample").values("sample").distinct()]
+    # let's start by getting a list of samples and years
     sites = [models.RiverSite.objects.get(pk=obj["sample__site"]) for obj in qs.order_by("sample__site").values("sample__site").distinct()]
     years = [obj["sample__season"] for obj in qs.order_by("sample__season").values("sample__season").distinct()]
 
@@ -542,11 +521,11 @@ def generate_od_summary_by_site_report(year, sites):
             ]
 
             for species in species_list:
-                if species.id == 54:
+                if species.tsn == 161127:
                     addendum = [
-                        qs.filter(sample__season=year, sample__site=site, species=species).values("frequency").order_by(
-                            "frequency").aggregate(
-                            dsum=Sum("frequency"))["dsum"],
+                        # qs.filter(sample__season=year, sample__site=site, species=species).values("frequency").order_by(
+                        #     "frequency").aggregate(
+                        #     dsum=Sum("frequency"))["dsum"],
                         floatformat(qs.filter(sample__season=year, sample__site=site, species=species).values("fork_length").order_by(
                             "fork_length").aggregate(davg=Avg("total_length"))["davg"], 3),
                         floatformat(qs.filter(sample__season=year, sample__site=site, species=species).values("weight").order_by(
@@ -554,9 +533,9 @@ def generate_od_summary_by_site_report(year, sites):
                     ]
                 else:
                     addendum = [
-                        qs.filter(sample__season=year, sample__site=site, species=species).values("frequency").order_by(
-                            "frequency").aggregate(
-                            dsum=Sum("frequency"))["dsum"],
+                        # qs.filter(sample__season=year, sample__site=site, species=species).values("frequency").order_by(
+                        #     "frequency").aggregate(
+                        #     dsum=Sum("frequency"))["dsum"],
                         floatformat(qs.filter(sample__season=year, sample__site=site, species=species).values("fork_length").order_by(
                             "fork_length").aggregate(davg=Avg("fork_length"))["davg"], 3),
                         floatformat(qs.filter(sample__season=year, sample__site=site, species=species).values("weight").order_by(
@@ -564,9 +543,7 @@ def generate_od_summary_by_site_report(year, sites):
                     ]
                 data_row.extend(addendum)
 
-            writer.writerow(data_row)
-
-    return response
+            yield writer.writerow(data_row)
 
 
 def generate_od_summary_by_site_wms(lang):
