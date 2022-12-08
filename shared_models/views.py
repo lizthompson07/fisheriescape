@@ -272,8 +272,11 @@ class CommonDeleteView(CommonFormMixin, DeleteView):
                 except:
                     pass
                 else:
-                    if related_name and getattr(self.get_object(), related_name).count():
-                        return True
+                    try:
+                        if related_name and getattr(self.get_object(), related_name).count():
+                            return True
+                    except AttributeError:  # this would be the case with a one to one
+                        pass
             # if we got to this point, delete protection should be set to false, since there are no related objects
             return False
 
