@@ -40,6 +40,7 @@ class SampleFilter(django_filters.FilterSet):
             'sample_type': ['exact'],
             'specimens__species': ['exact'],
             'monitoring_program': ['exact'],
+            'site__river__fishing_area': ['exact'],
         }
 
     def __init__(self, *args, **kwargs):
@@ -56,6 +57,7 @@ class SampleFilter(django_filters.FilterSet):
         self.filters["site"] = django_filters.ChoiceFilter(field_name="site", choices=site_choices, label="Site", widget=forms.Select(attrs=chosen_js))
         self.filters["site__river"] = django_filters.ChoiceFilter(field_name="site__river", choices=river_choices, label="River")
         self.filters["specimens__species"].label = gettext("Species")
+        self.filters["site__river__fishing_area"].label = gettext("Fishing area")
 
 
 class SpecimenFilter(django_filters.FilterSet):

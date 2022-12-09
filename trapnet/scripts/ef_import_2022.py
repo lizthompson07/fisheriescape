@@ -26,15 +26,18 @@ def get_efisher_lookup():
 
 def run_spp_checks():
     # check if all the species codes are in the db
+    models.Species.objects.get_or_create(common_name_eng="Splake")
+
     with open(os.path.join(rootdir, 'Species_codes.csv'), 'r') as f:
         csv_reader = csv.DictReader(f)
         for r in csv_reader:
             try:
                 s = models.Species.objects.get(tsn=r["SPECIES_ITIS_CODE"])
             except models.Species.DoesNotExist:
-                print(r["SPECIES_ITIS_CODE"], r["Common_name"], "does not exist in db")
-                # create an entry in the species table provided it is not TSN = 0
-                s = models.Species.objects.create(common_name_eng=r["Common_name"], tsn=r["SPECIES_ITIS_CODE"])
+                if r["SPECIES_ITIS_CODE"] and r["SPECIES_ITIS_CODE"] != "" and r["SPECIES_ITIS_CODE"] != "0":
+                    print(r["SPECIES_ITIS_CODE"], r["Common_name"], "does not exist in db")
+                    # create an entry in the species table provided it is not TSN = 0
+                    s = models.Species.objects.create(common_name_eng=r["Common_name"], tsn=r["SPECIES_ITIS_CODE"])
 
 
 def run_river_checks():
@@ -108,7 +111,6 @@ def run_process_samples():
     models.Sample.objects.filter(old_id__istartswith="gd").delete()
     mp1 = models.MonitoringProgram.objects.get(pk=1)
     mp2 = models.MonitoringProgram.objects.get(pk=2)
-
 
     # ok I think we are ready to tackle the sample
     with open(os.path.join(rootdir, 'problematic_site_data.csv'), 'w') as wf:
@@ -226,7 +228,6 @@ def run_process_samples():
                                             didymo = 0
                                 kwargs["didymo"] = didymo
 
-
                                 # deal with the crew fields
 
                                 # there will be two different approaches, depending on the catchment and the year.
@@ -258,7 +259,7 @@ def run_process_samples():
                                                 # remove that sampler from the total list
                                                 total_crew.remove(sampler)
                                                 # clean up the name of the sampler
-                                                prober = sampler.replace("*","").strip()
+                                                prober = sampler.replace("*", "").strip()
                                                 # end the loop
                                                 break
                                         crew_probe = prober
@@ -343,7 +344,6 @@ def run_process_samples():
                                 if len(notes):
                                     kwargs["notes"] = notes
 
-
                                 sample_kwargs = dict()
                                 ef_kwargs = dict()
 
@@ -394,7 +394,7 @@ def run_process_samples():
                                             # if this is sweep 0, there is a special note to be added and to set the program type as non-monitoring
                                             if sweep_key == sweep_keys[0]:
                                                 notes = add_note(notes, "sweep number zero used as there is missing information about sampling protocol.")
-                                                sample.monitoring_program =mp2
+                                                sample.monitoring_program = mp2
                                                 sample.save()
                                             models.Sweep.objects.create(
                                                 sample=sample,
@@ -462,6 +462,7 @@ def run_process_fish():
                             r[key] = None
 
                     file_type = r["FILE_TYPE"]
+                    biological_sample = r["BIOLOGICAL_SAMPLE"]
 
                     raw_date = r["SITE_EVENT_DATE"]
                     # only continue if there is a date
@@ -498,6 +499,10 @@ def run_process_fish():
                             sample = qs.first()
                             # Now to deal with the sweep
                             sweep_number = r["SWEEP_NUMBER"]
+                            if r["GD_ID"] == "138482":  # there was a simple omission error for this specimen. we number should be 0.5
+                                sweep_number = 0.5
+                            elif r["GD_ID"] in ["217374", "217375", "217394", "217446"]:  # there was a simple omission error for this specimen. we number should be 0.5
+                                sweep_number = 3
                             if not sweep_number:
                                 writer.writerow([r[key] for key in r] + [4, "This specimen has no sweep number", sample.old_id, 0])
                             else:
@@ -505,11 +510,13 @@ def run_process_fish():
                                 sweeps = sample.sweeps.filter(sweep_number=sweep_number)
                                 if not sweeps.exists():
                                     # here we need to add some complicated logic
-                                    if sweep_number == 0 and file_type != "2":
-                                        sweep = None
-                                        writer.writerow(
-                                            [r[key] for key in r] + [5, "sweep number is zero and there is no corresponding sweep time in the site data (FILE_TYPE != 2)",
-                                                                     sample.old_id, 0])
+                                    if sweep_number == 0 and sample.old_id == "GD_1857":
+                                        sweep = models.Sweep.objects.create(sample=sample, sweep_number=0, sweep_time=0)
+                                        sample.monitoring_program_id = 2
+                                        sample.save()
+                                    elif sweep_number == 0 and sample.old_id == "GD_1651":  # this should actually be in the sweep 0.5 category
+                                        sweep = sample.sweeps.get(sweep_number=0.5)
+
                                     else:
                                         sweep = models.Sweep.objects.create(sample=sample, sweep_number=sweep_number, sweep_time=0)
                                         writer.writerow([r[key] for key in r] + [6, "no corresponding sweep time in the site data", sample.old_id, 1])
@@ -517,14 +524,24 @@ def run_process_fish():
                                     # cannot be more than one sweep per sample with the same number because of the unique_together constraint
                                     sweep = sweeps.first()
 
-                                if sweep or file_type == 2:
+                                if sweep or file_type == "2" or biological_sample == "1":
                                     # get the species
+                                    species = None
                                     try:
                                         species = models.Species.objects.get(tsn=r["SPECIES_ITIS_CODE"])
-                                    except models.Species.DoesNotExist:
-                                        writer.writerow(
-                                            [r[key] for key in r] + [7, f"Cannot find species with TSN {r['SPECIES_ITIS_CODE']} in db", sample.old_id, 0])
-                                    else:
+                                    except (models.Species.DoesNotExist, models.Species.MultipleObjectsReturned):
+
+                                        # there are a few wierd ones
+                                        notes = r["BIOLOGICAL_REMARKS"]
+                                        if notes and "frog" in notes.lower():
+                                            species = models.Species.objects.get(tsn=1094181)
+                                        elif notes and "splake" in notes.lower():
+                                            species = models.Species.objects.get(common_name_eng__icontains="splake")
+                                        else:
+                                            writer.writerow(
+                                                [r[key] for key in r] + [7, f"Cannot find species with TSN {r['SPECIES_ITIS_CODE']} in db", sample.old_id, 0])
+
+                                    if species:
                                         # life stage
                                         life_stage = life_stage_lookup.get(r['SPECIES_LIFE_STAGE'])
                                         if life_stage:
@@ -595,7 +612,7 @@ def run_process_fish():
                                         if len(notes.strip()):
                                             fish_kwargs["notes"] = notes
 
-                                        if file_type == "2":
+                                        if file_type == "2" or biological_sample == "1":
                                             del fish_kwargs["sweep"]
                                             fish_kwargs["sample"] = sample
                                             models.BiologicalDetailing.objects.create(**fish_kwargs)
