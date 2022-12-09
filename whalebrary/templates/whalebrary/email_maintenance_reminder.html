@@ -1,0 +1,107 @@
+{% load verbose_names %}
+{% load i18n %}
+
+<style media="screen">
+
+.button-a {
+    padding: 8px 12px;
+    border: 1px solid #01c020;
+    border-radius: 10px;
+    font-size: 14px;
+    color: #ffffff;
+    text-decoration: none;
+    font-weight: bold;
+    display: inline-block;
+}
+
+</style>
+
+<em>
+  *** un message français suit
+</em>
+<br><br>
+
+{% language 'en' %}
+    <p>Hello</p>
+{#  <p>#}
+{#    Hello {{ object.user }},#}
+{#    <br><br>#}
+{#    This is a friendly reminder that a CSAS Terms of Reference has been awaiting your {% if object.role == 1 %} approval {% else %} review {% endif %}#}
+{#    for {{ object.review_duration }} days. Per the <a href="{% trans "http://intra.dfo-mpo.gc.ca/csas-sccs/GuidePol/Approval-Approbation-Pol-eng.html" %}">policy</a>,#}
+{#    the review/approval is to be completed within ten days following receipt.#}
+{#  </p>#}
+{##}
+{#  <p><b>Title:</b><br>{{ object.tor.process.tname }}</p>#}
+{#  <p><b>Type:</b><br>{{ object.tor.process.scope_type }}</p>#}
+{##}
+{#  <br>#}
+{##}
+{#  <table width="100%" cellspacing="0" cellpadding="0">#}
+{#    <tr>#}
+{#      <td>#}
+{#        <table cellspacing="0" cellpadding="0">#}
+{#          <tr>#}
+{#            <td class=”button” bgcolor="#01c020">#}
+{#              <a href="{{ SITE_FULL_URL }}{% url 'csas2:action_list' %}" target="_blank" class="button-a">#}
+{#                Click here to review the Terms of Reference!#}
+{#              </a>#}
+{#            </td>#}
+{#          </tr>#}
+{#        </table>#}
+{#      </td>#}
+{#    </tr>#}
+{#  </table>#}
+{#  <br>#}
+{##}
+{#  <p>#}
+{#    <a href="{% trans "http://intra.dfo-mpo.gc.ca/csas-sccs/GuidePol/Approval-Approbation-Pol-eng.html" %}">#}
+{#      CSAS Policy on Review and Approval of Documents#}
+{#    </a>#}
+{#  </p>#}
+{##}
+{#  <hr>#}
+{##}
+{#{% endlanguage %}#}
+{#{% language 'fr' %}#}
+{#  <p>#}
+{#    Bonjour {{ object.user }} :#}
+{#    <br><br>#}
+{#    Ceci est un rappel amical qu'une cadre de référence du CSAS attend votre {% if object.role == 1 %} approbation {% else %} révision {% endif %}#}
+{#    pendant {{ object.review_duration }} jours. Conformément à#}
+{#    <a href="{% trans "http://intra.dfo-mpo.gc.ca/csas-sccs/guidepol/approval-approbation-pol-fra.html" %}">la politique</a>,#}
+{#    l'examen/l'approbation doit être effectuée au cours des dix jours suivant la réception.#}
+{#  </p>#}
+{##}
+{#  <p><b>Titre:</b><br>{{ object.tor.process.tname }}</p>#}
+{#  <p><b>Type:</b><br>{{ object.tor.process.scope_type }}</p>#}
+{##}
+{#  <br>#}
+{##}
+{#  <table width="100%" cellspacing="0" cellpadding="0">#}
+{#    <tr>#}
+{#      <td>#}
+{#        <table cellspacing="0" cellpadding="0">#}
+{#          <tr>#}
+{#            <td class=”button” bgcolor="#01c020">#}
+{#              <a href="{{ SITE_FULL_URL }}{% url 'csas2:action_list' %}" target="_blank" class="button-a">#}
+{#                Cliquer ici pour consulter le cadre de référence !#}
+{#              </a>#}
+{#            </td>#}
+{#          </tr>#}
+{#        </table>#}
+{#      </td>#}
+{#    </tr>#}
+{#  </table>#}
+{#  <br>#}
+{##}
+{#  <p>#}
+{#    <a href="{% trans "http://intra.dfo-mpo.gc.ca/csas-sccs/guidepol/approval-approbation-pol-fra.html" %}">#}
+{#      Politique du SCAS sur l’examen et l’approbation de documents#}
+{#    </a>#}
+{#  </p>#}
+
+{% endlanguage %}
+
+
+
+
