@@ -45,4 +45,8 @@ app.conf.beat_schedule = {
         'task': 'request_reviewer_reminder_email',
         'schedule': 60 * 60 * 4,  # execute every 4 hours
     },
+    'maintenance_reminder_email': {
+        'task': 'maintenance_reminder_email',
+        'schedule': 60 * 60 * 12,  # execute every 12 hours
+    },
 }
