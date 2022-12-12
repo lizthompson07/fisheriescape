@@ -433,21 +433,15 @@ class EFSample(models.Model):
         if len(depths):
             return round(statistics.mean(depths), 3)
 
-    def get_total_avg_depth(self):
-        depths = [
-            self.depth_1_lower,
-            self.depth_2_lower,
-            self.depth_3_lower,
-            self.depth_1_middle,
-            self.depth_2_middle,
-            self.depth_3_middle,
-            self.depth_1_upper,
-            self.depth_2_upper,
-            self.depth_3_upper,
+    def get_avg_width(self):
+        widths = [
+            self.width_lower,
+            self.width_middle,
+            self.width_upper,
         ]
-        remove_nulls(depths)
-        if len(depths):
-            return round(statistics.mean(depths), 3)
+        remove_nulls(widths)
+        if len(widths):
+            return round(statistics.mean(widths), 3)
 
     @property
     def water_depth_display(self):

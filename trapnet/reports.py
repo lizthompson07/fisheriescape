@@ -147,7 +147,7 @@ def generate_sweep_csv(qs):
         data_row = [str(nz(getattr(obj, field), "")).encode("utf-8").decode('utf-8') for field in field_names]
         data_row += [
             obj.sample.site.river.cgndb,
-            obj.sample.ef_sample.get_total_avg_depth(),
+            obj.sample.ef_sample.get_avg_width(),
             age_breakdown.get(None),
             age_breakdown.get(0),
             age_breakdown.get(1),
