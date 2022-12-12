@@ -567,7 +567,7 @@ class Sweep(MetadataFields):
             payload[item["smart_river_age"]] = item["counts"]
         if not payload.get(None):
             payload["None"] = 0
-        payload["None"] += salmon.filter(river_age__isnull=True, fork_length__isnull=False).count()
+        payload["None"] += self.specimens.filter(species__tsn=161996).filter(river_age__isnull=True, fork_length__isnull=False).count()
             
         return payload
 
