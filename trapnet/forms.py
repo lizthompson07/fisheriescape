@@ -235,8 +235,8 @@ class ReportSearchForm(forms.Form):
     sample_type = forms.ChoiceField(required=False, label="Sample type", help_text=leave_blank_text)
     year = forms.CharField(required=False, widget=forms.NumberInput(), label="Year", help_text=leave_blank_text)
     fishing_areas = forms.MultipleChoiceField(required=False, label="Fishing areas", help_text=leave_blank_text)
-    rivers = forms.MultipleChoiceField(required=False, label="Rivers", help_text=leave_blank_text)
-    sites = forms.MultipleChoiceField(required=False, label="Sites", help_text=leave_blank_text)
+    rivers = forms.MultipleChoiceField(required=False, label="Rivers", help_text=leave_blank_text, widget=forms.SelectMultiple(attrs=chosen_js))
+    sites = forms.MultipleChoiceField(required=False, label="Sites", help_text=leave_blank_text, widget=forms.SelectMultiple(attrs=chosen_js))
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
