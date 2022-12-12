@@ -627,7 +627,8 @@ class Specimen(MetadataFields):
         payload = dict(age=self.river_age, type=self.age_type)
         if self.river_age is None and (self.is_salmon and self.fork_length):
             payload["age"] = self.get_calc_river_age()
-            payload["type"] = 3
+            payload["type"] = 3 if payload["age"] is not None else None
+
         return payload
 
     def get_calc_river_age(self):
