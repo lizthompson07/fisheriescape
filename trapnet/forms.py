@@ -202,8 +202,6 @@ class SampleFileForm(forms.ModelForm):
 
 class ReportSearchForm(forms.Form):
     REPORT_CHOICES = (
-        # (1, "List of samples (trap data) (CSV)"),
-        # (2, "List of entries (fish data) (CSV)"),
 
         (None, ""),
         (None, "RAW DATA"),
@@ -211,6 +209,7 @@ class ReportSearchForm(forms.Form):
         (1, "sample data (csv)"),
         (2, "sweep data - EF Only (csv)"),
         (3, "specimen data (csv)"),
+        (4, "river sites (csv)"),
         (5, "historical biological detail data (csv)"),
 
         (None, ""),
@@ -218,7 +217,8 @@ class ReportSearchForm(forms.Form):
         (None, "CUSTOM REPORTS"),
         (None, "----------------------------------------"),
         (10, "Electrofishing juvenile salmon CSAS report (csv)"),
-        (4, "Atlantic salmon individual specimen event report - Guillaume (csv)"),
+        (11, "Atlantic salmon individual specimen event report - Guillaume (csv)"),
+        (12, "Atlantic salmon individual specimen event report - Guillaume (csv)"),
 
         (None, ""),
         (None, ""),

@@ -62,7 +62,7 @@
   function configureForm() {
     var reportChoice = $("#id_report").val();
     // masterlist count report
-    if (reportChoice === '1' || reportChoice === '2' || reportChoice === '3' || reportChoice === '4' || reportChoice === '5') {
+    if (reportChoice === '1' || reportChoice === '2' || reportChoice === '3' || reportChoice === '5' || reportChoice === '11' || reportChoice === '12') {
       $(".sites_div").show();
       $(".rivers_div").show();
       $(".year_div").show();
@@ -71,8 +71,8 @@
       $("#id_rivers").multiSelect();
       $(".sample_type_div").show();
 
-      if (reportChoice === '3')   alert("Please note that running this report for all sites/years will " +
-            "take several minutes to complete. The resulting file is approximately 10 MB in size.");
+      if (reportChoice === '3') alert("Please note that running this report for all sites/years will " +
+          "take several minutes to complete. The resulting file is approximately 10 MB in size.");
       if (reportChoice === '1' || reportChoice === '3') $("#id_sample_type").prop('required', true);
       if (reportChoice === '4') $(".sample_type_div").hide();
 

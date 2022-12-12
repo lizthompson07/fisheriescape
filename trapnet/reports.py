@@ -29,6 +29,7 @@ def generate_sample_csv(qs):
         "wind_speed_display",
         "wind_direction_display",
         "didymo_display",
+        "river_cgndb"
     ]
 
     # now we need to determine what fields to append from the sample subtype
@@ -75,6 +76,8 @@ def generate_sample_csv(qs):
             obj.get_wind_speed_display(),
             obj.get_wind_direction_display(),
             obj.get_didymo_display(),
+            obj.site.name,
+            obj.site.river.cgndb,
         ]
         data_row += [str(nz(getattr(sub_obj, field), "")).encode("utf-8").decode('utf-8') for field in sub_field_names]
         if is_ef:
@@ -116,9 +119,6 @@ def generate_sweep_csv(qs):
     for obj in qs:
         data_row = [str(nz(getattr(obj, field), "")).encode("utf-8").decode('utf-8') for field in field_names]
         yield writer.writerow(data_row)
-
-
-
 
 
 def generate_specimen_csv(qs, sample_type):
@@ -187,6 +187,57 @@ def generate_specimen_csv(qs, sample_type):
 
         sorted_data_row = [x for _, x in sorted(zip(header_row, data_row))]
         yield writer.writerow(sorted_data_row)
+
+
+def generate_river_sites_csv(qs):
+    """Returns a generator for an HTTP Streaming Response"""
+
+    fields = models.RiverSite._meta.fields
+    field_names = [field.name for field in fields]
+    field_names.remove("river")
+    field_names.remove("name")
+
+    # add any FKs
+    for field in fields:
+        if field.attname not in field_names:
+            field_names.append(field.attname)
+
+    header_row = deepcopy(field_names)
+    header_row += [
+        "site_name",
+        "river_name",
+        "fishing_area",
+        "maritime_river_code",
+        "old_maritime_river_code",
+        "cgndb",
+        "parent_cgndb_id",
+        "nbadw_water_body_id",
+        "parent_river",
+        "display_hierarchy",
+    ]
+
+    pseudo_buffer = Echo()
+    writer = csv.writer(pseudo_buffer)
+    sorted_header = sorted(header_row)
+    yield writer.writerow(sorted_header)
+
+    for obj in qs:
+        data_row = [str(nz(getattr(obj, field), "")).encode("utf-8").decode('utf-8') for field in field_names]
+        data_row += [
+            obj.name,
+            obj.river.name,
+            obj.river.fishing_area,
+            obj.river.maritime_river_code,
+            obj.river.old_maritime_river_code,
+            obj.river.cgndb,
+            obj.river.parent_cgndb_id,
+            obj.river.nbadw_water_body_id,
+            obj.river.parent_river,
+            obj.river.display_hierarchy,
+        ]
+        sorted_data_row = [x for _, x in sorted(zip(header_row, data_row))]
+        yield writer.writerow(sorted_data_row)
+
 
 def generate_biological_detailing_csv(qs):
     """Returns a generator for an HTTP Streaming Response"""
@@ -345,7 +396,6 @@ def generate_electro_juv_salmon_report(qs):
         yield writer.writerow(data_row)
 
 
-
 def generate_od_sp_list(qs):
     """
     Generates the data dictionary for open data report version 1
@@ -466,7 +516,6 @@ def generate_od_summary_by_site_dict(report_name):
 
 
 def generate_od_summary_by_site_report(qs):
-
     pseudo_buffer = Echo()
     writer = csv.writer(pseudo_buffer)
 

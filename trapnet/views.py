@@ -1055,12 +1055,14 @@ class ReportSearchFormView(TrapNetCRUDRequiredMixin, CommonFormView):
         elif report == 3:
             return HttpResponseRedirect(
                 reverse("trapnet:specimen_report") + f"?year={year}&fishing_areas={fishing_areas}&rivers={rivers}&sites={sites}&sample_type={sample_type}")
+        elif report == 4:
+            return HttpResponseRedirect(reverse("trapnet:river_site_report"))
         elif report == 5:
             return HttpResponseRedirect(reverse(
                 "trapnet:biological_detailing_report") + f"?year={year}&fishing_areas={fishing_areas}&rivers={rivers}&sites={sites}&sample_type={sample_type}")
 
         # custom - other
-        elif report == 4:
+        elif report == 11:
             return HttpResponseRedirect(reverse(
                 "trapnet:export_specimen_data_v1") + f"?year={year}&fishing_areas={fishing_areas}&rivers={rivers}&sites={sites}&sample_type={sample_type}")
 
@@ -1186,6 +1188,17 @@ def export_specimen_data(request):
     return response
 
 
+def river_site_report(request):
+    qs = models.RiverSite.objects.all()
+    filename = f"river sites ({now().strftime('%Y-%m-%d')}).csv"
+    response = StreamingHttpResponse(
+        streaming_content=(reports.generate_river_sites_csv(qs)),
+        content_type='text/csv',
+    )
+    response['Content-Disposition'] = f'attachment;filename={filename}'
+    return response
+
+
 def export_biological_detailing_data(request):
     sample_type = request.GET.get("sample_type")
     year = request.GET.get("year")
@@ -1273,7 +1286,7 @@ def electro_juv_salmon_report(request):
 
 def od_sp_list(request):
     qp = request.GET
-    report_name=qp.get("report_name")
+    report_name = qp.get("report_name")
     qs = models.Species.objects.none()
     if report_name == "restigouche-rst":
         samples_qs = get_restigouche_rst_samples()
@@ -1285,7 +1298,7 @@ def od_sp_list(request):
 
 def od_summary_by_site_dict(request):
     qp = request.GET
-    report_name=qp.get("report_name")
+    report_name = qp.get("report_name")
     qs = models.Sample.objects.none()
     if report_name == "restigouche-rst":
         qs = get_restigouche_rst_samples()
@@ -1311,11 +1324,11 @@ def od_summary_by_site_report(request):
 
 def od_summary_by_site_wms(request):
     qp = request.GET
-    report_name=qp.get("report_name")
+    report_name = qp.get("report_name")
     qs = models.Sample.objects.none()
     if report_name == "restigouche-rst":
         qs = get_restigouche_rst_samples()
-    lang=qp.get("lang")
+    lang = qp.get("lang")
     response = reports.generate_od_summary_by_site_wms(qs, lang)
     return response
 
