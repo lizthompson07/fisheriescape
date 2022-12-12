@@ -70,7 +70,8 @@ def create_document(publication: dict, process: Process = None) -> Document:
 
 def get_or_create_predates_process() -> Process:
     """
-    Create the predates process
+    Create the predates process - this is the process
+    that will be used for all documents that predate the schedule
     """
     print("Creating predates process")
 
@@ -92,18 +93,6 @@ def get_or_create_predates_process() -> Process:
     return process
 
 
-def get_fiscal_year(date: datetime) -> FiscalYear or None:
-    year = date.year
-    if date.month >= 4:
-        fy = '{0}-{1}'.format(year, year + 1)
-    else:
-        fy = '{0}-{1}'.format(year - 1, year)
-    try:
-        return FiscalYear.objects.get(full=fy)
-    except FiscalYear.DoesNotExist:
-        return None
-
-
 def get_document_type(name: str) -> DocumentType:
     try:
         return DocumentType.objects.get(name__iexact=name)
@@ -119,6 +108,17 @@ def parseDatetime(date: str) -> datetime or None:
     try:
         return make_aware(datetime.datetime.strptime(f"{date} 12:00", '%Y-%m-%d %H:%M'), get_current_timezone())
     except ValueError:
+        return None
+
+def get_fiscal_year(date: datetime) -> FiscalYear or None:
+    year = date.year
+    if date.month >= 4:
+        fy = '{0}-{1}'.format(year, year + 1)
+    else:
+        fy = '{0}-{1}'.format(year - 1, year)
+    try:
+        return FiscalYear.objects.get(full=fy)
+    except FiscalYear.DoesNotExist:
         return None
 
 
