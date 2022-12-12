@@ -3,7 +3,7 @@ import statistics
 from django.contrib.auth.models import User
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from django.db.models import Q
+from django.db.models import Q, Count
 from django.template.defaultfilters import date
 from django.urls import reverse
 from django.utils import timezone
@@ -346,31 +346,32 @@ class EFSample(models.Model):
     crew_extras = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("crew (extras)"))
 
     @property
-    def full_wetted_width(self):
-        return self.get_full_wetted_width()
+    def avg_wetted_width(self):
+        widths = [
+            self.width_lower,
+            self.width_middle,
+            self.width_upper,
+        ]
+        remove_nulls(widths)
+        if len(widths):
+            return round(statistics.mean(widths), 3)
 
-    def get_full_wetted_width(self, show_errors=True):
-        """
-        Full wetted width:
-        (average of the left and right bank lengths)    X    (average of the lower, middle, and upper stream widths)
-        """
-        errors = list()
-        if not self.bank_length_left:
-            errors.append("missing left bank length")
-        if not self.bank_length_right:
-            errors.append("missing right bank length")
-        if not self.width_lower:
-            errors.append("missing lower stream width")
-        if not self.width_middle:
-            errors.append("missing middle stream width")
-        if not self.width_upper:
-            errors.append("missing upper stream width")
-        if len(errors):
-            if show_errors:
-                return mark_safe(f"<em class='text-muted'>{listrify(errors)}</em>")
-        else:
-            return statistics.mean([self.bank_length_left, self.bank_length_right]) * statistics.mean(
-                [self.width_lower, self.width_middle, self.width_upper])
+    @property
+    def avg_wetted_length(self):
+        widths = [
+            self.bank_length_left,
+            self.bank_length_right,
+        ]
+        remove_nulls(widths)
+        if len(widths):
+            return round(statistics.mean(widths), 3)
+
+    @property
+    def full_wetted_area(self):
+        try:
+            return round(self.avg_wetted_width * self.avg_wetted_length, 3)
+        except:
+            pass
 
     @property
     def substrate_profile(self):
@@ -432,16 +433,6 @@ class EFSample(models.Model):
         remove_nulls(depths)
         if len(depths):
             return round(statistics.mean(depths), 3)
-
-    def get_avg_width(self):
-        widths = [
-            self.width_lower,
-            self.width_middle,
-            self.width_upper,
-        ]
-        remove_nulls(widths)
-        if len(widths):
-            return round(statistics.mean(widths), 3)
 
     @property
     def water_depth_display(self):
@@ -569,10 +560,10 @@ class Sweep(MetadataFields):
 
     def get_salmon_age_breakdown(self):
         payload = dict()
-        salmon = self.specimens.filter(species__tsn=161996)
-        ages = [None, 0, 1, 2, 3]
-        for age in ages:
-            payload[age] = salmon.filter(smart_river_age=age).count()
+        count_qs = self.specimens.filter(species__tsn=161996).order_by("smart_river_age").values("smart_river_age").distinct().annotate(
+            counts=Count("smart_river_age"))
+        for item in count_qs:
+            payload[item["smart_river_age"]] = item["counts"]
         return payload
 
 
