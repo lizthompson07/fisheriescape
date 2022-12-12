@@ -574,7 +574,7 @@ class SampleDetailView(TrapNetBasicMixin, CommonDetailView):
             'fork_length',
             'weight',
             'tag_number',
-            "smart_river_age|{}".format("smart river age"),
+            "smart_river_age_display|{}".format("smart river age"),
             # 'age_type',
             'scale_id_number',
             'notes',
@@ -916,6 +916,7 @@ class SpecimenDetailView(TrapNetBasicMixin, CommonDetailView):
         'weight',
         'age_type',
         'river_age',
+        'smart_river_age_display',
         'ocean_age',
         'tag_number',
         'scale_id_number',
@@ -1065,6 +1066,9 @@ class ReportSearchFormView(TrapNetCRUDRequiredMixin, CommonFormView):
         elif report == 11:
             return HttpResponseRedirect(reverse(
                 "trapnet:export_specimen_data_v1") + f"?year={year}&fishing_areas={fishing_areas}&rivers={rivers}&sites={sites}&sample_type={sample_type}")
+        elif report == 12:
+            return HttpResponseRedirect(reverse(
+                "trapnet:export_sweep_data_v1") + f"?year={year}&fishing_areas={fishing_areas}&rivers={rivers}&sites={sites}")
 
         # custom - electrofishing
         elif report == 10:
@@ -1236,7 +1240,7 @@ def export_specimen_data_v1(request):
     rivers = request.GET.get("rivers")
     sites = request.GET.get("sites")
 
-    filter_kwargs = {"species__scientific_name__istartswith": "salmo", "life_stage__name__iexact": "smolt"}
+    filter_kwargs = {"species__tsn": 161996, "life_stage__name__iexact": "smolt"}
     if year != "":
         filter_kwargs["sample__season"] = year
     if fishing_areas != "":

@@ -74,7 +74,10 @@
       if (reportChoice === '3') alert("Please note that running this report for all sites/years will " +
           "take several minutes to complete. The resulting file is approximately 10 MB in size.");
       if (reportChoice === '1' || reportChoice === '3') $("#id_sample_type").prop('required', true);
-      if (reportChoice === '4') $(".sample_type_div").hide();
+      if (reportChoice === '2') {
+        $("#id_sample_type").prop('required', false);
+        $(".sample_type_div").hide();
+      }
 
 
     } else if (reportChoice === '10') {

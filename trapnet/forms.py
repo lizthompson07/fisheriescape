@@ -218,7 +218,6 @@ class ReportSearchForm(forms.Form):
         (None, "----------------------------------------"),
         (10, "Electrofishing juvenile salmon CSAS report (csv)"),
         (11, "Atlantic salmon individual specimen event report - Guillaume (csv)"),
-        (12, "Atlantic salmon individual specimen event report - Guillaume (csv)"),
 
         (None, ""),
         (None, ""),

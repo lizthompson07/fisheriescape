@@ -138,7 +138,6 @@ class Sample(MetadataFields):
     departure_date = models.DateTimeField(verbose_name="departure date/time")
     sample_type = models.IntegerField(choices=model_choices.sample_type_choices)
 
-
     age_thresh_0_1 = models.IntegerField(blank=True, null=True, verbose_name=_("salmon site-specific age threshold (0+ to 1+)"))
     age_thresh_1_2 = models.IntegerField(blank=True, null=True, verbose_name=_("salmon site-specific age threshold (1+ to 2+)"))
     age_thresh_2_3 = models.IntegerField(blank=True, null=True, verbose_name=_("salmon site-specific age threshold (2+ to 3+)"))
@@ -153,7 +152,8 @@ class Sample(MetadataFields):
     # non-editable, historical
     min_air_temp = models.FloatField(null=True, blank=True, verbose_name="minimum air temperature (°C)", editable=False)
     max_air_temp = models.FloatField(null=True, blank=True, verbose_name="maximum air temperature (°C)", editable=False)
-    percent_cloud_cover = models.FloatField(null=True, blank=True, verbose_name="cloud cover", validators=[MinValueValidator(0), MaxValueValidator(1)], editable=False)
+    percent_cloud_cover = models.FloatField(null=True, blank=True, verbose_name="cloud cover", validators=[MinValueValidator(0), MaxValueValidator(1)],
+                                            editable=False)
     precipitation_category = models.IntegerField(blank=True, null=True, choices=model_choices.precipitation_category_choices, editable=False)
     precipitation_comment = models.CharField(max_length=255, blank=True, null=True, editable=False)
     wind_speed = models.IntegerField(blank=True, null=True, choices=model_choices.wind_speed_choices, editable=False)
@@ -273,7 +273,6 @@ class Sample(MetadataFields):
             speed=nz(self.get_wind_speed_display(), "---"),
             dir=nz(self.get_wind_direction_display(), "---"),
         )
-
 
 
 class EFSample(models.Model):
@@ -434,6 +433,22 @@ class EFSample(models.Model):
         if len(depths):
             return round(statistics.mean(depths), 3)
 
+    def get_total_avg_depth(self):
+        depths = [
+            self.depth_1_lower,
+            self.depth_2_lower,
+            self.depth_3_lower,
+            self.depth_1_middle,
+            self.depth_2_middle,
+            self.depth_3_middle,
+            self.depth_1_upper,
+            self.depth_2_upper,
+            self.depth_3_upper,
+        ]
+        remove_nulls(depths)
+        if len(depths):
+            return round(statistics.mean(depths), 3)
+
     @property
     def water_depth_display(self):
         return mark_safe(
@@ -558,6 +573,14 @@ class Sweep(MetadataFields):
         my_list.sort()
         return mark_safe(listrify(my_list))
 
+    def get_salmon_age_breakdown(self):
+        payload = dict()
+        salmon = self.specimens.filter(species__tsn=161996)
+        ages = [None, 1, 2, 3]
+        for age in ages:
+            payload[age] = salmon.filter(smart_river_age=age).count()
+        return payload
+
 
 class Origin(CodeModel):
     pass
@@ -603,27 +626,42 @@ class Specimen(MetadataFields):
     sample = models.ForeignKey(Sample, on_delete=models.CASCADE, related_name="specimens", blank=True, null=True)
     sweep = models.ForeignKey(Sweep, on_delete=models.CASCADE, related_name="specimens", blank=True, null=True)
     old_id = models.CharField(max_length=25, null=True, blank=True, editable=False)
-    # smart_river_age = models.IntegerField(null=True, blank=True, editable=False)
+    smart_river_age = models.IntegerField(null=True, blank=True, editable=False)
+    smart_river_age_type = models.IntegerField(null=True, blank=True, editable=False, choices=model_choices.age_type_choices)
 
     # to be deleted eventually
     origin = models.ForeignKey(Origin, on_delete=models.DO_NOTHING, related_name="specimens", blank=True, null=True, editable=False)
 
     @property
-    def smart_river_age(self):
-        """ only applies to salmon who have fork lengths. If ever there was a river age assigned, this trumps any calculated ages"""
-        if self.river_age is None and (self.is_salmon and self.fork_length):
-            return get_age_from_length(self.fork_length, self.sample.age_thresh_0_1, self.sample.age_thresh_1_2)
-        return self.river_age
+    def smart_river_age_display(self):
+        if self.smart_river_age is not None:
+            return f"{self.smart_river_age} ({self.get_smart_river_age_type_display()})"
 
+    def get_smart_river_age_dict(self):
+        """ only applies to salmon who have fork lengths. If ever there was a river age assigned, this trumps any calculated ages"""
+        payload = dict(age=self.river_age, type=self.age_type)
+        if self.river_age is None and (self.is_salmon and self.fork_length):
+            payload["age"] = self.get_calc_river_age()
+            payload["type"] = 3
+        return payload
+
+    def get_calc_river_age(self):
+        """ only applies to salmon who have fork lengths. If ever there was a river age assigned, this trumps any calculated ages"""
+        try:
+            return get_age_from_length(self.fork_length, self.sample.age_thresh_0_1, self.sample.age_thresh_1_2, self.sample.age_thresh_2_3)
+        except:
+            return None
 
     @property
     def is_salmon(self):
-        return self.species.tsn == "161996"
+        return self.species.tsn == 161996
 
     def save(self, *args, **kwargs):
         if self.sweep:
             self.sample = self.sweep.sample
-        # self.smart_river_age = self.get_smart_river_age()
+        smart_river_age_dict = self.get_smart_river_age_dict()
+        self.smart_river_age = smart_river_age_dict.get("age")
+        self.smart_river_age_type = smart_river_age_dict.get("type")
         return super().save(*args, **kwargs)
 
     def __str__(self):

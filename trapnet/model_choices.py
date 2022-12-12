@@ -85,7 +85,8 @@ sea_lice_choices = (
 
 age_type_choices = (
     (1, _("scale")),
-    (2, _("length-frequency")),
+    (2, _("length-frequency, manual")),
+    (3, _("length-frequency, auto")),
 )
 
 length_type_choices = (

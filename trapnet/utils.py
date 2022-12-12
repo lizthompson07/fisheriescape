@@ -150,19 +150,28 @@ def get_trapnet_field_list():
     return my_list
 
 
-def get_age_from_length(length, t0=None, t1=None):
-    if t0 and t1:
-        if length < t0:
+def get_age_from_length(length, threshold_0_1=None, threshold_1_2=None, threshold_2_3=None):
+    age = None
+    if threshold_0_1:
+        # if there is a 0-1 threshold and the length is larger, it is a 0. end.
+        if length < threshold_0_1:
             return 0
-        elif length >= t1:
-            return 2
+        # we can safely call it a 1+ but maybe it will get further refined
         else:
-            return 1
-    elif t0 and length < t0:
-        return 0
-    elif t1 and length >= t1:
-        return 2
-    return None
+            age = 1
+
+    # if there is a 1-2 threshold and the length is larger, it is a 2.
+    if threshold_1_2 and length >= threshold_1_2:
+        age = 2
+
+    # if there is a 1-2 threshold and the length is larger, it is a 2.
+    if threshold_2_3 and length >= threshold_2_3:
+        age = 3
+
+    return age
+
+
+
 
 def get_restigouche_rst_samples():
     return models.Sample.objects.filter(sample_type=1, site__river__fishing_area__name__istartswith="sfa15")

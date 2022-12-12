@@ -16,6 +16,7 @@ def generate_sample_csv(qs):
 
     fields = models.Sample._meta.fields
     field_names = [field.name for field in fields]
+    field_names.remove("site")
 
     # add any FKs
     for field in fields:
@@ -29,6 +30,9 @@ def generate_sample_csv(qs):
         "wind_speed_display",
         "wind_direction_display",
         "didymo_display",
+        "river_name"
+        "site_name"
+        "fishing_area"
         "river_cgndb"
     ]
 
@@ -76,7 +80,9 @@ def generate_sample_csv(qs):
             obj.get_wind_speed_display(),
             obj.get_wind_direction_display(),
             obj.get_didymo_display(),
+            obj.site.river.name,
             obj.site.name,
+            obj.site.river.fishing_area,
             obj.site.river.cgndb,
         ]
         data_row += [str(nz(getattr(sub_obj, field), "")).encode("utf-8").decode('utf-8') for field in sub_field_names]
@@ -105,20 +111,54 @@ def generate_sweep_csv(qs):
 
     fields = models.Sweep._meta.fields
     field_names = [field.name for field in fields]
+    field_names.remove("created_by")
+    field_names.remove("updated_by")
 
     # add any FKs
     for field in fields:
         if field.attname not in field_names:
             field_names.append(field.attname)
+    field_names.remove("created_by_id")
+    field_names.remove("updated_by_id")
 
-    field_names.sort()
+    header_row = deepcopy(field_names)
+    header_row += [
+        "cgndb",
+        "avg_width",
+        "salmon_age_unknown",
+        "salmon_0plus",
+        "salmon_1plus",
+        "salmon_2plus",
+        "site_name",
+        "river_name",
+        "monitoring_program",
+        "date",
+        "ordinal_day",
+    ]
+
     pseudo_buffer = Echo()
     writer = csv.writer(pseudo_buffer)
-    yield writer.writerow(field_names)
+    sorted_header = sorted(header_row)
+    yield writer.writerow(sorted_header)
 
     for obj in qs:
+        age_breakdown = obj.get_salmon_age_breakdown()
         data_row = [str(nz(getattr(obj, field), "")).encode("utf-8").decode('utf-8') for field in field_names]
-        yield writer.writerow(data_row)
+        data_row += [
+            obj.sample.site.river.cgndb,
+            obj.sample.ef_sample.get_total_avg_depth(),
+            age_breakdown.get(None),
+            age_breakdown.get(0),
+            age_breakdown.get(1),
+            age_breakdown.get(2),
+            obj.sample.site.name,
+            obj.sample.site.river.name,
+            obj.sample.monitoring_program,
+            obj.sample.arrival_date.strftime("%Y-%m-%d"),
+            obj.sample.arrival_date.toordinal(),
+        ]
+        sorted_data_row = [x for _, x in sorted(zip(header_row, data_row))]
+        yield writer.writerow(sorted_data_row)
 
 
 def generate_specimen_csv(qs, sample_type):
@@ -143,6 +183,11 @@ def generate_specimen_csv(qs, sample_type):
         "adipose_condition_display",
         "age_type_display",
         "smart_river_age",
+        "smart_river_age_type",
+        "calc_river_age",
+        'age_thresh_0_1',
+        'age_thresh_1_2',
+        'age_thresh_2_3',
     ]
 
     # now we need to determine what fields to append from the sample subtype
@@ -174,6 +219,11 @@ def generate_specimen_csv(qs, sample_type):
             obj.get_adipose_condition_display(),
             obj.get_age_type_display(),
             obj.smart_river_age,
+            obj.smart_river_age_type,
+            obj.get_calc_river_age(),
+            obj.sample.age_thresh_0_1,
+            obj.sample.age_thresh_1_2,
+            obj.sample.age_thresh_2_3,
         ]
 
         if is_ef:
