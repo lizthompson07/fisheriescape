@@ -129,6 +129,7 @@ def generate_sweep_csv(qs):
         "salmon_0plus",
         "salmon_1plus",
         "salmon_2plus",
+        "salmon_3plus",
         "site_name",
         "river_name",
         "monitoring_program",
@@ -151,6 +152,7 @@ def generate_sweep_csv(qs):
             age_breakdown.get(0),
             age_breakdown.get(1),
             age_breakdown.get(2),
+            age_breakdown.get(3),
             obj.sample.site.name,
             obj.sample.site.river.name,
             obj.sample.monitoring_program,
@@ -185,9 +187,6 @@ def generate_specimen_csv(qs, sample_type):
         "smart_river_age",
         "smart_river_age_type",
         "calc_river_age",
-        'age_thresh_0_1',
-        'age_thresh_1_2',
-        'age_thresh_2_3',
     ]
 
     # now we need to determine what fields to append from the sample subtype
@@ -221,9 +220,6 @@ def generate_specimen_csv(qs, sample_type):
             obj.smart_river_age,
             obj.smart_river_age_type,
             obj.get_calc_river_age(),
-            obj.sample.age_thresh_0_1,
-            obj.sample.age_thresh_1_2,
-            obj.sample.age_thresh_2_3,
         ]
 
         if is_ef:
