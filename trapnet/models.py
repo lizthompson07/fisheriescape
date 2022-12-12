@@ -560,10 +560,15 @@ class Sweep(MetadataFields):
 
     def get_salmon_age_breakdown(self):
         payload = dict()
-        count_qs = self.specimens.filter(species__tsn=161996).order_by("smart_river_age").values("smart_river_age").distinct().annotate(
+        salmon = self.specimens.filter(species__tsn=161996)
+        count_qs = salmon.order_by("smart_river_age").values("smart_river_age").distinct().annotate(
             counts=Count("smart_river_age"))
         for item in count_qs:
             payload[item["smart_river_age"]] = item["counts"]
+        if not payload["None"]:
+            payload["None"] = 0
+        payload["None"] += salmon.filter(river_age__isnull=True, fork_length__isnull=False).count()
+            
         return payload
 
 
