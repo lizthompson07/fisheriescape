@@ -4,13 +4,42 @@ import os
 
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.core import serializers
+from django.core.files import File
 from django.utils import timezone
 from django.utils.timezone import make_aware
 from pytz import utc
 
 from csas2 import models
 from csas2.models import CSASRequest, CSASRequestReview, Process, Document
-from shared_models.models import Section, Region
+from shared_models.models import Section, Region, FiscalYear, Division, Branch, Sector
+
+
+def export_fixtures():
+    """ a simple function to expor the important lookup tables. These fixutre will be used for testing and also for seeding new instances"""
+    fixtures_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'temp')
+    models_to_export = [
+        models.CSASOffice,
+        models.DocumentType,
+        FiscalYear,
+        User,
+        Section,
+        Division,
+        Branch,
+        Sector,
+        Region,
+    ]
+    fixture_str = str()
+    for model in models_to_export:
+        data = serializers.serialize("json", model.objects.all())
+        if len(fixture_str):
+            fixture_str = fixture_str[:-1] + ","
+            data = data[1:]
+        fixture_str += data
+    f = open(os.path.join(fixtures_dir, "csas_fixutres.json"), 'w')
+    myfile = File(f)
+    myfile.write(fixture_str)
+    myfile.close()
 
 
 def resave_requests():
