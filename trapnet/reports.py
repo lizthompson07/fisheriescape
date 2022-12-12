@@ -188,20 +188,24 @@ def generate_specimen_csv(qs, sample_type):
     for field in fields:
         if field.attname not in field_names:
             field_names.append(field.attname)
+    field_names.remove("id")
     field_names.remove("sweep")
     field_names.remove("sweep_id")
+    field_names.remove("origin")
+    field_names.remove("origin_id")
+    field_names.remove("age_type")
+    field_names.remove("river_age")
 
     header_row = deepcopy(field_names)
     header_row += [
         "specimen_id",
-        "site",
         "site_id",
+        "site_name",
+        "river_name",
         "arrival_date",
         "departure_date",
         "adipose_condition_display",
-        "age_type_display",
-        "smart_river_age",
-        "smart_river_age_type",
+        "smart_river_age_type_display",
         "calc_river_age",
     ]
 
@@ -228,14 +232,13 @@ def generate_specimen_csv(qs, sample_type):
         data_row = [str(nz(getattr(obj, field), "")).encode("utf-8").decode('utf-8') for field in field_names]
         data_row += [
             obj.id,
-            obj.sample.site,
             obj.sample.site_id,
+            obj.sample.site.name,
+            obj.sample.site.river.name,
             obj.sample.arrival_date,
             obj.sample.departure_date,
             obj.get_adipose_condition_display(),
-            obj.get_age_type_display(),
-            obj.smart_river_age,
-            obj.smart_river_age_type,
+            obj.get_smart_river_age_type_display(),
             obj.get_calc_river_age(),
         ]
 
@@ -247,7 +250,6 @@ def generate_specimen_csv(qs, sample_type):
                 obj.sweep.sweep_time,
                 sub_obj.full_wetted_area,
             ]
-
         sorted_data_row = [x for _, x in sorted(zip(header_row, data_row))]
         yield writer.writerow(sorted_data_row)
 
