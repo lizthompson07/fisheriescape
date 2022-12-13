@@ -153,6 +153,7 @@ def get_trapnet_field_list():
 
 def get_specimen_field_list():
     my_list = [
+        'id',
         'species',
         'status',
         'fork_length',

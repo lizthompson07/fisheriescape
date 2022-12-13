@@ -607,36 +607,48 @@ class SampleDetailView(TrapNetBasicMixin, CommonDetailView):
                 length = item[0]
                 count = item[1]
                 hist["data"].append(dict(x=length, y=count))
-                age = get_age_from_length(length, obj.age_thresh_0_1, obj.age_thresh_1_2)
+                age = get_age_from_length(length, obj.age_thresh_0_1, obj.age_thresh_1_2, obj.age_thresh_2_3)
                 if age == 0:  # green
                     hist["colors"].append('rgba(75, 192, 192, 0.5)')
                 elif age == 1:  # purple
                     hist["colors"].append('rgba(153, 102, 255, 0.5)')
                 elif age == 2:  # red
                     hist["colors"].append('rgba(255, 99, 132, 0.5)')
+                elif age == 3:  # blue
+                    hist["colors"].append('rgba(41, 95, 248, 0.5)')
                 else:  # grey
-                    hist["colors"].append('rgba(16,16,16,0.5)')
+                    hist["colors"].append('rgba(16, 16, 16, 0.5)')
                 if count > hist["max_count"]:
                     hist["max_count"] = count
             context['hist'] = hist
 
         detailed_salmon = obj.get_detailed_salmon()
         if detailed_salmon.exists():
-            lw = dict(obs_data=list(), exp_data=list(), colors=list())
-            obs_data = [dict(x=s.fork_length, y=s.weight) for s in detailed_salmon]
+            lw = dict(obs_data=list(), exp_data=list(), colors=list(), shapes=list(), sizes=list())
+            obs_data = [dict(x=s.fork_length, y=s.weight, age_type=s.get_smart_river_age_type_display(), age=s.smart_river_age, id=s.id) for s in detailed_salmon]
             lw['obs_data'] = obs_data
             lengths = [item["x"] for item in obs_data]
             weights = [item["y"] for item in obs_data]
-            for length in lengths:
-                age = get_age_from_length(length, obj.age_thresh_0_1, obj.age_thresh_1_2)
+
+            for s in detailed_salmon:
+                age = s.smart_river_age
                 if age == 0:  # green
                     lw["colors"].append('rgba(75, 192, 192, 0.5)')
                 elif age == 1:  # purple
                     lw["colors"].append('rgba(153, 102, 255, 0.5)')
                 elif age == 2:  # red
                     lw["colors"].append('rgba(255, 99, 132, 0.5)')
+                elif age == 3:  # blue
+                    lw["colors"].append('rgba(41, 95, 248, 0.5)')
                 else:  # grey
-                    lw["colors"].append('rgba(16,16,16,0.5)')
+                    lw["colors"].append('rgba(16, 16, 16, 0.5)')
+
+                if s.smart_river_age_type == 1:
+                    lw["shapes"].append("triangle")
+                    lw["sizes"].append(8)
+                else:
+                    lw["shapes"].append("circle")
+                    lw["sizes"].append(4)
 
             len_range = range(math.floor(min(lengths)), math.ceil(max(lengths)))
             calc_pairs = list()

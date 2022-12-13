@@ -36,7 +36,7 @@
               </td>
             {% endfor %}
             <td>
-              <a class="btn btn-dark btn-xs" href="{% url 'trapnet:specimen_detail' specimen.id %}">
+              <a id="specimen_{{ specimen.id }}" class="btn btn-dark btn-xs" href="{% url 'trapnet:specimen_detail' specimen.id %}">
                 <span class="mdi mdi-arrow-top-right text-light mr-1"></span>
                 {% trans "View detail" %}
               </a>

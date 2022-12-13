@@ -148,10 +148,21 @@
 {% endblock %}
 
 {% block body_js %}
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   {% if hist %}
     <script type="application/javascript">
+    const footer = (tooltipItems) => {
+      var age;
+      var ageType;
+      tooltipItems.forEach(function (tooltipItem) {
+        age = tooltipItem.raw.age;
+        ageType = tooltipItem.raw.age_type;
+        id = tooltipItem.raw.id;
+      });
+      return `Specimen Id: ${id}\nAge: ${age}\nAge type: ${ageType}`;
+    };
+
     var hist = {{ hist|safe }};
     new Chart(document.getElementById("bar-chart"), {
       type: 'bar',
@@ -184,7 +195,17 @@
                 {x: {{ object.age_thresh_1_2 }}, y: hist.max_count}
               ],
               barThickness: 1,
-              backgroundColor: 'blue',
+              backgroundColor: 'black',
+            },
+          {% endif %}
+          {% if object.age_thresh_2_3 %}
+            {
+              type: 'bar',
+              data: [
+                {x: {{ object.age_thresh_2_3 }}, y: hist.max_count}
+              ],
+              barThickness: 1,
+              backgroundColor: 'black',
             },
           {% endif %}
         ]
@@ -230,7 +251,9 @@
           type: 'scatter',
           label: 'Observed',
           data: lw.obs_data,
-          backgroundColor: lw.colors
+          backgroundColor: lw.colors,
+          pointStyle: lw.shapes,
+          pointRadius: lw.sizes
         },
         {
           label: 'Expected',
@@ -241,7 +264,9 @@
           pointRadius: 0,
           fill: false,
           tension: 0.4,
-          type: "line"
+          type: "line",
+          pointHitRadius: 0
+
         },
         {% if object.age_thresh_0_1 %}
           {
@@ -262,7 +287,18 @@
               {x: {{ object.age_thresh_1_2 }}, y: {{max_weight}}}
             ],
             barThickness: 1,
-            backgroundColor: 'blue',
+            backgroundColor: 'black',
+          },
+        {% endif %}
+        {% if object.age_thresh_2_3 %}
+          {
+            label: 'Age threshold (1-2+)',
+            type: 'bar',
+            data: [
+              {x: {{ object.age_thresh_2_3 }}, y: {{max_weight}}}
+            ],
+            barThickness: 1,
+            backgroundColor: 'black',
           },
         {% endif %}
 
@@ -273,6 +309,27 @@
       type: 'scatter',
       data: data,
       options: {
+        plugins: {
+          tooltip: {
+            callbacks: {
+              footer: footer,
+            }
+          }
+        },
+        onClick: function (evt, items) {
+          var id = items[0].element.$context.raw.id;
+          window.location.href = `#specimen_${id}`
+
+          //var element = myChart.getElementAtEvent(evt);
+          //if (element.length > 0) {
+          //  var ind = element[0]._index;
+          //  if (confirm('Do you want to remove this point?')) {
+          //    data.datasets[0].data.splice(ind, 1);
+          //    data.labels.splice(ind, 1);
+          //    myLineChart.update(data);
+          //  }
+          //}
+        },
         scales: {
           x: {
             type: 'linear',
@@ -288,13 +345,13 @@
               display: true,
               text: 'Weight (g)'
             },
-          }
+          },
+
         }
       }
     };
 
-    new Chart(document.getElementById("length-weight"), scatterConfig);
-
+    myChart = new Chart(document.getElementById("length-weight"), scatterConfig);
 
     </script>
   {% endif %}
