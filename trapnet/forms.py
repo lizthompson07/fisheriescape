@@ -187,6 +187,19 @@ class SpecimenForm(forms.ModelForm):
             'sweep': forms.HiddenInput(),
         }
 
+    def clean(self):
+        river_age = self.cleaned_data["river_age"]
+        age_type = self.cleaned_data["age_type"]
+
+        if river_age is not None and age_type == 3:
+            self.add_error('age_type', gettext(
+                "You cannot manually enter a river age while specifying this river age type!"
+            ))
+
+        if river_age is not None and not age_type:
+            self.add_error('age_type', gettext(
+                "You must specify a river age type!"
+            ))
 
 class FileForm(forms.ModelForm):
     class Meta:

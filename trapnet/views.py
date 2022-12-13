@@ -24,7 +24,7 @@ from . import forms
 from . import models
 from . import reports
 from .mixins import TrapNetCRUDRequiredMixin, TrapNetAdminRequiredMixin, SuperuserOrAdminRequiredMixin, TrapNetBasicMixin
-from .utils import get_sample_field_list, is_crud_user, get_age_from_length, get_sub_field_list, get_restigouche_rst_samples
+from .utils import get_sample_field_list, is_crud_user, get_age_from_length, get_sub_field_list, get_restigouche_rst_samples, get_specimen_field_list
 
 
 class IndexTemplateView(TrapNetBasicMixin, CommonTemplateView):
@@ -568,17 +568,7 @@ class SampleDetailView(TrapNetBasicMixin, CommonDetailView):
         context['sub_field_list'] = get_sub_field_list(obj)
         context["sub_obj"] = obj.get_sub_obj()
         context["sub_title"] = obj.get_sub_obj()
-        context['specimen_field_list'] = [
-            'species',
-            'status',
-            'fork_length',
-            'weight',
-            'tag_number',
-            "smart_river_age_display|{}".format("smart river age"),
-            # 'age_type',
-            'scale_id_number',
-            'notes',
-        ]
+        context['specimen_field_list'] = get_specimen_field_list()
 
         context['historical_file_field_list'] = [
             "species",
@@ -810,19 +800,18 @@ class SweepDetailView(TrapNetBasicMixin, CommonDetailView):
         'sweep_time',
         'species_list|{}'.format(_("species caught")),
         'tag_list|{}'.format(_("tags issued")),
+        "salmon_0plus|{}".format(_("+0 salmon ")),
+        "salmon_1plus|{}".format(_("+1 salmon ")),
+        "salmon_2plus|{}".format(_("+2 salmon ")),
+        "salmon_3plus|{}".format(_("+3 salmon ")),
+        "salmon_age_unknown|{}".format(_("salmon age unknown")),
         'notes',
         'metadata',
     ]
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['specimen_field_list'] = [
-            'species',
-            'status',
-            'adipose_condition',
-            'sex',
-            'scale_id_number',
-        ]
+        context['specimen_field_list'] = get_specimen_field_list()
         return context
 
     def get_parent_crumb(self):
@@ -914,9 +903,7 @@ class SpecimenDetailView(TrapNetBasicMixin, CommonDetailView):
         'fork_length',
         'total_length',
         'weight',
-        'age_type',
-        'river_age',
-        'smart_river_age_display',
+        "smart_river_age_display|{}".format("smart river age"),
         'ocean_age',
         'tag_number',
         'scale_id_number',

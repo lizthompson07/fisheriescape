@@ -151,6 +151,19 @@ def get_trapnet_field_list():
     ]
     return my_list
 
+def get_specimen_field_list():
+    my_list = [
+        'species',
+        'status',
+        'fork_length',
+        'weight',
+        'tag_number',
+        "smart_river_age_display|{}".format("smart river age"),
+        'scale_id_number',
+        'notes',
+    ]
+    return my_list
+
 
 def get_age_from_length(length, threshold_0_1=None, threshold_1_2=None, threshold_2_3=None):
     age = None

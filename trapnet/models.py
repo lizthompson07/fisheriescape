@@ -566,10 +566,30 @@ class Sweep(MetadataFields):
         for item in count_qs:
             payload[item["smart_river_age"]] = item["counts"]
         if not payload.get(None):
-            payload["None"] = 0
-        payload["None"] += self.specimens.filter(species__tsn=161996).filter(river_age__isnull=True, fork_length__isnull=False).count()
-            
+            payload[None] = 0
+        payload[None] += salmon.filter(river_age__isnull=True, fork_length__isnull=False).count()
+
         return payload
+
+    @property
+    def salmon_0plus(self):
+        return self.get_salmon_age_breakdown().get(0, 0)
+
+    @property
+    def salmon_1plus(self):
+        return self.get_salmon_age_breakdown().get(1, 0)
+
+    @property
+    def salmon_2plus(self):
+        return self.get_salmon_age_breakdown().get(2, 0)
+
+    @property
+    def salmon_3plus(self):
+        return self.get_salmon_age_breakdown().get(3, 0)
+
+    @property
+    def salmon_age_unknown(self):
+        return self.get_salmon_age_breakdown().get(None, 0)
 
 
 class Origin(CodeModel):
@@ -607,8 +627,8 @@ class Specimen(MetadataFields):
     scale_id_number = models.CharField(max_length=50, blank=True, null=True, verbose_name=_("scale ID number"), unique=True)
 
     # downstream
-    age_type = models.IntegerField(blank=True, null=True, verbose_name=_("age type"), choices=model_choices.age_type_choices)
     river_age = models.IntegerField(blank=True, null=True, verbose_name=_("river age"))
+    age_type = models.IntegerField(blank=True, null=True, verbose_name=_("river age type"), choices=model_choices.age_type_choices)
     ocean_age = models.IntegerField(blank=True, null=True, verbose_name=_("ocean age"))
 
     notes = models.TextField(blank=True, null=True)
