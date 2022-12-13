@@ -1,4 +1,8 @@
+from dm_apps import settings
 from dm_apps.emails import Email
+from dm_apps.utils import custom_send_mail
+
+glfwhale_generic_email = "dfo.glfwhales-baleinesglf.mpo@dfo-mpo.gc.ca"
 
 
 class NewIncidentEmail(Email):
@@ -59,30 +63,21 @@ class NewResightEmail(Email):
 class MaintenanceReminderEmail(Email):
     email_template_path = 'whalebrary/email_maintenance_reminder.html'
 
-    # def get_subject_en(self):
-    #     if self.instance.role == 1:
-    #         mystr = "FOR APPROVAL (LATE): Terms of reference"
-    #     else:
-    #         mystr = "FOR REVIEW (LATE): Terms of reference"
-    #     return mystr
-    #
-    # def get_subject_fr(self):
-    #     if self.instance.role == 1:
-    #         mystr = "POUR APPROBATION (EN RETARD) : Cadre de référence"
-    #     else:
-    #         mystr = "POUR ÉVALUATION (EN RETARD) : Cadre de référence"
-    #     return mystr
-    #
-    # def get_recipient_list(self):
-    #     return [self.instance.user.email, ]
-    #
-    # def __init__(self, instance=None, td=None):
-    #     self.instance = instance
-    #     self.td = td
-    #
-    # def get_context_data(self):
-    #     context = dict()
-    #     context["object"] = self.instance
-    #     context["td"] = self.td
-    #     context["SITE_FULL_URL"] = settings.SITE_FULL_URL
-    #     return context
+    def get_recipient_list(self):
+        payload = [glfwhale_generic_email, self.instance.assigned_to.email]
+        return payload
+
+    def __init__(self, instance=None):
+        self.instance = instance
+
+    def get_context_data(self):
+        context = dict()
+        context["object"] = self.instance
+        context["SITE_FULL_URL"] = settings.SITE_FULL_URL
+        return context
+
+    def send(self):
+        custom_send_mail(
+            email_instance=self,
+            user=self.instance.assigned_to
+        )
