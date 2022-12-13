@@ -40,7 +40,7 @@
                 <span class="mdi mdi-arrow-top-right text-light mr-1"></span>
                 {% trans "View detail" %}
               </a>
-              <a class="btn btn-warning btn-xs under-dev" href="#">
+              <a class="btn btn-warning btn-xs" href="{% url 'trapnet:specimen_edit' specimen.id %}#id_river_age">
                 <span class="mdi mdi-eye-check mr-1"></span>
                 {% trans "Enter scale reading" %}
               </a>

@@ -317,18 +317,10 @@
           }
         },
         onClick: function (evt, items) {
-          var id = items[0].element.$context.raw.id;
-          window.location.href = `#specimen_${id}`
-
-          //var element = myChart.getElementAtEvent(evt);
-          //if (element.length > 0) {
-          //  var ind = element[0]._index;
-          //  if (confirm('Do you want to remove this point?')) {
-          //    data.datasets[0].data.splice(ind, 1);
-          //    data.labels.splice(ind, 1);
-          //    myLineChart.update(data);
-          //  }
-          //}
+          if (items[0]) {
+            var id = items[0].element.$context.raw.id;
+            window.open(`/trapnet/specimens/${id}/view/`, "_blank").focus();
+          }
         },
         scales: {
           x: {
