@@ -233,7 +233,7 @@ def get_or_create_meeting(process: Process, id_schedule: int) -> Meeting or None
 
 def create_document(publication: dict, process: Process = None, additional_note: str = None,
                     meetings: [Meeting] = None) -> Document:
-    # safety check - if the pubcalition alreay exists, via old_id, then skip
+    # safety check - if the publication already exists, via old_id, then skip
     if Document.objects.filter(old_id=publication['Hidden ID Publication']).exists():
         print(f"Publication {publication['Hidden ID Publication']} already exists - skipping")
         return None
