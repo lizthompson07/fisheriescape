@@ -415,3 +415,21 @@ CELERY_BROKER_URL = config("CELERY_BROKER_URL", cast=str, default="redis://local
 CELERY_RESULT_BACKEND = config("CELERY_RESULT_BACKEND", cast=str, default="redis://localhost:6379")
 CELERY_RESULT_EXPIRES = 30
 CELERY_TIMEZONE = 'UTC'
+
+
+import sys
+
+if 'loaddata' in sys.argv:
+    # is database used sqlite3?
+    if 'sqlite3' in DATABASES['default']['ENGINE']:
+    # Ask for confirmation to disable foreign key checks
+        if input('Do you want to disable foreign key checks? [y/N] ').lower() == 'y':
+            print("...Disabling foreign key checks")
+            from django.db.backends.signals import connection_created
+            def disable_foreign_keys(sender, connection, **kwargs):
+                cursor = connection.cursor()
+                cursor.execute('PRAGMA foreign_keys=OFF;')
+            connection_created.connect(disable_foreign_keys)
+
+
+
