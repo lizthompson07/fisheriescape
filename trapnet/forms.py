@@ -187,6 +187,19 @@ class SpecimenForm(forms.ModelForm):
             'sweep': forms.HiddenInput(),
         }
 
+    def clean(self):
+        river_age = self.cleaned_data["river_age"]
+        age_type = self.cleaned_data["age_type"]
+
+        if river_age is not None and age_type == 3:
+            self.add_error('age_type', gettext(
+                "You cannot manually enter a river age while specifying this river age type!"
+            ))
+
+        if river_age is not None and not age_type:
+            self.add_error('age_type', gettext(
+                "You must specify a river age type!"
+            ))
 
 class FileForm(forms.ModelForm):
     class Meta:
@@ -202,8 +215,6 @@ class SampleFileForm(forms.ModelForm):
 
 class ReportSearchForm(forms.Form):
     REPORT_CHOICES = (
-        # (1, "List of samples (trap data) (CSV)"),
-        # (2, "List of entries (fish data) (CSV)"),
 
         (None, ""),
         (None, "RAW DATA"),
@@ -211,6 +222,7 @@ class ReportSearchForm(forms.Form):
         (1, "sample data (csv)"),
         (2, "sweep data - EF Only (csv)"),
         (3, "specimen data (csv)"),
+        (4, "river sites (csv)"),
         (5, "historical biological detail data (csv)"),
 
         (None, ""),
@@ -218,7 +230,7 @@ class ReportSearchForm(forms.Form):
         (None, "CUSTOM REPORTS"),
         (None, "----------------------------------------"),
         (10, "Electrofishing juvenile salmon CSAS report (csv)"),
-        (4, "Atlantic salmon individual specimen event report - Guillaume (csv)"),
+        (11, "Atlantic salmon individual specimen event report - Guillaume (csv)"),
 
         (None, ""),
         (None, ""),
@@ -236,8 +248,8 @@ class ReportSearchForm(forms.Form):
     sample_type = forms.ChoiceField(required=False, label="Sample type", help_text=leave_blank_text)
     year = forms.CharField(required=False, widget=forms.NumberInput(), label="Year", help_text=leave_blank_text)
     fishing_areas = forms.MultipleChoiceField(required=False, label="Fishing areas", help_text=leave_blank_text)
-    rivers = forms.MultipleChoiceField(required=False, label="Rivers", help_text=leave_blank_text)
-    sites = forms.MultipleChoiceField(required=False, label="Sites", help_text=leave_blank_text)
+    rivers = forms.MultipleChoiceField(required=False, label="Rivers", help_text=leave_blank_text, widget=forms.SelectMultiple(attrs=chosen_js))
+    sites = forms.MultipleChoiceField(required=False, label="Sites", help_text=leave_blank_text, widget=forms.SelectMultiple(attrs=chosen_js))
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

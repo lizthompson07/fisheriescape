@@ -28,4 +28,10 @@
     {% endif %}
 
   </div>
+  <div class="btn-group">
+  <a class="btn btn-outline-dark btn-sm" href="{% url 'trapnet:sample_edit' object.id %}#id_age_thresh_0_1">Set 0+ to 1+ thresholds</a>
+  <a class="btn btn-outline-dark btn-sm" href="{% url 'trapnet:sample_edit' object.id %}#id_age_thresh_1_2">Set 1+ to 2+ thresholds</a>
+  <a class="btn btn-outline-dark btn-sm" href="{% url 'trapnet:sample_edit' object.id %}#id_age_thresh_2_3">Set 2+ to 3+ thresholds</a>
+  </div>
+
 </div>

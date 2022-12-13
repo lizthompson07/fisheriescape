@@ -24,7 +24,7 @@ from . import forms
 from . import models
 from . import reports
 from .mixins import TrapNetCRUDRequiredMixin, TrapNetAdminRequiredMixin, SuperuserOrAdminRequiredMixin, TrapNetBasicMixin
-from .utils import get_sample_field_list, is_crud_user, get_age_from_length, get_sub_field_list, get_restigouche_rst_samples
+from .utils import get_sample_field_list, is_crud_user, get_age_from_length, get_sub_field_list, get_restigouche_rst_samples, get_specimen_field_list
 
 
 class IndexTemplateView(TrapNetBasicMixin, CommonTemplateView):
@@ -568,17 +568,7 @@ class SampleDetailView(TrapNetBasicMixin, CommonDetailView):
         context['sub_field_list'] = get_sub_field_list(obj)
         context["sub_obj"] = obj.get_sub_obj()
         context["sub_title"] = obj.get_sub_obj()
-        context['specimen_field_list'] = [
-            'species',
-            'status',
-            'fork_length',
-            'weight',
-            'tag_number',
-            "smart_river_age|{}".format("smart river age"),
-            # 'age_type',
-            'scale_id_number',
-            'notes',
-        ]
+        context['specimen_field_list'] = get_specimen_field_list()
 
         context['historical_file_field_list'] = [
             "species",
@@ -617,36 +607,48 @@ class SampleDetailView(TrapNetBasicMixin, CommonDetailView):
                 length = item[0]
                 count = item[1]
                 hist["data"].append(dict(x=length, y=count))
-                age = get_age_from_length(length, obj.age_thresh_0_1, obj.age_thresh_1_2)
+                age = get_age_from_length(length, obj.age_thresh_0_1, obj.age_thresh_1_2, obj.age_thresh_2_3)
                 if age == 0:  # green
                     hist["colors"].append('rgba(75, 192, 192, 0.5)')
                 elif age == 1:  # purple
                     hist["colors"].append('rgba(153, 102, 255, 0.5)')
                 elif age == 2:  # red
                     hist["colors"].append('rgba(255, 99, 132, 0.5)')
+                elif age == 3:  # blue
+                    hist["colors"].append('rgba(41, 95, 248, 0.5)')
                 else:  # grey
-                    hist["colors"].append('rgba(16,16,16,0.5)')
+                    hist["colors"].append('rgba(16, 16, 16, 0.5)')
                 if count > hist["max_count"]:
                     hist["max_count"] = count
             context['hist'] = hist
 
         detailed_salmon = obj.get_detailed_salmon()
         if detailed_salmon.exists():
-            lw = dict(obs_data=list(), exp_data=list(), colors=list())
-            obs_data = [dict(x=s.fork_length, y=s.weight) for s in detailed_salmon]
+            lw = dict(obs_data=list(), exp_data=list(), colors=list(), shapes=list(), sizes=list())
+            obs_data = [dict(x=s.fork_length, y=s.weight, age_type=s.get_smart_river_age_type_display(), age=s.smart_river_age, id=s.id) for s in detailed_salmon]
             lw['obs_data'] = obs_data
             lengths = [item["x"] for item in obs_data]
             weights = [item["y"] for item in obs_data]
-            for length in lengths:
-                age = get_age_from_length(length, obj.age_thresh_0_1, obj.age_thresh_1_2)
+
+            for s in detailed_salmon:
+                age = s.smart_river_age
                 if age == 0:  # green
                     lw["colors"].append('rgba(75, 192, 192, 0.5)')
                 elif age == 1:  # purple
                     lw["colors"].append('rgba(153, 102, 255, 0.5)')
                 elif age == 2:  # red
                     lw["colors"].append('rgba(255, 99, 132, 0.5)')
+                elif age == 3:  # blue
+                    lw["colors"].append('rgba(41, 95, 248, 0.5)')
                 else:  # grey
-                    lw["colors"].append('rgba(16,16,16,0.5)')
+                    lw["colors"].append('rgba(16, 16, 16, 0.5)')
+
+                if s.smart_river_age_type == 1:
+                    lw["shapes"].append("triangle")
+                    lw["sizes"].append(8)
+                else:
+                    lw["shapes"].append("circle")
+                    lw["sizes"].append(4)
 
             len_range = range(math.floor(min(lengths)), math.ceil(max(lengths)))
             calc_pairs = list()
@@ -810,19 +812,18 @@ class SweepDetailView(TrapNetBasicMixin, CommonDetailView):
         'sweep_time',
         'species_list|{}'.format(_("species caught")),
         'tag_list|{}'.format(_("tags issued")),
+        "salmon_0plus|{}".format(_("+0 salmon ")),
+        "salmon_1plus|{}".format(_("+1 salmon ")),
+        "salmon_2plus|{}".format(_("+2 salmon ")),
+        "salmon_3plus|{}".format(_("+3 salmon ")),
+        "salmon_age_unknown|{}".format(_("salmon age unknown")),
         'notes',
         'metadata',
     ]
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['specimen_field_list'] = [
-            'species',
-            'status',
-            'adipose_condition',
-            'sex',
-            'scale_id_number',
-        ]
+        context['specimen_field_list'] = get_specimen_field_list()
         return context
 
     def get_parent_crumb(self):
@@ -914,8 +915,7 @@ class SpecimenDetailView(TrapNetBasicMixin, CommonDetailView):
         'fork_length',
         'total_length',
         'weight',
-        'age_type',
-        'river_age',
+        "smart_river_age_display|{}".format("smart river age"),
         'ocean_age',
         'tag_number',
         'scale_id_number',
@@ -1055,14 +1055,19 @@ class ReportSearchFormView(TrapNetCRUDRequiredMixin, CommonFormView):
         elif report == 3:
             return HttpResponseRedirect(
                 reverse("trapnet:specimen_report") + f"?year={year}&fishing_areas={fishing_areas}&rivers={rivers}&sites={sites}&sample_type={sample_type}")
+        elif report == 4:
+            return HttpResponseRedirect(reverse("trapnet:river_site_report"))
         elif report == 5:
             return HttpResponseRedirect(reverse(
                 "trapnet:biological_detailing_report") + f"?year={year}&fishing_areas={fishing_areas}&rivers={rivers}&sites={sites}&sample_type={sample_type}")
 
         # custom - other
-        elif report == 4:
+        elif report == 11:
             return HttpResponseRedirect(reverse(
                 "trapnet:export_specimen_data_v1") + f"?year={year}&fishing_areas={fishing_areas}&rivers={rivers}&sites={sites}&sample_type={sample_type}")
+        elif report == 12:
+            return HttpResponseRedirect(reverse(
+                "trapnet:export_sweep_data_v1") + f"?year={year}&fishing_areas={fishing_areas}&rivers={rivers}&sites={sites}")
 
         # custom - electrofishing
         elif report == 10:
@@ -1186,6 +1191,17 @@ def export_specimen_data(request):
     return response
 
 
+def river_site_report(request):
+    qs = models.RiverSite.objects.all()
+    filename = f"river sites ({now().strftime('%Y-%m-%d')}).csv"
+    response = StreamingHttpResponse(
+        streaming_content=(reports.generate_river_sites_csv(qs)),
+        content_type='text/csv',
+    )
+    response['Content-Disposition'] = f'attachment;filename={filename}'
+    return response
+
+
 def export_biological_detailing_data(request):
     sample_type = request.GET.get("sample_type")
     year = request.GET.get("year")
@@ -1223,7 +1239,7 @@ def export_specimen_data_v1(request):
     rivers = request.GET.get("rivers")
     sites = request.GET.get("sites")
 
-    filter_kwargs = {"species__scientific_name__istartswith": "salmo", "life_stage__name__iexact": "smolt"}
+    filter_kwargs = {"species__tsn": 161996, "life_stage__name__iexact": "smolt"}
     if year != "":
         filter_kwargs["sample__season"] = year
     if fishing_areas != "":
@@ -1273,7 +1289,7 @@ def electro_juv_salmon_report(request):
 
 def od_sp_list(request):
     qp = request.GET
-    report_name=qp.get("report_name")
+    report_name = qp.get("report_name")
     qs = models.Species.objects.none()
     if report_name == "restigouche-rst":
         samples_qs = get_restigouche_rst_samples()
@@ -1285,7 +1301,7 @@ def od_sp_list(request):
 
 def od_summary_by_site_dict(request):
     qp = request.GET
-    report_name=qp.get("report_name")
+    report_name = qp.get("report_name")
     qs = models.Sample.objects.none()
     if report_name == "restigouche-rst":
         qs = get_restigouche_rst_samples()
@@ -1311,11 +1327,11 @@ def od_summary_by_site_report(request):
 
 def od_summary_by_site_wms(request):
     qp = request.GET
-    report_name=qp.get("report_name")
+    report_name = qp.get("report_name")
     qs = models.Sample.objects.none()
     if report_name == "restigouche-rst":
         qs = get_restigouche_rst_samples()
-    lang=qp.get("lang")
+    lang = qp.get("lang")
     response = reports.generate_od_summary_by_site_wms(qs, lang)
     return response
 

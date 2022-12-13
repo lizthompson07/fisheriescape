@@ -69,8 +69,7 @@ def auto_delete_trapnet_sample_file_on_change(sender, instance, **kwargs):
         if os.path.isfile(old_file.path):
             os.remove(old_file.path)
 
-
-# @receiver(post_save, sender=Sample)
-# def auto_save_trapnet_specimens_on_sample_change(sender, instance, **kwargs):
-#     for specimen in instance.specimens.all():
-#         specimen.save()
+@receiver(post_save, sender=Sample)
+def auto_save_trapnet_specimens_on_sample_change(sender, instance, **kwargs):
+    for salmon in instance.get_salmon_with_lengths():
+        salmon.save()

@@ -16,6 +16,8 @@ def generate_sample_csv(qs):
 
     fields = models.Sample._meta.fields
     field_names = [field.name for field in fields]
+    field_names.remove("site")
+    field_names.remove("id")
 
     # add any FKs
     for field in fields:
@@ -24,11 +26,16 @@ def generate_sample_csv(qs):
 
     header_row = deepcopy(field_names)
     header_row += [
+        "sample_id",
         "sample_type_display",
         "precipitation_category_display",
         "wind_speed_display",
         "wind_direction_display",
         "didymo_display",
+        "river_name",
+        "site_name",
+        "fishing_area",
+        "river_cgndb",
     ]
 
     # now we need to determine what fields to append from the sample subtype
@@ -48,7 +55,9 @@ def generate_sample_csv(qs):
                 "site_type_display",
                 "seine_type_display",
                 "electrofisher_pulse_type_display",
-                "full_wetted_width"
+                "avg_wetted_length",
+                "avg_wetted_width",
+                "full_wetted_area",
             ]
         elif isinstance(sub_obj, models.RSTSample):
             is_rst = True
@@ -70,11 +79,16 @@ def generate_sample_csv(qs):
         sub_obj = obj.get_sub_obj()
         data_row = [str(nz(getattr(obj, field), "")).encode("utf-8").decode('utf-8') for field in field_names]
         data_row += [
+            obj.id,
             obj.get_sample_type_display(),
             obj.get_precipitation_category_display(),
             obj.get_wind_speed_display(),
             obj.get_wind_direction_display(),
             obj.get_didymo_display(),
+            obj.site.river.name,
+            obj.site.name,
+            obj.site.river.fishing_area,
+            obj.site.river.cgndb,
         ]
         data_row += [str(nz(getattr(sub_obj, field), "")).encode("utf-8").decode('utf-8') for field in sub_field_names]
         if is_ef:
@@ -82,7 +96,9 @@ def generate_sample_csv(qs):
                 sub_obj.get_site_type_display(),
                 sub_obj.get_seine_type_display(),
                 sub_obj.get_electrofisher_pulse_type_display(),
-                sub_obj.get_full_wetted_width(show_errors=False),
+                sub_obj.avg_wetted_length,
+                sub_obj.avg_wetted_width,
+                sub_obj.full_wetted_area,
             ]
         elif is_rst:
             data_row += [
@@ -102,23 +118,63 @@ def generate_sweep_csv(qs):
 
     fields = models.Sweep._meta.fields
     field_names = [field.name for field in fields]
+    field_names.remove("created_by")
+    field_names.remove("updated_by")
+    field_names.remove("id")
 
     # add any FKs
     for field in fields:
         if field.attname not in field_names:
             field_names.append(field.attname)
+    field_names.remove("created_by_id")
+    field_names.remove("updated_by_id")
 
-    field_names.sort()
+    header_row = deepcopy(field_names)
+    header_row += [
+        "sweep_id",
+        "cgndb",
+        "avg_wetted_length",
+        "avg_wetted_width",
+        "full_wetted_area",
+        "salmon_age_unknown",
+        "salmon_0plus",
+        "salmon_1plus",
+        "salmon_2plus",
+        "salmon_3plus",
+        "site_name",
+        "river_name",
+        "monitoring_program",
+        "date",
+        "ordinal_day",
+    ]
+
     pseudo_buffer = Echo()
     writer = csv.writer(pseudo_buffer)
-    yield writer.writerow(field_names)
+    sorted_header = sorted(header_row)
+    yield writer.writerow(sorted_header)
 
     for obj in qs:
+        age_breakdown = obj.get_salmon_age_breakdown()
         data_row = [str(nz(getattr(obj, field), "")).encode("utf-8").decode('utf-8') for field in field_names]
-        yield writer.writerow(data_row)
-
-
-
+        data_row += [
+            obj.id,
+            obj.sample.site.river.cgndb,
+            obj.sample.ef_sample.avg_wetted_length,
+            obj.sample.ef_sample.avg_wetted_width,
+            obj.sample.ef_sample.full_wetted_area,
+            age_breakdown.get(None, 0),
+            age_breakdown.get(0, 0),
+            age_breakdown.get(1, 0),
+            age_breakdown.get(2, 0),
+            age_breakdown.get(3, 0),
+            obj.sample.site.name,
+            obj.sample.site.river.name,
+            obj.sample.monitoring_program,
+            obj.sample.arrival_date.strftime("%Y-%m-%d"),
+            obj.sample.arrival_date.toordinal(),
+        ]
+        sorted_data_row = [x for _, x in sorted(zip(header_row, data_row))]
+        yield writer.writerow(sorted_data_row)
 
 
 def generate_specimen_csv(qs, sample_type):
@@ -126,23 +182,31 @@ def generate_specimen_csv(qs, sample_type):
 
     fields = models.Specimen._meta.fields
     field_names = [field.name for field in fields]
+    field_names.remove("id")
 
     # add any FKs
     for field in fields:
         if field.attname not in field_names:
             field_names.append(field.attname)
+    field_names.remove("id")
     field_names.remove("sweep")
     field_names.remove("sweep_id")
+    field_names.remove("origin")
+    field_names.remove("origin_id")
+    field_names.remove("age_type")
+    field_names.remove("river_age")
 
     header_row = deepcopy(field_names)
     header_row += [
-        "site",
+        "specimen_id",
         "site_id",
+        "site_name",
+        "river_name",
         "arrival_date",
         "departure_date",
         "adipose_condition_display",
-        "age_type_display",
-        "smart_river_age",
+        "smart_river_age_type_display",
+        "calc_river_age",
     ]
 
     # now we need to determine what fields to append from the sample subtype
@@ -156,7 +220,7 @@ def generate_specimen_csv(qs, sample_type):
             "sweep_id",
             "sweep_number",
             "sweep_time",
-            "full_wetted_width",
+            "full_wetted_area",
         ]
 
     pseudo_buffer = Echo()
@@ -167,13 +231,15 @@ def generate_specimen_csv(qs, sample_type):
     for obj in qs:
         data_row = [str(nz(getattr(obj, field), "")).encode("utf-8").decode('utf-8') for field in field_names]
         data_row += [
-            obj.sample.site,
+            obj.id,
             obj.sample.site_id,
+            obj.sample.site.name,
+            obj.sample.site.river.name,
             obj.sample.arrival_date,
             obj.sample.departure_date,
             obj.get_adipose_condition_display(),
-            obj.get_age_type_display(),
-            obj.smart_river_age,
+            obj.get_smart_river_age_type_display(),
+            obj.get_calc_river_age(),
         ]
 
         if is_ef:
@@ -182,11 +248,64 @@ def generate_specimen_csv(qs, sample_type):
                 obj.sweep_id,
                 obj.sweep.sweep_number,
                 obj.sweep.sweep_time,
-                sub_obj.get_full_wetted_width(show_errors=False),
+                sub_obj.full_wetted_area,
             ]
-
         sorted_data_row = [x for _, x in sorted(zip(header_row, data_row))]
         yield writer.writerow(sorted_data_row)
+
+
+def generate_river_sites_csv(qs):
+    """Returns a generator for an HTTP Streaming Response"""
+
+    fields = models.RiverSite._meta.fields
+    field_names = [field.name for field in fields]
+    field_names.remove("river")
+    field_names.remove("name")
+    field_names.remove("id")
+
+    # add any FKs
+    for field in fields:
+        if field.attname not in field_names:
+            field_names.append(field.attname)
+
+    header_row = deepcopy(field_names)
+    header_row += [
+        "site_id",
+        "site_name",
+        "river_name",
+        "fishing_area",
+        "maritime_river_code",
+        "old_maritime_river_code",
+        "cgndb",
+        "parent_cgndb_id",
+        "nbadw_water_body_id",
+        "parent_river",
+        "display_hierarchy",
+    ]
+
+    pseudo_buffer = Echo()
+    writer = csv.writer(pseudo_buffer)
+    sorted_header = sorted(header_row)
+    yield writer.writerow(sorted_header)
+
+    for obj in qs:
+        data_row = [str(nz(getattr(obj, field), "")).encode("utf-8").decode('utf-8') for field in field_names]
+        data_row += [
+            obj.id,
+            obj.name,
+            obj.river.name,
+            obj.river.fishing_area,
+            obj.river.maritime_river_code,
+            obj.river.old_maritime_river_code,
+            obj.river.cgndb,
+            obj.river.parent_cgndb_id,
+            obj.river.nbadw_water_body_id,
+            obj.river.parent_river,
+            obj.river.display_hierarchy,
+        ]
+        sorted_data_row = [x for _, x in sorted(zip(header_row, data_row))]
+        yield writer.writerow(sorted_data_row)
+
 
 def generate_biological_detailing_csv(qs):
     """Returns a generator for an HTTP Streaming Response"""
@@ -203,6 +322,8 @@ def generate_biological_detailing_csv(qs):
     header_row += [
         "site",
         "site_id",
+        "site_name",
+        "river_name",
         "arrival_date",
         "departure_date",
         "adipose_condition_display",
@@ -219,6 +340,8 @@ def generate_biological_detailing_csv(qs):
         data_row += [
             obj.sample.site,
             obj.sample.site_id,
+            obj.sample.site.name,
+            obj.sample.site.river.name,
             obj.sample.arrival_date,
             obj.sample.departure_date,
             obj.get_adipose_condition_display(),
@@ -336,14 +459,13 @@ def generate_electro_juv_salmon_report(qs):
             sweep.sample.site.river,
             sweep.sample.site.name,
             sweep.sample.ef_sample.get_site_type_display(),
-            sweep.sample.ef_sample.get_full_wetted_width(False),
+            sweep.sample.ef_sample.full_wetted_area,
             sweep.sweep_number,
             sweep.sweep_time,
         ]
         for ls in life_stages:
             data_row.append(sweep.specimens.filter(life_stage=ls).count())
         yield writer.writerow(data_row)
-
 
 
 def generate_od_sp_list(qs):
@@ -466,7 +588,6 @@ def generate_od_summary_by_site_dict(report_name):
 
 
 def generate_od_summary_by_site_report(qs):
-
     pseudo_buffer = Echo()
     writer = csv.writer(pseudo_buffer)
 
