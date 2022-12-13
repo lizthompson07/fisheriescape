@@ -432,7 +432,7 @@ def get_lead_region_office(abbrev: str) -> CSASOffice or None:
     return None
 
 
-def find_meeting_by_id(id_schedule: int) -> Meeting or None:
+def find_meeting_by_id(id_schedule: int) -> pd.Series or None:
     """
     Find a meeting by its ID
     """
