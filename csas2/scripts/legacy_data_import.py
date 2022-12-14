@@ -267,7 +267,7 @@ def create_document(publication: dict, process: Process = None, additional_note:
         "document_type_id": document_type.id,  # default to "Working Paper"
         "process_id": process.id,
         "is_confirmed": True,
-        "status": 12,  # Posted
+        "status": get_document_status(publication['DOCUMENT STATUS']),  # defaults to "Confirmed"
         "title_en": publication['Title_English'],
         "title_fr": publication['Titre_français'],
         "old_id": publication['Hidden ID Publication'],
@@ -404,6 +404,26 @@ def get_or_create_document_type(abbrev: str) -> DocumentType or None:
 
     # if not found, return None
     return None
+
+
+def get_document_status(status: str) -> int:
+    """
+    Get the document status choice based on the string, defaults to 1 (Confirmed)
+    if not found.
+    """
+    if status == "PUBLISHED":
+        return 12 # Posted
+    elif status == "WITHDRAWN":
+        return 1 # Confirmed : todo - should be withdrawn but option does not exist
+    elif status == "Not yet submitted":
+        return 1 # Confirmed
+    elif status == "Submitted: in progress":
+        return 9 # Submitted to CSAS office
+    elif status == "Ready for Posting":
+        return 11 # Proof approved by author
+    else:
+        print(f"Unknown status: {status}")
+        return 1 # Confirmed
 
 
 def get_lead_region_office(abbrev: str) -> CSASOffice or None:
