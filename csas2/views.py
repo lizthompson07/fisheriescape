@@ -817,7 +817,7 @@ class ProcessUpdateView(CanModifyProcessRequiredMixin, CommonUpdateView):
         new_other_offices = listrify(obj.other_offices.all())
 
         # now for the piece about NCR email
-        if obj.has_tor and obj.tor.meeting.is_posted and (
+        if obj.has_tor and obj.tor.meeting and obj.tor.meeting.is_posted and (
                 old_lead_office != new_lead_office or old_other_offices != new_other_offices):
             email = emails.UpdatedMeetingEmail(self.request, obj.tor.meeting,
                                                new_lead_office=new_lead_office,
