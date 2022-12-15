@@ -1,7 +1,7 @@
 from copy import deepcopy
 
 import unicodecsv as csv
-from django.db.models import Sum, Avg
+from django.db.models import Sum, Avg, Q
 from django.http import HttpResponse
 from django.template.defaultfilters import floatformat
 
@@ -146,6 +146,8 @@ def generate_sweep_csv(qs):
         "monitoring_program",
         "date",
         "ordinal_day",
+        "other_species",
+        "site_event_code",
     ]
 
     pseudo_buffer = Echo()
@@ -172,6 +174,8 @@ def generate_sweep_csv(qs):
             obj.sample.monitoring_program,
             obj.sample.arrival_date.strftime("%Y-%m-%d"),
             obj.sample.arrival_date.toordinal(),
+            obj.specimens.filter(~Q(species__tsn=161996)).order_by("species").values("species").distinct().count(),
+            obj.site_event_code,
         ]
         sorted_data_row = [x for _, x in sorted(zip(header_row, data_row))]
         yield writer.writerow(sorted_data_row)

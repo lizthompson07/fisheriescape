@@ -591,6 +591,10 @@ class Sweep(MetadataFields):
     def salmon_age_unknown(self):
         return self.get_salmon_age_breakdown().get(None, 0)
 
+    @property
+    def site_event_code(self):
+        return [s.id for s in Sample.objects.filter(site=self.sample.site, season=self.sample.season).order_by("arrival_date")].index(self.sample.id) + 1
+
 
 class Origin(CodeModel):
     pass
