@@ -32,7 +32,7 @@
                     {% get_verbose_label random_maint field %}
                 </th>
             {% endfor %}
-            <th>
+            <th style="text-align:center;">
                 {% trans "Maintenance Completed" %}
             </th>
         </tr>
@@ -51,8 +51,8 @@
                     {% endif %}
                 {% endfor %}
                 <td style="text-align:center;">
-                    <a href="{% url 'whalebrary:mark_maintenance_done' obj.id %}" class="maintDoneBtn">
-                        <img src="{% static "/admin/img/icon-addlink.svg" %}" data-toggle="tooltip"
+                    <a href="{% url 'whalebrary:mark_maintenance_done' obj.id %}" target="MainWindow" class="maintDoneBtn">
+                        <img src="{% static 'img/whalebrary/work-started-icon.svg' %}" data-toggle="tooltip"
                              title="Mark Maintenance Done">
                     </a>
                 </td>

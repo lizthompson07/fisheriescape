@@ -1100,7 +1100,7 @@ class MaintenanceListView(WhalebraryAccessRequired, CommonFilterView):
         {"name": 'comments', "class": "", "width": ""},
         {"name": 'last_maint_by', "class": "", "width": ""},
         {"name": 'last_maint_date', "class": "", "width": ""},
-        {"name": 'days_until_maint|Days until maintenance required', "class": "", "width": ""},
+        {"name": 'days_until_maint|Days until maintenance required', "class": "red-font", "width": ""},
 
     ]
 
