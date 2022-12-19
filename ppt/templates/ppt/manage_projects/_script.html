@@ -537,30 +537,12 @@ var app = new Vue({
               this.tabAPILoading.activities = false;
               this.activities = response;
 
-              this.uniqueStatusReports = response.reduce(function (outArr, srStep) {
-                // the following is #efficient
-                // Copy the response array, remove the srStep object from the copy.
-                let compArray = response.slice(0);
-                let srIndex = compArray.indexOf(srStep);
-                compArray.splice(srIndex, 1);
-                // if the next status report's project year is not found in the response array, or if it has the most
-                // recent created_at date, push the object into the output array
-                if (!compArray.some(function (sr) {
-                  return sr.project_year === srStep.project_year && sr.created_at > srStep.created_at
-                })) {
-                  outArr.push(srStep);
-                }
-                return outArr;
-              }, []);
-
-              let nullPy = Object.assign({}, this.projectYears[0])
-              Object.keys(nullPy).forEach((i) => nullPy[i] = "")
-
               //assign each project year a status report or the null status report
               for (let i = 0; i < this.activities.length; i++) {
                 let pyMatch = this.projectYears.find(py => py.id === this.activities[i].id)
                 if (pyMatch !== 'undefined') {
                   this.activities[i].project_year = pyMatch
+                  this.activities[i].project = pyMatch.project
                 }
               }
             })
@@ -818,13 +800,7 @@ var app = new Vue({
           let modifier = 1;
           if (this.currentSortDir === 'desc') modifier = -1;
 
-          if (this.currentSort && this.currentSort.search("project_year.fiscal") > -1) {
-            if (a["project_year"]["fiscal_year"] < b["project_year"]["fiscal_year"]) return -1 * modifier;
-            if (a["project_year"]["fiscal_year"] > b["project_year"]["fiscal_year"]) return 1 * modifier;
-          } else if (this.currentSort === "project_year.id") {
-            if (a["project_year"]["project"]["id"] < b["project_year"]["project"]["id"]) return -1 * modifier;
-            if (a["project_year"]["project"]["id"] > b["project_year"]["project"]["id"]) return 1 * modifier;
-          } else if (this.currentSort.includes(".")) {
+          if (this.currentSort.includes(".")) {
             let parentKey = this.currentSort.split(".")[0];
             let childKey = this.currentSort.split(".")[1];
             if (a[parentKey][childKey] < b[parentKey][childKey]) return -1 * modifier;
