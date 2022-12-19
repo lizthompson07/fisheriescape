@@ -89,6 +89,11 @@ class StatusReportFilter(django_filters.FilterSet):
     status = django_filters.NumberFilter(field_name='status')
 
 
+class ActivityFilter(ProjectYearChildFilter):
+    status = django_filters.NumberFilter(field_name='updates__status')
+    classification = django_filters.NumberFilter(field_name='classification')
+
+
 class DMAFilter(django_filters.FilterSet):
     project = django_filters.NumberFilter(field_name='project')
     title_name = django_filters.CharFilter(field_name='title', lookup_expr="icontains")

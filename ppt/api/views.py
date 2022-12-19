@@ -22,7 +22,7 @@ from shared_models.utils import get_labels
 from . import permissions, pagination
 from . import serializers
 from .. import models, stat_holidays, emails
-from ..filters import ProjectYearChildFilter, ProjectYearFilter, DMAFilter, StatusReportFilter
+from ..filters import ProjectYearChildFilter, ProjectYearFilter, DMAFilter, StatusReportFilter, ActivityFilter
 from ..utils import financial_project_year_summary_data, financial_project_summary_data, get_user_fte_breakdown, can_modify_project, \
     get_manageable_sections, multiple_financial_project_year_summary_data, is_section_head, get_staff_summary
 from ..utils import is_management_or_admin
@@ -451,7 +451,7 @@ class ActivityViewSet(ModelViewSet):
     serializer_class = serializers.ActivitySerializer
     permission_classes = [permissions.CanModifyOrReadOnly]
     filter_backends = (DjangoFilterBackend,)
-    filterset_class = ProjectYearChildFilter
+    filterset_class = ActivityFilter
 
     def perform_create(self, serializer):
         obj = serializer.save()
