@@ -513,6 +513,7 @@ class ActivityForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["type"].widget.attrs = {"v-model": "activity.type"}
+        self.fields["classification"].widget.attrs = {"v-model": "activity.classification"}
         self.fields["name"].widget.attrs = {"v-model": "activity.name"}
         self.fields["description"].widget.attrs = {"v-model": "activity.description", "rows": "4"}
         self.fields["responsible_party"].widget.attrs = {"v-model": "activity.responsible_party"}
