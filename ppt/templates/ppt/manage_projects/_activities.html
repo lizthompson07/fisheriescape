@@ -49,29 +49,29 @@
       <table class="table table-sm">
         <thead>
         <tr>
-          <th @click="sort('project.id', table = 'sortedActivities')" class="clickable w75">
+          <th @click="sort('project.id', 'sortedActivities')" class="clickable w75">
             {% trans "Project Id" %}
           </th>
-          <th @click="sort('project_year.display_name', table = 'sortedActivities')" class="clickable w75">
+          <th @click="sort('project_year.fiscal_year', 'sortedActivities')" class="clickable w75">
             {% trans "Fiscal Year" %}
           </th>
-          <th @click="sort('project_year.title', table = 'sortedActivities')" class="clickable w75">
+          <th @click="sort('project.title', 'sortedActivities')" class="clickable w75">
             {% trans "Project Title" %}
           </th>
-          <th @click="sort('project_year.status_display', table = 'sortedActivities')" class="clickable w75">
+          <th @click="sort('project_year.status_display', 'sortedActivities')" class="clickable w75">
             {% trans "Project Status" %}
           </th>
 
-          <th @click="sort('type', table = 'sortedActivities')" class="clickable w75">
+          <th @click="sort('type', 'sortedActivities')" class="clickable w75">
             {% trans "Milestone or Deliverable?" %}
           </th>
-          <th @click="sort('classification', table = 'sortedActivities')" class="clickable w75">
+          <th @click="sort('classification', 'sortedActivities')" class="clickable w75">
             {% trans "Type" %}
           </th>
-          <th @click="sort('name', table = 'sortedActivities')" class="clickable w75">
+          <th @click="sort('name', 'sortedActivities')" class="clickable w75">
             {% trans "Name" %}
           </th>
-          <th @click="sort('latest_update_text', table = 'sortedActivities')" class="clickable w75">
+          <th @click="sort('latest_update_text', 'sortedActivities')" class="clickable w75">
             {% trans "Activity Status" %}
           </th>
 
