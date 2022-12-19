@@ -183,6 +183,10 @@ class FundingSource(SimpleLookup):
         unique_together = [('funding_source_type', 'name'), ]
 
 
+class ActivityClassification(SimpleLookup):
+    pass
+
+
 class Tag(SimpleLookup):
     pass
 
@@ -1325,7 +1329,8 @@ class Activity(models.Model):
     )
 
     project_year = models.ForeignKey(ProjectYear, related_name="activities", on_delete=models.CASCADE)
-    type = models.IntegerField(choices=type_choices)
+    type = models.IntegerField(choices=type_choices, verbose_name="Milestone or Deliverable?")
+    classification = models.ForeignKey(ActivityClassification, blank=True, null=True, on_delete=models.DO_NOTHING, verbose_name=_("Type"))
     name = models.CharField(max_length=500, verbose_name=_("name"))
     target_start_date = models.DateTimeField(blank=True, null=True, verbose_name=_("Target start date (optional)"))
     target_date = models.DateTimeField(blank=True, null=True, verbose_name=_("Target end date (optional)"))

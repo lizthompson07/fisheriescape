@@ -788,6 +788,18 @@ ActivityTypeFormset = modelformset_factory(
     extra=1,
 )
 
+class ActivityClassificationForm(forms.ModelForm):
+    class Meta:
+        model = models.ActivityClassification
+        fields = "__all__"
+
+
+ActivityClassificationFormset = modelformset_factory(
+    model=models.ActivityClassification,
+    form=ActivityClassificationForm,
+    extra=1,
+)
+
 
 class ThemeForm(forms.ModelForm):
     class Meta:

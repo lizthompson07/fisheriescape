@@ -892,6 +892,21 @@ class ActivityTypeFormsetView(AdminRequiredMixin, CommonFormsetView):
     delete_url_name = "ppt:delete_activity_type"
     container_class = "container bg-light curvy"
 
+class ActivityClassificationHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
+    model = models.ActivityClassification
+    success_url = reverse_lazy("ppt:manage_activity_classifications")
+
+
+class ActivityClassificationFormsetView(AdminRequiredMixin, CommonFormsetView):
+    template_name = 'ppt/formset.html'
+    h1 = "Manage Activity Classifications"
+    queryset = models.ActivityClassification.objects.all()
+    formset_class = forms.ActivityClassificationFormset
+    success_url = reverse_lazy("ppt:manage_activity_classifications")
+    home_url_name = "ppt:index"
+    delete_url_name = "ppt:delete_activity_classification"
+    container_class = "container bg-light curvy"
+
 
 class ThemeHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
     model = models.Theme
