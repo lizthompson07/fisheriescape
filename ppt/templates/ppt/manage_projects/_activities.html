@@ -1,0 +1,100 @@
+{% load verbose_names %}
+{% load i18n %}
+{% load custom_tags %}
+{% load bootstrap4 %}
+
+<div v-if="showTab.activities" class="mt-5">
+
+  <div v-if="!tabAPILoading.activities">
+    <div class="text-center">
+      <p class="font-italic font-weight-bold">${sortedActivities.length} of ${activityCount} loaded</p>
+    </div>
+  </div>
+  <div v-if="errorTooBigActivities">
+    <p class="lead font-italic">
+      {% trans "There are too many projects in your search criteria. Please reduce the number of projects using the filters" %}
+    </p>
+  </div>
+  <div v-else>
+    {% block filter %}
+
+
+    {% endblock %}
+
+
+    <div>
+      <table class="table table-sm">
+        <thead>
+        <tr>
+          <th @click="sort('project_year.id')" class="clickable w75">
+            {% trans "Project Id" %}
+          </th>
+          <th @click="sort('project_year.fiscal_year')" class="clickable w75">
+            {% trans "Fiscal Year" %}
+          </th>
+          <th @click="sort('project_year.title')" class="clickable w75">
+            {% trans "Project Title" %}
+          </th>
+          <th @click="sort('project_year.status')" class="clickable w75">
+            {% trans "Project Status" %}
+          </th>
+
+          <th @click="sort('type')" class="clickable w75">
+            {% trans "Milestone or Deliverable?" %}
+          </th>
+          <th @click="sort('classification')" class="clickable w75">
+            {% trans "Type" %}
+          </th>
+          <th @click="sort('name')" class="clickable w75">
+            {% trans "Name" %}
+          </th>
+          <th @click="sort('latest_update_text')" class="clickable w75">
+            {% trans "Activity Status" %}
+          </th>
+
+
+        </tr>
+        </thead>
+        <tbody>
+        <tr
+          v-for="(act, index) in sortedActivities"
+          @mouseover="hover = true"
+          @mouseleave="hover = false"
+        >
+          <td>${act.project_year.project.id}</td>
+          <td>${act.project_year.display_name}</td>
+          <td>
+            <a class="text-primary pointy" @click="goProjectDetail(act.project_year)">
+              ${act.project_year.project.title}
+            </a>
+          </td>
+          <td><span :class="act.project_year.status_class + ' p-1'" v-html="act.project_year.status_display"></span></td>
+
+
+          <td>${act.type_display}</td>
+          <td>${act.classification_display}</td>
+          <td>${act.name}</td>
+          <td>${act.latest_update_text}</td>
+
+        </tr>
+        </tbody>
+      </table>
+    </div>
+
+
+    <div v-if="projects_loading" class="loading mb-3 mt-3 text-center mt-5">
+      <div class="spinner-border mb-3" style="width: 10rem; height: 10rem;" role="status">
+        <span class="sr-only"></span>
+      </div>
+    </div>
+    <div v-else>
+      <div class="text-center">
+      <p class="font-italic font-weight-bold">${sortedActivities.length} of ${activityCount} loaded</p>
+        <button v-if="next" @click="loadMoreResults" class="btn btn-primary btn-sm">
+          {% trans "Load more results..." %}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+

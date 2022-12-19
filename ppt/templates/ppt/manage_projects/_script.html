@@ -34,6 +34,7 @@ var app = new Vue({
       approvals: false,
       DMAs: false,
       statusReports: false,
+      activities: false,
     },
     // tabAPILoading keys must be in showTab
     tabAPILoading: {
@@ -41,6 +42,7 @@ var app = new Vue({
       financialSummary: true,
       DMAs: true,
       statusReports: false,
+      activities: false,
     },
     showStaffList: false,
     showFinancialSummary: false,
@@ -59,6 +61,7 @@ var app = new Vue({
     errorTooBigFinancial: false,
     errorTooSmallFinancial: false,
     errorTooBigStatusReports: false,
+    errorTooBigActivities: false,
     projectYears: [],
     allPyIds: [],
     staff: [],
@@ -68,6 +71,7 @@ var app = new Vue({
     dmas: [],
     statusReports: [],
     uniqueStatusReports: [],
+    activities: [],
     financials: [],
     next: null,
     previous: null,
@@ -79,6 +83,7 @@ var app = new Vue({
     },
 
     status_report_filter: {},
+    activity_filter: {},
 
     showColumnLeads: true,
     showColumnHidden: true,
@@ -273,6 +278,10 @@ var app = new Vue({
       if (this.status_report_filter.status) endpoint += `status=${this.status_report_filter.status}&`;
       return endpoint
     },
+    getActivityFilterString() {
+      let endpoint = "";
+      return endpoint
+    },
     getProjectYearsEndpoint(pageSize = 25) {
       endpoint = `/api/ppt/project-years/`;
       // apply filters
@@ -289,6 +298,12 @@ var app = new Vue({
       endpoint = `/api/ppt/status-reports/`;
       // apply filters
       endpoint += `?page_size=${pageSize}&` + this.getStatusReportFilterString()
+      return endpoint
+    },
+    getActivityEndpoint(pageSize = 25) {
+      endpoint = `/api/ppt/activities/`;
+      // apply filters
+      endpoint += `?page_size=${pageSize}&` + this.getActivityFilterString()
       return endpoint
     },
     getProjectYears(endpoint, pageSize = 25) {
@@ -375,6 +390,10 @@ var app = new Vue({
       this.status_report_filter = {};
       this.getStatusReports()
     },
+    clearActivityFilters() {
+      this.activity_filter = {};
+      this.getActivities()
+    },
     updateResults() {
       this.clearProjectYears();
       this.getProjectYears();
@@ -391,6 +410,7 @@ var app = new Vue({
       else if (name === "approvals") this.showTab.approvals = true;
       else if (name === "dmas") this.showTab.DMAs = true;
       else if (name === "statusReports") this.showTab.statusReports = true;
+      else if (name === "activities") this.showTab.activities = true;
       this.loadActiveTab();
     },
 
@@ -408,6 +428,9 @@ var app = new Vue({
           }
           if (tabKey === "statusReports") {
             this.getStatusReports()
+          }
+          if (tabKey === "activities") {
+            this.getActivities()
           }
         }
       }
@@ -494,6 +517,49 @@ var app = new Vue({
                   this.projectYears[i].status_report = nullSr;
                 } else {
                   this.projectYears[i].has_status_report = true;
+                }
+              }
+            })
+      }
+    },
+    getActivities() {
+      this.tabAPILoading.activities = true;
+      this.errorTooBigActivities = false;
+
+      if (this.errorTooManyPY) {
+        this.tabAPILoading.activities = false;
+        this.errorTooBigActivities = true;
+      } else {
+        let endpoint = this.getActivityEndpoint(pageSize = 200)
+        apiService(endpoint)
+            .then(response => {
+              this.tabAPILoading.activities = false;
+              this.activities = response;
+
+              this.uniqueStatusReports = response.reduce(function (outArr, srStep) {
+                // the following is #efficient
+                // Copy the response array, remove the srStep object from the copy.
+                let compArray = response.slice(0);
+                let srIndex = compArray.indexOf(srStep);
+                compArray.splice(srIndex, 1);
+                // if the next status report's project year is not found in the response array, or if it has the most
+                // recent created_at date, push the object into the output array
+                if (!compArray.some(function (sr) {
+                  return sr.project_year === srStep.project_year && sr.created_at > srStep.created_at
+                })) {
+                  outArr.push(srStep);
+                }
+                return outArr;
+              }, []);
+
+              let nullPy = Object.assign({}, this.projectYears[0])
+              Object.keys(nullPy).forEach((i) => nullPy[i] = "")
+
+              //assign each project year a status report or the null status report
+              for (let i = 0; i < this.activities.length; i++) {
+                let pyMatch = this.projectYears.find(py => py.id === this.activities[i].id)
+                if (pyMatch !== 'undefined') {
+                  this.activities[i].project_year = pyMatch
                 }
               }
             })
@@ -743,12 +809,44 @@ var app = new Vue({
       }
     },
 
+    sortedActivities() {
+      if (this.currentSortTable !== "sortedActivities") {
+        return this.activities;
+      } else {
+        return this.activities.sort((a, b) => {
+          let modifier = 1;
+          if (this.currentSortDir === 'desc') modifier = -1;
+
+          if (this.currentSort && this.currentSort.search("project_year.fiscal") > -1) {
+            if (a["project_year"]["fiscal_year"] < b["project_year"]["fiscal_year"]) return -1 * modifier;
+            if (a["project_year"]["fiscal_year"] > b["project_year"]["fiscal_year"]) return 1 * modifier;
+          } else if (this.currentSort === "project_year.id") {
+            if (a["project_year"]["project"]["id"] < b["project_year"]["project"]["id"]) return -1 * modifier;
+            if (a["project_year"]["project"]["id"] > b["project_year"]["project"]["id"]) return 1 * modifier;
+          } else if (this.currentSort.includes(".")) {
+            let parentKey = this.currentSort.split(".")[0];
+            let childKey = this.currentSort.split(".")[1];
+            if (a[parentKey][childKey] < b[parentKey][childKey]) return -1 * modifier;
+            if (a[parentKey][childKey] > b[parentKey][childKey]) return 1 * modifier;
+          } else {
+            if (a[this.currentSort] < b[this.currentSort]) return -1 * modifier;
+            if (a[this.currentSort] > b[this.currentSort]) return 1 * modifier;
+          }
+          return 0;
+        });
+      }
+    },
+
     statusReportCount() {
       if (this.uniqueStatusReports.length < this.count && this.status_report_filter.has_status_report) {
         return this.uniqueStatusReports.length;
       } else {
         return this.count;
       }
+    },
+
+    activityCount() {
+      return this.activities.length;
     },
 
     sortedStaffLevelSummary() {
