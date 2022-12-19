@@ -44,7 +44,22 @@
               {% endfor %}
             </select>
           </div>
+
+          <div class=col">
+            <label class="text-muted small" for="activity_filter.classification">{% trans "Type" %}</label>
+            <select
+              v-model="activity_filter.classification"
+              @change="getActivities"
+              class="form-control form-control-sm" id="activity_filter.classfication"
+            >
+              <option value="">{% trans "all" %}</option>
+              {%  for obj in activity_classification_choices %}
+                <option value="{{ obj.value }}">{{obj.label}}</option>
+              {% endfor %}
+            </select>
+          </div>
         </div>
+
         <div class="row">
            <div class="col">
              <button @click="clearActivityFilters" class="btn btn-sm btn-warning" >{% trans "Clear filters" %}</button>
@@ -85,6 +100,9 @@
           <th @click="sort('latest_update_text', 'sortedActivities')" class="clickable w75">
             {% trans "Activity Status" %}
           </th>
+          <th @click="sort('target_date_display', 'sortedActivities')" class="clickable w75">
+            {% trans "Target Date" %}
+          </th>
 
 
         </tr>
@@ -109,6 +127,7 @@
           <td>${act.classification_display}</td>
           <td>${act.name}</td>
           <td>${act.latest_update_text}</td>
+          <td>${act.target_date_display}</td>
 
         </tr>
         </tbody>

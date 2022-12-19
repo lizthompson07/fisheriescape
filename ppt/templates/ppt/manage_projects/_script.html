@@ -282,6 +282,7 @@ var app = new Vue({
     getActivityFilterString() {
       let endpoint = "";
       if (this.activity_filter.status) endpoint += `status=${this.activity_filter.status}&`;
+      if (this.activity_filter.classification) endpoint += `classification=${this.activity_filter.classification}&`;
       return endpoint
     },
     getProjectYearsEndpoint(pageSize = 25) {
