@@ -280,6 +280,7 @@ var app = new Vue({
     },
     getActivityFilterString() {
       let endpoint = "";
+      if (this.activity_filter.status) endpoint += `status=${this.activity_filter.status}&`;
       return endpoint
     },
     getProjectYearsEndpoint(pageSize = 25) {

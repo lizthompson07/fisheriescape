@@ -210,6 +210,7 @@ class ManageProjectsTemplateView(ManagerOrAdminRequiredMixin, CommonTemplateView
         context["om_cost_categories"] = [dict(label=f"{item.get_group_display()} - {item}", value=item.id) for item in models.OMCategory.objects.all()]
         context["activity_types"] = [dict(label=f"{item}", value=item.id) for item in models.ActivityType.objects.all()]
         context["status_report_status_choices"] = [dict(label=f"{item[1]}", value=item[0]) for item in models.StatusReport.status_choices]
+        context["activity_status_choices"] = [dict(label=f"{item[1]}", value=item[0]) for item in models.ActivityUpdate.status_choices]
         context["review_form"] = forms.ReviewForm
         context["approval_form"] = forms.ApprovalForm
         context["capital_allocation_form"] = forms.CapitalAllocationForm
