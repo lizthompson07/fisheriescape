@@ -5,6 +5,17 @@
 
 <div v-if="showTab.activities" class="mt-5">
 
+  <div class="">
+    <div class="pointy mb-5" @click="toggleApprovedOnly">
+      <p class="lead text-secondary" id="overview">
+        <span>{% trans "Approved projects only" %}</span>
+        <span v-if="approvedActivities" class="mx-2 mdi mdi-toggle-switch-off h4"></span>
+        <span v-else class="mx-2 mdi mdi-toggle-switch h4"></span>
+        <span>{% trans "All projects" %}</span>
+      </p>
+    </div>
+  </div>
+
   <div v-if="!tabAPILoading.activities">
     <div class="text-center">
       <p class="font-italic font-weight-bold">${sortedActivities.length} of ${activityCount} loaded</p>

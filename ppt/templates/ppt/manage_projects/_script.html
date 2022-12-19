@@ -22,6 +22,7 @@ var app = new Vue({
     isAdminOrMgmt: false,
     hover: false,
     cardViewOn: false,
+    approvedActivities: true,
 
     errorNoFiscalYear: false,
     loadingReport: false,
@@ -395,6 +396,10 @@ var app = new Vue({
       this.activity_filter = {};
       this.getActivities()
     },
+    toggleApprovedOnly() {
+      this.approvedActivities = !this.approvedActivities;
+      this.getActivities();
+    },
     updateResults() {
       this.clearProjectYears();
       this.getProjectYears();
@@ -535,14 +540,18 @@ var app = new Vue({
         apiService(endpoint)
             .then(response => {
               this.tabAPILoading.activities = false;
-              this.activities = response;
+              this.activitiesResponse = response;
+              this.activities = [];
 
               //assign each project year a status report or the null status report
-              for (let i = 0; i < this.activities.length; i++) {
-                let pyMatch = this.projectYears.find(py => py.id === this.activities[i].id)
+              for (let i = 0; i < this.activitiesResponse.length; i++) {
+                let pyMatch = this.projectYears.find(py => py.id === this.activitiesResponse[i].project_year_id)
                 if (pyMatch !== 'undefined') {
-                  this.activities[i].project_year = pyMatch
-                  this.activities[i].project = pyMatch.project
+                    if (!this.approvedActivities || pyMatch.status === 4) {
+                      this.activitiesResponse[i].project_year = pyMatch
+                      this.activitiesResponse[i].project = pyMatch.project
+                      this.activities.push(this.activitiesResponse[i]);
+                    }
                 }
               }
             })
