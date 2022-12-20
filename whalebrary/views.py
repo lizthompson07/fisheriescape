@@ -769,6 +769,11 @@ class TransactionCreateView(WhalebraryEditRequiredMixin, CommonCreateView):
     def get_form_class(self):
         return forms.TransactionForm1 if self.kwargs.get("pk") else forms.TransactionForm
 
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class=None)
+        form.fields['location'].queryset = form.fields['location'].queryset.filter(transactions__item=self.kwargs.get("pk")).distinct()
+        return form
+
     def form_valid(self, form):
         my_object = form.save()
         messages.success(self.request, _(f"Transaction record successfully created for : {my_object}"))
@@ -787,6 +792,11 @@ class TransactionLendCreateView(WhalebraryEditRequiredMixin, CommonCreateView):
     template_name = 'shared_models/generic_popout_form.html'
     home_url_name = "whalebrary:index"
     submit_text = "Borrow"
+
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class=None)
+        form.fields['location'].queryset = form.fields['location'].queryset.filter(transactions__item=self.kwargs.get("pk")).distinct()
+        return form
 
     def form_valid(self, form):
         my_object = form.save()
