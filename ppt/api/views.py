@@ -450,6 +450,7 @@ class ActivityViewSet(ModelViewSet):
     queryset = models.Activity.objects.all()
     serializer_class = serializers.ActivitySerializer
     permission_classes = [permissions.CanModifyOrReadOnly]
+    pagination_class = pagination.StandardResultsSetPagination
     filter_backends = (DjangoFilterBackend,)
     filterset_class = ActivityFilter
 
