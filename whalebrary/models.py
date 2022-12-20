@@ -560,6 +560,15 @@ class Maintenance(models.Model):
         time_remaining = date_scheduled - today
         return td(time_remaining)
 
+    @property
+    def overdue(self):
+        date_scheduled = self.last_maint_date + self.schedule
+        today = datetime.now(timezone.utc)
+        if date_scheduled >= today:
+            return False
+        else:
+            return True
+
 
 class Tag(models.Model):
     tag = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("tag"))
@@ -621,9 +630,6 @@ class Transaction(models.Model):
 
         if self.quantity:
             return '{} - {}'.format(self.quantity, my_str)
-
-        if self.tag:
-            return '{}'.format(self.id)
 
     def get_absolute_url(self):
         return reverse("whalebrary:transaction_detail", kwargs={"pk": self.id})
