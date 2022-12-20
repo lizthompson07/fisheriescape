@@ -600,11 +600,11 @@ class TransactionCategory(models.Model):
 
 class Transaction(models.Model):
     item = models.ForeignKey(Item, on_delete=models.DO_NOTHING, related_name="transactions", verbose_name=_("item"))
-    quantity = models.FloatField(null=True, blank=True, verbose_name=_("quantity"), validators=[MinValueValidator(0)])
+    quantity = models.FloatField(verbose_name=_("quantity"), validators=[MinValueValidator(1)])
     category = models.ForeignKey(TransactionCategory, on_delete=models.DO_NOTHING, related_name="transactions",
                                  verbose_name=_("transaction category"))
     # track which 'lent' transactions have been voided/returned
-    return_tracker = models.BooleanField(default=False, verbose_name=_("Voided"))
+    return_tracker = models.BooleanField(default=False, verbose_name=_("Returned"))
     # can use for who lent to, etc
     comments = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("comments"))
     # auditing
@@ -630,6 +630,9 @@ class Transaction(models.Model):
 
         if self.quantity:
             return '{} - {}'.format(self.quantity, my_str)
+
+        else:
+            return '{}'.format(my_str)
 
     def get_absolute_url(self):
         return reverse("whalebrary:transaction_detail", kwargs={"pk": self.id})
