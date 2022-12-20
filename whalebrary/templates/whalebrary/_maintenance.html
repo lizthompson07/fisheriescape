@@ -51,9 +51,15 @@
                     {% endif %}
                 {% endfor %}
                 <td style="text-align:center;">
-                    <a href="{% url 'whalebrary:mark_maintenance_done' obj.id %}" target="MainWindow" class="maintDoneBtn">
-                        <img src="{% static 'img/whalebrary/work-started-icon.svg' %}" data-toggle="tooltip"
-                             title="Mark Maintenance Done">
+                    <a href="{% url 'whalebrary:mark_maintenance_done' obj.id %}" target="MainWindow"
+                       class="maintDoneBtn">
+                        {% if obj.overdue %}
+                            <img src="{% static "img/whalebrary/work-needed-icon.svg" %}" data-toggle="tooltip"
+                                 title="Mark Maintenance Done">
+                        {% else %}
+                            <img src="{% static 'img/whalebrary/work-started-icon.svg' %}" data-toggle="tooltip"
+                                 title="Mark Maintenance Done">
+                        {% endif %}
                     </a>
                 </td>
             </tr>
