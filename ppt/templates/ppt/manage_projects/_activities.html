@@ -46,6 +46,20 @@
           </div>
 
           <div class=col">
+            <label class="text-muted small" for="activity_filter.type">{% trans "Status" %}</label>
+            <select
+              v-model="activity_filter.type"
+              @change="upddateActivities"
+              class="form-control form-control-sm" id="activity_filter.type"
+            >
+              <option value="">{% trans "all" %}</option>
+              {%  for obj in activity_type_choices %}
+                <option value="{{ obj.value }}">{{obj.label}}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class=col">
             <label class="text-muted small" for="activity_filter.classification">{% trans "Type" %}</label>
             <select
               v-model="activity_filter.classification"

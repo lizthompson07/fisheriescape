@@ -475,10 +475,10 @@ var app = new Vue({
       apiService(endpoint)
           .then(response => {
             this.activity_loading = false;
-            for (const responseElement of response) {
+            for (const responseElement of response.results) {
               responseElement.show_children = !!this.canModify;
             }
-            this.activities = response;
+            this.activities = response.results;
           })
     },
     cloneActivity(activity) {
