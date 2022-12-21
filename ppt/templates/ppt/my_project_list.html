@@ -92,10 +92,10 @@
         <td class="{{ field.class }}">
           {% if "unsubmitted" in field.name %}
             {% get_field_value object field.name as my_val %}
-            {% if my_val %}
-              <span class="py-1 px-1 highlight">{{ my_val|yesno }}</span>
+            {% if my_val == "Yes" %}
+              <span class="py-1 px-1 highlight">{{ my_val }}</span>
             {% else %}
-              <span>{{ my_val|yesno }}</span>
+              <span>{{ my_val }}</span>
             {% endif %}
           {% elif field.name == "status" %}
             {% if fiscal_year %}
