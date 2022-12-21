@@ -541,7 +541,6 @@ var app = new Vue({
     },
     getActivities() {
       this.tabAPILoading.activities = true;
-      this.errorTooBigActivities = false;
 
       if (this.errorTooManyPY) {
         this.tabAPILoading.activities = false;
@@ -560,15 +559,29 @@ var app = new Vue({
               this.activitiesResponse = response.results;
               this.activityCount = response.count;
               this.activityNext = response.next;
-              //assign each project year a status report or the null status report
-              for (let i = 0; i < this.activitiesResponse.length; i++) {
-                let pyMatch = this.projectYears.find(py => py.id === this.activitiesResponse[i].project_year_id)
-                if (pyMatch !== 'undefined') {
-                    this.activitiesResponse[i].project_year = pyMatch
-                    this.activitiesResponse[i].project = pyMatch.project
-                    this.activities.push(this.activitiesResponse[i]);
-                }
+              //assign each status report a project and project year.  First get all project years:
+              if (this.activityCount < 500){
+                this.errorTooBigActivities = false;
+                endpointAll = this.getProjectYearsEndpoint(200)
+                apiService(endpointAll)
+                  .then(response => {
+                    if (response.results) {
+                        let allPys = response.results
+                        for (let i = 0; i < this.activitiesResponse.length; i++) {
+                            let pyMatch = allPys.find(py => py.id === this.activitiesResponse[i].project_year_id)
+                            if (pyMatch !== 'undefined') {
+                                this.activitiesResponse[i].project_year = pyMatch
+                                this.activitiesResponse[i].project = pyMatch.project
+                                this.activities.push(this.activitiesResponse[i]);
+                            }
+                        }
+                    }
+                  })
+              } else {
+                this.errorTooBigActivities = true;
               }
+
+
             })
       }
     },
