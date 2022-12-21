@@ -612,6 +612,7 @@ class LocationDeleteView(WhalebraryAdminAccessRequired, CommonDeleteView):
     def get_parent_crumb(self):
         return {"title": self.get_object(), "url": reverse_lazy("whalebrary:location_detail", kwargs=self.kwargs)}
 
+
     ##TRANSACTION##
 
 
@@ -844,6 +845,40 @@ class TransactionDeleteView(WhalebraryEditRequiredMixin, CommonDeleteView):
 class TransactionDeletePopoutView(WhalebraryEditRequiredMixin, CommonPopoutDeleteView):
     model = models.Transaction
     delete_protection = False
+
+
+    ## LENDING ##
+
+
+class LendingListView(WhalebraryAccessRequired, CommonFilterView):
+    template_name = "whalebrary/lending_list.html"
+    h1 = "Lending List"
+    filterset_class = filters.LendingFilter
+    home_url_name = "whalebrary:index"
+    row_object_url_name = "whalebrary:item_detail"
+    # new_btn_text = "New Lending Record"
+
+    queryset = models.Transaction.objects.annotate(
+        search_term=Concat('id', 'item__item_name', 'quantity', 'category__type', 'comments',
+                           'location__location', 'created_by__first_name',
+                           output_field=TextField())).filter(category=3, return_tracker=False)
+
+    field_list = [
+        {"name": 'id', "class": "", "width": ""},
+        {"name": 'item', "class": "", "width": ""},
+        {"name": 'quantity', "class": "", "width": ""},
+        {"name": 'category', "class": "", "width": ""},
+        {"name": 'comments', "class": "", "width": ""},
+        {"name": 'location', "class": "", "width": ""},
+        {"name": 'created_at', "class": "", "width": ""},
+        {"name": 'created_by', "class": "", "width": ""},
+        {"name": 'updated_at', "class": "", "width": ""},
+
+    ]
+
+    # def get_new_object_url(self):
+    #     return reverse("whalebrary:maintenance_new", kwargs=self.kwargs)
+
 
     ##BULK TRANSACTION##
 
@@ -1174,9 +1209,6 @@ class MaintenanceUpdateView(WhalebraryEditRequiredMixin, CommonUpdateView):
 class MaintenanceUpdatePopoutView(WhalebraryEditRequiredMixin, CommonPopoutUpdateView):
     model = models.Maintenance
     form_class = forms.MaintenanceForm1
-
-
-# TODO Figure out how to have it only create once the form is saved - confirmation html step?
 
 
 def mark_maintenance_done(request, maintenance):

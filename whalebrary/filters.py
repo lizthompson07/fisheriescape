@@ -40,6 +40,23 @@ class TransactionFilter(django_filters.FilterSet):
                                             lookup_expr='icontains', widget=forms.TextInput())
 
 
+class LendingFilter(django_filters.FilterSet):
+    class Meta:
+        model = models.Transaction
+        fields = {
+            'comments': ['icontains'],
+            'created_by': ['exact'],
+
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.filters["item"] = django_filters.CharFilter(field_name='search_term',
+                                                         label="Items (any part of name...)",
+                                                         lookup_expr='icontains',
+                                                         widget=forms.TextInput())
+
+
 class BulkTransactionFilter(django_filters.FilterSet):
     class Meta:
         model = models.Transaction

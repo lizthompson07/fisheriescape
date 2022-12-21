@@ -63,6 +63,10 @@ urlpatterns = [
     path('transaction/lend/item/<int:pk>/', views.TransactionLendCreateView.as_view(), name="transaction_lend"),
     path('transaction/transfer/item/<int:pk>/', views.TransactionTransferCreateView.as_view(), name="transaction_transfer"),
 
+    # LENDING #
+
+    path('lending_list/', views.LendingListView.as_view(), name="lending_list"),
+
     # BULK TRANSACTIONS #
 
     path('bulk_transaction_list/', views.BulkTransactionListView.as_view(), name="bulk_transaction_list"),
