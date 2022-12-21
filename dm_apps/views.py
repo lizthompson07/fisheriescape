@@ -37,6 +37,20 @@ def get_app_dict(request):
     except NoReverseMatch:
         pass
 
+    try:
+        app_dict["pssiDataInventory"] = {
+            "title": _("PSSI - Pacific Salmon Data Center"),
+            "description": _("Query Tool to Search for Departmental Data Assets"),
+            "status": "production",
+            "access": "open",
+            "url": reverse('pssiDataInventory:Index'),
+            "icon_path": 'img/icons/pssiInventory.svg',
+            "region": "all",
+
+        }
+    except NoReverseMatch:
+        pass
+    
     if settings.SHOW_TICKETING_APP or request.user.is_staff:
         try:
             app_dict["tickets"] = {
