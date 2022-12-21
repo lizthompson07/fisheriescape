@@ -35,7 +35,7 @@
             <label class="text-muted small" for="activity_filter.status">{% trans "Status" %}</label>
             <select
               v-model="activity_filter.status"
-              @change="getActivities"
+              @change="upddateActivities"
               class="form-control form-control-sm" id="activity_filter.status"
             >
               <option value="">{% trans "all" %}</option>
@@ -49,7 +49,7 @@
             <label class="text-muted small" for="activity_filter.classification">{% trans "Type" %}</label>
             <select
               v-model="activity_filter.classification"
-              @change="getActivities"
+              @change="upddateActivities"
               class="form-control form-control-sm" id="activity_filter.classfication"
             >
               <option value="">{% trans "all" %}</option>
