@@ -113,6 +113,11 @@ if settings.INSTALLED_APPS.count("inventory"):
 else:
     print("not connecting inventory app")
 
+if settings.INSTALLED_APPS.count("pssiDataInventory"):
+    urlpatterns += i18n_patterns(path('pssiDataInventory/', include('pssiDataInventory.urls')), prefix_default_language=True)
+else:
+    print("not connecting PSSI Data Inventory app")
+
 if settings.INSTALLED_APPS.count("tickets"):
     urlpatterns += i18n_patterns(path('dm-tickets/', include('tickets.urls')), prefix_default_language=True)
 else:
