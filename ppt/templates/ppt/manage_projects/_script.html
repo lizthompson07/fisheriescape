@@ -403,18 +403,22 @@ var app = new Vue({
     },
     clearActivityFilters() {
       this.activity_filter = {};
-      this.getActivities()
+      this.upddateActivities()
     },
     toggleApprovedOnly() {
       this.approvedActivities = !this.approvedActivities;
-      {# reset the list: #}
-      this.activityNext = null;
-      this.getActivities();
+      this.upddateActivities();
     },
     updateResults() {
       this.clearProjectYears();
       this.getProjectYears();
       this.getFilterData();
+    },
+    upddateActivities() {
+      this.activities = []
+      this.activityNext = null
+      this.activityCount = 0
+      this.getActivities();
     },
     changeTabs(name) {
       for (const showTabKey in this.showTab) {
