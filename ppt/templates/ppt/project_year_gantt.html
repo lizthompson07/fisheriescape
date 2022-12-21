@@ -179,7 +179,7 @@
         let endpoint = `/api/ppt/activities/?project_year=${projectYearId}`;
         apiService(endpoint)
             .then(response => {
-              for (const item of response) {
+              for (const item of response.results) {
                 if (item.target_start_date) item.start = dayjs(item.target_start_date).format("YYYY-MM-DD");
                 else if (item.target_date) item.start = dayjs(item.target_date).format("YYYY-MM-DD");
                 item.label = item.name;
@@ -218,7 +218,7 @@
                   }
                 }
               }
-              this.activities = response;
+              this.activities = response.results;
               this.activityLoading = false;
             })
       },
