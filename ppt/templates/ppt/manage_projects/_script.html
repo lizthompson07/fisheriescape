@@ -541,7 +541,6 @@ var app = new Vue({
     },
     getActivities() {
       this.tabAPILoading.activities = true;
-      this.errorTooBigActivities = false;
 
       if (this.errorTooManyPY) {
         this.tabAPILoading.activities = false;
@@ -561,8 +560,10 @@ var app = new Vue({
               this.activityCount = response.count;
               this.activityNext = response.next;
               //assign each status report a project and project year.  First get all project years:
-              endpointAll = this.getProjectYearsEndpoint(200)
-              apiService(endpointAll)
+              if (this.activityCount < 500){
+                this.errorTooBigActivities = false;
+                endpointAll = this.getProjectYearsEndpoint(200)
+                apiService(endpointAll)
                   .then(response => {
                     if (response.results) {
                         let allPys = response.results
@@ -576,6 +577,11 @@ var app = new Vue({
                         }
                     }
                   })
+              } else {
+                this.errorTooBigActivities = true;
+              }
+
+
             })
       }
     },
