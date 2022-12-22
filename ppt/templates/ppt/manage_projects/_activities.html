@@ -28,7 +28,20 @@
   </div>
   <div v-else>
     {% block filter %}
-      <form class="form" action="." method="get" id="filter-form" style="width: 90%">
+      <form class="form" id="activity-filter-form" style="width: 90%">
+        <div v-if = "filter.fiscal_year">
+          <button class="btn btn-xs btn-success" type="button" @click="populateActivityDate('q1', filter.fiscal_year)" >Q1</button>
+          <button class="btn btn-xs btn-success" type="button" @click="populateActivityDate('q2', filter.fiscal_year)" >Q2</button>
+          <button class="btn btn-xs btn-success" type="button" @click="populateActivityDate('q3', filter.fiscal_year)">Q3</button>
+          <button class="btn btn-xs btn-success" type="button" @click="populateActivityDate('q4', filter.fiscal_year)">Q4</button>
+        </div>
+        <div v-else>
+          <p> {%  trans "Filter by fiscal year to enable quarterly filtering"%}</p>
+          <button class="btn btn-xs btn-success" type="button" disabled>Q1</button>
+          <button class="btn btn-xs btn-success" type="button" disabled>Q2</button>
+          <button class="btn btn-xs btn-success" type="button" disabled>Q3</button>
+          <button class="btn btn-xs btn-success" type="button" disabled>Q4</button>
+        </div>
         <div class="row">
 
           <div class=col">
@@ -72,6 +85,26 @@
               {% endfor %}
             </select>
           </div>
+
+          <div class=col">
+              <label class="text-muted small" for="activity_filter.start_date">{% trans "Start Date" %}</label>
+              <input
+                type="date"
+                v-model="activity_filter.start_date"
+                @change="upddateActivities"
+                class="form-control form-control-sm" id="activity_filter.start_date"
+              />
+          </div>
+
+          <div class=col">
+              <label class="text-muted small" for="activity_filter.end_date">{% trans "End Date" %}</label>
+              <input
+                type="date"
+                v-model="activity_filter.end_date"
+                @change="upddateActivities"
+                class="form-control form-control-sm" id="activity_filter.end_date"
+              />
+          </div>
         </div>
 
         <div class="row">
@@ -89,16 +122,16 @@
       <table class="table table-sm">
         <thead>
         <tr>
-          <th @click="sort('project.id', 'sortedActivities')" class="clickable w75">
+          <th @click="sort('project_year_obj.project', 'sortedActivities')" class="clickable w75">
             {% trans "Project Id" %}
           </th>
-          <th @click="sort('project_year.fiscal_year', 'sortedActivities')" class="clickable w75">
+          <th @click="sort('project_year_obj.display_name', 'sortedActivities')" class="clickable w75">
             {% trans "Fiscal Year" %}
           </th>
-          <th @click="sort('project.title', 'sortedActivities')" class="clickable w75">
+          <th @click="sort('project_year_obj.project_title', 'sortedActivities')" class="clickable w75">
             {% trans "Project Title" %}
           </th>
-          <th @click="sort('project_year.status_display', 'sortedActivities')" class="clickable w75">
+          <th @click="sort('project_year_obj.status_display', 'sortedActivities')" class="clickable w75">
             {% trans "Project Status" %}
           </th>
 
@@ -127,14 +160,14 @@
           @mouseover="hover = true"
           @mouseleave="hover = false"
         >
-          <td>${act.project_year.project.id}</td>
-          <td>${act.project_year.display_name}</td>
+          <td>${act.project_year_obj.project}</td>
+          <td>${act.project_year_obj.display_name}</td>
           <td>
-            <a class="text-primary pointy" @click="goProjectDetail(act.project_year)">
-              ${act.project_year.project.title}
+            <a class="text-primary pointy" @click="goProjectDetail(act.project_year_obj, true)">
+              ${act.project_year_obj.project_title}
             </a>
           </td>
-          <td><span :class="act.project_year.status_class + ' p-1'" v-html="act.project_year.status_display"></span></td>
+          <td><span :class="act.project_year_obj.status_class + ' p-1'" v-html="act.project_year_obj.status_display"></span></td>
 
 
           <td>${act.type_display}</td>

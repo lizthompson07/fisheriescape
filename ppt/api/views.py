@@ -513,6 +513,16 @@ class ActivityViewSet(ModelViewSet):
         raise ValidationError("sorry, I am missing the query param for 'action' or 'clone'")
 
 
+
+class ActivityExtendedViewSet(ModelViewSet):
+    queryset = models.Activity.objects.all()
+    serializer_class = serializers.ActivityFullSerializer
+    permission_classes = [permissions.CanModifyOrReadOnly]
+    pagination_class = pagination.StandardResultsSetPagination
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = ActivityFilter
+
+
 class CollaborationViewSet(ModelViewSet):
     queryset = models.Collaboration.objects.all()
     serializer_class = serializers.CollaborationSerializer
