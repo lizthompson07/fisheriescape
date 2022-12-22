@@ -171,8 +171,12 @@ var app = new Vue({
         }
       }
     },
-    goProjectDetail(projectYear) {
-      url = `/ppt/projects/${projectYear.project.id}/view/?project_year=${projectYear.id}`;
+    goProjectDetail(projectYear, isObj=false) {
+      if (isObj) {
+        url = `/ppt/projects/${projectYear.project}/view/?project_year=${projectYear.id}`;
+      } else {
+        url = `/ppt/projects/${projectYear.project.id}/view/?project_year=${projectYear.id}`;
+      }
       var win = window.open(url, '_blank');
     },
     goEmailLeads() {
@@ -308,7 +312,7 @@ var app = new Vue({
       return endpoint
     },
     getActivityEndpoint(pageSize = 25) {
-      endpoint = `/api/ppt/activities/`;
+      endpoint = `/api/ppt/activities-full/`;
       // apply filters
       endpoint += `?page_size=${pageSize}&` + this.getActivityFilterString()
       return endpoint
@@ -560,33 +564,10 @@ var app = new Vue({
         }
         apiService(endpoint)
             .then(response => {
-              this.activitiesResponse = response.results;
+              this.activities = response.results;
               this.activityCount = response.count;
               this.activityNext = response.next;
-              //assign each status report a project and project year.  First get all project years:
-              if (this.activityCount < 500){
-                this.errorTooBigActivities = false;
-                endpointAll = this.getProjectYearsEndpoint(200)
-                apiService(endpointAll)
-                  .then(response => {
-                    if (response.results) {
-                        let allPys = response.results
-                        for (let i = 0; i < this.activitiesResponse.length; i++) {
-                            let pyMatch = allPys.find(py => py.id === this.activitiesResponse[i].project_year_id)
-                            if (pyMatch !== 'undefined') {
-                                this.activitiesResponse[i].project_year = pyMatch
-                                this.activitiesResponse[i].project = pyMatch.project
-                                this.activities.push(this.activitiesResponse[i]);
-                            }
-                        }
-                      this.tabAPILoading.activities = false;
-                    }
-                  })
-              } else {
-                this.errorTooBigActivities = true;
-              }
-
-
+              this.tabAPILoading.activities = false;
             })
       }
     },

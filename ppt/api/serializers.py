@@ -564,6 +564,13 @@ class ActivitySerializer(serializers.ModelSerializer):
         return attrs
 
 
+class ActivityFullSerializer(ActivitySerializer):
+    project_year_obj = serializers.SerializerMethodField()
+
+    def get_project_year_obj(self, instance):
+        return ProjectYearSerializerLITE(instance.project_year).data
+
+
 class CollaborationSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Collaboration

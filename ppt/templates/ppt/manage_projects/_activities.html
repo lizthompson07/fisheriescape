@@ -89,16 +89,16 @@
       <table class="table table-sm">
         <thead>
         <tr>
-          <th @click="sort('project.id', 'sortedActivities')" class="clickable w75">
+          <th @click="sort('project_year_obj.project', 'sortedActivities')" class="clickable w75">
             {% trans "Project Id" %}
           </th>
-          <th @click="sort('project_year.fiscal_year', 'sortedActivities')" class="clickable w75">
+          <th @click="sort('project_year_obj.display_name', 'sortedActivities')" class="clickable w75">
             {% trans "Fiscal Year" %}
           </th>
-          <th @click="sort('project.title', 'sortedActivities')" class="clickable w75">
+          <th @click="sort('project_year_obj.project_title', 'sortedActivities')" class="clickable w75">
             {% trans "Project Title" %}
           </th>
-          <th @click="sort('project_year.status_display', 'sortedActivities')" class="clickable w75">
+          <th @click="sort('project_year_obj.status_display', 'sortedActivities')" class="clickable w75">
             {% trans "Project Status" %}
           </th>
 
@@ -127,14 +127,14 @@
           @mouseover="hover = true"
           @mouseleave="hover = false"
         >
-          <td>${act.project_year.project.id}</td>
-          <td>${act.project_year.display_name}</td>
+          <td>${act.project_year_obj.project}</td>
+          <td>${act.project_year_obj.display_name}</td>
           <td>
-            <a class="text-primary pointy" @click="goProjectDetail(act.project_year)">
-              ${act.project_year.project.title}
+            <a class="text-primary pointy" @click="goProjectDetail(act.project_year_obj, true)">
+              ${act.project_year_obj.project_title}
             </a>
           </td>
-          <td><span :class="act.project_year.status_class + ' p-1'" v-html="act.project_year.status_display"></span></td>
+          <td><span :class="act.project_year_obj.status_class + ' p-1'" v-html="act.project_year_obj.status_display"></span></td>
 
 
           <td>${act.type_display}</td>
