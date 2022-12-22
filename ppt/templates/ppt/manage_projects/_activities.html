@@ -28,7 +28,22 @@
   </div>
   <div v-else>
     {% block filter %}
-      <form class="form" action="." method="get" id="filter-form" style="width: 90%">
+      <form class="form" id="activity-filter-form" style="width: 90%">
+        <div v-if = "filter.fiscal_year">
+          <button class="btn btn-xs btn-success" type="button" @click="populateActivityDate('q1', filter.fiscal_year)" >Q1</button>
+          <button class="btn btn-xs btn-success" type="button" @click="populateActivityDate('q2', filter.fiscal_year)" >Q2</button>
+          <button class="btn btn-xs btn-success" type="button" @click="populateActivityDate('q3', filter.fiscal_year)">Q3</button>
+          <button class="btn btn-xs btn-success" type="button" @click="populateActivityDate('q4', filter.fiscal_year)">Q4</button>
+        </div>
+      <div v-else>
+        <button class="btn btn-xs btn-success" type="button" disabled>Q1</button>
+        <button class="btn btn-xs btn-success" type="button" disabled>Q2</button>
+        <button class="btn btn-xs btn-success" type="button" disabled>Q3</button>
+        <button class="btn btn-xs btn-success" type="button" disabled>Q4</button>
+        <p> {%  trans "Filter by fiscal year to enable"%}</p>
+      </div>
+
+
         <div class="row">
 
           <div class=col">
@@ -71,6 +86,26 @@
                 <option value="{{ obj.value }}">{{obj.label}}</option>
               {% endfor %}
             </select>
+          </div>
+
+          <div class=col">
+              <label class="text-muted small" for="activity_filter.start_date">{% trans "Start Date" %}</label>
+              <input
+                type="date"
+                v-model="activity_filter.start_date"
+                @change="upddateActivities"
+                class="form-control form-control-sm" id="activity_filter.start_date"
+              />
+          </div>
+
+          <div class=col">
+              <label class="text-muted small" for="activity_filter.end_date">{% trans "End Date" %}</label>
+              <input
+                type="date"
+                v-model="activity_filter.end_date"
+                @change="upddateActivities"
+                class="form-control form-control-sm" id="activity_filter.end_date"
+              />
           </div>
         </div>
 

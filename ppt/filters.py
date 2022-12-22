@@ -94,6 +94,8 @@ class ActivityFilter(ProjectYearChildFilter):
     type = django_filters.NumberFilter(field_name='type')
     classification = django_filters.NumberFilter(field_name='classification')
     project_years = ProjectYearsInFilter(field_name='project_year', lookup_expr="in")
+    start_date = django_filters.DateFilter(field_name='target_date', lookup_expr="gte")
+    end_date = django_filters.DateFilter(field_name='target_date', lookup_expr="lte")
     approvedOnly = django_filters.NumberFilter(field_name='project_year__status')
 
 
