@@ -43,7 +43,6 @@
           <button class="btn btn-xs btn-success" type="button" disabled>Q4</button>
         </div>
         <div class="row">
-
           <div class=col">
             <label class="text-muted small" for="activity_filter.status">{% trans "Status" %}</label>
             <select
@@ -59,7 +58,7 @@
           </div>
 
           <div class=col">
-            <label class="text-muted small" for="activity_filter.type">{% trans "Status" %}</label>
+            <label class="text-muted small" for="activity_filter.type">{% trans "Milestone or deliverable? " %}</label>
             <select
               v-model="activity_filter.type"
               @change="upddateActivities"
@@ -87,7 +86,7 @@
           </div>
 
           <div class=col">
-              <label class="text-muted small" for="activity_filter.start_date">{% trans "Start Date" %}</label>
+              <label class="text-muted small" for="activity_filter.start_date">{% trans "Target Date Range, start" %}</label>
               <input
                 type="date"
                 v-model="activity_filter.start_date"
@@ -97,7 +96,7 @@
           </div>
 
           <div class=col">
-              <label class="text-muted small" for="activity_filter.end_date">{% trans "End Date" %}</label>
+              <label class="text-muted small" for="activity_filter.end_date">{% trans "Target Date Range, end" %}</label>
               <input
                 type="date"
                 v-model="activity_filter.end_date"
