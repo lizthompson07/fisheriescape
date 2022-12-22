@@ -28,7 +28,7 @@
   </div>
   <div v-else>
     {% block filter %}
-      <form class="form" id="activity-filter-form" style="width: 90%">
+      <form class="form" @submit.prevent="dontSubmit" id="activity-filter-form" style="width: 90%">
         <div v-if = "filter.fiscal_year">
           <button class="btn btn-xs btn-success" type="button" @click="populateActivityDate('q1', filter.fiscal_year)" >Q1</button>
           <button class="btn btn-xs btn-success" type="button" @click="populateActivityDate('q2', filter.fiscal_year)" >Q2</button>
