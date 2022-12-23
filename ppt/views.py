@@ -172,6 +172,12 @@ class ExploreProjectsTemplateView(PPTLoginRequiredMixin, CommonTemplateView):
         context = super().get_context_data(**kwargs)
         context["random_project"] = models.Project.objects.first()
         context["status_choices"] = [dict(label=item[1], value=item[0]) for item in models.ProjectYear.status_choices]
+        context["activity_status_choices"] = [dict(label=f"{item[1]}", value=item[0]) for item in
+                                              models.ActivityUpdate.status_choices]
+        context["activity_type_choices"] = [dict(label=f"{item[1]}", value=item[0]) for item in
+                                            models.Activity.type_choices]
+        context["activity_classification_choices"] = [dict(label=f"{item.__str__()}", value=item.id) for item in
+                                                      models.ActivityClassification.objects.all()]
         return context
 
 

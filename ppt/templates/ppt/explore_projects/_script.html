@@ -1,0 +1,362 @@
+{% load i18n %}
+
+<script type="application/javascript">
+  var app = new Vue({
+    el: '#app',
+    delimiters: ["${", "}"],
+    data: {
+      showSidebar: true,
+      currentUser: {},
+      isAdminOrMgmt: false,
+      hover: false,
+
+      currentSort: 'name',
+      currentSortDir: 'asc',
+      currentSortTable: 'sortedProjectYears',
+
+      projects_loading: true,
+      projectYears: [],
+      allPyIds: [],
+      next: null,
+      previous: null,
+      count: 0,
+      activityNext: null,
+      activityCount: 0,
+
+      approvedActivities: true,
+
+      // filters
+      filter: {
+        is_hidden: "",
+      },
+      activity_filter: {},
+
+      fiscalYears: [],
+      tags: [],
+      themes: [],
+      functionalGroups: [],
+      fundingSources: [],
+      regions: [],
+      divisions: [],
+      sections: [],
+      activities: [],
+
+
+      showTab: {
+          projectList: true,
+          activities: false,
+      },
+      tabAPILoading: {
+        activities: false,
+      },
+      errorTooManyPY: false,
+      errorTooBigActivities: false,
+
+
+
+    },
+    methods: {
+      getCurrentUser() {
+        let endpoint = `/api/ppt/user/`;
+        apiService(endpoint)
+            .then(response => {
+              this.currentUser = response;
+              this.isAdminOrMgmt = this.currentUser.is_admin || this.currentUser.is_management
+            })
+      },
+      goProjectDetail(projectYear, isObj=false) {
+        let url;
+        if (isObj) {
+          url = `/ppt/projects/${projectYear.project}/view/?project_year=${projectYear.id}`;
+        } else {
+          url = `/ppt/projects/${projectYear.project.id}/view/?project_year=${projectYear.id}`;
+        }
+        var win = window.open(url, '_blank');
+      },
+      getFilterData() {
+        apiService(`/api/ppt/fiscal-years/`).then(response => this.fiscalYears = response)
+        apiService(`/api/ppt/tags/`).then(response => this.tags = response)
+        apiService(`/api/ppt/themes/`).then(response => this.themes = response)
+        apiService(`/api/ppt/funding-sources/`).then(response => this.fundingSources = response)
+        apiService(`/api/ppt/regions/`).then(response => this.regions = response)
+
+        var query = "";
+        if (this.filter.region && this.filter.region !== "") query = `?region=${this.filter.region}`
+        apiService(`/api/ppt/divisions/${query}`).then(response => this.divisions = response)
+
+        if (this.filter.division && this.filter.division !== "") query = `?division=${this.filter.division}`
+        apiService(`/api/ppt/sections/${query}`).then(response => this.sections = response)
+
+        // Functional Group
+
+        query = ""; // reset
+        let section = "";
+        let region = "";
+        let division = "";
+
+        if(this.filter.section && this.filter.section !== "") section = this.filter.section;
+        if(this.filter.division && this.filter.division !== "") division = this.filter.division;
+        if(this.filter.region && this.filter.region !== "") region = this.filter.region;
+
+        query = '?'
+        if(section !== "") query += `sections=${section}&`
+        if(division !== "") query += `sections__division=${division}&`
+        if(region !== "") query += `sections__division__branch__sector__region=${region}&`
+        apiService(`/api/ppt/functional-groups/${query}`).then(response => this.functionalGroups = response);
+
+      },
+      getProjectYears(endpoint) {
+        this.projects_loading = true;
+        if (!endpoint) {
+          endpoint = `/api/ppt/project-years/?`;
+          // apply filters
+          if (this.filter.is_hidden) endpoint += `is_hidden=1&`
+          if (this.filter.id) endpoint += `id=${this.filter.id}&`
+          if (this.filter.title) endpoint += `title=${this.filter.title}&`
+          if (this.filter.staff) endpoint += `staff=${this.filter.staff}&`
+          if (this.filter.fiscal_year) endpoint += `fiscal_year=${this.filter.fiscal_year}&`
+          if (this.filter.starting_fy) endpoint += `starting_fy=${this.filter.starting_fy}&`
+          if (this.filter.tag) endpoint += `tag=${this.filter.tag}&`
+          if (this.filter.theme) endpoint += `theme=${this.filter.theme}&`
+          if (this.filter.functional_group) endpoint += `functional_group=${this.filter.functional_group}&`
+          if (this.filter.funding_source) endpoint += `funding_source=${this.filter.funding_source}&`
+          if (this.filter.region) endpoint += `region=${this.filter.region}&`
+          if (this.filter.division) endpoint += `division=${this.filter.division}&`
+          if (this.filter.section) endpoint += `section=${this.filter.section}&`
+          if (this.filter.status) endpoint += `status=${this.filter.status}&`
+          if (this.filter.id) endpoint += `id=${this.filter.id}&`
+        }
+        apiService(endpoint)
+            .then(response => {
+              if (response.results) {
+                this.projects_loading = false;
+                this.projectYears.push(...response.results);
+                this.next = response.next;
+                this.previous = response.previous;
+                this.count = response.count;
+                // make all tabs reload with new list
+                for (const tabLoadingKey in this.tabAPILoading) {
+                  this.tabAPILoading[tabLoadingKey] = true;
+                }
+                let maxPYNum = 200;
+                if (this.count < maxPYNum) {
+                  this.errorTooManyPY = false;
+                  endpointAll = endpoint + `?page_size=${maxPYNum}&`
+                  apiService(endpointAll)
+                      .then(response => {
+                        if (response.results) {
+                          this.allPyIds = response.results.map(py => py.id)
+                          this.loadActiveTab();
+                        }
+                      })
+                } else {
+                  this.errorTooManyPY = true;
+                  this.loadActiveTab();
+                }
+              }
+            })
+      },
+      clearProjectYears() {
+        this.projectYears = []
+        this.next = null
+        this.count = 0
+      },
+      loadMoreResults() {
+        if (this.next) {
+          this.getProjectYears(this.next)
+        }
+      },
+      loadMoreActivityResults() {
+        if (this.activityNext) {
+          this.getActivities()
+        }
+      },
+      getActivityFilterString() {
+        let endpoint = "";
+        if (this.projectYears) endpoint += `project_years=${this.allPyIds}&`;
+        if (this.approvedActivities) endpoint += `approvedOnly=4&`;
+        if (this.activity_filter.status) endpoint += `status=${this.activity_filter.status}&`;
+        if (this.activity_filter.type) endpoint += `type=${this.activity_filter.type}&`;
+        if (this.activity_filter.start_date) endpoint += `start_date=${this.activity_filter.start_date}&`;
+        if (this.activity_filter.end_date) endpoint += `end_date=${this.activity_filter.end_date}&`;
+        if (this.activity_filter.classification) endpoint += `classification=${this.activity_filter.classification}&`;
+        return endpoint
+      },
+      getActivityEndpoint(pageSize = 25) {
+        endpoint = `/api/ppt/activities-full/`;
+        // apply filters
+        endpoint += `?page_size=${pageSize}&` + this.getActivityFilterString()
+        return endpoint
+      },
+      clearFilters() {
+        this.filter = {};
+        this.updateResults()
+      },
+      clearActivityFilters() {
+        this.activity_filter = {};
+        this.upddateActivities()
+      },
+      updateResults() {
+        this.clearProjectYears();
+        this.getProjectYears();
+        this.getFilterData();
+      },
+      upddateActivities() {
+        this.activities = []
+        this.activityNext = null
+        this.activityCount = 0
+        this.getActivities();
+      },
+      changeTabs(name) {
+        for (const showTabKey in this.showTab) {
+          this.showTab[showTabKey] = false;
+        }
+        if (name === "project") this.showTab.projectList = true;
+        else if (name === "activities") this.showTab.activities = true;
+        this.loadActiveTab();
+      },
+      loadActiveTab() {
+        for (const tabKey in this.showTab) {
+          if (this.showTab[tabKey] && this.tabAPILoading[tabKey]) {
+            if (tabKey === "activities") {
+              this.upddateActivities()
+            }
+          }
+        }
+      },
+      getActivities() {
+        this.tabAPILoading.activities = true;
+
+        if (this.errorTooManyPY) {
+          this.tabAPILoading.activities = false;
+          this.errorTooBigActivities = true;
+        } else {
+          let endpoint = null
+          if (this.activityNext) {
+            endpoint = this.activityNext
+          }  else {
+            this.activities = [];
+            endpoint = this.getActivityEndpoint(pageSize = 25)
+          }
+          apiService(endpoint)
+              .then(response => {
+                this.errorTooBigActivities = false;
+                this.activities = response.results;
+                this.activityCount = response.count;
+                this.activityNext = response.next;
+                this.tabAPILoading.activities = false;
+              })
+        }
+      },
+      toggleApprovedOnly() {
+        this.approvedActivities = !this.approvedActivities;
+        this.upddateActivities();
+      },
+      populateActivityDate(quarter, fiscal_year){
+        let sap_year = fiscal_year
+        let startDate;
+        let endDate;
+        if (quarter === "q1") {
+          startDate = `${sap_year - 1}-04-01`;
+          endDate = `${sap_year - 1}-06-30`;
+        } else if (quarter === "q2") {
+          startDate = `${sap_year - 1}-07-01`;
+          endDate = `${sap_year - 1}-09-30`
+        } else if (quarter === "q3") {
+          startDate = `${sap_year - 1}-10-01`;
+          endDate = `${sap_year - 1}-12-31`
+        } else if (quarter === "q4") {
+          startDate =`${sap_year}-01-01`;
+          endDate = `${sap_year}-03-31`
+        }
+        this.activity_filter.start_date = startDate;
+        this.activity_filter.end_date = endDate;
+        this.upddateActivities()
+      },
+      dontSubmit() {
+      },
+      sort(s, table = "sortedProjectYears") {
+        // from https://www.raymondcamden.com/2018/02/08/building-table-sorting-and-pagination-in-vuejs
+        //if s == current sort, reverse
+        if (s === this.currentSort) {
+          this.currentSortDir = this.currentSortDir === 'asc' ? 'desc' : 'asc';
+        }
+        this.currentSort = s;
+        this.currentSortTable = table;
+      },
+    },
+    filters: {
+      yesNo: vueFiltersObject["yesNo"],
+      nz: vueFiltersObject["nz"],
+      floatformat: vueFiltersObject["floatformat"],
+      currencyFormat: vueFiltersObject["currencyFormat"],
+      zero2NullMark: vueFiltersObject["zero2NullMark"],
+      percentage: vueFiltersObject["percentage"],
+    },
+    computed: {
+      sortedProjectYears() {
+        if (this.currentSortTable !== "sortedProjectYears") {
+          return this.projectYears;
+        } else {
+          return this.projectYears.sort((a, b) => {
+              let modifier = 1;
+              if (this.currentSortDir === 'desc') modifier = -1;
+
+              if (this.currentSort && this.currentSort.search("fiscal") > -1) {
+                  if (a["fiscal_year"] < b["fiscal_year"]) return -1 * modifier;
+                  if (a["fiscal_year"] > b["fiscal_year"]) return 1 * modifier;
+              } else if (this.currentSort === "id") {
+                  if (a["project"]["id"] < b["project"]["id"]) return -1 * modifier;
+                  if (a["project"]["id"] > b["project"]["id"]) return 1 * modifier;
+              } else if (this.projectYears[0][this.currentSort] == null) {
+                  if (a["project"][this.currentSort] < b["project"][this.currentSort]) return -1 * modifier;
+                  if (a["project"][this.currentSort] > b["project"][this.currentSort]) return 1 * modifier;
+              } else {
+                  if (a[this.currentSort] < b[this.currentSort]) return -1 * modifier;
+                  if (a[this.currentSort] > b[this.currentSort]) return 1 * modifier;
+              }
+              return 0;
+          });
+        }
+      },
+      sortedActivities() {
+        if (this.currentSortTable !== "sortedActivities") {
+          return this.activities;
+        } else {
+          return this.activities.sort((a, b) => {
+            let modifier = 1;
+            if (this.currentSortDir === 'desc') modifier = -1;
+
+            if (this.currentSort.includes(".")) {
+              let parentKey = this.currentSort.split(".")[0];
+              let childKey = this.currentSort.split(".")[1];
+              if (a[parentKey][childKey] < b[parentKey][childKey]) return -1 * modifier;
+              if (a[parentKey][childKey] > b[parentKey][childKey]) return 1 * modifier;
+            } else if (this.currentSort === "target_date_display") {
+              let a_val = a[this.currentSort];
+              if (a_val === null) a_val = "";
+
+              let b_val = b[this.currentSort];
+              if (b_val === null) b_val = "";
+
+              if (a_val < b_val) return -1 * modifier;
+              if (a_val > b_val) return 1 * modifier;
+            } else {
+              if (a[this.currentSort] < b[this.currentSort]) return -1 * modifier;
+              if (a[this.currentSort] > b[this.currentSort]) return 1 * modifier;
+            }
+            return 0;
+          });
+        }
+      },
+    },
+    created() {
+      this.getCurrentUser()
+      this.getProjectYears()
+      this.getFilterData()
+    },
+    mounted() {
+    },
+  });
+
+</script>

@@ -376,6 +376,8 @@ var app = new Vue({
         }
       }
     },
+    dontSubmit() {
+    },
     comingSoon() {
       alert("this feature is coming soon!")
     },
@@ -569,6 +571,7 @@ var app = new Vue({
         }
         apiService(endpoint)
             .then(response => {
+              this.errorTooBigActivities = false;
               this.activities = response.results;
               this.activityCount = response.count;
               this.activityNext = response.next;
@@ -855,6 +858,15 @@ var app = new Vue({
             let childKey = this.currentSort.split(".")[1];
             if (a[parentKey][childKey] < b[parentKey][childKey]) return -1 * modifier;
             if (a[parentKey][childKey] > b[parentKey][childKey]) return 1 * modifier;
+          } else if (this.currentSort === "target_date_display") {
+            let a_val = a[this.currentSort];
+            if (a_val === null) a_val = "";
+
+            let b_val = b[this.currentSort];
+            if (b_val === null) b_val = "";
+
+            if (a_val < b_val) return -1 * modifier;
+            if (a_val > b_val) return 1 * modifier;
           } else {
             if (a[this.currentSort] < b[this.currentSort]) return -1 * modifier;
             if (a[this.currentSort] > b[this.currentSort]) return 1 * modifier;
