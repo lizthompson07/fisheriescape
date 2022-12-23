@@ -138,14 +138,13 @@
                 for (const tabLoadingKey in this.tabAPILoading) {
                   this.tabAPILoading[tabLoadingKey] = true;
                 }
-                let maxPYNum = 200;
-                if (this.count < maxPYNum) {
-                  this.errorTooManyPY = false;
-                  endpointAll = endpoint + `?page_size=${maxPYNum}&`
+                if (this.count < 200) {
+                  endpointAll = endpoint + `?page_size=${200}&`
                   apiService(endpointAll)
-                      .then(response => {
-                        if (response.results) {
-                          this.allPyIds = response.results.map(py => py.id)
+                      .then(allResponse => {
+                        if (allResponse.results) {
+                          this.errorTooManyPY = false;
+                          this.allPyIds = allResponse.results.map(py => py.id)
                           this.loadActiveTab();
                         }
                       })
@@ -241,7 +240,7 @@
           apiService(endpoint)
               .then(response => {
                 this.errorTooBigActivities = false;
-                this.activities = response.results;
+                this.activities.push(...response.results);
                 this.activityCount = response.count;
                 this.activityNext = response.next;
                 this.tabAPILoading.activities = false;

@@ -572,7 +572,7 @@ var app = new Vue({
         apiService(endpoint)
             .then(response => {
               this.errorTooBigActivities = false;
-              this.activities = response.results;
+              this.activities.push(...response.results);
               this.activityCount = response.count;
               this.activityNext = response.next;
               this.tabAPILoading.activities = false;
