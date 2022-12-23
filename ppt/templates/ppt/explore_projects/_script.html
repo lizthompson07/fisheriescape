@@ -47,10 +47,9 @@
           activities: false,
       },
       tabAPILoading: {
-        activities: false,
+        activities: true,
       },
       errorTooManyPY: false,
-      errorTooBigActivities: false,
 
 
 
@@ -139,11 +138,11 @@
                   this.tabAPILoading[tabLoadingKey] = true;
                 }
                 if (this.count < 200) {
-                  endpointAll = endpoint + `?page_size=${200}&`
+                  this.errorTooManyPY = false;
+                  endpointAll = endpoint + `page_size=${200}&`
                   apiService(endpointAll)
                       .then(allResponse => {
                         if (allResponse.results) {
-                          this.errorTooManyPY = false;
                           this.allPyIds = allResponse.results.map(py => py.id)
                           this.loadActiveTab();
                         }
@@ -228,7 +227,6 @@
 
         if (this.errorTooManyPY) {
           this.tabAPILoading.activities = false;
-          this.errorTooBigActivities = true;
         } else {
           let endpoint = null
           if (this.activityNext) {
@@ -239,7 +237,6 @@
           }
           apiService(endpoint)
               .then(response => {
-                this.errorTooBigActivities = false;
                 this.activities.push(...response.results);
                 this.activityCount = response.count;
                 this.activityNext = response.next;
