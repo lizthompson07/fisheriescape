@@ -64,8 +64,13 @@
               this.isAdminOrMgmt = this.currentUser.is_admin || this.currentUser.is_management
             })
       },
-      goProjectDetail(projectYear) {
-        url = `/ppt/projects/${projectYear.project.id}/view/?project_year=${projectYear.id}`;
+      goProjectDetail(projectYear, isObj=false) {
+        let url;
+        if (isObj) {
+          url = `/ppt/projects/${projectYear.project}/view/?project_year=${projectYear.id}`;
+        } else {
+          url = `/ppt/projects/${projectYear.project.id}/view/?project_year=${projectYear.id}`;
+        }
         var win = window.open(url, '_blank');
       },
       getFilterData() {
