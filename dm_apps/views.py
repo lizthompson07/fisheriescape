@@ -38,12 +38,12 @@ def get_app_dict(request):
         pass
 
     try:
-        app_dict["pssiDataInventory"] = {
-            "title": _("PSSI - Pacific Salmon Data Center"),
+        app_dict["pacificsalmondatahub"] = {
+            "title": _("PSSI - Pacific Salmon Data Hub"),
             "description": _("Query Tool to Search for Departmental Data Assets"),
             "status": "production",
             "access": "open",
-            "url": reverse('pssiDataInventory:Index'),
+            "url": reverse('pacificsalmondatahub:Index'),
             "icon_path": 'img/icons/pssiInventory.svg',
             "region": "all",
 
