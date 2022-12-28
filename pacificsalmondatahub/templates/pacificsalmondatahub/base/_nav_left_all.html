@@ -1,0 +1,12 @@
+{% load i18n %}
+
+<!-- 
+    Purpose: Navigation for all users.
+    Input: 
+    Output: Redirects to other pages.
+ -->
+
+<!-- Redirect back to Home Page -->
+<li class="nav-item"><a class="nav-link" href="{% url 'pacificsalmondatahub:Index' %}">
+    {% trans "Home" %}
+</a></li>
