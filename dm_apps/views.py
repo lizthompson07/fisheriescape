@@ -44,7 +44,7 @@ def get_app_dict(request):
             "status": "production",
             "access": "open",
             "url": reverse('pacificsalmondatahub:Index'),
-            "icon_path": 'img/icons/pssiInventory.svg',
+            "icon_path": 'img/icons/pacificsalmondatahub.svg',
             "region": "all",
 
         }
