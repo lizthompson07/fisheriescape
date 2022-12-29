@@ -10,10 +10,11 @@ chosen_js = {"class": "chosen-select-contains"}
 
 #--------------------Filters----------------------
 # Purpose: filterset_class for SearchView (views.py)
-# Input: 
+# Input: search_term field & field_list defined in SearchView
 # Output: Filters bar on Search Page
 #-------------------------------------------------  
 class pssiFilter(django_filters.FilterSet):
+    # lookup_expr = 'icontains' means that it's checking if the keyword is contained (i: case insensitive) in search_term from SearchView
     keyword = django_filters.CharFilter(field_name='search_term', label=_("Keyword"), lookup_expr='icontains',
                                             widget=forms.TextInput())
 
