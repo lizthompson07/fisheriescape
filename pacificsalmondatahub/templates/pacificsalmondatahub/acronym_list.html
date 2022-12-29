@@ -164,8 +164,8 @@
   
     // Page Anchor function which jumps to letter catagory
     function jump(letter){
-        var top = document.getElementById('').offsetTop;
-        console.log(top)
+        var top = document.getElementById(letter).offsetTop;
+        console.log(top);
         window.scrollTo(0, top);
         // input for this scrollTo are NUMBERS - LETTERS won't work. PLEASE FIX.
     }
@@ -173,12 +173,12 @@
     // Create page anchor buttons
     let buttonNum = "";
     for (let letter of categories.slice(0, 26)) {
-        buttonNum += '<button type="button" onclick="jump(' + letter + ')" class="btn btn-secondary">' + letter + '</button>'
+        buttonNum += '<button type="button" onclick="jump(\'' + letter + '\')" class="btn btn-secondary">' + letter + '</button>';
     }
 
     let buttonLet = "";
     for (let letter of categories.slice(26)) {
-        buttonLet += '<button type="button" onclick="jump(' + letter + ')" class="btn btn-secondary">' + letter + '</button>'
+        buttonLet += '<button type="button" onclick="jump(\'' + letter + '\')" class="btn btn-secondary">' + letter + '</button>';
     }
 
     document.getElementById("buttonsLetters").innerHTML = buttonLet;
