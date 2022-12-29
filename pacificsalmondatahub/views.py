@@ -12,7 +12,8 @@ from .scripts.import_acronyms import clear, run
 from .scripts.import_business_glossary import clear, run
 from .scripts.import_data_glossary import clear, run
 
-from django.http import HttpResponse
+from django.http import HttpResponseRedirect, HttpResponse
+from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy, reverse
 from shared_models.views import CommonTemplateView, CommonFormsetView, CommonHardDeleteView, CommonFilterView, CommonDetailView, CommonListView, \
     CommonUpdateView, CommonCreateView, CommonPopoutCreateView, CommonPopoutDeleteView, CommonPopoutUpdateView, CommonDeleteView
@@ -148,13 +149,27 @@ class BusinessGlossaryView(pacificsalmondatahubBasicMixin, CommonTemplateView):
 # Input: Reads from details_page.html using the CommonTemplateView from shared_models/views.py
 # Output: Two-column page to display DataAsset fields. List of anchors on the left side of the screen.
 #----------------------------------------------------
-class DetailView(pacificsalmondatahubBasicMixin, CommonTemplateView):
+class DetailView(pacificsalmondatahubBasicMixin, CommonDetailView):
+    model = DataAsset
     template_name = 'pacificsalmondatahub/details_page.html'
     h1 = gettext_lazy("PSSI - Pacific Salmon Data Hub - Details")
     active_page_name_crumb = gettext_lazy("Details")
     home_url_name = "pacificsalmondatahub:Index"
     # row_object_url_name = "pacificsalmondatahub:data_detail"
     # paginate_by = 25
+
+    def get_object(self, queryset=None):
+        if self.kwargs.get("uuid"):
+            return get_object_or_404(self.model, uuid=self.kwargs.get("uuid"))
+        return super().get_object(queryset)
+    
+    def dispatch(self, request, *args, **kwargs):
+        obj = self.get_object()
+        if not self.kwargs.get("uuid"):
+            return HttpResponseRedirect(reverse("pacificsalmondatahub:details_uuid", kwargs={"uuid": obj.uuid}))
+
+        # xml_export.verify(obj)
+        return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
