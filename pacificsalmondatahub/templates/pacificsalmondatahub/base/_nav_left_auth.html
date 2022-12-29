@@ -6,6 +6,11 @@
     Output: Redirects to other pages.
  -->
 
+ <!-- Redirect to Search List -->
+<li class="nav-item"><a class="nav-link" href="{% url 'pacificsalmondatahub:search' %}">
+  {% trans "Search" %}
+</a></li>
+
 <!-- Redirect to Acronym List -->
 <li class="nav-item"><a class="nav-link" href="{% url 'pacificsalmondatahub:acronym_list' %}">
   {% trans "Acronym List" %}
