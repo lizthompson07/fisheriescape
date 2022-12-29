@@ -20,7 +20,7 @@ def clearInventory():
 # Mapping with discrete column index will not work if structure of CSV is changed at all, try using pandas to search by field name
 def run_csvToInventory():
 
-    with open(os.path.join(rootdir, 'Pacific_Region_Data_Inventory_main.csv'), 'r') as csvfile:
+    with open(os.path.join(rootdir, 'CSV/Pacific_Region_Data_Inventory_main.csv'), 'r') as csvfile:
         reader = csv.reader(csvfile)
         #skip header row
         next(reader)

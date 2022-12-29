@@ -16,7 +16,7 @@ def clearInventory():
 
 # Use Pandas read_csv() to ingest data into a dataframe, then create DataAsset instances using the values of each row in the dataframe
 def run_csvToInventory():
-    csvDF = pd.read_csv(open(os.path.join(rootdir, 'PacificDataInventory121422.csv'))).dropna()
+    csvDF = pd.read_csv(open(os.path.join(rootdir, 'CSV/Pacific_Region_Data_Inventory_main.csv'))).dropna()
     print(csvDF)
     # for index, row in csvDF.iterrows():
     #     model = DataAsset(
