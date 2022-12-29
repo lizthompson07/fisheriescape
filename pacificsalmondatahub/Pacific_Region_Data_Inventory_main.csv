@@ -1,0 +1,432 @@
+"Inventory_ID
+
+Filled Green cells are complete in draft; filled grey cells do not need to be completed.","Approved_By
+
+Data steward appoval the row's content
+
+(Data Steward Name - Approved or Pending) i.e Jane Wong - Approved","Data_Asset_Name
+
+Name of the data asset that stores the data collected or generated
+
+","Data_Asset_Steward
+
+Name of person who is the steward that manages and sets rules of the data asset and communicates with the data trustee and data custodian 
+
+(LAST NAME, FIRST NAME) ","Data_Asset_Sorting_Category 
+
+1 = Database: an organized collection of data stored as multiple datasets. (e.g. Oracle Database)
+2 = Dataset: a collection of data generally assoicated with a unique body of work. Usually structured data with rows and columns (e.g. .XLSX)
+3 = Decision Supporting Data Product: data that is in an adequate condition for data customers to consume that facilitates an end goal. Decision supporting data products generally use derived data (data transformed from its raw state) to support decisions; examples of decision supporting data products include dashboards, standarized reports and curated datasets.
+4 = Spatial data/maps: maps, shapefiles etc.
+5 = Audio, video, text, other","Operational_Or_Analytical_Data
+
+Operational data is transactional data produced by your organization's day to day operations such as licence ID, catch ID, catch quantity, buyer ID, hails etc. Operational data ususally contains the most up to date information.
+Analytical data is used to make business decisions, as opposed to recording the data from actual operational business processes. Examples include grouping catch data from different areas, post season estimates or changes in escapement over time. Analytical Data is best stored in a Data System designed for heavy aggregation or data mining such as a data lake or data warehouse. 
+
+Operational, Analytical, Both","Data_Asset_Acronym
+
+Spaces are denoted with a underscore
+
+
+","Data_Asset_Description
+
+Description of the data asset's purpose. Please provide complete and concise (2-4 sentences) descriptions. Good descriptions will improve future search capabilities.","APM_ID
+
+If available, enter the APM _ID from the APM User Application","Non_Salmon_Data
+
+Does the data asset contain a combination of salmon specific data and non-salmon data such as bycatch?
+
+(Yes/No)
+
+","Data_Asset_Status
+
+i.e. decommissioned, production, indevelopment","Data_Asset_Format
+
+ie. Oracle database, MySQL, SQLite, MS Access, Excel, CSV, PDFs, Shared Drive, paper etc.","Data_Type
+
+Structured (like tables with rows and columns that follows a schema and has the same fields throughout) Semi-Structured (like JSON and HTML that uses tags or keys that organize and provide a hierarchy for the data) Unstructured (text, photos ,videos)","Data_Asset_Location
+
+Is the data asset on a DFO on premise server, on DFO supported cloud, on someone's desktop/shared drive, other?
+
+DFO Server, Cloud Server, Desktop/Shared Drive, Other","Data_Asset_Trustee
+
+Name of the branch and or division that oversees and ensures goverance of the data asset and assigns data stewards","Data_Asset_Custodian
+
+Name of the data custodian (enforces rules and access) or technical lead of the data asset.
+
+","Application_Data_Asset_Is_Associated_With 
+
+Name of the application (or function/module) used to interact with the data (if any)","Application_Description
+
+Description of the application's (or function/module) purpose, if it's different from the database's purpose","Technical_Documentation
+
+Please list any technical documentation that exists. 
+
+Examples include: Standard Operating Procedure, workflow map, visio architect diagram, or any application design documentation","Access_Point
+
+How is the data asset accessed? 
+
+If available, please list: URL for web-application, URL for API, or other source of access","Policy_Levers_Data_Asset_Supports
+
+i.e. Harvest, habitat, hatcheries, multiple","Key_Decisions
+
+Names of key decisions that this data asset supports. For example, x dataset informs y product, in the form of a dashboard or combined catch summary report, that informs z decision to close a fishery etc.","Impact_to_DFO_Data_Consumers
+
+What DFO branches/divisions/programs rely on this data to make decisions? 
+
+Name the DFO branches, divisions, programs, or personnel that consistently request for the data or access to the data","Decision_Supporting_Key_Products
+
+Names of decision supporting data products that this data asset feeds data into. Decision supporting data products generally use derived data (data transformed from its raw state) to support decisions; examples include dashboards, standarized reports and curated datasets. Please only list products internal to DFO.","Impact_on_Decision_Making 
+
+Estimated loss of accuracy if data did not exist or was lost (e.g. 20% less accurate). For example, if commercial catch data was lost, deciding when and where to close commercial fisheries would be X percent less accurate.
+
+Enter as a static percent or range i.e. 30% or 30-50%","Uniqueness 
+
+Are there other available data sources that can be used to substitute this information. 
+
+Yes or No","Cost
+
+Estimate the cost of replacing the infrastructure for the data asset if it were lost tomorrow (rough magnitude is fine). Replacing the data asset means rebuilding the database/system from scratch.
+
+$(Millions)","Data_Asset_Size
+
+Size of the data asset in GB. Estimate if the exact is not known
+
+GB (Estimate/Actual)","Update_Frequency
+
+How frequently is the data updated? 
+
+(e.g. real-time, daily, weekly, monthly, annually, bi-annually, ad-hoc)","Data_Standards
+
+Does the data asset have formal data standards such as dataset-level (i.e. field label naming standards) parameter-level (i.e., date/time, country codes) encoding and interface standards (i.e., GeoJSON) etc.
+
+Yes, No","Metadata_Maturity 
+
+Does the data asset have formal standards for describing metadata such as ISO standards and/or have formal metadata procedures for characterizing rights, technical, preservation, description and structural metadata types?
+
+Yes or No","Data_Quality_Rating
+
+Please rate based on your understanding of if the data is: accessible, timely, relevant, consistent, accurate, complete, interoperable and unique. High quality data typically has formal data quality procedures.
+
+Low, medium or high quality","Naming_Conventions
+
+Does the data asset have any naming conventions i.e. data identifier is a 3--12 letter of the data source. All letters of the description are capitalized and all spaces necessary are denoted by underscores - example ESCP_PACSALM 
+
+Yes or No","Security_Classification
+
+What is the data's highest security classification i.e. Protected A, Protected B, Secret etc.","Inbound_Data_Linkage 
+
+Is there data coming into this data asset from another data asset? If so, please name the data asset. ","Outbound_Data_Linkage 
+
+Does the data asset send data to another data asset? If so, please name the data asset. ","Publication_Status
+
+Does any of this data get published to Open Data or other public locations?
+
+Yes, No 
+Name of other public locations",First,Last,Last name 2,Lead Contact Email,Topics
+1,,Fishery Operations System,"MacKenzie, Julia ; 
+Hamilton, Shelee  ",1,,FOS,"The Fishery Operations System (FOS) is the Department of Fisheries and Oceans Canada’s (DFO) centralized Oracle database that holds commercial salmon fishery catch, effort and biological data. The FOS database was built in 2001 and continues to be the current repository for all data pertaining to DFO’s Pacific Region Commercial Salmon Logbook program.
+The Commercial Salmon Logbook program was initiated in 1998 with fleet wide participation made mandatory during the 2001 season. The program requires all commercial salmon fishers to record their daily catch and effort information in a harvest logbook and to subsequently report it to DFO using a service provider within deadlines defined in the conditions of licence. A portion of the information collected from the logbook program contains fisher personal information and is therefore protected and un-releasable.
+Fishery Managers use the fisher reported catch and effort, in addition to information collected from other sources such as overflights, to calculate in-season catch estimates.
+NOTES: •All catch estimates are reported in pieces (numbers of fish). •Catch estimates include adults and jacks combined.
+FOS integrates with the other main systems PLS and QMS. It is used by RM, C&P, Stock assessment, contractors, general public (via internet reports).
+Published in FGP and Open Data Inventory ID ODI-2017-0533",523,Yes,Production,Oracle database,Structured,DFO Server,Ecosystems and Fisheries Management,"Parsley, Jason; Esenam, Fifi","Fishery Operations System - FOS
+1. Fishery notifications System - FOS_FNS APM 525
+2. Salmon Module SQL scripts & calls - FOS_SM APM 534
+3. Fishery Notice Module - FOS_FNM APM 531
+4. Importer Module IMPORTER SPECS - FOS_IM APM 533
+5. Web Services INCOMING EMAIL - FOS_WS APM 536","Same as db description.
+1. Function of FOS to provide the public and industry with notification of fishery openings, closures and ammendments, and public health notices for PSP marine biotoxin closures. All previous notices are available online for public reference.
+2. Module of the Fishery Operations System containing specific screens and code (PL/SQL) for salmon fishery business functions. Contains commercial, economic opportunity, and test fishery catch, effort and biodata
+3. Jason Parsely says not part of FOS. Allows public to sign up to receive fishery notices by email .  Controls sending and storing Fishery notices. FOS FNS allows a notice to be built, the fishery and areas affected identified and then automatically determines which clients to send notices to via email.
+4. Function or module of the Fishery Operations System for automated importing of remote transmitted data via email and interactive importing of data from flat files.
+5. Related to FOS Importer, recieves external emails and inserts data into FOS.",Entitiy Relationship Diagram (ERD),"Internet Browser, Microsoft Edge (IE Mode only)
+
+PROD-Internal
+http://paccfprodin/fos2/
+
+PROD-External
+https://www-ops2.pac.dfo-mpo.gc.ca/fos2/
+
+TEST-Internal
+http://paccftestin/fos2/
+
+TEST-External
+https://fm-training.rhq.pac.dfo-mpo.gc.ca/fos2/",Harvest - Commercial,"FOS supports decisions on commercial opening and closings.
+
+The data / products produced by FOS are used by Stock Assessment staff in their run-size prediction models. 
+
+The data / products produced by FOS are used by fishery / resource managers to determine commercial fishing openings and closures",Infinite,"In-season and post-season estimates; Price Matched Log Books, Diversification Tables and exploitation rate analysis
+
+Fisher reported catch based on the logbook program. Raw data is collected in-season via a call-centre. QA/QC'd analyzed data is collected and entered post-season directly from the fisher's logbooks. 
+
+Commercial Salmon in-season estimates. Produced by fishery managers. Based primarily on the raw in-season fisher reported catch but takes other data sources into account as well such as overflight data and observer data. In-season estimates are entered and stored in FOS from 2005 to the present. 
+
+Commercial Salmon post-season estimates. Produced by fishery managers post-season factoring many different data sources. Histrorical estimates from 1996-2004 are stored in FOS. 
+
+Test Fishery salmon catch and bio data. Historical data held from 1955. Data shared with American colleagues as part of the Pacific Salmon Treaty",50 - 100,No,"10
+We could recover commercial salmon harvest data back to about 2017. It would require staff going through each logbook and re-entering data manually. 
+
+Prior to this paper logbooks were only held for 3 years and were then destroyed. Anything prior to 2017 would be permanently lost. ",">10
+No idea. It's only text. No pictures or videos etc. Estimated less than 10GB",Real-time,Formal QA/QC standards and checks built into FOS,No,High,Yes,Protected B,"PADS,  NOLS
+Licencing information used to come in thorugh PLS. Might be NOLS now not sure. Data comes in as a view. 
+PAC HARV Fish slips data comes in thorugh PAC HARV","Salmon ITQ_Database - Commercial salmon catch is accessed by the ITQ Database. 
+MRP -SYS - Commercial Salmon and Test Fishery data is pulled by the MRP group to share with U.S. colleagues as part of the Pacific Salmon Treaty
+Albion Fraser Interior Test Fishery Dataset
+",Yes; Open Data,Julia ,MacKenzie," 
+Hamilton, Shelee",Julia.MacKenzie@dfo-mpo.gc.ca; Hamilton.Shelee@dfo-mpo.gc.ca,Fisheries Management - Commercial 
+2,,Aboriginal Harvest Management System ,"Yu, Faith ;                         
+ Rushton, Aleta",1,Operational,AHMS,Formerly known has the FSC Standalone Database. AHMS is a remote data collection system and is a component of the KREST platform.,,Yes,Production,SQLite converting to Postgres SQL,Structured,DFO Server,Fisheries and Harbour Management - Fisheries Resource Management,"Yu, Faith;
+Rushton, Aleta",Kept and Released Estimation Survey Tool - KREST,Same as db description,"Youtube tutorial videos & word docx. instructions, draft user manual (not finished), postgres install document ",AHMS must be installed onto machine,Harvest - Indigenous,"AHMS goes into KREST but AHMS data supports FSC allocation decisions, assessing catch and effort in certain areas, used in treaty negotiations.","Science (stock assessment), R&P, FM (fishery managers)","AFS aggreements, IFMP, MRP",50-80,No,Part of KREST,5 to 20,Ad-hoc,Yes,Yes,Medium,Yes,Protected B,N/A,KREST (send/receive),No,Faith ,Yu,,Faith.Yu@dfo-mpo.gc.ca; Aleta.Rushton@dfo-mpo.gc.ca,Fisheries Management - Indigenous
+5,,Aquaculture Integrated Information System,"O'Grady, Chris ; 
+Paylor, Adrienne ; 
+Sandberg, Krista ",1,Operational,AQUIIS,"Aquaculture Management system The AQUIIS Project represented a full life cycle systems development, from strategy, business process analysis, gap analysis, enterprise data and technical architecture, target vision, to analysis, design, build, implementation and support of an application system to meet these requirements.
+AQUIIS supports the complete process of licence application, review and assessment, approval, renewal and amendment, along with associated processes for data management and compliance assessment of industry reported data required under conditions of licence. AQUIIS also supports managment of dfo audits and associated data. https://www.t4bi.com/showcase/dfo-aquiis-aquaculture-integrated-information-system/",261,Yes,Production,Oracle Database with db linked documents stored on SharePoint,Structured,DFO Server,Fisheries and Harbour Management-Fisheries Resource Management,"Souliere, Allen; Tassel, Byrn",Aquaculture Integrated Information System - AQUIIS,"Web application, .NET framework.","Physical Database Design, Developer Guide, System Architecture, Systems Operations, Various SOPs developed and maintained by user base",http://info.pac.dfo.ca/aquiis/#dashboard,Not defined,"Supports management of the aquaculture industry in BC, including monitoring key metrics of environmental performance and providing support for licence, policy and compliance decisions.",Aquaculture Management Division/Fisheries Management,Custom internal reports: often built of custom queries and specific questions. Reports generally support policy or licence conditions. AQUIS could be a source of information to determine increased/decreased interactions of between farmed/wild salmon. Analysis is done outside of AQUIS.,100,No,4,107,Real-time,Yes,No,Medium,Yes,Protected B,Not at this time,AQUIIS AAR,"Yes. Open Data, Regional Web pages, OBIS, GBIF (some datasets), CAPRI",Chris ,O'Grady,,Chris.O'Grady@dfo-mpo.gc.ca; Adrienne.Paylor@dfo-mpo.gc.ca; Krista.Sandberg@dfo-mpo.gc.ca,Not defined
+9,,C&P Inspection Database ,"Demsky, Arthur ",1,Operational,INSPECTIONS,"Provides a common location for C&P inspection data accessible by C&P Officers in the Pacific and across Canada.
+Web based application that is tied to the database",315,Yes,Production,Oracle database,Structured,DFO Server,Conservation and Protection - Fisheries and Harbour Management,"Esenam, Fifi",C&P Inspection (INSPECTIONS) Internal Web Application,"Application is used by C&P staff for data entry, queries/search and repository for forms.","Nothing available to C&P staff, possibly Justin Mundy may have info.",paccfprodin.ent.dfo-mpo.gc.ca/inpections//,Harvest - Multiple,Supports enforcement of inspections authorities.,"C&P, NHQ audit, DFO National Fisheries Intelligence Service (NFIS)",None,>50,No,0.5,,,Yes,Yes,High,No,Protected B,,,No, Arthur ,Demsky,,Arthur.Demsky@dfo-mpo.gc.ca,Enforcement
+11,,Catch and Release Estimation Survey Tool ,"Porter, Aswea  ",1,Both,CREST,"CREST (Catch and Release ESTimation) holds catch, effort, and biosample data for South Coast Area recreational fisheries. It also supports a suite of analytical tools and custom reports that facilitate South Coast programs and communication with the public. This database was initially developed in the early 1980s and has evolved since then to an Oracle database, consistent with regional standards.  It is managed by Science- South Coast Area.  Kris Hein has been the lone programmer and data manager for CREST for nearly 20 years, but moved to a different role in 2021.  Work is now underway to retire CREST and transition to the KREST data management system. ",1102,Yes,Production,Oracle database,Structured,DFO Server,Science Branch - South Coast Stock Assessment,"Porter, Aswea 
+Rechisky, Erin",Catch and Release Estimation Survey Tool - CREST,"1. Same as database component
+2. Data entry application for creel and logbook data
+3. Provides custom reporting and analytical tools",There are a suite of instruction manuals that target different aspects of the system.,windows executable,Harvest - Recreational,"CREST is critical to inform many recreational fishery management decisions. For example, catch explotation rates, forcasting etc.","Fisheries Management, stock assessement, groundfish","1. CREST Catch Estimate Report 
+2. Explotation Rate Analysis
+3. CREST Combined Catch Report by Stock and Age 
+4. In-season and final bulletins ",Not replaceable,No,2,"10 
+(select owner, sum(bytes)/1024/1024 Size_MB from dba_segments
+where owner = 'OTOLITH_V1'
+group  by owner;)",Daily,Yes,No,High,Yes,Unclassified,"MRP; FOS, PADS, OtoManager",MRP_SYS; Quota Management System (Quota Halibut catch),Recreational catch and effort in-season and annual bulletins., Aswea  ,Porter,,Aswea.Porter@dfo-mpo.gc.ca,Fisheries Management - Recreational 
+13,,cBayesDB - Genetics Sock ID Library.,"Wallace, Colin",1,,,"Primarily a data holding, not an application. (Includes library of FORTRAN routines for upload and extraction of genetics data to the Genetics Database.)
+Not published in FGP; is published in Open Data Inventory ID ODI-2017-0579
+",,,,,,,Ecosystems and Ocean Science,,,,,,,,,,,,,,Annually,,,,,,,,, Colin,Wallace,,Colin.Wallace@dfo-mpo.gc.ca,Science
+16,,Coastal and Offshore Juvenile Salmon Survey,"Tabata, Amy 
+King, Jackie",1,Analytical,BCSI Database,"Basin and Coastal Scale Interactions Program database. Includes marine trawl data from high seas salmon and BCSI juvenile salmon surveys. Data from 1992 to present. Offshore and coastal BC area excluding the Strait of Georgia. 
+The BCSI database used to be known as the High Seas Salmon Surveys which is a legacy program holding juvenile salmon surveys catch and biosample data from locations other than Strait of Georgia.",,Yes,Production,MS Access,Structured,Desktop/Shared Drive,Ecosystems and Ocean Science,"Tabata, Amy",n/a ,n/a ,no,"shared drive, restricted access ",Conservation & Stewardship - Multiple,"Supports long term planning amd scientific advice on salmon abundance and ecosystem assessments, ex. state of salmon ","Science, ESD, ADGT, IOS Oceanography","Data or technical reports for all cruises 
+Primary publications ","N/A -  Varies in how much it is used by different groups 10% some projects vs 100% of data reports, may not apply directly to decision making ",No,0.02,2,Monthly,Yes,No,Medium,Yes,Unclassified,no,no,"Yes, some data on OBIS, but plans to put more data on Open Dadta and OBIS",Amy ,Tabata,,Amy.Tabata@dfo-mpo.gc.ca; Jackie.King@dfo-mpo.gc.ca,Science
+21,,"Enhancement Planning and Assessment
+","Galbraith, Ryan",1,Both,EPAD,"Used by the Salmonid Enhancement Program (SEP) for production planning and assessment of enhanced Pacific salmon. Production planning data is a key part of the Integrated Fisheries Management Plan (IFMP) and Pacific Aquaculture Regulations (PAR) licences for all DFO-operated, Community and Volunteer hatcheries in Pacific Region. DFO is obligated to report actual production and escapement data under the terms of the international Pacific Salmon Treaty (PST).",500,No,Production,Oracle database,Structured,DFO Server,PSSI,"Lynch, Cheryl","Enhancement Planning and Assessment - EPAD
+",Same as db description,,,Enhancement - Multiple,"Enhanced salmon production for assessment, harvest and conservation with metrics to determine success and priority of each production line e.g. survival rates, harvest rates, hatchery contribution to catch/escapement. Salmon hatcheries in BC have as one of their production objectives, assessment for internatio+V96nal (e.g. PST, NPAFC), national (e.g. COSEWIC) and regional commitments (harvest management and salmon conservation) . SEP has been collecting, managing and reporting data internationally under PST agreement since 1985 in collaboration with stock assessment and MRP– originally in fortran, then DOS, then VB/MS Access","Science, stock assessment, resource management, PSSI","Escapement returns and estimates from tag data, enhanced contribution to harvest, enhanced contribution to escapement/rebuilding reporting for performance assessment (meeting regulations and guidelines), survival rates, catch distribution for each production stock/line/strategy",50-75,No,,,Daily,Yes,Yes,,Yes,,"ENPRO/E-PRO - MRP, NuSEDs, PADS, Otomanager, FOS","MRP, RMIS, COSEWIC, PST TC data models, PSF Salmon Explorer",PSF Salmon Explorer, Ryan,Galbraith,,Ryan.Galbraith@dfo-mpo.gc.ca,Enhancement
+22,,"Enhancement Program
+","Lynch, Cheryl",1,Both,E-PRO,"A project to replace the ENPRO application. Cloud based web based application to track inventory, providing analysis of metrics to evaluate success or challenges in types of operations e.g. climate change/water temperature trends, and support adaptive management of hatchery production/enhancement operational methods and procedures",1398,No,Indevelopment,SQL Server,Structured,Cloud-Server,PSSI,"Lynch, Cheryl","Enhancement Program - E-PRO
+",Same as db description,,,Enhancement - Multiple,,"Science, stock assessment, resource management, PSSI","Performance metrics such as production rates (relative to targets) mortality rates, disease screening, growth rates, feed usage, tag application/release, genomic analysis, adult/jvenile abundance, environmental trends, spawning selection/broodstock screening etc.",100,No,,,Daily,Yes,Yes,,Yes,,"ENPRO/E-PRO, MRP, NuSEDs, PADS, Otomanager, FOS","MRP/RMIS, COSEWIC",, Cheryl,Lynch,,Cheryl.Lynch@dfo-mpo.gc.ca,Enhancement
+23,,"Enhancement Project
+","Lynch, Cheryl ; 
+Galbraith, Ryan",1,Operational,ENPRO,"The Enhancement Project Database (Enpro) was developed to provide a consistent format for Salmonid Enhancement Program (SEP) hatcheries in Pacific Region to capture data on salmon adult escapement; egg takes; egg incubation; and juvenile rearing, marking and release. In addition to providing a detailed record of hatchery activities for the individual hatcheries, much of the data is summarized and input into the Enhancement Planning and Assessment Database (EPAD) by the SEP Planning and Assessment Unit (SPA). Providing this data is a requirement of a hatchery's Pacific Aquaculture Regulations Licence.",501,No,Production,MS Access,Structured,DFO Server,PSSI,"Lynch, Cheryl","Enhancement Project - ENPRO
+",Same as db description,,,Enhancement - Multiple,"SEP systems integrated with MRP, FOS (salmon catch), NuSEDs (annual escapement estimates, conservation units, population designation, standard spatial reference), lab data such as scale aging, DNA genomic data","Science, stock assessment, resource management, PSSI","Operational decisions around meeting conditions of PAR licence, CFIA reporting,  AAR regulations, inventory/feed management, rearing densities, water flows/temperatures, growth rates, etc.",100,No,,,Daily,Yes,Yes,,Yes,,"ENPRO/E-PRO, MRP, NuSEDs, PADS, Otomanager, FOS","MRP/RMIS, COSEWIC",,Cheryl ,Lynch,,Cheryl.Lynch@dfo-mpo.gc.ca; Ryan.Galbraith@dfo-mpo.gc.ca,Enhancement
+26,,Fish Health Audit and Surveillance System,"
+O'Grady, Chris ;
+Sandberg, Krista",1,Operational,FHAS,Aquaculture Fish Health Management tool. Will be replaced with AHEAD. Will be in production for another quarter and availbe for another year.,519,,Production,.Net Framework,Structured,DFO Server,Fisheries and Harbour Management-Fisheries Resource Management,,Fish Health Audit and Surveillance System - FHAS,Same as database component,,,Not defined,,,,,,,,,,,,,,,,,Chris ,"
+O'Grady",,"Chris.
+O'Grady@dfo-mpo.gc.ca; Krista.Sandberg@dfo-mpo.gc.ca",Science
+27,,Fish Health Database,"Thompson, Christy ; 
+Higgins, Mark",1,Analytical,FH_Database,"Published in FGP and Open Data Inventory ID ODI-2017-0314
+The Fish Pathology Program (FPP) located at the Pacific Biological Station in Nanaimo has been assessing the health of aquatic animals since the early 1970’s. Utilizing traditional diagnostic methods, the FPP has supported internal and external clients to provide clinical data and management advice on the health of aquatic animals. The dataset contains information from diagnostic fish health cases coming from the Salmonid Enhancement Program, Research, Public and I&T submissions. Data contained in the database includes pathogen findings from submitted cases from all of the Pacific Region. The publication of The Fish Health Database will comply with public release recommendations documented in recommendation twenty two, made in volume three of the Final Report (October 2012) submitted by the Cohen Commission of Inquiry into the Decline of the Sockeye Salmon in the Fraser River.",N/A,Yes,Production,MS Access,Structured,Desktop/Shared Drive,Ecosystems and Ocean Science - Aquatic Animal Health Program,"Thompson, Christy",Fish Health Database,Same as db description,Talk to Christy,Accessed through one machine,Enhancement - Multiple,Data collected informs the DFO vets medical diagnosis so they can prescribe treatments or other interventions; decisions are usually treatments for disease in hatcheries. Most of fish analyzed are for SEP hatcheries but also include wild fish. ,"SEP, Science: end users would have impact on ability to operate make decisions. Not large impact.",CFIA Reporting - have to report certain pathogens.,"30-50
+",No,"Invaluable
+Data goes back to 1970s",Ask Christy Thompson,Quarterly,Yes,No,,No,Protected B,No,No,"Yes
+Open Data",Christy ,Thompson,,Christy.Thompson@dfo-mpo.gc.ca; Mark.Higgins@dfo-mpo.gc.ca,Enhancement
+30,,Fisheries Regulations Information System,"Markevicius, Felix ; 
+Hornby, Greg",1,Operational,FRIS,"Provides real-time regulations information to fishers regarding fishery changes such as openings and closures, contamination notices, variation and prohibition orders. Internal application that feeds DFO's online Sport Fishing Guide and external/3rd party Mobile apps (via an API).",1276,Yes,Production,Oracle database,Structured,DFO Server,Resource Management and Sustainability (Pacific),"
+
+
+
+
+
+
+
+Bryn Tassel",Fisheries Regulations Information System - including mobile app,Same as Data_Asset_Description,"Documentation includes - User Guides, System Operations, Developer Guide, API Guide, System Architecture, Physical Database Design","1) http://paccfprodin/fris/#dashboard
+2) http://paccfprodin/fris2/#dashboard
+3) FRIS API URLs:
+•	SOAP:  
+https://www-ops2.pac.dfo-mpo.gc.ca/frisexternalservices/FrisExternalService.svc?wsdl
+•	REST:  
+Operations at https://www-ops2.pac.dfo-mpo.gc.ca/frisExternalServices/FrisExternalService.svc/rest",Harvest - Recreational,"FRIS supports Variation Order (VO) authorization (by RDG) and VO processing by DFO Regulations Staff for tidal water recreational fisheries, and the subsequent posting of these regulation changes to DFO's online Sport Fishing Guide and to external/3rd party mobile Apps.","(1) Recreational Fishing Program, Resource Management and Sustainability, FIsheries Management
+(2) Policy and Regulations, Conservation and Protection, Fisheries Management",DFO's Sport Fishing Guide,50,No,2,1.5,Real-time,Yes,Yes,High,Yes,Protected A,No,"Yes
+(1) DFO's Sport Fishing Guide;
+(2) DFO's Fishery Notification System","Yes
+(1) DFO's Sport Fishing Guide;
+(2) DFO's Fishery Notification System;
+(3) the Sport Fishing Institute's moble app - FishingBC",Felix ,Markevicius,,Felix.Markevicius@dfo-mpo.gc.ca; Greg.Hornby@dfo-mpo.gc.ca,Fisheries Management - Recreational 
+35,,Aboriginal Contribution Agreements Tracking System,"Whyte, Lourdes",1,,ACATS,Manage various habitat projects worked on by Aboriginal groups.,237,,Decommissioned,Oracle database,,DFO Server,,"Souliere, Allen; Wang, Hai ",Aboriginal Contribution Agreements Tracking System - ACATS,,,,Harvest - Indigenous,,,,,,,,,,,,,,,,, Lourdes,Whyte,,Lourdes.Whyte@dfo-mpo.gc.ca,"Fisheries Management - Indigenous
+Integration & Collaboration"
+43,,FSC Managers' Database,"Rushton, Aleta",1,Operational,N/A,"Once imported into KREST (by the end of fiscal year 2022/2023) will be decommissioned .
+South Coast FSC data reported directly from First Nations to DFO. Includes all species, not just salmon. Holds about 5 years worth of data from 2012-2017. ",N/A,Yes,Production,MS Access,Structured,Desktop/Shared Drive,Ecosystems and Fisheries Management,"Conley, Kevin",Kept and Released Estimation Survey Tool - KREST (will be imported to KREST),,no,Acess to DFO network Drive ,Harvest - Indigenous,"Used in fisheries management/resource sharing decisions (such as opening, closures, quota management) allocation decisions and analysis, enforcement (C&P) and policy analysis. ","Science (stock assessment), R&P, FM (fishery managers)","Informs PSC reports for PST obligations, IFMP  
+Forecasting, stock assessment, exploitation rate analysis, catch estimate reports",60-80,No,n/a,0.003,N/A,Yes,Yes,Medium,Yes,Protected A,No,No,No, Aleta,Rushton,,Aleta.Rushton@dfo-mpo.gc.ca,Fisheries Management - Indigenous
+49,,Salmon Marine Interactions - Strait of Georgia Database,"Neville, Chrys",1,Analytical,SOG,"The juvenile Pacific salmon database, Strait of Georgia, is comprised of biological information from marine trawl surveys conducted bi-annually (early summer and fall) in the Strait of Georgia and associated waters from 1998 to the present. 
+",,Yes,Production,MS Access; Excel,Structured,Desktop/Shared Drive,Science - ESD REEF,"Neville, Chrys",N/A,N/A,Front-end documentation,Access through Shared Drive; access restricted to the program,Integration - Multiple,"Fisheries management decisions on how to manage Pacific salmon in changing climate i.e. marine survival. Scientific papers are produced using the data.
+Hatchery practices - data is used to inform the effectivness of hatchery relase strategies, for example, do hatchery release have the expected results. 
+Data used to inform aquaculture practices, marine spill response, marine infrastructure, identifying location and distribution of SARA listed species. etc. ","Science (ecosystem science, fish health, genomics) EMB, SEP, South Coast Management Branch","State of the Oceans Report, scientific publications, distribution and catch per effort maps",50,No,0.1,,bi-annually,Yes,,High,Yes,Unclassified,MRP,None,"Yes, previously on Open Data
+In process to publish to Marine Spatial Ecology and Analysis (MSEA)", Chrys,Neville,,Chrys.Neville@dfo-mpo.gc.ca,Science
+51,,Kept and Released Estimation Survey Tool,"Yu, Faith  ",1,Both,KREST,"The KREST system manages both raw and estimated Recreational and First Nations Food Social and Ceremonial catch and effort data in the Pacific Region, providing a web UI for data entry, reporting, administration and detailed analysis of the data. KREST includes two remote data collection applications: KREST Remote and AHMS. Web services also exist to synchronizing data, pushing out standard lookup table data and pulling in catch and effort data from remote systems. Integrates with other DFO applications including NSLIS, NRLS, Reference Data System.",355,Yes,Production,Oracle database,Structured,DFO Server,Fisheries and Harbour Management - Fisheries Resource Management,"Yu, Faith",Kept and Released Estimation Survey Tool - KREST,,"There are a suite of instruction manuals for the three main system components (KREST User Interface, KREST Remote, and AHMS). Documentation available in Confluence.","KREST Test: http://kresttstin/KREST/ 
+
+KREST Production: krestprdin.ent.dfo-mpo.ca/KREST/",Harvest - Multiple,"Used in fisheries management/resource sharing decisions (such as opening, closures, quota management) allocation decisions and analysis, enforcement (C&P) and policy analysis. ","Science (stock assessment), R&P, FM (fishery managers)","Informs PSC reports for PST obligations, IFMP  
+Forecasting, stock assessment, exploitation rate analysis, catch estimate reports",30-50,Yes,2,20,Daily,Yes,Yes,High,Yes,Protected B,"Maa-nulth Treaty Catch Database, FSC Managers' Database, AHMS (send/receive), CREST, MERCI, NRLS, NSLIS, RefData, KREST Remote (send/receive), PacAdmin",None,No, Faith  ,Yu,,Faith.Yu@dfo-mpo.gc.ca,Fisheries Management - Multiple 
+54,,Maa-nulth Treaty Catch Database,"Saraga, Rachel",1,Both,MERP,"
+MERP is a series of 5 databases that must be individually updated and then merged together to produce a summary for DFO. This is inconvenient for the users. MERP is being replaced with a new regional solution in AHMS in fiscal 2023/2024 year that will be cloud-based and allow all users to update their catches independently and produce a real time updated summary. MERP data planned to be migrated into KREST. ",N/A,Yes,Production,Excel ,Structured,Desktop/Shared Drive,Ecosystems and Fisheries Management,nil,Kept and Released Estimation Survey Tool - KREST,Same as db description,MERP User Manual Version 2013.02, http://pacfish.ca/dfo_fsc/,Harvest - Indigenous,"Supports Maa-nulth Domestic Harvest accounting decisions, which influence access to overages/underages in subsequent years. Can be used for assessing catch and effort relative to domestic allocations and access, assignment of stock composition needed for run reconstructions Treaty obligations. ","Science (stock assessment), R&P, FM (fishery managers)","Post-season review, IFMP, MRP",N/A - will be replace by AHMS in fiscal 2023/24,N/A - will be replace by AHMS in fiscal 2023/25,N/A - will be replace by AHMS in fiscal 2023/26,N/A - will be replace by AHMS in fiscal 2023/27,Ad-hoc,N/A - will be replace by AHMS in fiscal 2023/27,N/A - will be replace by AHMS in fiscal 2023/28,N/A - will be replace by AHMS in fiscal 2023/29,N/A - will be replace by AHMS in fiscal 2023/30,Protected B,N/A,KREST,No, Rachel,Saraga,,Rachel.Saraga@dfo-mpo.gc.ca,Fisheries Management - Indigenous
+55,,Management and Evaluation of River Catch Information,"Burnett, Karen ; 
+House, Patricia",1,Both,MERCI,"(Uses Local MS Access Database - Per Email from Cynthia Breau-Oct 2/14) This system provides data warehousing and weekly catch statistics for roving and access site creel surveys. MERCI has been used successfully since 1998 by Fisheries and Oceans Canada to assist with in-river catch monitoring and is now an integral part of DFO’s management of First Nations chinook and sockeye salmon fisheries on the Fraser River.
+http://essa.com/tools/merci/
+Data could be manually entered into KREST in the future",,Yes,Production,MS Access,,Desktop/Shared Drive,Fraser and Interior Area Resource Management,"House, Patricia
+Burnett, Karen",,,"Data user manuals, tutorial, review of how the software operates and recommendations for improvements",Software centre download,Harvest - Indigenous,"Harvest reporting for Indigenous fisheries, to determine if fisheries should continue or close.","FIA Resource Managers and Biologists
+Stock Assessement",In-season and end of season PST reporting and other reporting needs,10 to 20,Yes,1,2 to 5,Daily,Yes,No,High,Yes,Protected B,,FOS (manually entered),"Yes
+DFO Fraser Salmon Bulletin
+Also DFO website
+Used in PST reports",Karen ,Burnett,,Karen.Burnett@dfo-mpo.gc.ca; Patricia.House@dfo-mpo.gc.ca,Fisheries Management - Indigenous
+57,,Mark Recovery Program - Archive,"Komick, Nicholas",1,Operational,MRP_ARCH,"Storage and indexing of scanned field document images from numerous field sampling and catch monitoring programs. Supports transparency of the analytical outcomes to the raw data source. May also fit into category 5 data asset - semi-structured scans, but also provides indexing with metadata for files.",1111,No,Production,Oracle database,Semi-structured,DFO Server,"Science Salmon Assessement (Star) - Holmes, John","Komick, Nicholas
+Fraser, Kathryn",R scripts to import and query data,R scripts to import and query data,"Draft document (Nick K) same as MRP-SYS; limited info on MRP-ARCH
+https://086gc-my.sharepoint.com/:w:/g/personal/nicholas_komick_dfo-mpo_gc_ca/EQnDzuWApeVIlJaCW9GsJ74Bzut_hLm6i9EXHs4taC2L2Q?e=5WJzNU","Protected, limited to data managers with Oracle access. Managers can manually share images if requested.",Integration - Multiple,Raw data that supports decisions based of MRP-SYS.,Science (core and area based),N/A,,No,0.25,1000,Daily,Yes,No,Medium,Yes,Protected B,N/A,N/A,No, Nicholas,Komick,,Nicholas.Komick@dfo-mpo.gc.ca,Science
+59,,Mark Recovery Program - System ,"Komick, Nicholas",1,Both,MRP_SYS,"Provide estimates of salmon indicator stock (coded wire tag) specific impacts on chinook and coho across fisheries/sector strata and international reporting of summary information to meet Pacific Salmon Treaty obligations. Contains Canada and replicates US data and SEP data related to tagging, releasing, sampling, and recovery of coded wire tags.
+The Mark Recovery Program (MRP) was initiated in the 1970s to monitor the catch of Chinook and Coho salmon. It is one the largest mark-recapture and ecological monitoring programs in the world with over 100xxxxxx fish tagged with coded wire tags (CWTs) every year. The MRPIS imports data from multiple Chinook and Coho catch monitoring sources to provide an estimate of fishery impacts on CWT indicator stocks. In addition to integrating the data, there area are numerous quality assurance steps to ensure the quality and completeness of the data published within the MRPIS to fulfill Canadian’s obligations under the Pacific Salmon Treaty (PST)",1107,No,Production,Oracle database,Structured,DFO Server,"Science Salmon Assessement (Star) - Holmes, John","Komick, Nicholas
+Fraser, Kathryn","1. MRPCore (R-package)
+2. Mark Recovery Program - Extractor - MRP_EXTRACT APM 686 
+3. Mark Recovery Program - Web Services - MRP_WS APM 1108
+4. Mark Recovery Program - Data Entry Interface - Database Component","1. R-package that implements the data management and analytical to integrate catch monitoring and CWT release data
+2. Web-based reporting tool to provide summary or detailed ad-hoc custom query results from specified larger dataset. Security - unprotected data. 
+3. A suite of web-based user-centric information interfaces for accessing salmon stock information provided by the MRP System (MRP SYS). Security -  unprotected data.
+4. Data entry interface","Draft document (Nick K) is working on to ensure knowledge transfer if change in personal.
+https://086gc-my.sharepoint.com/:w:/g/personal/nicholas_komick_dfo-mpo_gc_ca/EQnDzuWApeVIlJaCW9GsJ74Bzut_hLm6i9EXHs4taC2L2Q?e=5WJzNU","Protected, limited to data managers with Oracle access. DFO users would access the MRP-WS and/or MRP_EXTRACT",Integration - Multiple,Meeting PST treaty obligations through reporting Canada's impacts on key Chinook and Coho stocks in the treaty.,"Science (core and area based), SEP, R&P, FM (fishery managers) PSC","Canada/US explotation rate analysis https://www.psc.org/download/35/chinook-technical-committee/14594/tcchinook-22-03.pdf
+*used to support treaty obligations
+Forcasting (uses exploation rate report to inform the forecast)
+https://www.psc.org/publications/technical-reports/technical-committee-reports/chinook/
+Stock assessment reports (state now)
+Domestic and international forecasting (what happens in future years)
+Salmon Outlook 
+Hatchery production planning
+Fishery Management/Regulations",~75,No,1.5,100,Weekly,Yes,No,High,Yes,Protected B,"FOS, CREST, EPAD",N/A,"Yes
+US Regional Mark Information System. 
+https://www.rmpc.org/", Nicholas,Komick,,Nicholas.Komick@dfo-mpo.gc.ca,Science
+61,,National Recreational Licensing System,"Fisher, Emma",1,Operational,NRLS,National Recreational Licensing System (NRLS) A public facing licensing system which allows sport fishermen to buy recreational fishing licenses on the internet. There is a public internet site where people can buy a license. It includes a link to an online credit card processing company called Chase Paymentech (e-xact).,730,Yes,Production,Oracle database,Structured,DFO Server,Salmon Management and Client Services - Business and Client Service ,"Tassell, Bryn","1. National Recreational Licensing System - NRLS Public APM 730
+2. KREST - APM 355
+3. National Recreational Licensing System - DFO Administrative Application - NRLS ADMIN APM 731
+4. Fishery Notice System APM 525
+5. PacSearch APM 1013
+6. PacAdmin","1. Same as datebase
+2. The Kept and Released Estimation Survey Tool - gathers catch data from NRLS and other systems
+3. An internal administration system for the National Recreational Licensing System (NRLS) which allows the Pacific Licensing Unit's licensing staff to view and generate reports on the NRLS data, and to manage sport fishermen user records.
+4. Public Fisher Notification System - linked to NRLS to send updates to Indpendent Access Providers when new notices are posted
+5. A common search tool that allows DFO users to search various licencing and licencing related datasets in a single place
+6. A single signon solution for managing user roles and permissions","NRLS Admin Procedures, NRLS IAP Manual, SOP for Client Service Officers, NRLS Pacific Region SOP, Architect diagram, Technical Application Documentation",http://dfonk1awvasp043/nrls-sndpp-admin/index.cfm?event=;,Harvest - Recreational,Used to issue licenses and enforcement ,"Conservation and Protection
+iRec report ",* small amount of catch data reported through licensees,N/A,No,3,8.3,Real-time,Yes,Yes,High,Yes,Protected A,"PAC Admin
+NRLS Admin","KREST
+NRLS Admin
+Fishery Notice System
+PacSearch",https://www.pac.dfo-mpo.gc.ca/fm-gp/rec/licence-permis/stats-eng.html, Emma,Fisher,,Emma.Fisher@dfo-mpo.gc.ca,Fisheries Management - Recreational 
+62,,National Special Licensing Issuance System,"Charette, Andria ",1,Operational,NSLIS,"Provides functionality to handle the issuance of Section 52 licences (EO, Demo, test, FSC, research etc) and acts as a central repository for all Pacific region S52 licences to allow for ease of reporting given recent Larocque and APPFA court decisions.
+NSLIS tables are located in PLS",733,Yes,Production,Oracle database,Structured,DFO Server,Salmon Management and Client Services - Business and Client Service ,"Esenam, Fifi",Pacific Licensing System - PLS,See PLS description,"Technical diagrams for PLS, user manual (outdated)",http://paccfprodin/nslis/index.cfm,Harvest - Multiple,NLSIS used to issue the licenses,"If PLS goes down, NSLIS impacted. NSLIS tables sit in PLS.",N/A,"N/A - relies on PLS. When connection to FOS goes live, FOS operations impacted.",No,,,Real-time,Yes,Yes,High,Yes,Protected A,PLS,"PLS, PACSEARCH, FOS (test phase NSLIS send EO and FSC to FOS)",No, Andria ,Charette,,Andria.Charette@dfo-mpo.gc.ca,Fisheries Management - Multiple
+,,Fraser Petersen Mark-Recapture databases,"Cone, Tracy   ",1,Operational,-,"MS Access databases specific to annual Petersen Mark-Recapture projects conducted throughout the Fraser watershed, from early 1990's to present, covering Sockeye, Chinook, Chum and Pink. Used to compile data for bias testing and escapement analysis.",N/A,No,Production,MS Access,Structured,Desktop/Shared Drive,Fraser and Interior Area,"Group asset, no one custodian",Fraser Petersen Mark-Recapture databases,Same as db,Internal User Guides,"Shared drive access, restricted permission",Harvest - Multiple,"Forcasting that supports harvest limits, PST requirements, stock status assessments etc.
+Support accurate escapement estimates, informs models used for forecasting. Some in-season data provided such as recapture data but not primary purpose. ","Science
+Area-based programs
+Information/products produced by database is used, not the database directly ",Feeds into escapement summary datasets (NuSEDS tables by year),0-20,Yes,"Data: Irreplaceable & entry cost high
+Database: $0.25 Million ",,Annually,Yes,No,High,Yes,Unclassified,No,"MACH II - tool for bias testing and statistical analysis (data also ends up in NuSEDS thorugh Fraser Sockeye Escapement Database)
+",No, Tracy   ,Cone,,Tracy.Cone@dfo-mpo.gc.ca,Fisheries Management - Multiple
+70,,Pacific Salmon Aging Results ,"Ridgway, Brenda 
+",1,Operational,PADS/MRP_DE,"Data entry and results of fish age determination. Targeted decomission in 2025.
+Not published to the FGP, Open Data ID ODI-2017-0578",1110,No,Production,Oracle database,Structured,DFO Server,"Science Salmon Assessement (Star) - Holmes, John","Ridgway, Brenda 
+Fraser, Kathryn
+Komick, Nicholas (Technical Lead)","Salmon Escapement Data System - NuSEDS, Pacific Age Database System - PADS",,"User Manual - Brenda Ridgway
+Contact Vicky Wang (IM/TS responsibility)","Updated link - http://pac-salmon.dfo-mpo.gc.ca/CwtDataEntry/#/AgeBatchList
+PADS -  http://vsbciosxp38.ent.dfo-mpo.ca:7010/pads_prod/PADS
+NUSEDS query - http://pac-salmon.dfo-mpo.gc.ca/Nuseds.Query/#/Query",Integration - Multiple,"Stock assessments and fishery allocations, openings and closures; international and domestic stock assessments","Science (core and area based), SEP, R&P, FM (fishery managers) PSC","Stock assessment reports (state now)
+Domestic and international forecasting (what happens in future years)
+Salmon Outlook 
+Hatchery production planning
+Fishery Management/Regulations",Not replaceable,No,0.5,"
+0.3",Daily,Yes,No,High,Yes,Protected A,no,NuSEDS -Extractor,"Yes
+Open Data ID ODI-2017-0578"," Brenda 
+",Ridgway,,"Brenda 
+.Ridgway@dfo-mpo.gc.ca",Science
+72,,Pacific Harvest System 3.0,"Yu, Faith  ",1,Both,PACHARV3,Pacific Region's database for storing commercial sale and catch information from fish slips submitted to DFO. ,811,Yes,Production,Oracle database,Structured,DFO Server,FM - Integrated Fisheries Data,"Souliere, Allen
+Yu, Faith","1. Pacific Harvest System 3.0 - PACHARV3
+2. PACHARV3 Data Entry Application",2. Used to manually enter data into PACHARV3,"System documentation (in Confluence), user manual   ",Oracle db connection in MS Access,Harvest - Commercial,"Used to validate landed catches, enforcement, compliance checks, investigations, evidence in court, econommic analysis, reporting needs","Policy, C&P, FM","C&P Section 30 documents
+Annual Reports - Ex. Informs BC Seafood Year in Review 
+NHQ Status Updates for Briefings - informs on fisheries economic status",30-50,Yes,,~10 GB,Real-time,Yes,Yes,Medium,Yes,Protected B,"RefData, FOS (fishery openings), GFFOS, logbook (red urchin, geoduck logfiles), PLS (e.g. vessels licensing, ports, fishery types, parties, etc)","CSRS, FOS",No  , Faith  ,Yu,,Faith.Yu@dfo-mpo.gc.ca,Fisheries Management - Commercial 
+73,,Pacific Licensing System,"Mah, Daniel",1,Operational,PLS,Pacific Region's commercial fishing licencing system - Legacy system,813,Yes,Production,Oracle database,Structured,DFO Server,Ecosystems and Fisheries Management,"Esenam, Fifi","Pacific Licensing System - PLS 
+
+",1. Same as db component ,None available - DM,http://vsbciosxp38.ent.dfo-mpo.ca:8888/forms/frmservlet?config=PLS,Harvest - Multiple,"Used in fisheries management licensing services, to determine eligibility. ","Fisheries Management - C&P, Pacific Fisheries Licensing Unit (PFLU)",,95-100,No,,,Real-time,Yes,Yes,High,Yes,Protected B,NOLS,"NOLS, Pac Fish, NSLIS, FOS, QMS","No, https://www-ops2.pac.dfo-mpo.gc.ca/vrnd-rneb/index-eng.cfm?pg=VRNdirSelect", Daniel,Mah,,Daniel.Mah@dfo-mpo.gc.ca,Fisheries Management - Multiple
+78,,Pacific Region Restoration Tracker,"Forysinski, Krista ; Mahara, Natalie",1,Analytical,PaRR,"Built to consolidate project information to improve tracking, assessment, and reporting across DFO and formal external restoration partnerships.
+Includes the following G&C programs: Aquatic Ecosystems Restoration Fund (AERF), Aboriginal Fund for Species at Risk (AFSAR), Aquatic Habitat Restoration Fun (AHRF), British Columbia Salmon Restoration and Innovation Fund (BCSRIF), Canada Nature Fund for Aquatic Species at Risk (sometimes referred to as the Nature Legacy Fund (CNFASAR), Coastal Restoration Fun (CRF), Fish Habitat Restoration Initiative (FHRI), Habitat Stewardship Program (HSP), Ghost Gear Fund, Indigenous Habitat Participation Program (IHPP), Recreational FIsheries Conservation Partnerships Program (RFCPP), Salmonid Enhancement Program (SEP)
+2061 records (2015-2021), 58 columns of data
+",N/A,Yes,Indevelopment,Excel ,Structured,Desktop/Shared Drive,Ecosystem Management Branch & PSSI Stewardship Directorate,N/A,N/A,N/A,Data Governance and Reporting Framework for the Pacific Region Restoration Tracker (internal); provides info on where information is coming from etc.,Contact Data Stewards for access,Conservation & Stewardship - Multiple,* PaRR provides summary information to communicate restoration activities to internal and external groups,"Ecosystem Management Branch & PSSI Stewardship Directorate
+EMB - SARP","No
+* In past SEP Annual Report pulled info from PaRR",15,No,0.2,120,Quarterly,Yes,No,Medium,Yes,Protected A,N/A,N/A,No,Krista ,Forysinski,,Krista.Forysinski@dfo-mpo.gc.ca; Natalie.Mahara@dfo-mpo.gc.ca,Integration & Collaboration
+81,,Pacific Salmon Coded Wire Tag Lab Results,"Fraser, Kathryn ;
+Komick, Nicholas",1,Operational,MRP_DE,"Web-based data collection interfaces and associated database for entry of reporting of salmon coded wire tag lab results.
+MRP_DE database in both this row and PADS row, they have separate interfaces but back end database with results.",1110,No,Production,Oracle database,Structured,DFO Server,"Science Salmon Assessement (Star) - Holmes, John","Ridgway, Brenda
+Kathryn, Fraser
+Komick, Nicholas ",no,no,"Protocol documents for lab (lab user manual)
+No user manual for read-only role
+Working on some video training",http://pac-salmon.dfo-mpo.gc.ca/CwtDataEntry/#/BatchList,Integration - Multiple,"Stock assessments and fishery allocations, openings and closures; international and domestic stock assessments","Science (core and area based), SEP, R&P, FM (fishery managers) PSC","Stock assessment reports (state now)
+Domestic and international forecasting (what happens in future years)
+Salmon Outlook 
+Hatchery production planning
+Fishery Management/Regulations",100,No,0.5,0.2,Daily,Yes,No,High,Yes,Unclassified,no,"Mark Recovery Program - System - MRP_SYS
+EPAD",Not directly,Kathryn ,Fraser,,Kathryn.Fraser@dfo-mpo.gc.ca; Nickolas.Komick@dfo-mpo.gc.ca,Science
+83,,PICFI/ATP Voluntary Licence Relinquishment  Database (PICFI-AFR),"Pauls, Guinevere ",1,Operational,No,"This access database is used to data enter information collected from applicants who wish to potentially relinquish the commercial party based and vessel based licence(s) through the Pacific Integrated Commercial Fisheries Initiative (PICFI)/Allocation Transfer Program (ATP) Voluntary Relinquishment program. This database includes information related to licences/quota for treaty, reconcilliation aggreement and rights based fisheries. The database is used for each round of the program that is had and provides the ability to review the data collected to assess the range of offers provided over a period of time. This is used internally only.  Once the program finishes app will be retired. (this program is ongoing)",N/A,Yes,Production,MS Access,Structured,Desktop/Shared Drive,Business Client Services,"Guinevere, Pauls",Same as db,N/A,None,Running off data steward's desktop; backed up to Shared Drive,Harvest - Commercial,Use to determine maket value of licenses to purchase license from commercial harvester (reliquisment) to convert to F license.,"PICFI, ATP, mitigation, client services, FM",None,70,No,0.05,0.00194,Real-time,Yes,No,High,Yes,Protected B,PLS,No,No, Guinevere ,Pauls,,Guinevere.Pauls@dfo-mpo.gc.ca,Fisheries Management - Commercial 
+,,Cross Program Data Tool ,"Susnik, Ann  ;                       Zhoo, Yeon ; Jeffrey, Karen ;                                 Mbarushimana, Jenny ; lavigne, lauren ; carpenter, beverly",1,Both,CPDT,"This data tool holds entirety of licences and quotas relinquished with ATP/PICFI/Treaty/Reconcilliaiton Funds and converted to communal commercial access (F licences). This is used internally only.
+*New database will be ready in next 6 months - follow-up on type of database, location, IM/TS managed?",N/A,Yes,Production,Excel,Structured,Desktop/Shared Drive,R&P,"Zhoo, Yeon",Same as db,N/A,No,"Shared drive access, restricted permission",Harvest - Indigenous,Distribution/allocation of communal commercial access ,"Licensing, P&EA, R&P ",CPDT data support senario notes and decisions on communal commercial access and performance measures of program i.e. amount of quota etc.,50,Yes,0.1,0.0022,Quarterly,Yes,No,High,No,Confidential,No,No,No,Ann ,Susnik,,Ann.Susnik@dfo-mpo.gc.ca; Yeon.Zhoo@dfo-mpo.gc.ca; Karen.Jeffrey@dfo-mpo.gc.ca; Jenny.Mbarushimana@dfo-mpo.gc.ca; Lauren.Lavigne@dfo-mpo.gc.ca; Beverly.Carpenter@dfo-mpo.gc.ca,Fisheries Management - Indigenous
+87,,PST Voluntary Salmon Troll Licence Retirement Database (PST VLR),,1,,,This access database is used to data enter information collected from applicants who wish to potentially retire the salmon troll licence(s) held on their vessel through the Pacific Salmon Treaty Voluntary Salmon Troll Licence Retirement program. The database is used for each round of the program that is had and provides the ability to review the data collected to assess the range of offers provided over a period of time. This is used internally only.  Once program finishes the app will be retired.,,,Decommissioned,MS Access,,Desktop/Shared Drive,"Not in APM, desktop based",,,,,,,,,,,,,,,,,,,,,,,#VALUE!,#VALUE!,,#VALUE!,Fisheries Management - Commercial 
+93,,Reference Data System,"Yu, Faith  ",1,Operational,REFDATA,"PacFish Reference Data Repository Database used to store data standards, common codes for synchronizing with other application systems located in the Pacific Region in order to ensure that systems are all using a consistent set of data standards and to facilitate roll-up and analysis of fisheries data across the region.",866,Yes,Production,Oracle database,Structured,DFO Server,FM - Integrated Fisheries Data,"Yu, Faith
+Souliere, Allen",Reference Data System - REFDATA,,"Confluence (HTML pages, written entity diagrams, project scope)","Test: http://vsbciosxd36.ent.dfo-mpo.ca:7004/ordsdev/f?p=100:LOGIN
+Production: http://vsbciosxp38.ent.dfo-mpo.ca:7006/ordsprod122/f?p=100:LOGIN:8227079703028:::::",Integration - Integration and Coordination,"allows storage, management and use of any structured data associated with the PacFish data standards (for species, gear, vessel, licence, etc)",FM,n/a,50-100,Yes,,,Ad-hoc,Yes,Yes,High,Yes,Unclassified,PacAdmin,"KREST, PacAdmin, PacHarv3, FOS, NRLS, NSLIS, CLAMS",No, Faith  ,Yu,,Faith.Yu@dfo-mpo.gc.ca,Not defined
+96,,Salmon Escapement Data System,"Suhan, Kayla 
+Hamilton, Shelee   ",1,Analytical,NuSEDS,"Data entry and analysis of Pacific salmon escapement data. Not published in FGP, Open Government ODI-2016-0015
+Salmon escapement data constitute important corporate knowledge which must be adequately maintained and accessible. The Salmon Escapement Database (NuSEDS) is the DFO Pacific Region’s central database that stores individual spawner survey data records, spawner abundance estimates and the linkages between the two. Annual abundance estimates are maintained by population, as defined by freshwater location and run timing. Each population is referenced to the location of the stream mouth. The watershed-coding system provides unique stream identification and incorporates the natural organization, direction, and hierarchical nature of stream channels and their tributaries.
+
+The NuSEDS database currently reports salmon spawning observations for 9100+ individual populations but escapement estimates (all levels of survey intensity) are available for 9800+ populations.
+
+This database contains historic population data starting in the 1920’s (older data for some rivers exists in other formats). Prior to 1995 a standardized form (BC-16) was used to summarize the estimate of the spawning population size, but the historical database lacked the capacity to describe the number of observations, individual counts or methods used to estimate the abundance of the population. In 1995, responsibility for salmon enumeration was moved to the DFO Science section. At that time, the database was re-written to include descriptive information for each abundance estimate, providing underlying data and the estimation method(s). Many of the historic estimates prior to 1995 are labeled Unspecified Returns because the database was limited to storing one estimate for any given stock. As time and resources permit these data are being replaced with more accurate categorization. With the introduction of the Wild Salmon Policy (2005), individual populations within NuSEDS can now be grouped by Conservation Unit.",1104,No,Production,Oracle database,Structured,DFO Server,Science - FADS,"Suhan, Kayla ","1. Salmon Escapement Data System - NuSEDS 1106
+2. Salmon Escapement Data System - Data Extractor for Salmon Escapment, Fish Aging & Conservation Units - NuSEDS EXTRACT APM 
+3. PADS Application
+4. Stream Narrative: stream narrative conservation profiler and bulk uploader tool","1. Same as db
+2. Data querying and reporting tool for salmon escapement (nuSEDS) , fish aging (PADS) and Conservation Units (CU) data (MRP Extractor-based)
+3. See PADS description
+4. Stream location, navigation and salmon spawning information","1. One Note document for SOP for data entry and upload (on escapement data management shared drive)
+2. Paper documentation - Pacific Biological Station",URL: http://vsbciosxp38.ent.dfo-mpo.ca:7012/nuseds_prod/NUSEDS,Conservation & Stewardship - Multiple,"Forcasting run sizes, stock assessment, resource management decisions, wild salmon policy, COSEWIC, future prioritization work","Science (core and area based), SEP, R&P, FM (fishery managers) PSC","Forcasting - stock management unit (SMU) maps, Conservation unit maps (including status), salmon outlook (in progress)",~20,Yes,2,14,Quarterly,Yes,No,Medium,Yes,Protected B,PADS,"NuSEDS_RPT, NuSEDS_GIS, MRP, FOS","Yes
+Open Data, OBIS, GBIF",Kayla ,Suhan,,Kayla.Suhan@dfo-mpo.gc.ca; Shelee.Hamilton@dfo-mpo.gc.ca,Science
+98,,Salmon ITQ - Area B and H,"Wanless, Madeline",1,Operational,,"Salmon Shares Database - Calculate and documents transfers of individual transfer quota (ITQ) for salmon fisheries for Areas: B and H (sockeye/pink and chum fisheries); with C & D set up however not actively used. Also manages Area H chum fishery (ITE) based on effort.
+Additional information stored in a seperate database but used to manage ITQ fisheries: Dockside Monitoring (including area specific catch) Program information (of 3rd party service provider); vessel/licence information; catch and anticipated encounter rates for incidental catch. Provides a licence amendment.
+Types of data: Species, Location, Abundance, Environmental Conditions, Water Quality, Conservation Units",N/A,No,Production,MS Access,Structured,Desktop/Shared Drive,Fisheries Management,"Garard, Scott",No,N/A,"Installation instructions, may be old user ID and passwords",Run on local workstation and data backed up to shared drive,Harvest - Commercial,Used manage the ITQ fisheries.,Fisheries Management,Operational reports stored within access database that show licensee over quota etc.,100,No,N/A,0.2,Real-time,Yes,No,High,Yes,Protected A,"FOS_Hail, PLS (manual)",No,No, Madeline,Wanless,,Madeline.Wanless@dfo-mpo.gc.ca,Fisheries Management - Commercial 
+99,,Salmon ITQ - Area A,"Lord, Karlena",1,Operational,,"Salmon Shares Database - Calculate and documents transfers of individual transfer quota (ITQ) for salmon fisheries for Areas: A (sockeye fisheries); with C & D set up however not actively used. 
+Additional information stored in a seperate database but used to manage ITQ fisheries: Dockside Monitoring (including area specific catch) Program information (of 3rd party service provider); vessel/licence information; catch and anticipated encounter rates for incidental catch. Provides a licence amendment.
+Types of data: Species, Location, Abundance, Environmental Conditions, Water Quality, Conservation Units",N/A,No,Production,MS Access,Structured,Desktop/Shared Drive,Fisheries Management,"Garard, Scott",No,N/A,"Installation instructions, may be old user ID and passwords",Run on local workstation and data backed up to shared drive,Harvest - Commercial,Used manage the ITQ fisheries.,Fisheries Management,Operational reports stored within access database that show licensee over quota etc.,100,No,N/A,0.2,Real-time,Yes,No,High,Yes,Protected A,"FOS_Hail, PLS (manual)",No,No, Karlena,Lord,,Karlena.Lord@dfo-mpo.gc.ca,Fisheries Management - Commercial 
+44,,FSC Standalone Database (Now AHMS),"Rushton, Aleta",1,Operational,n/a,Now known as the Aboriginal Harvest Management System (AHMS). AHMS is a remote data collection system and is a component of the KREST platform. SQLite being converted to PostgreSQL; custom design,,Yes,Decommissioned,SQLite ,Structured,DFO Server,,,Kept and Released Estimation Survey Tool - KREST,,,,,,,,,,,,,,,,,,,,, Aleta,Rushton,,Aleta.Rushton@dfo-mpo.gc.ca,Fisheries Management - Indigenous
+82,,PacSearch - Licensing Data Portal and Vessel Hail in/Hail out Reporting,"Mah, Daniel",1,Operational,PACSEARCH,"A reporting tool used by the Fisheries Management and C&P to search against licensing data, vessel activity and recreational fishing licensing. This application does not have its own data. This application is a tool that searches a variaety of different datasets ",1013,Yes,Production,Oracle database,Structured,DFO Server,FM - Integrated Fisheries Data,"Yu, Faith","Fishery Operations System - FOS
+Pacific Licensing System - PLS
+National Recreational Licensing System - NRLS",Same as db compenent,,http://paccfprodin/pacsearch/index.cfm?pg=home,Harvest - Multiple,"Used in fisheries management licensing services, to determine eligibility, alongside PLS. Additionally used for retrieval of documentation for legal purposes/regulations violations. ","Fisheries Management - C&P, PFLU","Active Fishing Vessel Reports Process - ACTIVE_FISHING
+Vessel Hails/Broadcasts daily reports on which fishing vessels in the Pacific fleet are currently carrying out fishing activities. Used largely by C&P.","Waiting on number from Daniel - data would not be lost, retrieval methods would be more difficult however. 
+*could not meet legal standards for data retrevial to support C&P and regulations unit etc.",Yes,,N/A (this aplpiation is a reporting tool that searches multiple other datasets),Real-time,Yes,Yes,High,Yes,Protected B,"PLS, NSLIS, FOS, NRLS, PACADMIN",N/A,No, Daniel,Mah,,Daniel.Mah@dfo-mpo.gc.ca,Fisheries Management - Multiple
+,,DFO Observer Logs database,"Burnett, Karen ",1,Both,no,MS Access database used to store observations made by DFO technicians during fishery monitoring vessel and vehicle patrols.  Used as a record to corroborate information collected/disseminated during fisheries and to compile preliminary catch estimates when needed during an open/recently closed fishery.,,Yes,Production,MS Access,Structured,Desktop/Shared Drive,Fraser and Interior Area Resource Management,"Burnett, Karen",no,n/a,no,"shared drive - restricted access, anyone who has access to Fraser River Catch Monitoring Shared drive",Harvest - Indigenous,"In season catch estimation
+Supports operations for team - Comparing data to previous years (outliers) ",FIA Resource Managers and Biologists,no,20,No,"1,000",3876kb,Weekly,Yes,No,Medium,Yes,Protected A,no,no,no , Karen ,Burnett,,Karen.Burnett@dfo-mpo.gc.ca,Fisheries Management - Indigenous
+,,Tyee Test Fishery,"Ottley, Jessica ",1,Analytical,n/a,MS Access database used to store bio sample metadata collected from the Tyee Test Fishery. Data coordinated with genetics lab work (MGL and Scale Lab). ,,No,Production,MS Access,Structured,Desktop/Shared Drive,North Coast Stock Assessment,"Ottley, Jessica ",Tyee Test Fishery Database,n/a,"Limited, may be some informal instructions",Access via shared drive,Harvest - Multiple,"Decisions for allowable TACs (allocations)
+Other decisions specific to biodata to be completed","Stock assessment division, resource management",Stock Status Reports,60-70,Yes,0.1,0.06,weekly,Yes,No,Medium,No,Unclassified,N/A,"FOS - biodata entered into FOS (incomplete data, working on making it a more complete dataset)
+PADS Aging Lab & MGL Lab use biodata - not directlly linked to PADS, access data through an exported spreadsheet",N/A  , Jessica ,Ottley,,Jessica.Ottley@dfo-mpo.gc.ca,Fisheries Management - Multiple
+,,Stream Esc Database,"Ottley, Jessica ",1,Analytical,Not available,MS Access database that contains stream inspection log data and annual estimates from the North Coast (areas 1-10),,Yes,Production,MS Access,Structured,Desktop/Shared Drive,North Coast Stock Assessment,"Ottley, Jessica ",NuSEDS,,"Some user guides; in process of developing formal manuals, workflow etc.
+Update: draft workflows now in production, yet to be finalized",Access via shared drive,Conservation & Stewardship - Multiple,"Forecasting, allocations","Stock assessment division, resource management","IFMP and related documents, Stock Status Reports",40 - 60,No,0.1,0.082,annually,Yes,No,Medium,No,Unclassified,N/A,PADS ,N/A NuSEDS publishes, Jessica ,Ottley,,Jessica.Ottley@dfo-mpo.gc.ca,Science
+,,Juvenile salmon database,,1,,,MS Access database contains chinook and coho juvenile stream abundance infomation,,,Decommissioned,MS Access,,,,,,,,,,,,,,,,,,,,,,,,,,#VALUE!,#VALUE!,,#VALUE!,Science
+,,Stream Narrative database,"Suhan, Kayla ; Fong, Kenneth ",1,,,"Stream location, navigation and salmon spawning information",,,Decommissioned,MS Access,,,,,,,,,,,,,,,,,,,,,,,,,,Kayla ,Suhan,,Kayla.Suhan@dfo-mpo.gc.ca; Kenneth.Fong@dfo-mpo.gc.ca,Science
+69,,OtoManager: Otolith Online Manager and Otolith Laboratory Reader,"Porter, Aswea  ",1,Both,OTOLITH_ONLINE and OTOLITH_LAB,"Otolith Manager is the Pacific Region’s centralized Oracle database that holds adult and juvenile salmon thermal mark results (reads) of processed otoliths recovered from commercial, sport, First Nation, and escapement biological sampling. The database also stores juvenile salmon thermal mark results of processed otoliths from release reference samples. Metadata describing each bio sample is also available. Associated scale age data is related to these reads by scale book and scale number. These age results can be retrieved from PADS with a specific read result via the online tool Otolith – Home.
+Requires further discussion on future development to upgrade legacy database into modern IM/TS supported asset. Asset has no active developer. Open Data ID ODI-2017-0577",1102,No,Production,Oracle database,Structured,DFO Server,Science Branch - South Coast Stock AssessmentEcosystems and Fisheries Management,"Porter, Aswea 
+Rechisky, Erin ","1. Otolith Online Manager - OTOLITH_ONLINE APM 1103
+2. Otolith Laboratory Reader - OTOLITH_LAB APM 1102","1. Same as db description
+2. Data entry application used by laboratory staff during reading of salmon otoliths for stock ID mass mark applications.",Thermal mark manual v1.1.doc,windows executable; http://devios-intra.dfo-mpo.gc.ca/Otolith/,Harvest - Multiple,Exploitation rate analysis and stock composition to support and assess harvest opportunities,"SEP, South Coast Stock Assessement, Yukon Stock Assessement, Thermal Mark Program","stock composition, hatchery wild ratios (PNI)",Not replaceable,No,Not replaceable,"10
+(select owner, sum(bytes)/1024/1024 Size_MB from dba_segments
+where owner = 'OTOLITH_V1'
+group  by owner;)",Daily,Yes,Yes,High,Yes,Unclassified,"Pacific Age Database System - PADS, NPAFC thermal marking database",CREST,"NPAFC reports, Open Data", Aswea  ,Porter,,Aswea.Porter@dfo-mpo.gc.ca,Fisheries Management - Multiple
+,,Fraser Sockeye Escapement database,"Cone, Tracy   ",1,,,"MS Access database of all years of Fraser Sockeye escapement; used to produce annual NuSEDS upload files, feeds into Fraser Sockeye forecasting analysis, Pacific Salmon Commission production and run size adjustment datasets, and into internal Fraser Fisheries Management cycle year datasets",,Yes,,,,,,,,,,,,,,"1. Fraser Sockeye forecasting analysis 
+2. Pacific Salmon Commission production and run size adjustment datasets",,,,,,,,,,,,"Pacific Salmon Comission
+NuSEDS",, Tracy   ,Cone,,Tracy.Cone@dfo-mpo.gc.ca,"Science
+Fisheries Management - Multiple"
+,,Salmon ITQ - Area F,"Fairweather, Patrick",1,Operational,,"Salmon Shares Database - Calculate and documents transfers of individual transfer quota (ITQ) for salmon fisheries for Areas: F (chinook fisheries); with C & D set up however not actively used. 
+Additional information stored in a seperate database but used to manage ITQ fisheries: Dockside Monitoring (including area specific catch) Program information (of 3rd party service provider); vessel/licence information; catch and anticipated encounter rates for incidental catch. Provides a licence amendment.
+Types of data: Species, Location, Abundance, Environmental Conditions, Water Quality, Conservation Units",N/A,No,Production,MS Access,Structured,Desktop/Shared Drive,Fisheries Management,"Garard, Scott",No,N/A,"Installation instructions, may be old user ID and passwords",Run on local workstation and data backed up to shared drive,Harvest - Commercial,Used manage the ITQ fisheries.,Fisheries Management,Operational reports stored within access database that show licensee over quota etc.,100,No,N/A,0.2,Real-time,Yes,No,High,Yes,Protected A,"FOS_Hail, PLS (manual)",No,No, Patrick,Fairweather,,Patrick.Fairweather@dfo-mpo.gc.ca,Fisheries Management - Commercial 
+,,Pacific Region Salmon G&C Metadata Database,"Mahony, Amelia",1,Analytical,,Pacific region application for recording salmon G&C science project metadata (2018+),,No,Indevelopment,DMApps,Structured,Cloud-Server,Science,,Pacific Region Salmon G&C Metadata Database,,,G&C (dfo-mpo.gc.ca),,,,,,,,,,,,,,,,,, Amelia,Mahony,,Amelia.Mahony@dfo-mpo.gc.ca,Integration & Collaboration
+,,Canadian Fisheries Fund Information Storage Hub,"Chang, Raymond ",1,Both,CFFISH,The Canadian Fisheries Fund Information Storage Hub is a file management information system used by G&C programs (upcoming in BCSRIF's example) to accurately record application and agreements data (among others related) for the purposes of Proactive Disclosure.,,Yes,Indevelopment,MS Dynamics 365,Structured,Cloud-Server,BCSRIF,"Chang, Raymond",No,N/A,Various operating manuals (locally made),https://gcsc-dfo-mpo.gccas-gccase.gc.ca/,Integration - Multiple,Determining which applications to recommend to MINO for approval,BCSRIF,None,50,Yes,0.5,2,Daily,Yes,No,High,Yes,Protected B,None,None,No, Raymond ,Chang,,Raymond.Chang@dfo-mpo.gc.ca,Integration & Collaboration
+,,Salmon Biological Traits ,"Hein, Kris ",1,,,System currently in development for the recording of salmon biological traits data across various work units in Pacific region,,,Decommissioned,,,,,"Luedke, Wilf; Hein, Kris",,,,,,,,,,,,,,,,,,,,,, Kris ,Hein,,Kris.Hein@dfo-mpo.gc.ca,Science
+,,AHEAD,"
+O'Grady, Chris ; 
+Sandberg, Krista",1,,AHEAD,AHEAD will replace FHAS and better integrate analytical reporting.,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,Chris ,"
+O'Grady",,"Chris.
+O'Grady@dfo-mpo.gc.ca; Krista.Sandberg@dfo-mpo.gc.ca",
+,,Salmon Shares - First Nations Demonstration Fisheries,"Li, Ge",1,Analytical,N/A,Salmon Shares Databased - Calculate and documents shares associated with DFO inventory licences used for FN demonstration fisheries. Also stores information on commercial salmon sharing arrangements by area. ,N/A,No,Production,MS Access,Structured,Desktop/Shared Drive,Fisheries Management,"Garard, Scott",MS Access,N/A,User guidance document,Run on local workstation and data backed up to shared drive,Harvest - Commercial,Used to track shares for FN demonstration fisheries,Fisheries Management,Operational reports stored within access database that show shares available and distribution.,10,Yes,N/A,0.004,Annually,Yes,No,Medium,Yes,Protected A,PacFish (manual),No,No, Ge,Li,,Ge.Li@dfo-mpo.gc.ca,Fisheries Management - Commercial 
+,,"Dockside Monitoring Program - Areas B,H and A and F","Wanless, Madeline ;  
+Lord, Karlena ; 
+Fairweather, Patrick ",1,Operational,DMP,"Catch data captured in Dockside Monitoring Programs by outside contractor.  Data captured includes: vessel, landing location, landing date & time, species, pieces, etc.",n/a,No,Production,MS Access,Structured,Desktop/Shared Drive,Fisheries Management,"Wanless, Madeline (Areas B & H)
+Lord, Karlena Area A
+Fairweather, Patrick (Area F)",n/a,"Purpose is to capture DMP catch information for Salmon ITQ fisheries.  The ITQ applications that access the DMP are the ones referenced in rows 50, 51 and 64.  The DMP database is populated by the outside contractor and then uploaded to a shared folder on the DFO network.  From there it can be accessed directly by the ITQ applications.  So that access is programmatic, not manual.  ITQ database Application uses this DMP information to determine catch a Licence has retained.  The retained catch is compared to their quota holdings to determine their remaining quota, overage situation and quota transferabilty rules.  ","Limited to installation guide, user IDs and Passwords",MS Access on Workstation,Harvest - Commercial,Management of the Salmon ITQ Fisheries,Fisheries Management,n/a,100,No,,0.010 to 0.015 GB,Real-time,Yes,No,High,Yes,Protected A,n/a,FOS (manually),No,Madeline ,Wanless,,Madeline.Wanless@dfo-mpo.gc.ca; Patrick.Fairweather@dfo-mpo.gc.ca,Fisheries Management - Commercial 
