@@ -4,11 +4,14 @@ from django.db.models import Value, TextField, Q, Count
 from django.db.models.functions import Concat
 from django.utils.translation import gettext as _, gettext_lazy
 # Create your views here.
-from .models import DataAsset, Tag, Acronym
+from .models import DataAsset, Tag, Acronym, DataGlossary, BusinessGlossary
 from . import filters
 from .mixins import pacificsalmondatahubBasicMixin
-from .scripts.importCSV import clearInventory, run_csvToInventory
-from .scripts.importAcronyms import clear, run
+from .scripts.import_csv import clearInventory, run_csvToInventory
+from .scripts.import_acronyms import clear, run
+from .scripts.import_business_glossary import clear, run
+from .scripts.import_data_glossary import clear, run
+
 from django.http import HttpResponse
 from django.urls import reverse_lazy, reverse
 from shared_models.views import CommonTemplateView, CommonFormsetView, CommonHardDeleteView, CommonFilterView, CommonDetailView, CommonListView, \
@@ -53,11 +56,11 @@ class SearchView(pacificsalmondatahubBasicMixin, CommonFilterView):
                            output_field=TextField()))
     home_url_name = "pacificsalmondatahub:Index"
     container_class = "container-fluid"
-    row_object_url_name = "pacificsalmondatahub:resource_detail"
+    row_object_url_name = "pacificsalmondatahub:details"
 
     # Uncomment this line when detail page has been set up. When clicking on record in Search Page, this URL will redirect to details page
     # NOTE: pacificsalmondatahub:<name_of_page> accesses the url with name = "<name_of_page>" in the arguments of path()
-    # new_object_url = reverse_lazy("pacificsalmondatahub:resource_detail")
+    new_object_url = reverse_lazy("pacificsalmondatahub:details")
 
     # If implementing pagination, this defines how many results per page
     #paginate_by = 25
@@ -177,6 +180,24 @@ def loadAcronyms(request):
     run()
 
     if(Acronym):
+        return HttpResponse("Success!")
+    else:
+        return HttpResponse("No data found.")
+
+def loadDataGlossary(request):
+    clear()
+    # run()
+
+    if(DataGlossary):
+        return HttpResponse("Success!")
+    else:
+        return HttpResponse("No data found.")
+
+def loadBusinessGlossary(request):
+    clear()
+    # run()
+
+    if(BusinessGlossary):
         return HttpResponse("Success!")
     else:
         return HttpResponse("No data found.")

@@ -18,7 +18,7 @@ def clear():
 # Also should be converted into pandas or another library that will allow for accessing specific fields
 def run():
 
-    with open(os.path.join(rootdir, 'CSV/PacificSalmonAcronyms.csv'), 'r') as csvfile:
+    with open(os.path.join(rootdir, './CSV/Pacific_Salmon_Acronyms.csv'), 'r') as csvfile:
         reader = csv.reader(csvfile)
         #skip header row
         next(reader)
