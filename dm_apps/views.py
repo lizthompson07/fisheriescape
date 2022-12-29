@@ -41,7 +41,7 @@ def get_app_dict(request):
         app_dict["pacificsalmondatahub"] = {
             "title": _("PSSI - Pacific Salmon Data Hub"),
             "description": _("Query Tool to Search for Departmental Data Assets"),
-            "status": "production",
+            "status": "dev",
             "access": "open",
             "url": reverse('pacificsalmondatahub:Index'),
             "icon_path": 'img/icons/pacificsalmondatahub.svg',
