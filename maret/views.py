@@ -5,6 +5,8 @@ import os
 import shared_models.models
 from django.views import View
 
+from ihub.models import Status
+from ihub.utils import in_ihub_edit_group
 from maret.reports import InteractionReport, CommitteeReport, OrganizationReport, PersonReport
 from shared_models.views import CommonTemplateView, CommonFilterView, CommonCreateView, CommonFormsetView, \
     CommonDetailView, CommonDeleteView, CommonUpdateView, CommonPopoutUpdateView, CommonPopoutCreateView, \
@@ -794,7 +796,17 @@ class OrganizationDetailView(UserRequiredMixin, CommonDetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        org = self.get_object()
 
+        entries_dict = dict()
+        if in_ihub_edit_group(self.request.user):
+            if org.entries.exists():
+                entries = org.entries.all()
+                statuses = Status.objects.filter(entries__in=entries).distinct()
+                for status in statuses:
+                    entries_dict[status] = entries.filter(status=status).order_by("initial_date", "title")
+
+        context["entries"] = entries_dict
         return context
 
 

@@ -124,6 +124,9 @@
             {% include "maret/_members.html" %}
             {% include "maret/_interactions.html" %}
             {% include "maret/_committees.html" %}
+            {% if entries %}
+              {% include "ihub/_entries.html" %}
+            {% endif %}
         </div>
     </div>
 
