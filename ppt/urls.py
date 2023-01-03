@@ -60,6 +60,9 @@ urlpatterns = [
     path('settings/activity-types/', views.ActivityTypeFormsetView.as_view(), name="manage_activity_types"),  # tested
     path('settings/activity-type/<int:pk>/delete/', views.ActivityTypeHardDeleteView.as_view(), name="delete_activity_type"),  # tested
 
+    path('settings/activity-classification/', views.ActivityClassificationFormsetView.as_view(), name="manage_activity_classifications"),  # tested
+    path('settings/activity-classification/<int:pk>/delete/', views.ActivityClassificationHardDeleteView.as_view(), name="delete_activity_classification"),  # tested
+
     path('settings/om-categories/', views.OMCategoryFormsetView.as_view(), name="manage_om_cats"),  # tested
     path('settings/om-category/<int:pk>/delete/', views.OMCategoryHardDeleteView.as_view(), name="delete_om_cat"),  # tested
 

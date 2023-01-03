@@ -22,6 +22,7 @@ var app = new Vue({
     isAdminOrMgmt: false,
     hover: false,
     cardViewOn: false,
+    approvedActivities: true,
 
     errorNoFiscalYear: false,
     loadingReport: false,
@@ -34,6 +35,7 @@ var app = new Vue({
       approvals: false,
       DMAs: false,
       statusReports: false,
+      activities: false,
     },
     // tabAPILoading keys must be in showTab
     tabAPILoading: {
@@ -41,6 +43,7 @@ var app = new Vue({
       financialSummary: true,
       DMAs: true,
       statusReports: false,
+      activities: false,
     },
     showStaffList: false,
     showFinancialSummary: false,
@@ -59,6 +62,7 @@ var app = new Vue({
     errorTooBigFinancial: false,
     errorTooSmallFinancial: false,
     errorTooBigStatusReports: false,
+    errorTooBigActivities: false,
     projectYears: [],
     allPyIds: [],
     staff: [],
@@ -68,10 +72,13 @@ var app = new Vue({
     dmas: [],
     statusReports: [],
     uniqueStatusReports: [],
+    activities: [],
     financials: [],
     next: null,
     previous: null,
     count: 0,
+    activityNext: null,
+    activityCount: 0,
 
     // filters
     filter: {
@@ -79,6 +86,7 @@ var app = new Vue({
     },
 
     status_report_filter: {},
+    activity_filter: {},
 
     showColumnLeads: true,
     showColumnHidden: true,
@@ -163,8 +171,12 @@ var app = new Vue({
         }
       }
     },
-    goProjectDetail(projectYear) {
-      url = `/ppt/projects/${projectYear.project.id}/view/?project_year=${projectYear.id}`;
+    goProjectDetail(projectYear, isObj=false) {
+      if (isObj) {
+        url = `/ppt/projects/${projectYear.project}/view/?project_year=${projectYear.id}`;
+      } else {
+        url = `/ppt/projects/${projectYear.project.id}/view/?project_year=${projectYear.id}`;
+      }
       var win = window.open(url, '_blank');
     },
     goEmailLeads() {
@@ -268,9 +280,19 @@ var app = new Vue({
     },
     getStatusReportFilterString() {
       let endpoint = "";
-      if (this.project_year_id_list) endpoint += `project_years=${this.allPyIds}&`;
       if (this.status_report_filter.created_at) endpoint += `created_at=${this.status_report_filter.created_at}&`;
       if (this.status_report_filter.status) endpoint += `status=${this.status_report_filter.status}&`;
+      return endpoint
+    },
+    getActivityFilterString() {
+      let endpoint = "";
+      if (this.projectYears) endpoint += `project_years=${this.allPyIds}&`;
+      if (this.approvedActivities) endpoint += `approvedOnly=4&`;
+      if (this.activity_filter.status) endpoint += `status=${this.activity_filter.status}&`;
+      if (this.activity_filter.type) endpoint += `type=${this.activity_filter.type}&`;
+      if (this.activity_filter.start_date) endpoint += `start_date=${this.activity_filter.start_date}&`;
+      if (this.activity_filter.end_date) endpoint += `end_date=${this.activity_filter.end_date}&`;
+      if (this.activity_filter.classification) endpoint += `classification=${this.activity_filter.classification}&`;
       return endpoint
     },
     getProjectYearsEndpoint(pageSize = 25) {
@@ -291,6 +313,12 @@ var app = new Vue({
       endpoint += `?page_size=${pageSize}&` + this.getStatusReportFilterString()
       return endpoint
     },
+    getActivityEndpoint(pageSize = 25) {
+      endpoint = `/api/ppt/activities-full/`;
+      // apply filters
+      endpoint += `?page_size=${pageSize}&` + this.getActivityFilterString()
+      return endpoint
+    },
     getProjectYears(endpoint, pageSize = 25) {
       this.projects_loading = true;
       if (!endpoint) endpoint = this.getProjectYearsEndpoint(pageSize)
@@ -303,6 +331,10 @@ var app = new Vue({
               this.previous = response.previous;
               this.count = response.count;
 
+              // make all tabs reload with new list
+              for (const tabLoadingKey in this.tabAPILoading) {
+                this.tabAPILoading[tabLoadingKey] = true;
+              }
               if (this.count < 200) {
                 this.errorTooManyPY = false;
                 endpointAll = this.getProjectYearsEndpoint(200)
@@ -310,17 +342,16 @@ var app = new Vue({
                     .then(response => {
                       if (response.results) {
                         this.allPyIds = response.results.map(py => py.id)
+                        this.loadActiveTab();
                       }
                     })
+
               } else {
                 this.errorTooManyPY = true;
+                this.loadActiveTab();
               }
 
-              // make all tabs reload with new list
-              for (const tabLoadingKey in this.tabAPILoading) {
-                this.tabAPILoading[tabLoadingKey] = true;
-              }
-              this.loadActiveTab();
+
             }
           })
     },
@@ -345,6 +376,8 @@ var app = new Vue({
         }
       }
     },
+    dontSubmit() {
+    },
     comingSoon() {
       alert("this feature is coming soon!")
     },
@@ -367,6 +400,11 @@ var app = new Vue({
         this.getProjectYears(this.next)
       }
     },
+    loadMoreActivityResults() {
+      if (this.activityNext) {
+        this.getActivities()
+      }
+    },
     clearFilters() {
       this.filter = {};
       this.updateResults()
@@ -375,10 +413,24 @@ var app = new Vue({
       this.status_report_filter = {};
       this.getStatusReports()
     },
+    clearActivityFilters() {
+      this.activity_filter = {};
+      this.upddateActivities()
+    },
+    toggleApprovedOnly() {
+      this.approvedActivities = !this.approvedActivities;
+      this.upddateActivities();
+    },
     updateResults() {
       this.clearProjectYears();
       this.getProjectYears();
       this.getFilterData();
+    },
+    upddateActivities() {
+      this.activities = []
+      this.activityNext = null
+      this.activityCount = 0
+      this.getActivities();
     },
     changeTabs(name) {
       for (const showTabKey in this.showTab) {
@@ -391,6 +443,7 @@ var app = new Vue({
       else if (name === "approvals") this.showTab.approvals = true;
       else if (name === "dmas") this.showTab.DMAs = true;
       else if (name === "statusReports") this.showTab.statusReports = true;
+      else if (name === "activities") this.showTab.activities = true;
       this.loadActiveTab();
     },
 
@@ -408,6 +461,9 @@ var app = new Vue({
           }
           if (tabKey === "statusReports") {
             this.getStatusReports()
+          }
+          if (tabKey === "activities") {
+            this.upddateActivities()
           }
         }
       }
@@ -496,6 +552,30 @@ var app = new Vue({
                   this.projectYears[i].has_status_report = true;
                 }
               }
+            })
+      }
+    },
+    getActivities() {
+      this.tabAPILoading.activities = true;
+
+      if (this.errorTooManyPY) {
+        this.tabAPILoading.activities = false;
+        this.errorTooBigActivities = true;
+      } else {
+        let endpoint = null
+        if (this.activityNext) {
+          endpoint = this.activityNext
+        }  else {
+          this.activities = [];
+          endpoint = this.getActivityEndpoint(pageSize = 25)
+        }
+        apiService(endpoint)
+            .then(response => {
+              this.errorTooBigActivities = false;
+              this.activities.push(...response.results);
+              this.activityCount = response.count;
+              this.activityNext = response.next;
+              this.tabAPILoading.activities = false;
             })
       }
     },
@@ -649,6 +729,28 @@ var app = new Vue({
       funding_source.showSalaryProjects = !funding_source.showSalaryProjects
       this.$forceUpdate()
     },
+
+    populateActivityDate(quarter, fiscal_year){
+      let sap_year = fiscal_year
+      let startDate;
+      let endDate;
+      if (quarter === "q1") {
+        startDate = `${sap_year - 1}-04-01`;
+        endDate = `${sap_year - 1}-06-30`;
+      } else if (quarter === "q2") {
+        startDate = `${sap_year - 1}-07-01`;
+        endDate = `${sap_year - 1}-09-30`
+      } else if (quarter === "q3") {
+        startDate = `${sap_year - 1}-10-01`;
+        endDate = `${sap_year - 1}-12-31`
+      } else if (quarter === "q4") {
+        startDate =`${sap_year}-01-01`;
+        endDate = `${sap_year}-03-31`
+      }
+      this.activity_filter.start_date = startDate;
+      this.activity_filter.end_date = endDate;
+      this.upddateActivities()
+    },
     generateReports(url, tag) {
       window.open(url + "?" + this.getFilterString(), tag, 'toolbar=0,status=0,height=500,width=600');
     },
@@ -740,6 +842,37 @@ var app = new Vue({
         })
       } else {
         return this.sortedProjectYears;
+      }
+    },
+
+    sortedActivities() {
+      if (this.currentSortTable !== "sortedActivities") {
+        return this.activities;
+      } else {
+        return this.activities.sort((a, b) => {
+          let modifier = 1;
+          if (this.currentSortDir === 'desc') modifier = -1;
+
+          if (this.currentSort.includes(".")) {
+            let parentKey = this.currentSort.split(".")[0];
+            let childKey = this.currentSort.split(".")[1];
+            if (a[parentKey][childKey] < b[parentKey][childKey]) return -1 * modifier;
+            if (a[parentKey][childKey] > b[parentKey][childKey]) return 1 * modifier;
+          } else if (this.currentSort === "target_date_display") {
+            let a_val = a[this.currentSort];
+            if (a_val === null) a_val = "";
+
+            let b_val = b[this.currentSort];
+            if (b_val === null) b_val = "";
+
+            if (a_val < b_val) return -1 * modifier;
+            if (a_val > b_val) return 1 * modifier;
+          } else {
+            if (a[this.currentSort] < b[this.currentSort]) return -1 * modifier;
+            if (a[this.currentSort] > b[this.currentSort]) return 1 * modifier;
+          }
+          return 0;
+        });
       }
     },
 

@@ -172,6 +172,12 @@ class ExploreProjectsTemplateView(PPTLoginRequiredMixin, CommonTemplateView):
         context = super().get_context_data(**kwargs)
         context["random_project"] = models.Project.objects.first()
         context["status_choices"] = [dict(label=item[1], value=item[0]) for item in models.ProjectYear.status_choices]
+        context["activity_status_choices"] = [dict(label=f"{item[1]}", value=item[0]) for item in
+                                              models.ActivityUpdate.status_choices]
+        context["activity_type_choices"] = [dict(label=f"{item[1]}", value=item[0]) for item in
+                                            models.Activity.type_choices]
+        context["activity_classification_choices"] = [dict(label=f"{item.__str__()}", value=item.id) for item in
+                                                      models.ActivityClassification.objects.all()]
         return context
 
 
@@ -210,6 +216,9 @@ class ManageProjectsTemplateView(ManagerOrAdminRequiredMixin, CommonTemplateView
         context["om_cost_categories"] = [dict(label=f"{item.get_group_display()} - {item}", value=item.id) for item in models.OMCategory.objects.all()]
         context["activity_types"] = [dict(label=f"{item}", value=item.id) for item in models.ActivityType.objects.all()]
         context["status_report_status_choices"] = [dict(label=f"{item[1]}", value=item[0]) for item in models.StatusReport.status_choices]
+        context["activity_status_choices"] = [dict(label=f"{item[1]}", value=item[0]) for item in models.ActivityUpdate.status_choices]
+        context["activity_type_choices"] = [dict(label=f"{item[1]}", value=item[0]) for item in models.Activity.type_choices]
+        context["activity_classification_choices"] = [dict(label=f"{item.__str__()}", value=item.id) for item in models.ActivityClassification.objects.all()]
         context["review_form"] = forms.ReviewForm
         context["approval_form"] = forms.ApprovalForm
         context["capital_allocation_form"] = forms.CapitalAllocationForm
@@ -890,6 +899,21 @@ class ActivityTypeFormsetView(AdminRequiredMixin, CommonFormsetView):
     success_url = reverse_lazy("ppt:manage_activity_types")
     home_url_name = "ppt:index"
     delete_url_name = "ppt:delete_activity_type"
+    container_class = "container bg-light curvy"
+
+class ActivityClassificationHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
+    model = models.ActivityClassification
+    success_url = reverse_lazy("ppt:manage_activity_classifications")
+
+
+class ActivityClassificationFormsetView(AdminRequiredMixin, CommonFormsetView):
+    template_name = 'ppt/formset.html'
+    h1 = "Manage Activity Classifications"
+    queryset = models.ActivityClassification.objects.all()
+    formset_class = forms.ActivityClassificationFormset
+    success_url = reverse_lazy("ppt:manage_activity_classifications")
+    home_url_name = "ppt:index"
+    delete_url_name = "ppt:delete_activity_classification"
     container_class = "container bg-light curvy"
 
 
