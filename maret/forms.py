@@ -254,6 +254,18 @@ AreaOfficesProgramFormSet = modelformset_factory(
 )
 
 
+class GroupingForm(forms.ModelForm):
+    class Meta:
+        model = ml_models.Grouping
+        fields = "__all__"
+
+
+GroupingFormSet = modelformset_factory(
+    model=ml_models.Grouping,
+    form=GroupingForm,
+    extra=1,
+)
+
 class HelpTextPopForm(forms.ModelForm):
 
     class Meta:

@@ -1158,3 +1158,17 @@ class AreaOfficeProgramsDeleteView(AdminRequiredMixin, CommonDeleteView):
 
     def get_parent_crumb(self):
         return {"title": self.get_object(), "url": reverse("maret:manage_area_office_programs")}
+
+class GroupingFormsetView(AdminRequiredMixin, CommonFormsetView):
+    template_name = 'maret/formset.html'
+    h1 = "Manage Groupings"
+    queryset = ml_models.Grouping.objects.all()
+    formset_class = forms.GroupingFormSet
+    success_url_name = "maret:manage_groupings"
+    home_url_name = "maret:index"
+    delete_url_name = "maret:delete_grouping"
+
+
+class GroupingHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
+    model = ml_models.Grouping
+    success_url = reverse_lazy("maret:manage_groupings")
