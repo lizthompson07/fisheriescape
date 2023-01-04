@@ -127,60 +127,6 @@
 <hr>
 
 <h2>
-    {% trans "iHub Entries" %}
-</h2>
-
-{% if not org.entries.count %}
-    <em>
-        {% trans "There are no entries to display for this organization" %}
-    </em>
-
-{% else %}
-    {% for entry in org.entries.all %}
-        <span style="font-size: 18px; font-style: italic">{{ entry.title }}</span>
-        <table>
-            <td>
-                {% for field in entry_field_list_1 %}
-                    {% verbose_field_display entry field %}
-                {% endfor %}
-                <br>
-            </td>
-            <td>
-                {% for field in entry_field_list_2 %}
-                    {% verbose_field_display entry field %}
-                {% endfor %}
-                <br>
-            </td>
-            <td>
-                {% for field in entry_field_list_3 %}
-                    {% verbose_field_display entry field format="currency" %}
-                {% endfor %}
-                <br>
-            </td>
-            <td>
-                {% for field in entry_field_list_4 %}
-                    {% verbose_field_display entry field format="currency" %}
-                {% endfor %}
-                <br>
-            </td>
-            <td>
-                <p><b>
-                    {% trans "Amount outstanding:" %}
-                </b><br>${{ entry.amount_outstanding|floatformat:2|intcomma }}</p>
-                {% for field in entry_field_list_5 %}
-                    {% verbose_field_display entry field %}
-                {% endfor %}
-                <br>
-            </td>
-        </table>
-    {% endfor %}
-
-{% endif %}
-
-<hr>
-
-
-<h2>
     {% trans "List of MarET Committees" %}
 </h2>
 

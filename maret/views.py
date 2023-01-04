@@ -921,38 +921,22 @@ class OrganizationCueCard(PDFTemplateView):
 
         context["org_field_list_1"] = [
             'name_eng',
-            'name_ind',
             'former_name',
             'abbrev',
-            'nation',
-            'website',
         ]
         context["org_field_list_2"] = [
+            'website',
             'address',
             'mailing_address',
+        ]
+        context["org_field_list_3"] = [
             'city',
             'postal_code',
             'province',
-            'phone',
-            'fax',
-        ]
-        context["org_field_list_3"] = [
-            'next_election',
-            'election_term',
-            'new_coucil_effective_date',
-            'population_on_reserve',
-            'population_off_reserve',
-            'population_other_reserve',
-            'relationship_rating',
         ]
         context["org_field_list_4"] = [
-            'fin',
-            'processing_plant',
-            'wharf',
-            'dfo_contact_instructions',
-            'council_quorum',
-            'reserves',
-            'orgs',
+            'phone',
+            'fax',
             'notes',
         ]
 
@@ -967,33 +951,25 @@ class OrganizationCueCard(PDFTemplateView):
             'lead_region',
             'lead_national_sector',
             'branch',
-            'division',
-            'area_office'
             ]
         context["committee_field_list_2"] = [
-            'area_office_program',
+            'area_office'
             'other_dfo_branch',
             'other_dfo_areas',
             'other_dfo_regions',
             'dfo_national_sectors',
-            'dfo_role',
-            'is_dfo_chair',
+            
         ]
         context["committee_field_list_3"] = [
+            'dfo_role',
+            'is_dfo_chair',
             'external_chair',
-            'external_contact',
-            'external_organization',
             'dfo_liaison',
             'other_dfo_participants',
-            'first_nation_participation',
-            'municipal_participation',
         ]
         context["committee_field_list_4"] = [
-            'provincial_participation',
-            'other_federal_participation',
-            'meeting_frequency',
-            'are_tor',
-            'location_of_tor',
+            'first_nation_participation',
+            'municipal_participation',
             'main_actions',
             'comments'
         ]
@@ -1003,15 +979,13 @@ class OrganizationCueCard(PDFTemplateView):
             'committee',
             'date_of_meeting',
             'main_topic',
-            'species'
         ]
         context["interaction_field_list_2"] = [
+            'species'
             'lead_region',
             'lead_national_sector',
             'branch',
-            'division',
             'area_office',
-            'area_office_program'
         ]
         context["interaction_field_list_3"] = [
             'other_dfo_branch',
@@ -1019,39 +993,11 @@ class OrganizationCueCard(PDFTemplateView):
             'other_dfo_regions',
             'dfo_national_sectors',
             'dfo_role',
-            'external_organization'
         ]
         context["interaction_field_list_4"] = [
-            'external_contact',
             'dfo_liaison',
-            'other_dfo_participants',
             'action_items',
             'comments',
-        ]
-        context["entry_field_list_1"] = [
-            'fiscal_year',
-            'initial_date',
-            'anticipated_end_date',
-            'status',
-        ]
-        context["entry_field_list_2"] = [
-            'sectors',
-            'entry_type',
-            'regions',
-        ]
-        context["entry_field_list_3"] = [
-            'funding_program',
-            'funding_needed',
-            'funding_purpose',
-            'amount_requested',
-        ]
-        context["entry_field_list_4"] = [
-            'amount_approved',
-            'amount_transferred',
-            'amount_lapsed',
-        ]
-        context["entry_field_list_5"] = [
-            'amount_owing',
         ]
         context["now"] = timezone.now()
         return context
