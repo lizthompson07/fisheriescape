@@ -20,7 +20,9 @@ class InteractionFilter(django_filters.FilterSet):
     class Meta:
         model = models.Interaction
         fields = ["search_term", "interaction_type", "dfo_liaison", "main_topic", "external_organization",
-                  "external_contact", "is_committee", "committee", "dfo_role", "other_dfo_participants", "species"]
+                  "external_contact", "is_committee", "committee", "dfo_role", "other_dfo_participants", "species",
+                  "lead_region", "dfo_national_sectors", "branch", "division", "area_office", "area_office_program",
+                  "other_dfo_branch", "other_dfo_regions", "dfo_national_sectors", "other_dfo_areas"]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
