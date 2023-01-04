@@ -792,7 +792,7 @@ class OrganizationDetailView(UserRequiredMixin, CommonDetailView):
         org = self.get_object()
 
         entries_dict = dict()
-        if in_ihub_edit_group(self.request.user):
+        if bool(hasattr(self.request.user, "ihub_user")) and self.request.user.ihub_user:
             if org.entries.exists():
                 entries = org.entries.all()
                 statuses = Status.objects.filter(entries__in=entries).distinct()
