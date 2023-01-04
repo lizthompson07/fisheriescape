@@ -5,6 +5,8 @@ import os
 import shared_models.models
 from django.views import View
 
+from ihub.models import Status
+from ihub.utils import in_ihub_edit_group
 from maret.reports import InteractionReport, CommitteeReport, OrganizationReport, PersonReport
 from shared_models.views import CommonTemplateView, CommonFilterView, CommonCreateView, CommonFormsetView, \
     CommonDetailView, CommonDeleteView, CommonUpdateView, CommonPopoutUpdateView, CommonPopoutCreateView, \
@@ -183,7 +185,7 @@ class PersonListView(UserRequiredMixin, CommonFilterView):
     def get_context_data(self, **kwargs):
         # we want to update the context with the context vars added by CommonMixin classes
         context = super().get_context_data(**kwargs)
-        filtered_ids = [person.pk for person in self.queryset]
+        filtered_ids = [person.pk for person in self.filterset.qs]
         context["report_url"] = reverse_lazy("maret:person_report") + "?ids=" + str(filtered_ids)
         return context
 
@@ -708,7 +710,7 @@ class OrganizationListView(UserRequiredMixin, CommonFilterView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        filtered_ids = [org.pk for org in self.queryset]
+        filtered_ids = [org.pk for org in self.filterset.qs]
         context["report_url"] = reverse_lazy("maret:org_report") + "?ids=" + str(filtered_ids)
         return context
 
@@ -735,13 +737,6 @@ class OrganizationCreateView(AuthorRequiredMixin, CommonCreateViewHelp):
                 ext_org = models.OrganizationExtension(organization=obj)
                 ext_org.save()
             ext_org.area.set(fields['area'])
-            ext_org.save()
-
-        if fields['category']:
-            if not ext_org:
-                ext_org = models.OrganizationExtension(organization=obj)
-                ext_org.save()
-            ext_org.category.set(fields['category'])
             ext_org.save()
 
         if fields['asc_province']:
@@ -794,7 +789,17 @@ class OrganizationDetailView(UserRequiredMixin, CommonDetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        org = self.get_object()
 
+        entries_dict = dict()
+        if in_ihub_edit_group(self.request.user):
+            if org.entries.exists():
+                entries = org.entries.all()
+                statuses = Status.objects.filter(entries__in=entries).distinct()
+                for status in statuses:
+                    entries_dict[status] = entries.filter(status=status).order_by("initial_date", "title")
+
+        context["entries"] = entries_dict
         return context
 
 
@@ -811,14 +816,12 @@ class OrganizationUpdateView(AuthorRequiredMixin, CommonUpdateViewHelp):
 
     def get_initial(self):
         areas = []
-        category = []
         asc_province = []
         committees = []
         if models.OrganizationExtension.objects.filter(organization=self.object):
             ext_org = models.OrganizationExtension.objects.get(organization=self.object)
             if ext_org:
                 areas = [a.pk for a in ext_org.area.all()]
-                category = [c.pk for c in ext_org.category.all()]
                 asc_province = [p.pk for p in ext_org.associated_provinces.all()]
         if models.Committee.objects.filter(external_organization__in=[self.object]):
             committees_qs = models.Committee.objects.filter(external_organization__in=[self.object])
@@ -826,7 +829,6 @@ class OrganizationUpdateView(AuthorRequiredMixin, CommonUpdateViewHelp):
 
         return {
             'area': areas,
-            'category': category,
             'committee': committees,
             'asc_province': asc_province,
         }
@@ -852,12 +854,6 @@ class OrganizationUpdateView(AuthorRequiredMixin, CommonUpdateViewHelp):
             ext_org.area.set(fields['area'])
             ext_org.save()
 
-        if fields['category']:
-            if not ext_org:
-                ext_org = models.OrganizationExtension(organization=obj)
-                ext_org.save()
-            ext_org.category.set(fields['category'])
-            ext_org.save()
 
         if fields['asc_province']:
             if not ext_org:
@@ -925,38 +921,22 @@ class OrganizationCueCard(PDFTemplateView):
 
         context["org_field_list_1"] = [
             'name_eng',
-            'name_ind',
             'former_name',
             'abbrev',
-            'nation',
-            'website',
         ]
         context["org_field_list_2"] = [
+            'website',
             'address',
             'mailing_address',
+        ]
+        context["org_field_list_3"] = [
             'city',
             'postal_code',
             'province',
-            'phone',
-            'fax',
-        ]
-        context["org_field_list_3"] = [
-            'next_election',
-            'election_term',
-            'new_coucil_effective_date',
-            'population_on_reserve',
-            'population_off_reserve',
-            'population_other_reserve',
-            'relationship_rating',
         ]
         context["org_field_list_4"] = [
-            'fin',
-            'processing_plant',
-            'wharf',
-            'dfo_contact_instructions',
-            'council_quorum',
-            'reserves',
-            'orgs',
+            'phone',
+            'fax',
             'notes',
         ]
 
@@ -971,33 +951,25 @@ class OrganizationCueCard(PDFTemplateView):
             'lead_region',
             'lead_national_sector',
             'branch',
-            'division',
-            'area_office'
             ]
         context["committee_field_list_2"] = [
-            'area_office_program',
+            'area_office'
             'other_dfo_branch',
             'other_dfo_areas',
             'other_dfo_regions',
             'dfo_national_sectors',
-            'dfo_role',
-            'is_dfo_chair',
+            
         ]
         context["committee_field_list_3"] = [
+            'dfo_role',
+            'is_dfo_chair',
             'external_chair',
-            'external_contact',
-            'external_organization',
             'dfo_liaison',
             'other_dfo_participants',
-            'first_nation_participation',
-            'municipal_participation',
         ]
         context["committee_field_list_4"] = [
-            'provincial_participation',
-            'other_federal_participation',
-            'meeting_frequency',
-            'are_tor',
-            'location_of_tor',
+            'first_nation_participation',
+            'municipal_participation',
             'main_actions',
             'comments'
         ]
@@ -1007,15 +979,13 @@ class OrganizationCueCard(PDFTemplateView):
             'committee',
             'date_of_meeting',
             'main_topic',
-            'species'
         ]
         context["interaction_field_list_2"] = [
+            'species'
             'lead_region',
             'lead_national_sector',
             'branch',
-            'division',
             'area_office',
-            'area_office_program'
         ]
         context["interaction_field_list_3"] = [
             'other_dfo_branch',
@@ -1023,45 +993,18 @@ class OrganizationCueCard(PDFTemplateView):
             'other_dfo_regions',
             'dfo_national_sectors',
             'dfo_role',
-            'external_organization'
         ]
         context["interaction_field_list_4"] = [
-            'external_contact',
             'dfo_liaison',
-            'other_dfo_participants',
             'action_items',
             'comments',
-        ]
-        context["entry_field_list_1"] = [
-            'fiscal_year',
-            'initial_date',
-            'anticipated_end_date',
-            'status',
-        ]
-        context["entry_field_list_2"] = [
-            'sectors',
-            'entry_type',
-            'regions',
-        ]
-        context["entry_field_list_3"] = [
-            'funding_program',
-            'funding_needed',
-            'funding_purpose',
-            'amount_requested',
-        ]
-        context["entry_field_list_4"] = [
-            'amount_approved',
-            'amount_transferred',
-            'amount_lapsed',
-        ]
-        context["entry_field_list_5"] = [
-            'amount_owing',
         ]
         context["now"] = timezone.now()
         return context
 
 
 class OrganizationReportView(UserRequiredMixin, View):
+
     def get(self, request):
         id_list = json.loads(request.GET.get("ids"))
         qs = ml_models.Organization.objects.filter(pk__in=id_list)
@@ -1170,13 +1113,6 @@ class SpeciesFormsetView(CommonMaretFormset):
     success_url_name = "maret:manage_species"
 
 
-class OrgCategoriesFormsetView(CommonMaretFormset):
-    h1 = _("Manage Organization Categories")
-    queryset = models.OrgCategory.objects.all()
-    formset_class = forms.OrgCategoriesFormSet
-    success_url_name = "maret:manage_org_categories"
-
-
 class AreaFormsetView(CommonMaretFormset):
     h1 = _("Manage Areas")
     queryset = models.Area.objects.all()
@@ -1222,3 +1158,17 @@ class AreaOfficeProgramsDeleteView(AdminRequiredMixin, CommonDeleteView):
 
     def get_parent_crumb(self):
         return {"title": self.get_object(), "url": reverse("maret:manage_area_office_programs")}
+
+
+class GroupingFormsetView(AdminRequiredMixin, CommonFormsetView):
+    template_name = 'maret/formset.html'
+    h1 = "Manage Groupings"
+    queryset = ml_models.Grouping.objects.all()
+    formset_class = forms.GroupingFormSet
+    success_url_name = "maret:manage_groupings"
+    home_url_name = "maret:index"
+
+
+class GroupingHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
+    model = ml_models.Grouping
+    success_url = reverse_lazy("maret:manage_groupings")

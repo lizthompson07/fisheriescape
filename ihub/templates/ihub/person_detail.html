@@ -64,6 +64,20 @@
           </ul>
         </div>
       </div>
+      <div class="card entry-card mb-3">
+          <div class="card-header">
+              <h5 class="card-title"> {% trans "Maret Interactions" %}</h5>
+          </div>
+          <div class="card-body">
+              <table class="table table-hover table-sm ">
+                  {% for obj in object.interaction_ext_contact.all %}
+                      <tr href="{% url 'maret:interaction_detail' obj.id %}">
+                          <td>{{ obj.description }}, {{ obj.get_interaction_type_display }}: {{obj.date_of_meeting|date:'d F, Y' }} </td>
+                      </tr>
+                  {% endfor %}
+              </table>
+          </div>
+      </div>
     </div>
   </div>
 

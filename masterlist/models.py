@@ -35,6 +35,8 @@ class Sector(SimpleLookup):
 
 class Grouping(SimpleLookup):
     is_indigenous = models.BooleanField(default=False, verbose_name=_("indigenous?"))
+    in_ihub = models.BooleanField(default=False, verbose_name=_("Include in iHub?"))
+    in_maret = models.BooleanField(default=True, verbose_name=_("Include in Maret?"))
 
 
 class Reserve(SimpleLookup):
