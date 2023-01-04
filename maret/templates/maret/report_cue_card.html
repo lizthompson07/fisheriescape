@@ -83,17 +83,6 @@
             <br>
         </td>
         <td>
-            <h4>{% trans "Category" %}</h4>
-            {% if field.category.all %}
-                {% for cat in field.category.all %}
-                    {{ cat }}
-                {% endfor %}
-            {% else %}
-                ---
-            {% endif %}
-            <br>
-        </td>
-        <td>
             <h4>{% trans "Area" %}</h4>
             {% if field.area.all %}
                 {% for area in field.area.all %}

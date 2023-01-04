@@ -140,14 +140,6 @@ class OrganizationFilter(django_filters.FilterSet):
             field_name='ext_org__area',
             widget=forms.SelectMultiple(attrs=chosen_js),
         )
-
-        self.filters['ext_org__category'] = django_filters.ModelMultipleChoiceFilter(
-            queryset=models.OrgCategory.objects.all(),
-            label=_("Category(s)"),
-            field_name='ext_org__category',
-            widget=forms.SelectMultiple(attrs=chosen_js),
-        )
-
         self.filters['grouping'] = django_filters.ModelMultipleChoiceFilter(
             queryset=ml_models.Grouping.objects.all(),
             field_name='grouping',

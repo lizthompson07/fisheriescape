@@ -739,13 +739,6 @@ class OrganizationCreateView(AuthorRequiredMixin, CommonCreateViewHelp):
             ext_org.area.set(fields['area'])
             ext_org.save()
 
-        if fields['category']:
-            if not ext_org:
-                ext_org = models.OrganizationExtension(organization=obj)
-                ext_org.save()
-            ext_org.category.set(fields['category'])
-            ext_org.save()
-
         if fields['asc_province']:
             if not ext_org:
                 ext_org = models.OrganizationExtension(organization=obj)
@@ -823,14 +816,12 @@ class OrganizationUpdateView(AuthorRequiredMixin, CommonUpdateViewHelp):
 
     def get_initial(self):
         areas = []
-        category = []
         asc_province = []
         committees = []
         if models.OrganizationExtension.objects.filter(organization=self.object):
             ext_org = models.OrganizationExtension.objects.get(organization=self.object)
             if ext_org:
                 areas = [a.pk for a in ext_org.area.all()]
-                category = [c.pk for c in ext_org.category.all()]
                 asc_province = [p.pk for p in ext_org.associated_provinces.all()]
         if models.Committee.objects.filter(external_organization__in=[self.object]):
             committees_qs = models.Committee.objects.filter(external_organization__in=[self.object])
@@ -838,7 +829,6 @@ class OrganizationUpdateView(AuthorRequiredMixin, CommonUpdateViewHelp):
 
         return {
             'area': areas,
-            'category': category,
             'committee': committees,
             'asc_province': asc_province,
         }
@@ -864,12 +854,6 @@ class OrganizationUpdateView(AuthorRequiredMixin, CommonUpdateViewHelp):
             ext_org.area.set(fields['area'])
             ext_org.save()
 
-        if fields['category']:
-            if not ext_org:
-                ext_org = models.OrganizationExtension(organization=obj)
-                ext_org.save()
-            ext_org.category.set(fields['category'])
-            ext_org.save()
 
         if fields['asc_province']:
             if not ext_org:
@@ -1181,13 +1165,6 @@ class SpeciesFormsetView(CommonMaretFormset):
     queryset = models.Species.objects.all()
     formset_class = forms.SpeciesFormSet
     success_url_name = "maret:manage_species"
-
-
-class OrgCategoriesFormsetView(CommonMaretFormset):
-    h1 = _("Manage Organization Categories")
-    queryset = models.OrgCategory.objects.all()
-    formset_class = forms.OrgCategoriesFormSet
-    success_url_name = "maret:manage_org_categories"
 
 
 class AreaFormsetView(CommonMaretFormset):

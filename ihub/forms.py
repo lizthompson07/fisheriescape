@@ -258,7 +258,6 @@ class OrganizationForm(forms.ModelForm):
         exclude = ["date_last_modified", "old_id", 'last_modified_by']
         widgets = {
             # multiselects
-            'grouping': forms.SelectMultiple(attrs=multi_select_js),
             'regions': forms.SelectMultiple(attrs=multi_select_js),
             'sectors': forms.SelectMultiple(attrs=multi_select_js),
             'reserves': forms.SelectMultiple(attrs=multi_select_js),
@@ -273,6 +272,8 @@ class OrganizationForm(forms.ModelForm):
         from ihub.views import get_ind_organizations
         org_choices_all = [(obj.id, obj) for obj in get_ind_organizations()]
         self.fields["orgs"].choices = org_choices_all
+        self.fields['grouping'].queryset = ml_models.Grouping.objects.filter(in_ihub=True)
+        self.fields['grouping'].widget.attrs = multi_select_js
 
 
 class PersonForm(forms.ModelForm):
@@ -431,6 +432,10 @@ class OrganizationFormShort(forms.ModelForm):
             'next_election': forms.TextInput(attrs=attr_fp_date),
         }
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['grouping'].widget.queryset = ml_models.Grouping.objects.filter(in_ihub=True)
+        self.fields['grouping'].widget.attrs = multi_select_js
 
 OrganizationFormSet = modelformset_factory(
     model=ml_models.Organization,
