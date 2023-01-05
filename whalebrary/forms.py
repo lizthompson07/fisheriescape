@@ -60,6 +60,7 @@ class TransactionForm1(forms.ModelForm):
         fields = "__all__"
         widgets = {
             'item': forms.HiddenInput(),
+            'category': forms.HiddenInput(),
             'return_tracker': forms.HiddenInput(),
             'audits': forms.HiddenInput(),
             'tag': forms.SelectMultiple(attrs=chosen_js),
