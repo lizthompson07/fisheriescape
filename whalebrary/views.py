@@ -758,8 +758,31 @@ class TransactionUpdateView(WhalebraryEditRequiredMixin, CommonUpdateView):
 #     model = models.Transaction
 #     form_class = forms.TransactionForm1
 
+class TransactionAddCreateView(WhalebraryEditRequiredMixin, CommonCreateView):
+    model = models.Transaction
+    home_url_name = "whalebrary:index"
+    parent_crumb = {"title": gettext_lazy("Transaction List"), "url": reverse_lazy("whalebrary:transaction_list")}
 
-class TransactionCreateView(WhalebraryEditRequiredMixin, CommonCreateView):
+    def get_template_names(self):
+        return "shared_models/generic_popout_form.html" if self.kwargs.get("pk") else "whalebrary/form.html"
+
+    def get_form_class(self):
+        return forms.TransactionForm1 if self.kwargs.get("pk") else forms.TransactionForm
+
+    def form_valid(self, form):
+        my_object = form.save()
+        messages.success(self.request, _(f"Transaction record successfully created for : {my_object}"))
+        return HttpResponseRedirect(
+            reverse_lazy('shared_models:close_me') if self.kwargs.get("pk") else reverse_lazy(
+                'whalebrary:transaction_list'))
+
+    def get_initial(self):
+        return {'item': self.kwargs.get('pk'),
+                'category': 1,
+                'created_by': self.request.user}
+
+
+class TransactionUseCreateView(WhalebraryEditRequiredMixin, CommonCreateView):
     model = models.Transaction
     home_url_name = "whalebrary:index"
     parent_crumb = {"title": gettext_lazy("Transaction List"), "url": reverse_lazy("whalebrary:transaction_list")}
@@ -784,6 +807,7 @@ class TransactionCreateView(WhalebraryEditRequiredMixin, CommonCreateView):
 
     def get_initial(self):
         return {'item': self.kwargs.get('pk'),
+                'category': 2,
                 'created_by': self.request.user}
 
 

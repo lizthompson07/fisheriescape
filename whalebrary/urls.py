@@ -52,8 +52,9 @@ urlpatterns = [
 
     path('transaction_list/', views.TransactionListView.as_view(), name="transaction_list"),
     path('transaction_detail/<int:pk>/view/', views.TransactionDetailView.as_view(), name="transaction_detail"),
-    path('item/<int:pk>/transaction/new/', views.TransactionCreateView.as_view(), name="transaction_new"),
-    path('transaction/new/', views.TransactionCreateView.as_view(), name="transaction_new"),
+    path('item/<int:pk>/transaction/new/', views.TransactionUseCreateView.as_view(), name="transaction_new"),
+    path('item/<int:pk>/transaction/add_new/', views.TransactionAddCreateView.as_view(), name="transaction_add_new"),
+    path('transaction/new/', views.TransactionUseCreateView.as_view(), name="transaction_new"),
     path('transaction/<int:pk>/edit/', views.TransactionUpdateView.as_view(), name="transaction_edit"),
     # path('transaction/<int:pk>/edit/pop/<int:pop>/', views.TransactionUpdatePopoutView.as_view(), name="transaction_edit"),
     path('transaction/<int:pk>/receive/order/<int:pop>/', views.OrderReceivedTransactionUpdateView.as_view(), name="transaction_edit"),
