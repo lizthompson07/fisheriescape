@@ -1,32 +1,16 @@
 {% load i18n %}
-
-<!-- 
-    Purpose: Navigation for specific users.
-    Input: 
-    Output: Redirects to other pages.
- -->
-
- <!-- Redirect to Search List -->
 <li class="nav-item"><a class="nav-link" href="{% url 'pacificsalmondatahub:search' %}">
   {% trans "Search" %}
 </a></li>
-
-<!-- Redirect to Acronym List -->
 <li class="nav-item"><a class="nav-link" href="{% url 'pacificsalmondatahub:acronym_list' %}">
   {% trans "Acronym List" %}
 </a></li>
-
-<!-- Redirect to Data Glossary -->
 <li class="nav-item"><a class="nav-link" href="{% url 'pacificsalmondatahub:data_glossary_list' %}">
   {% trans "Data Glossary" %}
 </a></li>
-
-<!-- Redirect to Business Glossary -->
 <li class="nav-item"><a class="nav-link" href="{% url 'pacificsalmondatahub:business_glossary_list' %}">
   {% trans "Business Glossary" %}
 </a></li>
-
-<!-- Any Admin menu options if needed -->
 {% if is_admin %}
 {% endif %}
 
