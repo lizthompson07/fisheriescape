@@ -17,7 +17,7 @@ from shared_models.models import SimpleLookup, Region
 from django.utils.translation import gettext as _
 # Create your models here.
 
-LANGUAGE_CHOICES = ((1, 'English'), (2, 'French'),)
+LANGUAGE_CHOICES = ((1, "English"), (2, "French"),)
 YES_NO_CHOICES = [(True, _("Yes")), (False, _("No")), ]
 
 #------------User Table--------------------

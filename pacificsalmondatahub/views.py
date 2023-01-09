@@ -25,7 +25,7 @@ from shared_models.views import CommonTemplateView, CommonFormsetView, CommonHar
 #----------------------------------------------------
 class Index(pacificsalmondatahubBasicMixin, CommonTemplateView):
     # Define which html file this view uses here
-    template_name = 'pacificsalmondatahub/index.html'
+    template_name = "pacificsalmondatahub/index.html"
     # Header at the top of the page
     h1 = gettext_lazy("PSSI - Pacific Salmon Data Hub")
     # Name for button in breadcrumbs(top-left of page)
@@ -47,13 +47,13 @@ class Index(pacificsalmondatahubBasicMixin, CommonTemplateView):
 class SearchView(pacificsalmondatahubBasicMixin, CommonFilterView):
 
     filterset_class = filters.pssiFilter
-    template_name = 'pacificsalmondatahub/search_list.html'
+    template_name = "pacificsalmondatahub/search_list.html"
     queryset = DataAsset.objects.order_by("Inventory_ID").annotate(
-        search_term=Concat('Data_Asset_Name', Value(" "),
-                           'Data_Asset_Steward', Value(" "),
-                           'Data_Asset_Acronym', Value(" "),
-                           'Inventory_ID', Value(" "),
-                           'Data_Asset_Description',
+        search_term=Concat("Data_Asset_Name", Value(" "),
+                           "Data_Asset_Steward", Value(" "),
+                           "Data_Asset_Acronym", Value(" "),
+                           "Inventory_ID", Value(" "),
+                           "Data_Asset_Description",
                            output_field=TextField()))
     home_url_name = "pacificsalmondatahub:Index"
     container_class = "container-fluid"
@@ -74,11 +74,11 @@ class SearchView(pacificsalmondatahubBasicMixin, CommonFilterView):
 
     # Change displayed fields for the list in search page here ("name": "<fieldName>")
     field_list = [
-        {"name": 'Data_Asset_Name', "class": "", "width": ""},
-        {"name": 'Data_Asset_Acronym', "class": "", "width": ""},
-        {"name": 'Data_Asset_Description', "class": "w-50", "width": ""},
-        {"name": 'Data_Asset_Steward', "class": "", "width": ""},
-        {"name": 'topic', "class": "", "width": ""},
+        {"name": "Data_Asset_Name", "class": "", "width": ""},
+        {"name": "Data_Asset_Acronym", "class": "", "width": ""},
+        {"name": "Data_Asset_Description", "class": "w-50", "width": ""},
+        {"name": "Data_Asset_Steward", "class": "", "width": ""},
+        {"name": "topic", "class": "", "width": ""},
     ]
 
 #------------------Acronym View--------------------
@@ -88,7 +88,7 @@ class SearchView(pacificsalmondatahubBasicMixin, CommonFilterView):
 # Output: List of acronyms, separated by first letter of the acronyms. Clicking on acronym can lead to information source page.
 #----------------------------------------------------
 class AcronymView(pacificsalmondatahubBasicMixin, CommonTemplateView):
-    template_name = 'pacificsalmondatahub/acronym_list.html'
+    template_name = "pacificsalmondatahub/acronym_list.html"
     h1 = gettext_lazy("PSSI - Pacific Salmon Data Hub - Acronyms")
     active_page_name_crumb = gettext_lazy("Acronyms")
     home_url_name = "pacificsalmondatahub:Index"
@@ -97,13 +97,13 @@ class AcronymView(pacificsalmondatahubBasicMixin, CommonTemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         object_list = Acronym.objects.all()
-        context['list'] = object_list
+        context["list"] = object_list
         return context
 
     # Fields to display in acronym page - values for class are used for styling/formatting data
     field_list = [
-        {"name": 'acronym_Letters', "class": "my-0 term", "width": ""},
-        {"name": 'acronym_Full_Name', "class": "description", "width": ""},
+        {"name": "acronym_Letters", "class": "my-0 term", "width": ""},
+        {"name": "acronym_Full_Name", "class": "description", "width": ""},
     ]
 
 #------------------Data Glossary View----------------
@@ -113,7 +113,7 @@ class AcronymView(pacificsalmondatahubBasicMixin, CommonTemplateView):
 # Output: Same page structure as acronym view, but displays data glossary information
 #----------------------------------------------------
 class DataGlossaryView(pacificsalmondatahubBasicMixin, CommonTemplateView):
-    template_name = 'pacificsalmondatahub/data_glossary_list.html'
+    template_name = "pacificsalmondatahub/data_glossary_list.html"
     h1 = gettext_lazy("PSSI - Pacific Salmon Data Hub - Data Glossary")
     active_page_name_crumb = gettext_lazy("Data Glossary")
     home_url_name = "pacificsalmondatahub:Index"
@@ -132,7 +132,7 @@ class DataGlossaryView(pacificsalmondatahubBasicMixin, CommonTemplateView):
 # Output:Same page structure as acronym view, but displays data glossary information
 #----------------------------------------------------
 class BusinessGlossaryView(pacificsalmondatahubBasicMixin, CommonTemplateView):
-    template_name = 'pacificsalmondatahub/business_glossary_list.html'
+    template_name = "pacificsalmondatahub/business_glossary_list.html"
     h1 = gettext_lazy("PSSI - Pacific Salmon Data Hub - Business Glossary")
     active_page_name_crumb = gettext_lazy("Business Glossary")
     home_url_name = "pacificsalmondatahub:Index"
@@ -151,7 +151,7 @@ class BusinessGlossaryView(pacificsalmondatahubBasicMixin, CommonTemplateView):
 #----------------------------------------------------
 class DetailView(pacificsalmondatahubBasicMixin, CommonDetailView):
     model = DataAsset
-    template_name = 'pacificsalmondatahub/details_page.html'
+    template_name = "pacificsalmondatahub/details_page.html"
     h1 = gettext_lazy("PSSI - Pacific Salmon Data Hub - Details")
     active_page_name_crumb = gettext_lazy("Details")
     home_url_name = "pacificsalmondatahub:Index"

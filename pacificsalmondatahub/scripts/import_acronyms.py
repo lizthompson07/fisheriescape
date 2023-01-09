@@ -8,7 +8,7 @@ from pacificsalmondatahub.models import Acronym
 from django.db.models import QuerySet
 # @pylance.typecheck(QuerySet)
 
-ROOTDIR = os.path.join(settings.BASE_DIR, 'pacificsalmondatahub')
+ROOTDIR = os.path.join(settings.BASE_DIR, "pacificsalmondatahub")
 
 def clear():
     to_delete = Acronym.objects.all()
@@ -18,14 +18,14 @@ def clear():
 # Also should be converted into pandas or another library that will allow for accessing specific fields
 def run():
 
-    with open(os.path.join(ROOTDIR, './csv/Pacific_Salmon_Acronyms.csv'), 'r') as csvfile:
+    with open(os.path.join(ROOTDIR, "./csv/Pacific_Salmon_Acronyms.csv"), "r") as csvfile:
         reader = csv.reader(csvfile)
         #skip header row
         next(reader)
         i = 0
         for row in reader:
             row = [entry.strip() for entry in row]
-            row = [entry if entry != '' else None for entry in row]
+            row = [entry if entry != "" else None for entry in row]
             
             acronym_ID = i
             i+= 1

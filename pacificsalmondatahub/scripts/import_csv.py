@@ -9,7 +9,7 @@ from django.db.models import QuerySet
 # @pylance.typecheck(QuerySet)
 
 # ROOTDIR = dm_apps/pacificsalmondatahub
-ROOTDIR = os.path.join(settings.BASE_DIR, 'pacificsalmondatahub')
+ROOTDIR = os.path.join(settings.BASE_DIR, "pacificsalmondatahub")
 
 # Delete all objects stored in DataAsset table
 def clear_inventory():
@@ -20,14 +20,14 @@ def clear_inventory():
 # Mapping with discrete column index will not work if structure of CSV is changed at all, try using pandas to search by field name
 def run_csv_to_inventory():
 
-    with open(os.path.join(ROOTDIR, './csv/Pacific_Region_Data_Inventory_main.csv'), 'r') as csvfile:
+    with open(os.path.join(ROOTDIR, "./csv/Pacific_Region_Data_Inventory_main.csv"), "r") as csvfile:
         reader = csv.reader(csvfile)
         #skip header row
         next(reader)
         for row in reader:
-            # Remove whitespace and replace '' with None for cleaning
+            # Remove whitespace and replace "" with None for cleaning
             row = [entry.strip() for entry in row]
-            row = [entry if entry not in ['', 'N/A', 'n/a'] else None for entry in row]
+            row = [entry if entry not in ["", "N/A", "n/a"] else None for entry in row]
 
             
             Inventory_ID                              = row[0]

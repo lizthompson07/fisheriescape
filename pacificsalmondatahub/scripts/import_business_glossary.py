@@ -8,7 +8,7 @@ from pacificsalmondatahub.models import BusinessGlossary
 from django.db.models import QuerySet
 # @pylance.typecheck(QuerySet)
 
-ROOTDIR = os.path.join(settings.BASE_DIR, 'pacificsalmondatahub')
+ROOTDIR = os.path.join(settings.BASE_DIR, "pacificsalmondatahub")
 
 def clear():
     to_delete = BusinessGlossary.objects.all()
@@ -19,14 +19,14 @@ def run():
 
     pass
 
-    # with open(os.path.join(ROOTDIR, './csv/PacificSalmonBusinessGlossary.csv'), 'r') as csvfile:
+    # with open(os.path.join(ROOTDIR, "./csv/PacificSalmonBusinessGlossary.csv"), "r") as csvfile:
     #     reader = csv.reader(csvfile)
     #     #skip header row
     #     next(reader)
     #     i = 0
     #     for row in reader:
     #         row = [entry.strip() for entry in row]
-    #         row = [entry if entry != '' else None for entry in row]
+    #         row = [entry if entry != "" else None for entry in row]
             
     #         acronym_ID = i
     #         i+= 1

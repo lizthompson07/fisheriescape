@@ -14,8 +14,8 @@ chosen_js = {"class": "chosen-select-contains"}
 # Output: Filters bar on Search Page
 #-------------------------------------------------  
 class pssiFilter(django_filters.FilterSet):
-    # lookup_expr = 'icontains' means that it's checking if the keyword is contained (i: case insensitive) in search_term from SearchView
-    keyword = django_filters.CharFilter(field_name='search_term', label=_("Keyword"), lookup_expr='icontains',
+    # lookup_expr = "icontains" means that it's checking if the keyword is contained (i: case insensitive) in search_term from SearchView
+    keyword = django_filters.CharFilter(field_name="search_term", label=_("Keyword"), lookup_expr="icontains",
                                             widget=forms.TextInput())
 
     # --------------------------These filters have not been fully implemented yet-----------------------------------
@@ -25,18 +25,18 @@ class pssiFilter(django_filters.FilterSet):
     # NOTE: This currently tries to filter by field name, which isn't possible currently
     #       This filter shouldn't actually be applied to the data, but it should be applied as a variable to possible_column_values e.g. choosing from dropdown -> colChoice = "<Column Name>" 
                                    
-    # column = django_filters.ChoiceFilter(field_name="column", label = _("Column"), lookup_expr='exact',
+    # column = django_filters.ChoiceFilter(field_name="column", label = _("Column"), lookup_expr="exact",
     #                                           widget=forms.Select(attrs=chosen_js))
 
     # This will search the values in the specified column i.e. colChoice, and return distinct values to filter by 
     # NOTE: Hasn't been implemented yet, but it should take the colChoice from the column filter and list distinct values in a dropdown
-    # possible_column_values = django_filters.ChoiceFilter(field_name="possible_values", lookup_expr='exact',
+    # possible_column_values = django_filters.ChoiceFilter(field_name="possible_values", lookup_expr="exact",
     #                                      widget=forms.Select(attrs=chosen_js))
 
     #---------------------------------------------------------------------------------------------------------
     
     # Placeholder for filtering by topic - real definition happens on the fly in __init__ method
-    topic = django_filters.ChoiceFilter(field_name="topic", label=_("Topic"), lookup_expr='exact',
+    topic = django_filters.ChoiceFilter(field_name="topic", label=_("Topic"), lookup_expr="exact",
                                               widget=forms.Select(attrs=chosen_js),)
 
     def __init__(self, *args, **kwargs):
@@ -54,10 +54,10 @@ class pssiFilter(django_filters.FilterSet):
                 col_choices.append((field.name, field.verbose_name))
 
         # Assign the defined choices to dropdowns in the filters
-        self.filters['topic'] = django_filters.ChoiceFilter(field_name="topic", lookup_expr='exact', choices=topic_choices)
+        self.filters["topic"] = django_filters.ChoiceFilter(field_name="topic", lookup_expr="exact", choices=topic_choices)
 
         # Commented out until functional
-        # self.filters['column'] = django_filters.ChoiceFilter(field_name="column", lookup_expr='exact', choices=col_choices)
+        # self.filters["column"] = django_filters.ChoiceFilter(field_name="column", lookup_expr="exact", choices=col_choices)
 
 
     
