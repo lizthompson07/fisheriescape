@@ -17,7 +17,7 @@ class pacificsalmondatahubBasicMixin(LoginRequiredMixin, UserPassesTestMixin):
     def dispatch(self, request, *args, **kwargs):
         user_test_result = self.get_test_func()()
         if not user_test_result and self.request.user.is_authenticated:
-            return HttpResponseRedirect('/accounts/denied/?app=pacificsalmondatahub')
+            return HttpResponseRedirect("/accounts/denied/?app=pacificsalmondatahub")
         return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -26,7 +26,7 @@ class pacificsalmondatahubBasicMixin(LoginRequiredMixin, UserPassesTestMixin):
         context["is_regional_admin"] = is_regional_admin(self.request.user)
         context["is_admin"] = is_admin(self.request.user)
         context["mapbox_api_key"] = settings.MAPBOX_API_KEY
-        context['now'] = timezone.now()
+        context["now"] = timezone.now()
 
         return context
 
