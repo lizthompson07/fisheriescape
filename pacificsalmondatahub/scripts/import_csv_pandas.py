@@ -8,17 +8,17 @@ from pacificsalmondatahub.models import DataAsset
 from django.db.models import QuerySet
 # @pylance.typecheck(QuerySet)
 
-rootdir = os.path.join(settings.BASE_DIR, 'pacificsalmondatahub')
+ROOTDIR = os.path.join(settings.BASE_DIR, 'pacificsalmondatahub')
 
-def clearInventory():
-    toDelete = DataAsset.objects.all()
-    toDelete.delete()
+def clear_inventory():
+    to_delete = DataAsset.objects.all()
+    to_delete.delete()
 
 # Use Pandas read_csv() to ingest data into a dataframe, then create DataAsset instances using the values of each row in the dataframe
-def run_csvToInventory():
-    csvDF = pd.read_csv(open(os.path.join(rootdir, 'CSV/Pacific_Region_Data_Inventory_main.csv'))).dropna()
+def run_csv_to_inventory():
+    csvDF = pd.read_csv(open(os.path.join(ROOTDIR, './csv/Pacific_Region_Data_Inventory_main.csv'))).dropna()
     print(csvDF)
-    # for index, row in csvDF.iterrows():
+    # for idx, row in csvDF.iterrows():
     #     model = DataAsset(
     #         Inventory_ID                              = row['Inventory_ID'],
     #         Approved_By                               = row['Approved_By'],
