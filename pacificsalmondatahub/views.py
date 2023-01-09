@@ -7,10 +7,10 @@ from django.utils.translation import gettext as _, gettext_lazy
 from .models import DataAsset, Tag, Acronym, DataGlossary, BusinessGlossary
 from . import filters
 from .mixins import pacificsalmondatahubBasicMixin
-from .scripts.import_csv import clearInventory, run_csvToInventory
-from .scripts.import_acronyms import clear, run
-from .scripts.import_business_glossary import clear, run
-from .scripts.import_data_glossary import clear, run
+from .scripts.import_csv import clear_inventory, run_csv_to_inventory
+from .scripts.import_acronyms import clear as clear_acronyms, run as run_acronyms
+from .scripts.import_business_glossary import clear as clear_business_glossary, run as run_business_glossary
+from .scripts.import_data_glossary import clear as clear_data_glossary, run as run_data_glossary
 
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import get_object_or_404
@@ -181,36 +181,36 @@ class DetailView(pacificsalmondatahubBasicMixin, CommonDetailView):
 # NOTE: These just run the scripts in the scripts folder to clear out the models and populate them with CSV files
 # These are currently run by entering their URLs (Lines 16-17 of urls.py), please find a more secure process to run these scripts
 #-------------------------------------------------
-def loadData(request):
-    clearInventory()
-    run_csvToInventory()
+def load_data(request):
+    clear_inventory()
+    run_csv_to_inventory()
 
     if(DataAsset):
         return HttpResponse("Success!")
     else:
         return HttpResponse("No data found.")
 
-def loadAcronyms(request):
-    clear()
-    run()
+def load_acronyms(request):
+    clear_acronyms()
+    run_acronyms()
 
     if(Acronym):
         return HttpResponse("Success!")
     else:
         return HttpResponse("No data found.")
 
-def loadDataGlossary(request):
-    clear()
-    # run()
+def load_data_glossary(request):
+    clear_data_glossary()
+    # run_data_glossary()
 
     if(DataGlossary):
         return HttpResponse("Success!")
     else:
         return HttpResponse("No data found.")
 
-def loadBusinessGlossary(request):
-    clear()
-    # run()
+def load_business_glossary(request):
+    clear_business_glossary()
+    # run_business_glossary()
 
     if(BusinessGlossary):
         return HttpResponse("Success!")

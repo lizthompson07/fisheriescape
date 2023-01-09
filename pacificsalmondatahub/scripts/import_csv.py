@@ -8,19 +8,19 @@ from pacificsalmondatahub.models import DataAsset
 from django.db.models import QuerySet
 # @pylance.typecheck(QuerySet)
 
-# rootdir = dm_apps/pacificsalmondatahub
-rootdir = os.path.join(settings.BASE_DIR, 'pacificsalmondatahub')
+# ROOTDIR = dm_apps/pacificsalmondatahub
+ROOTDIR = os.path.join(settings.BASE_DIR, 'pacificsalmondatahub')
 
 # Delete all objects stored in DataAsset table
-def clearInventory():
-    toDelete = DataAsset.objects.all()
-    toDelete.delete()
+def clear_inventory():
+    to_delete = DataAsset.objects.all()
+    to_delete.delete()
 
 # Goes through the csv row by row and maps the appropriate column to a variable
 # Mapping with discrete column index will not work if structure of CSV is changed at all, try using pandas to search by field name
-def run_csvToInventory():
+def run_csv_to_inventory():
 
-    with open(os.path.join(rootdir, './CSV/Pacific_Region_Data_Inventory_main.csv'), 'r') as csvfile:
+    with open(os.path.join(ROOTDIR, './csv/Pacific_Region_Data_Inventory_main.csv'), 'r') as csvfile:
         reader = csv.reader(csvfile)
         #skip header row
         next(reader)

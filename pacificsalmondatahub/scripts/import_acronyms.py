@@ -8,17 +8,17 @@ from pacificsalmondatahub.models import Acronym
 from django.db.models import QuerySet
 # @pylance.typecheck(QuerySet)
 
-rootdir = os.path.join(settings.BASE_DIR, 'pacificsalmondatahub')
+ROOTDIR = os.path.join(settings.BASE_DIR, 'pacificsalmondatahub')
 
 def clear():
-    toDelete = Acronym.objects.all()
-    toDelete.delete()
+    to_delete = Acronym.objects.all()
+    to_delete.delete()
 
 # Similar to the functions in importCSV.py - use discrete column indices to map acronym values to the right field
 # Also should be converted into pandas or another library that will allow for accessing specific fields
 def run():
 
-    with open(os.path.join(rootdir, './CSV/Pacific_Salmon_Acronyms.csv'), 'r') as csvfile:
+    with open(os.path.join(ROOTDIR, './csv/Pacific_Salmon_Acronyms.csv'), 'r') as csvfile:
         reader = csv.reader(csvfile)
         #skip header row
         next(reader)

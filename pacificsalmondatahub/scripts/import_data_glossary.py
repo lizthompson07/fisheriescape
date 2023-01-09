@@ -8,18 +8,18 @@ from pacificsalmondatahub.models import DataGlossary
 from django.db.models import QuerySet
 # @pylance.typecheck(QuerySet)
 
-rootdir = os.path.join(settings.BASE_DIR, 'pacificsalmondatahub')
+ROOTDIR = os.path.join(settings.BASE_DIR, 'pacificsalmondatahub')
 
 def clear():
-    toDelete = DataGlossary.objects.all()
-    toDelete.delete()
+    to_delete = DataGlossary.objects.all()
+    to_delete.delete()
 
 # Similar to the functions in importCSV.py - use discrete column indices to map glossary values to the right field
 def run():
 
     pass
 
-    # with open(os.path.join(rootdir, 'CSV/PacificSalmonDataGlossary.csv'), 'r') as csvfile:
+    # with open(os.path.join(ROOTDIR, './csv/PacificSalmonDataGlossary.csv'), 'r') as csvfile:
     #     reader = csv.reader(csvfile)
     #     #skip header row
     #     next(reader)
