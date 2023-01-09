@@ -1,6 +1,8 @@
 import inspect
 
 from django import forms
+from django.db.models import Q
+
 from maret import models
 from masterlist import models as ml_models
 from shared_models import models as shared_models
@@ -140,8 +142,14 @@ class OrganizationForm(forms.ModelForm):
         self.fields['asc_province'].choices = province_choices
 
         self.fields['committee'].choices = [(c.id, c) for c in models.Committee.objects.all()]
-        self.fields['grouping'].queryset = ml_models.Grouping.objects.filter(in_maret=True)
-        self.fields['grouping'].widget.attrs = multi_select_js
+        if self.initial:
+            self.fields['grouping'].queryset = ml_models.Grouping.objects.filter(
+                Q(in_maret=True) |
+                Q(id__in=[grouping.id for grouping in self.initial["grouping"]])
+            ).distinct()
+        else:
+            self.fields['grouping'].queryset = ml_models.Grouping.objects.filter(in_maret=True)
+            self.fields['grouping'].widget.attrs = multi_select_js
 
 
 class MemberForm(forms.ModelForm):

@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib.auth.models import User
+from django.db.models import Q
 from django.forms import modelformset_factory
 from django.utils.translation import gettext as _, gettext_lazy
 
@@ -272,7 +273,14 @@ class OrganizationForm(forms.ModelForm):
         from ihub.views import get_ind_organizations
         org_choices_all = [(obj.id, obj) for obj in get_ind_organizations()]
         self.fields["orgs"].choices = org_choices_all
-        self.fields['grouping'].queryset = ml_models.Grouping.objects.filter(in_ihub=True)
+        if self.initial:
+            # include any values already on the organization
+            self.fields['grouping'].queryset = ml_models.Grouping.objects.filter(
+                Q(in_ihub=True) |
+                Q(id__in=[grouping.id for grouping in self.initial["grouping"]])
+            ).distinct()
+        else:
+            self.fields['grouping'].queryset = ml_models.Grouping.objects.filter(in_ihub=True)
         self.fields['grouping'].widget.attrs = multi_select_js
 
 
