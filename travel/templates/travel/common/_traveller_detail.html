@@ -60,7 +60,7 @@
 
   </div>
   <div class="col">
-    <div v-if="trip && t.is_public_servant" class="mb-5">
+    <div v-if="t.is_public_servant" class="mb-5">
       <p class="mb-3 h6"><b>{% trans "Travel History (for trips requiring ADM approval):" %}</b></p>
       <ul class="">
         <li v-for="(r,i) in t.adm_travel_history" :key="r.id">
@@ -70,7 +70,7 @@
           </a> (${r.fiscal_year})
         </li>
         <li v-if="!t.adm_travel_history.length">
-          <em>{% trans "This traveller has no ADM approved requests on file." %}</em>
+          <em>{% trans "This traveller has no other requests that have required ADM approval on file." %}</em>
         </li>
       </ul>
     </div>
