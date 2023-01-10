@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-11-25 11:42-0400\n"
+"POT-Creation-Date: 2023-01-10 15:26-0400\n"
 "PO-Revision-Date: 2022-11-18 14:05-0400\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -106,10 +106,8 @@ msgid "Vehicle type"
 msgstr "Type de véhicule"
 
 #: .\cars\forms.py:124
-#, fuzzy
-#| msgid "location"
-msgid "DFO Section"
-msgstr "emplacement"
+msgid "Vehicle belongs to which DFO Section"
+msgstr ""
 
 #: .\cars\forms.py:126
 msgid "Vehicle"
@@ -616,6 +614,11 @@ msgstr "URL"
 #: .\cars\views.py:486
 msgid "File"
 msgstr "Fichier"
+
+#, fuzzy
+#~| msgid "location"
+#~ msgid "DFO Section"
+#~ msgstr "emplacement"
 
 #~ msgid "Vehicle RSVP"
 #~ msgstr "RSVP pour les véhicules"

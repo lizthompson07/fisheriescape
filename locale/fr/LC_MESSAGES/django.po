@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: test\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-11-25 11:41-0400\n"
+"POT-Creation-Date: 2023-01-10 15:26-0400\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -1004,7 +1004,7 @@ msgstr "Projet"
 #: .\bio_diversity\mixins.py:559 .\bio_diversity\models.py:2224
 #: .\bio_diversity\models.py:2242
 #: .\bio_diversity\templates\bio_diversity\admin_index.html:242
-#: .\herring\models.py:314
+#: .\herring\models.py:315
 msgid "Sample"
 msgstr ""
 
@@ -1770,7 +1770,7 @@ msgstr "Mettre à jour"
 #: .\shared_models\templates\shared_models\org_spreadsheet.html:556
 #: .\shared_models\templates\shared_models\org_spreadsheet.html:603
 #: .\shared_models\templates\shared_models\org_spreadsheet.html:645
-#: .\shared_models\test\test_common_views.py:543 .\shared_models\views.py:216
+#: .\shared_models\test\test_common_views.py:543 .\shared_models\views.py:218
 #: .\shiny\templates\shiny\index.html:64
 msgid "Delete"
 msgstr "Supprimer"
@@ -1790,7 +1790,7 @@ msgstr ""
 #: .\publications\templates\publications\pub_form.html:32
 #: .\publications\templates\publications\pub_form.html:60
 #: .\shared_models\templates\shared_models\shared_filter.html:25
-#: .\shared_models\test\test_common_views.py:270 .\shared_models\views.py:100
+#: .\shared_models\test\test_common_views.py:270 .\shared_models\views.py:102
 msgid "Add"
 msgstr "Ajouter"
 
@@ -2010,7 +2010,7 @@ msgstr ""
 msgid "Manage Comment Keywords"
 msgstr ""
 
-#: .\bio_diversity\views.py:3317 .\maret\views.py:98
+#: .\bio_diversity\views.py:3317 .\maret\views.py:100
 #, fuzzy
 #| msgid "Help Text"
 msgid "Update Help Text"
@@ -2020,7 +2020,7 @@ msgstr "Texte d'aide"
 msgid "Bio Diversity Help Text"
 msgstr ""
 
-#: .\bio_diversity\views.py:3349 .\maret\views.py:131
+#: .\bio_diversity\views.py:3349 .\maret\views.py:133
 #, fuzzy
 #| msgid "Help Text"
 msgid "Manage Help Texts"
@@ -2131,7 +2131,7 @@ msgstr "de"
 #: .\fisheriescape\templates\fisheriescape\analyses_filter.html:33
 #: .\fisheriescape\templates\fisheriescape\score_filter.html:11
 #: .\fisheriescape\templates\fisheriescape\user_list.html:23
-#: .\shared_models\mixins.py:329
+#: .\shared_models\mixins.py:347
 #: .\shared_models\templates\shared_models\generic_filter.html:10
 #: .\shared_models\templates\shared_models\generic_filter_bs5.html:10
 #: .\shared_models\templates\shared_models\org_form.html:21
@@ -2155,8 +2155,8 @@ msgstr "Nouveau"
 #: .\shared_models\models.py:735 .\shared_models\models.py:741
 #: .\shared_models\models.py:850 .\shared_models\models.py:851
 #: .\shared_models\models.py:1049 .\shared_models\models.py:1050
-#: .\shared_models\utils.py:23 .\shared_models\views.py:1028
-#: .\shared_models\views.py:1079 .\shared_models\views.py:1184
+#: .\shared_models\utils.py:23 .\shared_models\views.py:1042
+#: .\shared_models\views.py:1093 .\shared_models\views.py:1198
 #: .\shares\models.py:61
 msgid "name"
 msgstr "nom"
@@ -2221,8 +2221,8 @@ msgstr "Types de composantes des instruments"
 #: .\shared_models\templates\shared_models\org_spreadsheet.html:555
 #: .\shared_models\templates\shared_models\org_spreadsheet.html:602
 #: .\shared_models\templates\shared_models\org_spreadsheet.html:644
-#: .\shared_models\test\test_common_views.py:400 .\shared_models\views.py:152
-#: .\shared_models\views.py:328 .\shiny\templates\shiny\index.html:62
+#: .\shared_models\test\test_common_views.py:400 .\shared_models\views.py:154
+#: .\shared_models\views.py:333 .\shiny\templates\shiny\index.html:62
 msgid "Edit"
 msgstr "Modifier"
 
@@ -2691,7 +2691,7 @@ msgstr "statut"
 msgid "mitigation type"
 msgstr ""
 
-#: .\fisheriescape\models.py:123 .\shared_models\views.py:1185
+#: .\fisheriescape\models.py:123 .\shared_models\views.py:1199
 #: .\shiny\views.py:30
 msgid "description"
 msgstr "description"
@@ -3399,53 +3399,53 @@ msgstr ""
 msgid "use fish measuring board by default"
 msgstr ""
 
-#: .\herring\models.py:199
+#: .\herring\models.py:200
 #, fuzzy
 #| msgid "name"
 msgid "Sample type"
 msgstr "nom"
 
-#: .\herring\models.py:216
+#: .\herring\models.py:217
 msgid "vessel CFVN"
 msgstr ""
 
-#: .\herring\models.py:229 .\shared_models\models.py:1036
+#: .\herring\models.py:230 .\shared_models\models.py:1036
 #, fuzzy
 #| msgid "Clear"
 msgid "year"
 msgstr "Effacer"
 
-#: .\herring\models.py:230
+#: .\herring\models.py:231
 #, fuzzy
 #| msgid "Person"
 msgid "season"
 msgstr "Personne"
 
-#: .\herring\models.py:350
+#: .\herring\models.py:351
 msgid "length (mm)"
 msgstr ""
 
-#: .\herring\models.py:351
+#: .\herring\models.py:352
 msgid "fish weight (g)"
 msgstr ""
 
-#: .\herring\models.py:354
+#: .\herring\models.py:355
 msgid "gonad weight (g)"
 msgstr ""
 
-#: .\herring\models.py:365
+#: .\herring\models.py:366
 msgid "gonad sub-sample weight (g)"
 msgstr ""
 
-#: .\herring\models.py:366
+#: .\herring\models.py:367
 msgid "gonad count"
 msgstr ""
 
-#: .\herring\models.py:367
+#: .\herring\models.py:368
 msgid "photo ID (20 eggs)"
 msgstr ""
 
-#: .\herring\models.py:368
+#: .\herring\models.py:369
 msgid "photo magnification"
 msgstr ""
 
@@ -3475,8 +3475,8 @@ msgstr "Rapports"
 msgid "Region"
 msgstr "Région"
 
-#: .\inventory\filters.py:18 .\maret\views.py:217 .\maret\views.py:236
-#: .\maret\views.py:289
+#: .\inventory\filters.py:18 .\maret\views.py:219 .\maret\views.py:238
+#: .\maret\views.py:291
 msgid "Person"
 msgstr "Personne"
 
@@ -3813,13 +3813,13 @@ msgid ""
 "is accurate and up-to-date."
 msgstr ""
 
-#: .\inventory\views.py:1345 .\inventory\views.py:1358
+#: .\inventory\views.py:1344 .\inventory\views.py:1357
 msgid ""
 "NOTE: to add a thumbnail, simply upload an image and ensure the caption "
 "contains the word 'thumbnail'"
 msgstr ""
 
-#: .\inventory\views.py:1396 .\inventory\views.py:1430
+#: .\inventory\views.py:1395 .\inventory\views.py:1429
 msgid "Sorry, you do not have permissions to do this."
 msgstr ""
 
@@ -4408,30 +4408,30 @@ msgstr "L'accord a été supprimé avec succès."
 msgid "Search (Title of Interaction, Main results, Comments)"
 msgstr "description (ang)"
 
-#: .\maret\filters.py:67
+#: .\maret\filters.py:69
 msgid "Search (committee/working group name, role, and comments)"
 msgstr ""
 
-#: .\maret\filters.py:73
+#: .\maret\filters.py:75
 #, fuzzy
 #| msgid "External Links"
 msgid "External chair or contact"
 msgstr "Liens externes"
 
-#: .\maret\filters.py:95
+#: .\maret\filters.py:97
 msgid "Highest level DFO participant"
 msgstr ""
 
-#: .\maret\filters.py:122
+#: .\maret\filters.py:124
 msgid "Search organizations (name, province, etc...)"
 msgstr ""
 
-#: .\maret\filters.py:139 .\maret\forms.py:102
-#: .\maret\templates\maret\organization_detail.html:90
+#: .\maret\filters.py:141 .\maret\forms.py:103
+#: .\maret\templates\maret\organization_detail.html:71
 msgid "Area(s)"
 msgstr ""
 
-#: .\maret\filters.py:146
+#: .\maret\filters.py:147
 #, fuzzy
 #| msgid "category"
 msgid "Category(s)"
@@ -4450,43 +4450,37 @@ msgstr "Organisations"
 msgid "Any part of name, or title"
 msgstr ""
 
-#: .\maret\forms.py:12
+#: .\maret\forms.py:14
 msgid "Click to select a date.."
 msgstr ""
 
-#: .\maret\forms.py:52
+#: .\maret\forms.py:54
 msgid "DFO liaison/secretariat is required"
 msgstr ""
 
-#: .\maret\forms.py:100 .\maret\templates\maret\organization_detail.html:99
+#: .\maret\forms.py:102 .\maret\templates\maret\organization_detail.html:80
 msgid "Associated Province(s)"
 msgstr ""
 
-#: .\maret\forms.py:101 .\maret\templates\maret\organization_detail.html:62
-#, fuzzy
-#| msgid "category"
-msgid "Categories"
-msgstr "catégorie"
-
-#: .\maret\forms.py:103
+#: .\maret\forms.py:104
 #, fuzzy
 #| msgid "Email"
 msgid "E-mail"
 msgstr "Courriel"
 
-#: .\maret\forms.py:104 .\maret\forms.py:177
+#: .\maret\forms.py:105 .\maret\forms.py:181
 msgid "Committees/Working Groups"
 msgstr ""
 
-#: .\maret\forms.py:162
+#: .\maret\forms.py:166
 msgid "Select a contact"
 msgstr ""
 
-#: .\maret\forms.py:172
+#: .\maret\forms.py:176
 msgid "Person is required."
 msgstr ""
 
-#: .\maret\forms.py:191
+#: .\maret\forms.py:195
 #, fuzzy
 msgid "Organization Membership"
 msgstr "Organisations"
@@ -4673,13 +4667,13 @@ msgstr "Aucun élément n'a été ajouté à cet instrument."
 
 #: .\maret\templates\maret\_committees.html:18
 #: .\maret\templates\maret\_interactions.html:18 .\publications\models.py:220
-#: .\shared_models\models.py:625
+#: .\shared_models\models.py:625 .\shared_models\models.py:745
 msgid "Description"
 msgstr "Description"
 
 #: .\maret\templates\maret\_interactions.html:8
 #, fuzzy
-msgid "Organization Interaction(s):"
+msgid "Organization Maret Interaction(s):"
 msgstr "Organisations"
 
 #: .\maret\templates\maret\_interactions.html:13
@@ -4727,7 +4721,7 @@ msgid "Role"
 msgstr "Projet"
 
 #: .\maret\templates\maret\_members.html:27
-#: .\maret\templates\maret\organization_detail.html:132
+#: .\maret\templates\maret\organization_detail.html:116
 #: .\maret\templates\maret\person_detail.html:77 .\sar_search\views.py:362
 msgid "Notes"
 msgstr "Remarques"
@@ -4739,9 +4733,9 @@ msgstr "Remarques"
 msgid "Last modified"
 msgstr "dernière modification"
 
-#: .\maret\templates\maret\_members.html:32 .\maret\views.py:253
-#: .\maret\views.py:314 .\maret\views.py:837 .\maret\views.py:906
-#: .\maret\views.py:1102 .\maret\views.py:1120 .\maret\views.py:1134
+#: .\maret\templates\maret\_members.html:32 .\maret\views.py:255
+#: .\maret\views.py:316 .\maret\views.py:839 .\maret\views.py:902
+#: .\maret\views.py:1045 .\maret\views.py:1063 .\maret\views.py:1077
 msgid "This record can only be modified through iHub"
 msgstr ""
 
@@ -4755,7 +4749,7 @@ msgstr ""
 
 #: .\maret\templates\maret\base\_nav_left_auth.html:14
 #: .\maret\templates\maret\index.html:28
-#: .\maret\templates\maret\person_detail.html:114 .\maret\views.py:455
+#: .\maret\templates\maret\person_detail.html:114 .\maret\views.py:457
 #, fuzzy
 #| msgid "Settings"
 msgid "Interactions"
@@ -4769,54 +4763,55 @@ msgid "Committees"
 msgstr "Commentaires"
 
 #: .\maret\templates\maret\base\_nav_left_auth.html:20
-#: .\maret\templates\maret\index.html:30 .\maret\views.py:721
-#: .\maret\views.py:792 .\maret\views.py:806 .\maret\views.py:897
+#: .\maret\templates\maret\index.html:30 .\maret\views.py:723
+#: .\maret\views.py:787 .\maret\views.py:811 .\maret\views.py:893
 #, fuzzy
 msgid "Organizations"
 msgstr "Organisations"
 
 #: .\maret\templates\maret\base\_nav_left_auth.html:23
-#: .\maret\templates\maret\index.html:31 .\maret\views.py:180
-#: .\maret\views.py:211 .\maret\views.py:305
+#: .\maret\templates\maret\index.html:31 .\maret\views.py:182
+#: .\maret\views.py:213 .\maret\views.py:307
 #, fuzzy
 #| msgid "DFO Contacts"
 msgid "Contacts"
 msgstr "Contacts du MPO"
 
-#: .\maret\templates\maret\base\_nav_left_auth.html:36 .\maret\views.py:1188
+#: .\maret\templates\maret\base\_nav_left_auth.html:36 .\maret\views.py:1124
 #, fuzzy
 #| msgid "All Species "
 msgid "Manage Area Offices"
 msgstr "Toutes les espèces "
 
-#: .\maret\templates\maret\base\_nav_left_auth.html:39 .\maret\views.py:1208
+#: .\maret\templates\maret\base\_nav_left_auth.html:39 .\maret\views.py:1144
 #, fuzzy
 #| msgid "All Species "
 msgid "Manage Area Office Programs"
 msgstr "Toutes les espèces "
 
-#: .\maret\templates\maret\base\_nav_left_auth.html:42 .\maret\views.py:1174
-#, fuzzy
-msgid "Manage Organization Categories"
-msgstr "Organisations"
-
-#: .\maret\templates\maret\base\_nav_left_auth.html:45 .\maret\views.py:1167
+#: .\maret\templates\maret\base\_nav_left_auth.html:42 .\maret\views.py:1110
 #, fuzzy
 #| msgid "All Species "
 msgid "Manage Species"
 msgstr "Toutes les espèces "
 
-#: .\maret\templates\maret\base\_nav_left_auth.html:48
+#: .\maret\templates\maret\base\_nav_left_auth.html:45
 #, fuzzy
 #| msgid "Help Text"
 msgid "Manage Topics"
 msgstr "Texte d'aide"
 
-#: .\maret\templates\maret\base\_nav_left_auth.html:53
+#: .\maret\templates\maret\base\_nav_left_auth.html:50
 #, fuzzy
 #| msgid "Settings"
 msgid "Admin Settings"
 msgstr "Paramètres"
+
+#: .\maret\templates\maret\base\_nav_left_auth.html:53
+#, fuzzy
+#| msgid "Help Text"
+msgid "Manage Groupings"
+msgstr "Texte d'aide"
 
 #: .\maret\templates\maret\base\_nav_left_auth.html:56
 #, fuzzy
@@ -4940,13 +4935,13 @@ msgstr ""
 msgid "Organization Detail:"
 msgstr "Organisations"
 
-#: .\maret\templates\maret\organization_detail.html:138
+#: .\maret\templates\maret\organization_detail.html:122
 #, fuzzy
 #| msgid "There are no items to display"
 msgid "There are no notes on file."
 msgstr "Il n'y a pas d'éléments à afficher"
 
-#: .\maret\templates\maret\organization_detail.html:153
+#: .\maret\templates\maret\organization_detail.html:137
 #, fuzzy
 msgid "Are you sure you want to delete this person from the entry?"
 msgstr "Êtes-vous sûr de vouloir supprimer cette accord du projet?"
@@ -4996,60 +4991,40 @@ msgid "Associated Provinces"
 msgstr ""
 
 #: .\maret\templates\maret\report_cue_card.html:86
-#, fuzzy
-#| msgid "category"
-msgid "Category"
-msgstr "catégorie"
-
-#: .\maret\templates\maret\report_cue_card.html:97
 msgid "Area"
 msgstr ""
 
-#: .\maret\templates\maret\report_cue_card.html:112
+#: .\maret\templates\maret\report_cue_card.html:101
 #, fuzzy
 #| msgid "DFO Contacts"
 msgid "List of Contacts"
 msgstr "Contacts du MPO"
 
-#: .\maret\templates\maret\report_cue_card.html:141
-msgid "iHub Entries"
-msgstr ""
-
-#: .\maret\templates\maret\report_cue_card.html:146
-#, fuzzy
-#| msgid "There are no items to display"
-msgid "There are no entries to display for this organization"
-msgstr "Il n'y a pas d'éléments à afficher"
-
-#: .\maret\templates\maret\report_cue_card.html:179
-msgid "Amount outstanding:"
-msgstr ""
-
-#: .\maret\templates\maret\report_cue_card.html:195
+#: .\maret\templates\maret\report_cue_card.html:130
 #, fuzzy
 #| msgid "DFO Contacts"
 msgid "List of MarET Committees"
 msgstr "Contacts du MPO"
 
-#: .\maret\templates\maret\report_cue_card.html:201
+#: .\maret\templates\maret\report_cue_card.html:136
 #, fuzzy
 #| msgid "There are no items to display"
 msgid "There are no MarET committees to display for this organization"
 msgstr "Il n'y a pas d'éléments à afficher"
 
-#: .\maret\templates\maret\report_cue_card.html:239
+#: .\maret\templates\maret\report_cue_card.html:174
 #, fuzzy
 #| msgid "Location"
 msgid "List of MarET Interactions"
 msgstr "Location"
 
-#: .\maret\templates\maret\report_cue_card.html:245
+#: .\maret\templates\maret\report_cue_card.html:180
 #, fuzzy
 #| msgid "There are no items to display"
 msgid "There are no MarET interactions to display for this organization"
 msgstr "Il n'y a pas d'éléments à afficher"
 
-#: .\maret\templates\maret\report_cue_card.html:284
+#: .\maret\templates\maret\report_cue_card.html:219
 #, python-format
 msgid ""
 "\n"
@@ -5081,92 +5056,92 @@ msgstr "Désolé, vous n'êtes pas autorisé à consulter cette page."
 msgid "Sorry, you need to be a MarET User in order to access this page."
 msgstr "Désolé, vous n'êtes pas autorisé à consulter cette page."
 
-#: .\maret\views.py:130
+#: .\maret\views.py:132
 #, fuzzy
 #| msgid "Help Text"
 msgid "MarET Help Text"
 msgstr "Texte d'aide"
 
-#: .\maret\views.py:153
+#: .\maret\views.py:155
 msgid ""
 "Please note that only <b>unclassified information</b> may be entered into "
 "this application."
 msgstr ""
 
 # please never touch this translation!!
-#: .\maret\views.py:172
+#: .\maret\views.py:174
 #, fuzzy
 #| msgid "full_name_en"
 msgid "full name"
 msgstr "full_name_fr"
 
-#: .\maret\views.py:174
+#: .\maret\views.py:176
 #, fuzzy
 #| msgid "Last updated:"
 msgid "last updated"
 msgstr "Mis à jour :"
 
-#: .\maret\views.py:219 .\maret\views.py:275
+#: .\maret\views.py:221 .\maret\views.py:277
 #, fuzzy
 #| msgid "DFO Contacts"
 msgid "New Contact"
 msgstr "Contacts du MPO"
 
-#: .\maret\views.py:238 .\maret\views.py:291
+#: .\maret\views.py:240 .\maret\views.py:293
 #, fuzzy
 #| msgid "DFO Contacts"
 msgid "Contact"
 msgstr "Contacts du MPO"
 
-#: .\maret\views.py:373 .\maret\views.py:411
+#: .\maret\views.py:375 .\maret\views.py:413
 #, fuzzy
 #| msgid "Section"
 msgid "Interaction"
 msgstr "Section"
 
-#: .\maret\views.py:375
+#: .\maret\views.py:377
 #, fuzzy
 #| msgid "Location"
 msgid "New Interaction"
 msgstr "Location"
 
-#: .\maret\views.py:496
+#: .\maret\views.py:498
 msgid "Committee"
 msgstr ""
 
-#: .\maret\views.py:526 .\maret\views.py:559 .\maret\views.py:561
-#: .\maret\views.py:585 .\maret\views.py:630 .\maret\views.py:643
-#: .\maret\views.py:645
+#: .\maret\views.py:528 .\maret\views.py:561 .\maret\views.py:563
+#: .\maret\views.py:587 .\maret\views.py:632 .\maret\views.py:645
+#: .\maret\views.py:647
 msgid "Committees / Working Groups"
 msgstr ""
 
-#: .\maret\views.py:723
+#: .\maret\views.py:725
 #, fuzzy
 msgid "New Organization"
 msgstr "Organisations"
 
-#: .\maret\views.py:1091
+#: .\maret\views.py:1034
 #, fuzzy
 msgid "New Organization Member"
 msgstr "Organisations"
 
-#: .\maret\views.py:1159
+#: .\maret\views.py:1102
 msgid "Manage Discussion Topics"
 msgstr ""
 
-#: .\maret\views.py:1181
+#: .\maret\views.py:1117
 #, fuzzy
 #| msgid "All Species "
 msgid "Manage Areas"
 msgstr "Toutes les espèces "
 
-#: .\maret\views.py:1200
+#: .\maret\views.py:1136
 #, fuzzy
 #| msgid "All Species "
 msgid "Area Offices"
 msgstr "Toutes les espèces "
 
-#: .\maret\views.py:1220
+#: .\maret\views.py:1156
 #, fuzzy
 #| msgid "All Species "
 msgid "Area Office Programs"
@@ -5485,7 +5460,7 @@ msgstr "Nom commun"
 msgid "Population"
 msgstr "Population"
 
-#: .\shared_models\api\serializers.py:207
+#: .\shared_models\api\serializers.py:217
 msgid "This user must have the word \"DFO\" or \"MPO\" in their affiliation."
 msgstr ""
 
@@ -5676,7 +5651,7 @@ msgstr ""
 msgid "abbrev_en"
 msgstr "abbrev_fr"
 
-#: .\shared_models\models.py:291 .\shared_models\views.py:829
+#: .\shared_models\models.py:291 .\shared_models\views.py:843
 msgid "sector"
 msgstr "secteur"
 
@@ -5688,7 +5663,7 @@ msgstr ""
 msgid "Branches - Directorates (NCR)"
 msgstr ""
 
-#: .\shared_models\models.py:328 .\shared_models\views.py:758
+#: .\shared_models\models.py:328 .\shared_models\views.py:772
 msgid "branch"
 msgstr "direction"
 
@@ -6045,7 +6020,7 @@ msgstr "(cliquez sur un en-tête pour trier la page actuelle)"
 
 #: .\shared_models\templates\shared_models\generic_formset.html:18
 #: .\shared_models\templates\shared_models\generic_formset_bs5.html:16
-#: .\shared_models\test\test_common_views.py:401 .\shared_models\views.py:158
+#: .\shared_models\test\test_common_views.py:401 .\shared_models\views.py:160
 msgid "Save"
 msgstr "Sauvegarder"
 
@@ -6114,8 +6089,8 @@ msgid "Financial Coding"
 msgstr "Résumé financier:"
 
 #: .\shared_models\templates\shared_models\org_index.html:47
-#: .\shared_models\views.py:1087 .\shared_models\views.py:1095
-#: .\shared_models\views.py:1108 .\shared_models\views.py:1117
+#: .\shared_models\views.py:1101 .\shared_models\views.py:1109
+#: .\shared_models\views.py:1122 .\shared_models\views.py:1131
 #, fuzzy
 #| msgid "Project"
 msgid "Project Codes"
@@ -6305,7 +6280,7 @@ msgstr "Êtes-vous sûr de vouloir supprimer cette note?"
 msgid "Details"
 msgstr "Détails de la personne:"
 
-#: .\shared_models\test\test_common_views.py:269 .\shared_models\views.py:94
+#: .\shared_models\test\test_common_views.py:269 .\shared_models\views.py:96
 #, fuzzy
 msgid "New {}"
 msgstr "Nouveau"
@@ -6333,7 +6308,7 @@ msgstr ""
 msgid "unknown"
 msgstr ""
 
-#: .\shared_models\views.py:207
+#: .\shared_models\views.py:209
 msgid ""
 "Are you sure you want to delete the following {item_name}? <br>  <span "
 "class='red-font'>{item}</span>"
@@ -6341,85 +6316,85 @@ msgstr ""
 "Êtes-vous certain de vouloir supprimer l'objet suivant ? <br> <span "
 "class='red-font'>{item}</span>"
 
-#: .\shared_models\views.py:284
+#: .\shared_models\views.py:289
 msgid "Delete Confirmation"
 msgstr "Confirmation de suppression"
 
-#: .\shared_models\views.py:586
+#: .\shared_models\views.py:600
 msgid "Warning"
 msgstr "Avertissement"
 
-#: .\shared_models\views.py:588
+#: .\shared_models\views.py:602
 msgid "These are shared tables for all of DM Apps."
 msgstr "Ce sont des tables partagées pour toutes les Applis GD."
 
-#: .\shared_models\views.py:589 .\shared_models\views.py:596
+#: .\shared_models\views.py:603 .\shared_models\views.py:610
 msgid "Please be careful when editing."
 msgstr "S'il vous plaît soyez prudent lors de l'édition."
 
-#: .\shared_models\views.py:590
+#: .\shared_models\views.py:604
 msgid "DM Apps Shared Settings"
 msgstr "Paramètres partagés des Applis GD"
 
-#: .\shared_models\views.py:595 .\shared_models\views.py:597
+#: .\shared_models\views.py:609 .\shared_models\views.py:611
 #, fuzzy
 msgid "DFO Organization Spreadsheet"
 msgstr "Organisations"
 
-#: .\shared_models\views.py:613
+#: .\shared_models\views.py:627
 msgid "section"
 msgstr "section"
 
-#: .\shared_models\views.py:619 .\shared_models\views.py:639
-#: .\shared_models\views.py:655 .\shared_models\views.py:666
-#: .\shared_models\views.py:692 .\shared_models\views.py:712
-#: .\shared_models\views.py:728 .\shared_models\views.py:739
-#: .\shared_models\views.py:764 .\shared_models\views.py:784
-#: .\shared_models\views.py:800 .\shared_models\views.py:811
-#: .\shared_models\views.py:835 .\shared_models\views.py:856
-#: .\shared_models\views.py:872 .\shared_models\views.py:883
-#: .\shared_models\views.py:904 .\shared_models\views.py:920
-#: .\shared_models\views.py:936 .\shared_models\views.py:947
-#: .\shared_models\views.py:969 .\shared_models\views.py:985
-#: .\shared_models\views.py:1001 .\shared_models\views.py:1012
-#: .\shared_models\views.py:1219 .\shared_models\views.py:1231
+#: .\shared_models\views.py:633 .\shared_models\views.py:653
+#: .\shared_models\views.py:669 .\shared_models\views.py:680
+#: .\shared_models\views.py:706 .\shared_models\views.py:726
+#: .\shared_models\views.py:742 .\shared_models\views.py:753
+#: .\shared_models\views.py:778 .\shared_models\views.py:798
+#: .\shared_models\views.py:814 .\shared_models\views.py:825
+#: .\shared_models\views.py:849 .\shared_models\views.py:870
+#: .\shared_models\views.py:886 .\shared_models\views.py:897
+#: .\shared_models\views.py:918 .\shared_models\views.py:934
+#: .\shared_models\views.py:950 .\shared_models\views.py:961
+#: .\shared_models\views.py:983 .\shared_models\views.py:999
+#: .\shared_models\views.py:1015 .\shared_models\views.py:1026
+#: .\shared_models\views.py:1233 .\shared_models\views.py:1245
 #, fuzzy
 msgid "DFO Orgs"
 msgstr "Secteurs du MPO"
 
-#: .\shared_models\views.py:686
+#: .\shared_models\views.py:700
 msgid "division"
 msgstr "division"
 
-#: .\shared_models\views.py:898
+#: .\shared_models\views.py:912
 msgid "Regions - Sectors (NCR)"
 msgstr ""
 
-#: .\shared_models\views.py:962
+#: .\shared_models\views.py:976
 #, fuzzy
 msgid "Organizations - Sectors (NCR)"
 msgstr "Organisations"
 
-#: .\shared_models\views.py:1035 .\shared_models\views.py:1043
-#: .\shared_models\views.py:1056 .\shared_models\views.py:1065
+#: .\shared_models\views.py:1049 .\shared_models\views.py:1057
+#: .\shared_models\views.py:1070 .\shared_models\views.py:1079
 msgid "Responsibility Center"
 msgstr ""
 
-#: .\shared_models\views.py:1129
+#: .\shared_models\views.py:1143
 msgid "Create a New DM Apps User"
 msgstr "Créer un nouveau utilisateur de Applis GD"
 
-#: .\shared_models\views.py:1131
+#: .\shared_models\views.py:1145
 msgid "Please use extreme vigilance with this form."
 msgstr ""
 
-#: .\shared_models\views.py:1132
+#: .\shared_models\views.py:1146
 msgid ""
 "After this form is submitted, the new user will receive a confirmation e-"
 "mail."
 msgstr ""
 
-#: .\shared_models\views.py:1168
+#: .\shared_models\views.py:1182
 msgid "The user '{}' was created and an email was sent"
 msgstr ""
 
@@ -6524,11 +6499,11 @@ msgstr ""
 msgid "DFO Shiny Apps Repository"
 msgstr ""
 
-#: .\templates\_base_js.html:57 .\templates\_base_js.html:58
+#: .\templates\_base_js.html:58 .\templates\_base_js.html:59
 msgid "Select multiple"
 msgstr "Sélectionnez plusieurs"
 
-#: .\templates\_base_js.html:61
+#: .\templates\_base_js.html:62
 msgid "Oops, nothing found!"
 msgstr ""
 
@@ -6672,6 +6647,25 @@ msgstr "développement"
 #: .\templates\index_OLD.html:133
 msgid "Region Specific Applications"
 msgstr ""
+
+#, fuzzy
+#~| msgid "category"
+#~ msgid "Categories"
+#~ msgstr "catégorie"
+
+#, fuzzy
+#~ msgid "Manage Organization Categories"
+#~ msgstr "Organisations"
+
+#, fuzzy
+#~| msgid "category"
+#~ msgid "Category"
+#~ msgstr "catégorie"
+
+#, fuzzy
+#~| msgid "There are no items to display"
+#~ msgid "There are no entries to display for this organization"
+#~ msgstr "Il n'y a pas d'éléments à afficher"
 
 #, fuzzy
 #~ msgid "Project Planning (ARCHIVE ONLY)"
