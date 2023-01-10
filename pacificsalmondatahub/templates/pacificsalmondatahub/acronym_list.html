@@ -116,7 +116,7 @@
         <table class="container py-2 px-10 line">
         {% for object in list %}
             <!-- Goes through each acronym and checks if its first character is that specific character -->
-            {% if object.acronym_Letters|first|upper == category %}
+            {% if object.acronym_letters|first|upper == category %}
                 {% block table_tr %}        
                 <tr>
                     <!-- If so, then gets all the fields -->

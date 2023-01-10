@@ -29,7 +29,6 @@ def run_csv_to_inventory():
             row = [entry.strip() for entry in row]
             row = [entry if entry not in ["", "N/A", "n/a"] else None for entry in row]
 
-            
             Inventory_ID                              = row[0]
             Approved_By                               = row[1]
             Data_Asset_Name                           = row[2]
@@ -71,7 +70,7 @@ def run_csv_to_inventory():
             # Initializing a record for DataAsset -> DataAsset(parameter1=value1, parameter2=value2,...)
             # Initialize a DataAsset object using the variables and values assigned above
             model = DataAsset(
-                Inventory_ID                              = Inventory_ID,
+                inventory_id                              = Inventory_ID,
                 Approved_By                               = Approved_By,
                 Data_Asset_Name                           = Data_Asset_Name,
                 Data_Asset_Steward                        = Data_Asset_Steward,

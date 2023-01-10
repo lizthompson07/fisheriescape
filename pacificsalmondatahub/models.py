@@ -47,7 +47,7 @@ class InventoryUser(models.Model):
 
 class DataAsset(models.Model):
     uuid = models.UUIDField(blank=True, null=True, verbose_name = "UUID", unique=True, default=uuid.uuid4)
-    Inventory_ID = models.IntegerField(null=True, verbose_name="Inventory ID")
+    inventory_id = models.IntegerField(null=True, verbose_name="Inventory ID")
     Approved_By = models.CharField(max_length = 50, null = True, verbose_name="Approved By")
     Data_Asset_Name = models.CharField(max_length = 125, null = True, verbose_name="Data Asset Name")
     Data_Asset_Steward = models.CharField(max_length = 50, null = True, verbose_name="Data Asset Steward")
@@ -59,7 +59,7 @@ class DataAsset(models.Model):
     Non_Salmon_Data = models.CharField(max_length = 5, null = True, verbose_name="Non Salmon Data")
     Data_Asset_Status = models.CharField(max_length = 25, null = True, verbose_name="Data Asset Status")
     Data_Asset_Format = models.CharField(max_length = 50, null = True, verbose_name="Data Asset Format")
-    Data_Type = models.CharField(max_length = 15, null = True, verbose_name="Data_Type")
+    Data_Type = models.CharField(max_length = 15, null = True, verbose_name="Data Type")
     Data_Asset_Location = models.CharField(max_length = 25, null = True, verbose_name="Data Asset Location")
     Data_Asset_Trustee = models.CharField(max_length = 50, null = True, verbose_name="Data Asset Trustee")
     Data_Asset_Custodian = models.CharField(max_length = 50, null = True, verbose_name="Data Asset Custodian")
@@ -98,14 +98,14 @@ class DataAsset(models.Model):
 # Output: Stringify
 #-------------------------------------------------
 class Tag(models.Model):
-    tag_ID = models.IntegerField()
-    tag_Name = models.CharField(max_length = 25)
-    primary_tag_ID = models.IntegerField(blank = True, null = True)
-    InventoryID = models.ManyToManyField(DataAsset, related_name="topic", verbose_name="Topic")
+    tag_id = models.IntegerField()
+    tag_name = models.CharField(max_length = 25)
+    primary_tag_id = models.IntegerField(blank = True, null = True)
+    inventory_id = models.ManyToManyField(DataAsset, related_name="topic", verbose_name="Topic")
 
     # Automatically called when converting object to string
     def __str__(self):
-        return "{}".format(getattr(self, str(_("tag_Name"))))
+        return "{}".format(getattr(self, str(_("tag_name"))))
 
 
 #----------------Acronyms Table-------------------
@@ -114,14 +114,14 @@ class Tag(models.Model):
 # Output: Stringify
 #-------------------------------------------------
 class Acronym(models.Model):
-    acronym_ID = models.IntegerField(null = True)
-    acronym_Letters = models.CharField(max_length = 10, null = True)
-    acronym_Full_Name = models.CharField(max_length = 100)
-    acronym_Topic = models.CharField(max_length = 75, blank=True, null=True)
-    acronym_URL = models.URLField(max_length = 120, blank = True, null = True)
+    acronym_id = models.IntegerField(null = True)
+    acronym_letters = models.CharField(max_length = 10, null = True)
+    acronym_full_name = models.CharField(max_length = 100)
+    acronym_topic = models.CharField(max_length = 75, blank=True, null=True)
+    acronym_url = models.URLField(max_length = 120, blank = True, null = True)
 
     def __str__(self):
-        return "{}".format(getattr(self, str(_("acronym_Letters"))))
+        return "{}".format(getattr(self, str(_("acronym_letters"))))
 
 
 #------------Data Glossary Table-----------------
@@ -131,10 +131,10 @@ class Acronym(models.Model):
 # Output: Stringify
 #-------------------------------------------------      
 class DataGlossary(models.Model):
-    dataGlossary_ID = models.IntegerField()
-    term_Name = models.CharField(max_length = 25)
-    term_Description = models.TextField()
-    Inventory_ID = models.ManyToManyField(DataAsset)
+    data_glossary_id = models.IntegerField()
+    term_name = models.CharField(max_length = 25)
+    term_description = models.TextField()
+    inventory_id = models.ManyToManyField(DataAsset)
 
 
 #------------Business Glossary Table-----------------
@@ -144,10 +144,10 @@ class DataGlossary(models.Model):
 # Output: Stringify
 #----------------------------------------------------
 class BusinessGlossary(models.Model):
-    businessGlossary_ID = models.IntegerField()
-    term_Name = models.CharField(max_length = 25)
-    term_Description = models.TextField()
-    Inventory_ID = models.ManyToManyField(DataAsset)
+    business_glossary_id = models.IntegerField()
+    term_name = models.CharField(max_length = 25)
+    term_description = models.TextField()
+    inventory_id = models.ManyToManyField(DataAsset)
 
 #------------------Comments Table--------------------
 # Purpose: Stores comments/concerns left by users and the info needed to reach out to them
@@ -155,10 +155,10 @@ class BusinessGlossary(models.Model):
 # Output: Stringify
 #----------------------------------------------------
 class Comment(models.Model):
-    comment_ID = models.IntegerField()
-    comment_Creator = models.CharField(max_length = 25, null = True)
-    comment_ContactInfo = models.CharField(max_length = 50, null = True)
-    comment_Subject = models.CharField(max_length = 50)
-    comment_Contents = models.TextField()
-    Inventory_ID = models.ForeignKey(DataAsset, on_delete = models.CASCADE )
+    comment_id = models.IntegerField()
+    comment_creator = models.CharField(max_length = 25, null = True)
+    comment_contact_info = models.CharField(max_length = 50, null = True)
+    comment_subject = models.CharField(max_length = 50)
+    comment_contents = models.TextField()
+    inventory_id = models.ForeignKey(DataAsset, on_delete = models.CASCADE)
 

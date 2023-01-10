@@ -44,8 +44,8 @@ class pssiFilter(django_filters.FilterSet):
         
         # For loop to grab the names of tags for the topic filter
         # Generates a list of 2-element tuples with the format: (searchFor, displayValue). This format needed for choices parameter in the next lines
-        topic_choices = [(t.tag_ID, t.tag_Name) for t in
-                           models.Tag.objects.all().order_by("tag_Name")]
+        topic_choices = [(t.tag_id, t.tag_name) for t in
+                           models.Tag.objects.all().order_by("tag_name")]
         
         # If field is not a key from another table, search for field by name, display verbose name (human-readable names defined in models.py)
         col_choices = []
