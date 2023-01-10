@@ -121,7 +121,7 @@ class VehicleFinderForm(forms.Form):
                                           label=gettext_lazy("Vehicle type"), help_text=gettext_lazy("leave blank for all"))
     vehicle_section = forms.ModelChoiceField(required=False,
                                              queryset=models.Section.objects.filter(vehicles__isnull=False).distinct(), widget=forms.Select(attrs=chosen_js),
-                                             label=gettext_lazy("DFO Section"), help_text=gettext_lazy("leave blank for all"))
+                                             label=gettext_lazy("Vehicle belongs to which DFO Section"), help_text=gettext_lazy("leave blank for all"))
     vehicle = forms.ModelChoiceField(required=False, queryset=models.Vehicle.objects.all(), widget=forms.Select(attrs=chosen_js),
                                      label=gettext_lazy("Vehicle"), help_text=gettext_lazy("leave blank for all"))
     no_passengers = forms.IntegerField(required=False, label=gettext_lazy("Passenger minimum capacity"), help_text=gettext_lazy("leave blank for all"))
