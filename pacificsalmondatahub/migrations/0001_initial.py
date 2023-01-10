@@ -44,7 +44,7 @@ class Migration(migrations.Migration):
                 ('Non_Salmon_Data', models.CharField(max_length=5, null=True, verbose_name='Non Salmon Data')),
                 ('Data_Asset_Status', models.CharField(max_length=25, null=True, verbose_name='Data Asset Status')),
                 ('Data_Asset_Format', models.CharField(max_length=50, null=True, verbose_name='Data Asset Format')),
-                ('Data_Type', models.CharField(max_length=15, null=True, verbose_name='Data_Type')),
+                ('Data_Type', models.CharField(max_length=15, null=True, verbose_name='Data Type')),
                 ('Data_Asset_Location', models.CharField(max_length=25, null=True, verbose_name='Data Asset Location')),
                 ('Data_Asset_Trustee', models.CharField(max_length=50, null=True, verbose_name='Data Asset Trustee')),
                 ('Data_Asset_Custodian', models.CharField(max_length=50, null=True, verbose_name='Data Asset Custodian')),
