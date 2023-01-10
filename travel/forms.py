@@ -438,7 +438,7 @@ class TripCategoryForm(forms.ModelForm):
 TripCategoryFormset = modelformset_factory(
     model=models.TripCategory,
     form=TripCategoryForm,
-    extra=0,
+    extra=1,
 )
 
 
