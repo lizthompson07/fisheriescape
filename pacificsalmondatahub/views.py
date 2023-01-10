@@ -49,11 +49,11 @@ class SearchView(pacificsalmondatahubBasicMixin, CommonFilterView):
     filterset_class = filters.pssiFilter
     template_name = "pacificsalmondatahub/search_list.html"
     queryset = DataAsset.objects.order_by("inventory_id").annotate(
-        search_term=Concat("Data_Asset_Name", Value(" "),
-                           "Data_Asset_Steward", Value(" "),
-                           "Data_Asset_Acronym", Value(" "),
+        search_term=Concat("data_asset_name", Value(" "),
+                           "data_asset_steward", Value(" "),
+                           "data_asset_acronym", Value(" "),
                            "inventory_id", Value(" "),
-                           "Data_Asset_Description",
+                           "data_asset_description",
                            output_field=TextField()))
     home_url_name = "pacificsalmondatahub:Index"
     container_class = "container-fluid"
@@ -74,10 +74,10 @@ class SearchView(pacificsalmondatahubBasicMixin, CommonFilterView):
 
     # Change displayed fields for the list in search page here ("name": "<fieldName>")
     field_list = [
-        {"name": "Data_Asset_Name", "class": "", "width": ""},
-        {"name": "Data_Asset_Acronym", "class": "", "width": ""},
-        {"name": "Data_Asset_Description", "class": "w-50", "width": ""},
-        {"name": "Data_Asset_Steward", "class": "", "width": ""},
+        {"name": "data_asset_name", "class": "", "width": ""},
+        {"name": "data_asset_acronym", "class": "", "width": ""},
+        {"name": "data_asset_description", "class": "w-50", "width": ""},
+        {"name": "data_asset_steward", "class": "", "width": ""},
         {"name": "topic", "class": "", "width": ""},
     ]
 
