@@ -112,6 +112,9 @@ urlpatterns = [
     path('settings/reserves/', views.ReserveFormsetView.as_view(), name="manage_reserves"),  # TESTED
     path('settings/reserve/<int:pk>/delete/', views.ReserveHardDeleteView.as_view(), name="delete_reserve"),  # TESTED
 
+    path('settings/groupings/', views.GroupingFormsetView.as_view(), name="manage_groupings"), # TESTED
+    path('settings/groupings/<int:pk>/delete/', views.GroupingHardDeleteView.as_view(), name="delete_grouping"),  # TESTED
+
     path('settings/nations/', views.NationFormsetView.as_view(), name="manage_nations"),  # TESTED
     path('settings/nation/<int:pk>/delete/', views.NationHardDeleteView.as_view(), name="delete_nation"),  # TESTED
 

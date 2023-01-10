@@ -39,6 +39,7 @@
       <tr>
         <th></th>
         <th class="w-10">${activityLabels.type}</th>
+        <th class="w-10">${activityLabels.classification}</th>
         <th class="w-10">${activityLabels.name}</th>
         <th>${activityLabels.description}</th>
         <th class="w-10">{% trans "Dates" %}</th>
@@ -56,6 +57,7 @@
         </td>
         <td v-else></td>
         <td v-html="item.type_display"></td>
+        <td v-html="item.classification_display"></td>
         <td v-html="item.name"></td>
         <td v-html="item.description"></td>
         <td v-html="item.dates"></td>

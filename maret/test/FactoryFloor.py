@@ -148,13 +148,6 @@ class OrganizationExtensionFactory(factory.django.DjangoModelFactory):
             self.area.set((area,))
 
     @factory.post_generation
-    def category(self, create, extracted, **kwargs):
-        if create:
-            categories = models.OrgCategory.objects.all()
-            category = faker.pyint(1, len(categories))
-            self.area.set((category,))
-
-    @factory.post_generation
     def associated_provinces(self, create, extracted, **kwargs):
         if create:
             provinces = shared_models.Province.objects.all()
@@ -168,7 +161,6 @@ class OrganizationExtensionFactory(factory.django.DjangoModelFactory):
         return {
             "organziation": org_ext.organization.pk,
             "area": org_ext.area,
-            "category": org_ext.category,
             "associated_provinces": org_ext.associated_provinces
         }
 

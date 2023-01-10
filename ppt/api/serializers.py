@@ -492,6 +492,7 @@ class ActivitySerializer(serializers.ModelSerializer):
     target_date_display = serializers.SerializerMethodField()
     project_year_id = serializers.SerializerMethodField()
     type_display = serializers.SerializerMethodField()
+    classification_display = serializers.SerializerMethodField()
     risk_rating_display = serializers.SerializerMethodField()
     dates = serializers.SerializerMethodField()
     responsible_parties_display = serializers.SerializerMethodField()
@@ -520,6 +521,10 @@ class ActivitySerializer(serializers.ModelSerializer):
 
     def get_type_display(self, instance):
         return instance.get_type_display()
+
+    def get_classification_display(self, instance):
+        if instance.classification:
+            return instance.classification.__str__()
 
     def get_risk_rating_display(self, instance):
         return instance.get_risk_rating_display()
@@ -557,6 +562,13 @@ class ActivitySerializer(serializers.ModelSerializer):
             msg = _('The target end date must occur after the target start date.')
             raise ValidationError(msg)
         return attrs
+
+
+class ActivityFullSerializer(ActivitySerializer):
+    project_year_obj = serializers.SerializerMethodField()
+
+    def get_project_year_obj(self, instance):
+        return ProjectYearSerializerLITE(instance.project_year).data
 
 
 class CollaborationSerializer(serializers.ModelSerializer):

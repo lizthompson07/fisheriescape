@@ -89,6 +89,16 @@ class StatusReportFilter(django_filters.FilterSet):
     status = django_filters.NumberFilter(field_name='status')
 
 
+class ActivityFilter(ProjectYearChildFilter):
+    status = django_filters.NumberFilter(field_name='updates__status')
+    type = django_filters.NumberFilter(field_name='type')
+    classification = django_filters.NumberFilter(field_name='classification')
+    project_years = ProjectYearsInFilter(field_name='project_year', lookup_expr="in")
+    start_date = django_filters.DateFilter(field_name='target_date', lookup_expr="gte")
+    end_date = django_filters.DateFilter(field_name='target_date', lookup_expr="lte")
+    approvedOnly = django_filters.NumberFilter(field_name='project_year__status')
+
+
 class DMAFilter(django_filters.FilterSet):
     project = django_filters.NumberFilter(field_name='project')
     title_name = django_filters.CharFilter(field_name='title', lookup_expr="icontains")

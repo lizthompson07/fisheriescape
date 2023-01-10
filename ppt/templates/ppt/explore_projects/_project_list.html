@@ -1,0 +1,86 @@
+{% load verbose_names %}
+{% load i18n %}
+{% load custom_tags %}
+
+<div v-if="showTab.projectList" class="mt-5">
+
+  <div>
+    <div class="text-center">
+      <p class="font-italic font-weight-bold">${projectYears.length} of ${count} loaded</p>
+    </div>
+  </div>
+  <table class="table table-sm">
+    <thead>
+    <tr>
+      {% for field in field_list %}
+        {% if "title" in field %}
+          <th style="width: 400px" @click="sort('{{ field }}')" class="clickable">
+            {% get_verbose_label random_project field %}
+          </th>
+        {% elif "funding" in field %}
+          <th style="width: 150px" @click="sort('{{ field }}')" class="clickable">
+            {% get_verbose_label random_project field %}
+          </th>
+        {% elif "fiscal" in field or "funding" in field %}
+          <th style="width: 100px" @click="sort('{{ field }}')" class="clickable">
+            {% get_verbose_label random_project field %}
+          </th>
+        {% else %}
+          <th @click="sort('{{ field }}')" class="clickable">
+            {% get_verbose_label random_project field %}
+          </th>
+        {% endif %}
+
+      {% endfor %}
+      <th v-if="isAdminOrMgmt">{% trans "Hidden?" %}</th>
+
+    </tr>
+    </thead>
+    <tbody>
+    <tr
+      v-for="(p, index) in sortedProjectYears"
+      @mouseover="hover = true"
+      @mouseleave="hover = false"
+      {#            :class="{'clickable': hover}"#}
+      {#            @click="goProjectDetail(p)"#}
+    >
+      <td>${p.project.id}</td>
+      <td>
+        <a class="text-primary pointy" @click="goProjectDetail(p)">
+          ${p.project.title}
+        </a>
+      </td>
+      <td>${p.display_name}</td>
+      <td :class="p.status_class">${p.status_display}</td>
+      {#            <td>${p.project.section}</td>#}
+      <td>${p.project.default_funding_source}</td>
+      <td>${p.project.functional_group}</td>
+      <td>${p.project.lead_staff}</td>
+      <td v-if="isAdminOrMgmt">
+        <span v-if="p.project.is_hidden" class="highlight">{% trans "Yes" %}</span>
+        <span v-else>{% trans "No" %}</span>
+      </td>
+      {#                <td>#}
+      {#                  <button @click="goProjectDetail(p)" data-toggle="tooltip" title="{% trans "Open in separate window" %}">#}
+      {#                    <span class="mdi mdi-arrow-top-right"></span>#}
+      {#                  </button>#}
+      {#                </td>#}
+    </tr>
+    </tbody>
+  </table>
+
+  <div v-if="projects_loading" class="loading mb-3 mt-3 text-center mt-5">
+    <div class="spinner-border mb-3" style="width: 10rem; height: 10rem;" role="status">
+      <span class="sr-only"></span>
+    </div>
+  </div>
+  <div v-else>
+    <div class="text-center">
+      <p class="font-italic font-weight-bold">${projectYears.length} of ${count} loaded</p>
+      <button v-if="next" @click="loadMoreResults" class="btn btn-primary btn-sm">
+        {% trans "Load more results..." %}
+      </button>
+    </div>
+  </div>
+</div>
+
