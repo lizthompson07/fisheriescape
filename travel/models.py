@@ -411,7 +411,6 @@ class Trip(models.Model):
     def traveller_count(self):
         return self.travellers.count()
 
-
     def get_good_travellers(self):
         # exclude requests that are denied (id=10), cancelled (id=22), draft (id=8)
         return Traveller.objects.filter(request__trip=self).filter(~Q(request__status__in=[10, 22, 8]))
@@ -584,8 +583,10 @@ class TripRequest(models.Model):
     @property
     def travellers_from_other_requests(self):
         """ get traveller from other requests, but limited to the same region as this request"""
-        return Traveller.objects.filter(request__trip=self.trip, request__section__division__branch__region=self.section.division.branch.region
-                                        ).filter(~Q(request=self)).order_by("request__status", "first_name", "last_name")
+        return Traveller.objects.filter(
+            request__trip=self.trip,
+            request__section__division__branch__region=self.section.division.branch.region
+        ).filter(~Q(request=self)).order_by("request__status", "first_name", "last_name")
 
     @property
     def travellers_from_other_regions(self):

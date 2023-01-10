@@ -41,6 +41,7 @@ class CurrentTravelUserAPIView(CurrentUserAPIView):
     def get(self, request):
         data = super().get(request).data
         data["is_regional_admin"] = utils.in_travel_regional_admin_group(request.user)
+        data["can_view_delegations"] = utils.can_view_delegations(request.user)
         data["is_ncr_admin"] = utils.in_travel_nat_admin_group(request.user)
         data["is_cfo"] = utils.in_cfo_group(request.user)
         data["is_admin"] = utils.is_admin(request.user)

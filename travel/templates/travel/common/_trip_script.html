@@ -532,6 +532,9 @@ var app = new Vue({
     isRegionalAdmin() {
       return this.currentUser && this.currentUser.is_regional_admin;
     },
+    canViewDelegations() {
+      return this.currentUser && this.currentUser.can_view_delegations;
+    },
     reviewers() {
       if (this.trip) return this.trip.reviewers;
     },

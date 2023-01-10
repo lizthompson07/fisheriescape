@@ -34,6 +34,8 @@ class CloserNoRefreshTemplateView(TemplateView):
 
 def in_admin_group(user):
     if user.id:
+        if user.is_superuser:
+            return True
 
         if settings.INSTALLED_APPS.count("travel"):
             from travel.utils import in_travel_nat_admin_group
