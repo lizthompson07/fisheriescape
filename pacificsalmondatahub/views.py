@@ -48,11 +48,11 @@ class SearchView(pacificsalmondatahubBasicMixin, CommonFilterView):
 
     filterset_class = filters.pssiFilter
     template_name = "pacificsalmondatahub/search_list.html"
-    queryset = DataAsset.objects.order_by("Inventory_ID").annotate(
+    queryset = DataAsset.objects.order_by("inventory_id").annotate(
         search_term=Concat("Data_Asset_Name", Value(" "),
                            "Data_Asset_Steward", Value(" "),
                            "Data_Asset_Acronym", Value(" "),
-                           "Inventory_ID", Value(" "),
+                           "inventory_id", Value(" "),
                            "Data_Asset_Description",
                            output_field=TextField()))
     home_url_name = "pacificsalmondatahub:Index"
@@ -102,8 +102,8 @@ class AcronymView(pacificsalmondatahubBasicMixin, CommonTemplateView):
 
     # Fields to display in acronym page - values for class are used for styling/formatting data
     field_list = [
-        {"name": "acronym_Letters", "class": "my-0 term", "width": ""},
-        {"name": "acronym_Full_Name", "class": "description", "width": ""},
+        {"name": "acronym_letters", "class": "my-0 term", "width": ""},
+        {"name": "acronym_full_name", "class": "description", "width": ""},
     ]
 
 #------------------Data Glossary View----------------

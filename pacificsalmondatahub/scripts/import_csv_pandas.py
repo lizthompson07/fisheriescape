@@ -16,11 +16,11 @@ def clear_inventory():
 
 # Use Pandas read_csv() to ingest data into a dataframe, then create DataAsset instances using the values of each row in the dataframe
 def run_csv_to_inventory():
-    csvDF = pd.read_csv(open(os.path.join(ROOTDIR, "./csv/Pacific_Region_Data_Inventory_main.csv"))).dropna()
-    print(csvDF)
-    # for idx, row in csvDF.iterrows():
+    df = pd.read_csv(open(os.path.join(ROOTDIR, "./csv/Pacific_Region_Data_Inventory_main.csv"))).dropna()
+    print(df)
+    # for idx, row in df.iterrows():
     #     model = DataAsset(
-    #         Inventory_ID                              = row["Inventory_ID"],
+    #         inventory_id                              = row["Inventory_ID"],
     #         Approved_By                               = row["Approved_By"],
     #         Data_Asset_Name                           = row["Data_Asset_Name"],
     #         Data_Asset_Steward                        = row["Data_Asset_Steward"],

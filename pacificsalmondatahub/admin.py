@@ -9,6 +9,6 @@ from pacificsalmondatahub.models import DataAsset, Tag, BusinessGlossary, DataGl
 admin.site.register(DataAsset)
 admin.site.register(Tag)
 admin.site.register(DataGlossary)
-#admin.site.register(BusinessGlossary)
+admin.site.register(BusinessGlossary)
 admin.site.register(Comment)
 admin.site.register(Acronym)
