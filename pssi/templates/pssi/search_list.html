@@ -1,4 +1,4 @@
-{% extends "pacificsalmondatahub/search.html" %}   <!-- Extention of search.html page -->
+{% extends "pssi/search.html" %}   <!-- Extention of search.html page -->
 
 <!-- 
     Purpose: Displaying and formatting look for Search Data Assets Page.
@@ -8,19 +8,19 @@
 
  <!-- This is for creating bug reports for our app, this is done for every app in DMApps -->
 {% block bug_create %}
-    {% include "pacificsalmondatahub/base/_bug_url.html" %}
+    {% include "pssi/base/_bug_url.html" %}
 {% endblock %}
 
 <!-- Title of Page -->
 {% block title %}
-    {% include "pacificsalmondatahub/base/_app_title.html" %}
+    {% include "pssi/base/_app_title.html" %}
     {% block subtitle %} - {{ subtitle }}{% endblock %}
 {% endblock %}
 
 <!-- CSS Style for all pages-->
 {% block header %}
     {{ block.super }}
-    {% include "pacificsalmondatahub/base/_style.html" %}
+    {% include "pssi/base/_style.html" %}
 {% endblock %}
 
 <!-- This is where the body of the content is at -->
@@ -30,12 +30,12 @@
 
 <!-- Navigation for specfic users, might not be needed in the future -->
 {% block left_auth %}
-    {% include "pacificsalmondatahub/base/_nav_left_auth.html" %}
+    {% include "pssi/base/_nav_left_auth.html" %}
 {% endblock %}
 
 <!-- Navigation for all users, like the home button -->
 {% block left_all %}
-    {% include "pacificsalmondatahub/base/_nav_left_all.html" %}
+    {% include "pssi/base/_nav_left_all.html" %}
 {% endblock %}
 
 <!-- Extra Filter Class and Styling for Search Page - Specfically the filter box -->

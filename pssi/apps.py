@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
 
-class PacificsalmondatahubConfig(AppConfig):
+class pssiConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'pacificsalmondatahub'
+    name = 'pssi'

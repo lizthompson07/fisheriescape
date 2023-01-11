@@ -13,7 +13,7 @@
     Output: Redirect to tickets page with ticket relating to PSSI Data Center App
 -->
 {% block bug_create %}
-    {% include "pacificsalmondatahub/base/_bug_url.html" %}
+    {% include "pssi/base/_bug_url.html" %}
 {% endblock %}
 
 <!-- Title of Page -->
@@ -23,7 +23,7 @@
     Output: Output name of app name.
 -->
 {% block title %}
-    {% include "pacificsalmondatahub/base/_app_title.html" %}
+    {% include "pssi/base/_app_title.html" %}
     {% block subtitle %} - {{ subtitle }}{% endblock %}
 {% endblock %}
 
@@ -35,7 +35,7 @@
 -->
 {% block header %}
     {{ block.super }}
-    {% include "pacificsalmondatahub/base/_style.html" %}
+    {% include "pssi/base/_style.html" %}
 {% endblock %}
 
 <!-- This is where the body of the content is at -->
@@ -50,7 +50,7 @@
     Output: Redirects to other pages.
 -->
 {% block left_auth %}
-    {% include "pacificsalmondatahub/base/_nav_left_auth.html" %}
+    {% include "pssi/base/_nav_left_auth.html" %}
 {% endblock %}
 
 <!-- Navigation for all users, like the home button -->
@@ -60,5 +60,5 @@
     Output: Redirects to other pages.
 -->
 {% block left_all %}
-    {% include "pacificsalmondatahub/base/_nav_left_all.html" %}
+    {% include "pssi/base/_nav_left_all.html" %}
 {% endblock %}

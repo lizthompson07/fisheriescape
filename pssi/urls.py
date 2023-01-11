@@ -3,12 +3,12 @@ from django.urls import path
 from .views import SearchView, Index, AcronymView, DataGlossaryView,BusinessGlossaryView, DetailView, load_data, load_acronyms, load_business_glossary, load_data_glossary
 
 
-app_name = "pacificsalmondatahub"
+app_name = "pssi"
 
 # Map views to url paths here.
 # as_view() is needed when using class-based views. 
 urlpatterns = [
-    path("", Index.as_view(), name = "Index"),
+    path("", Index.as_view(), name = "index"),
 
     # SEARCH LIST AND DETAILS
     path("search/", SearchView.as_view(), name = "search"),

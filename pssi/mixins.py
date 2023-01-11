@@ -10,14 +10,14 @@ from .utils import is_nat_admin, is_regional_admin, is_admin, can_modify
 
 # Mixins provide functions to use in views - these mixins were pulled from the science inventory application
 
-class pacificsalmondatahubBasicMixin(LoginRequiredMixin, UserPassesTestMixin):
+class PSSIBasicMixin(LoginRequiredMixin, UserPassesTestMixin):
     def test_func(self):
         return True
 
     def dispatch(self, request, *args, **kwargs):
         user_test_result = self.get_test_func()()
         if not user_test_result and self.request.user.is_authenticated:
-            return HttpResponseRedirect("/accounts/denied/?app=pacificsalmondatahub")
+            return HttpResponseRedirect("/accounts/denied/?app=pssi")
         return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -36,27 +36,27 @@ class InventoryLoginRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
         return bool(self.request.user and self.request.user.id)
 
 
-class AdminRequiredMixin(pacificsalmondatahubBasicMixin):
+class AdminRequiredMixin(PSSIBasicMixin):
     def test_func(self):
         return is_admin(self.request.user)
 
 
-class NationalAdminRequiredMixin(pacificsalmondatahubBasicMixin):
+class NationalAdminRequiredMixin(PSSIBasicMixin):
     def test_func(self):
         return is_nat_admin(self.request.user)
 
 
-class RegionalAdminRequiredMixin(pacificsalmondatahubBasicMixin):
+class RegionalAdminRequiredMixin(PSSIBasicMixin):
     def test_func(self):
         return is_regional_admin(self.request.user)
 
 
-class SuperuserOrAdminRequiredMixin(pacificsalmondatahubBasicMixin):
+class SuperuserOrAdminRequiredMixin(PSSIBasicMixin):
     def test_func(self):
         return self.request.user.is_superuser or is_nat_admin(self.request.user)
 
 
-class CanModifyRequiredMixin(pacificsalmondatahubBasicMixin):
+class CanModifyRequiredMixin(PSSIBasicMixin):
 
     def test_func(self):
         resource_id = None

@@ -1,6 +1,6 @@
 <title>PSSI - Pacific Salmon Data Hub</title>
 
-{% extends "pacificsalmondatahub/base.html" %} <!-- Extention of base.html page -->
+{% extends "pssi/base.html" %} <!-- Extention of base.html page -->
 
 <!-- 
     Purpose: Display business glossary used in the Data Assets
@@ -9,8 +9,8 @@
 -->
 
 {% block subcontent %}
-  <!-- Styling for elements in the page --> 
-  <style>
+<!-- Styling for elements in the page --> 
+<style>
     .catagories {
         margin: auto;
     }
@@ -20,9 +20,9 @@
     }
 
     .tagFilter {
-      position:absolute;
-      right: 40%;
-      width: 20%;
+    position:absolute;
+    right: 40%;
+    width: 20%;
     }
 
     .buttonList {
@@ -58,18 +58,19 @@
     }
 
     .source {
-      font-size: medium;
+    font-size: medium;
     }
 
     .term {
-      font-size: large;
+    font-size: large;
     }
 
     .link {
         font-weight: lighter;
     }
+</style>
 
-  </style>
+<div style="color:red; font-weight: bold;"><center>This page is under development and the data maybe not accurate.</center></div>
 
 <div class="container">
 
@@ -1062,4 +1063,5 @@ c. the Minister of the Environment with respect to all other individuals.
     </div>
   </div>
 
+</div>
 {% endblock %}

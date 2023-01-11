@@ -1,4 +1,4 @@
-{% extends "pacificsalmondatahub/base.html" %} <!-- Extention of base.html page -->
+{% extends "pssi/base.html" %} <!-- Extention of base.html page -->
 {% load i18n %}
 {% load static %}
 {% load custom_filters %}
@@ -10,33 +10,32 @@
  -->
 
 {% block subcontent %}
-  <!-- Styling for elements in the page -->
-  <style>
+<!-- Styling for elements in the page -->
+<style>
   body {
-      background-color: #eeefff;
+    background-color: #eeefff;
   }
 
   .card, .jumbotron {
-      background-color: rgba(255, 255, 255, 1);
-      height: 200px;
+    background-color: rgba(255, 255, 255, 1);
+    height: 200px;
   }
 
   .card-text {
-      height: 75px;
+    height: 75px;
   }
 
   .card-button {
-      text-align: left;
+    text-align: left;
   }
 
   .container-fluid, .container {
-      border-radius: 25px;
-      margin-top: 15px;
-      padding: 15px;
-      background-color: transparent;
-
+    border-radius: 25px;
+    margin-top: 15px;
+    padding: 15px;
+    background-color: transparent;
   }
-  </style>
+</style>
 
   <!-- Summary of App - Currently not needed, but could be implemented in the future -->
   <!-- <div class="my-5">
@@ -67,7 +66,7 @@
           <!-- Redirect Button -->
           <div class="card-button">
             <!-- Redirect to url specified in urls.py -->
-            <a href="{% url 'pacificsalmondatahub:search' %}" class="btn btn-primary">{% trans "Go" %}</a>
+            <a href="{% url 'pssi:search' %}" class="btn btn-primary">{% trans "Go" %}</a>
           </div>
         </div>
       </div>
@@ -82,7 +81,7 @@
           <!-- Redirect Button -->
           <div class="card-button">
             <!-- Redirect to url specified in urls.py -->
-            <a href="{% url 'pacificsalmondatahub:acronym_list' %}" class="btn btn-primary">{% trans "Go" %}</a>
+            <a href="{% url 'pssi:acronym_list' %}" class="btn btn-primary">{% trans "Go" %}</a>
           </div>
         </div>
       </div>
@@ -97,7 +96,7 @@
           <!-- Redirect Button -->
           <div class="card-button">
             <!-- Redirect to url specified in urls.py -->
-            <a href="{% url 'pacificsalmondatahub:data_glossary_list' %}" class="btn btn-primary">{% trans "Go" %}</a>
+            <a href="{% url 'pssi:data_glossary_list' %}" class="btn btn-primary">{% trans "Go" %}</a>
           </div>
         </div>
       </div>
@@ -112,7 +111,7 @@
           <!-- Redirect Button -->
           <div class="card-button">
             <!-- Redirect to url specified in urls.py -->
-            <a href="{% url 'pacificsalmondatahub:business_glossary_list' %}" class="btn btn-primary">{% trans "Go" %}</a>
+            <a href="{% url 'pssi:business_glossary_list' %}" class="btn btn-primary">{% trans "Go" %}</a>
           </div>
         </div>
       </div>

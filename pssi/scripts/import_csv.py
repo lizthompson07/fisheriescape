@@ -4,12 +4,12 @@ import datetime
 
 from django.db import models
 from django.conf import settings
-from pacificsalmondatahub.models import DataAsset
+from pssi.models import DataAsset
 from django.db.models import QuerySet
 # @pylance.typecheck(QuerySet)
 
-# ROOTDIR = dm_apps/pacificsalmondatahub
-ROOTDIR = os.path.join(settings.BASE_DIR, "pacificsalmondatahub")
+# ROOTDIR = dm_apps/pssi
+ROOTDIR = os.path.join(settings.BASE_DIR, "pssi")
 
 # Delete all objects stored in DataAsset table
 def clear_inventory():

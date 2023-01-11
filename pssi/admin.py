@@ -1,5 +1,5 @@
 from django.contrib import admin
-from pacificsalmondatahub.models import DataAsset, Tag, BusinessGlossary, DataGlossary, Comment, Acronym
+from pssi.models import DataAsset, Tag, BusinessGlossary, DataGlossary, Comment, Acronym
 
 
 # Register your models here.

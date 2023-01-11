@@ -6,7 +6,7 @@ from django.utils.translation import gettext as _, gettext_lazy
 # Create your views here.
 from .models import DataAsset, Tag, Acronym, DataGlossary, BusinessGlossary
 from . import filters
-from .mixins import pacificsalmondatahubBasicMixin
+from .mixins import PSSIBasicMixin
 from .scripts.import_csv import clear_inventory, run_csv_to_inventory
 from .scripts.import_acronyms import clear as clear_acronyms, run as run_acronyms
 from .scripts.import_business_glossary import clear as clear_business_glossary, run as run_business_glossary
@@ -23,9 +23,9 @@ from shared_models.views import CommonTemplateView, CommonFormsetView, CommonHar
 # Input:Reads from index.html using the CommonTemplateView from shared_models/views.py
 # Output: Index page with redirect links to various pages of our project
 #----------------------------------------------------
-class Index(pacificsalmondatahubBasicMixin, CommonTemplateView):
+class Index(PSSIBasicMixin, CommonTemplateView):
     # Define which html file this view uses here
-    template_name = "pacificsalmondatahub/index.html"
+    template_name = "pssi/index.html"
     # Header at the top of the page
     h1 = gettext_lazy("PSSI - Pacific Salmon Data Hub")
     # Name for button in breadcrumbs(top-left of page)
@@ -44,10 +44,10 @@ class Index(pacificsalmondatahubBasicMixin, CommonTemplateView):
 #        Pulls data from DataAsset model in the get_context_data() method
 # Output: Records in a list with redirect links to their respective detail pages
 #----------------------------------------------------
-class SearchView(pacificsalmondatahubBasicMixin, CommonFilterView):
+class SearchView(PSSIBasicMixin, CommonFilterView):
 
     filterset_class = filters.pssiFilter
-    template_name = "pacificsalmondatahub/search_list.html"
+    template_name = "pssi/search_list.html"
     queryset = DataAsset.objects.order_by("inventory_id").annotate(
         search_term=Concat("data_asset_name", Value(" "),
                            "data_asset_steward", Value(" "),
@@ -55,13 +55,13 @@ class SearchView(pacificsalmondatahubBasicMixin, CommonFilterView):
                            "inventory_id", Value(" "),
                            "data_asset_description",
                            output_field=TextField()))
-    home_url_name = "pacificsalmondatahub:Index"
+    home_url_name = "pssi:index"
     container_class = "container-fluid"
-    row_object_url_name = "pacificsalmondatahub:details"
+    row_object_url_name = "pssi:details"
 
     # Uncomment this line when detail page has been set up. When clicking on record in Search Page, this URL will redirect to details page
-    # NOTE: pacificsalmondatahub:<name_of_page> accesses the url with name = "<name_of_page>" in the arguments of path()
-    new_object_url = reverse_lazy("pacificsalmondatahub:details")
+    # NOTE: pssi:<name_of_page> accesses the url with name = "<name_of_page>" in the arguments of path()
+    new_object_url = reverse_lazy("pssi:details")
 
     # If implementing pagination, this defines how many results per page
     #paginate_by = 25
@@ -87,11 +87,11 @@ class SearchView(pacificsalmondatahubBasicMixin, CommonFilterView):
 #        Pulls data from Acronym model in the get_context_data() method
 # Output: List of acronyms, separated by first letter of the acronyms. Clicking on acronym can lead to information source page.
 #----------------------------------------------------
-class AcronymView(pacificsalmondatahubBasicMixin, CommonTemplateView):
-    template_name = "pacificsalmondatahub/acronym_list.html"
+class AcronymView(PSSIBasicMixin, CommonTemplateView):
+    template_name = "pssi/acronym_list.html"
     h1 = gettext_lazy("PSSI - Pacific Salmon Data Hub - Acronyms")
     active_page_name_crumb = gettext_lazy("Acronyms")
-    home_url_name = "pacificsalmondatahub:Index"
+    home_url_name = "pssi:index"
 
     # Define list (variable in acronym_list.html) as all objects in the Acronym table
     def get_context_data(self, **kwargs):
@@ -112,12 +112,12 @@ class AcronymView(pacificsalmondatahubBasicMixin, CommonTemplateView):
 #       When making the page dynamic, pull data from DataGlossary model
 # Output: Same page structure as acronym view, but displays data glossary information
 #----------------------------------------------------
-class DataGlossaryView(pacificsalmondatahubBasicMixin, CommonTemplateView):
-    template_name = "pacificsalmondatahub/data_glossary_list.html"
+class DataGlossaryView(PSSIBasicMixin, CommonTemplateView):
+    template_name = "pssi/data_glossary_list.html"
     h1 = gettext_lazy("PSSI - Pacific Salmon Data Hub - Data Glossary")
     active_page_name_crumb = gettext_lazy("Data Glossary")
-    home_url_name = "pacificsalmondatahub:Index"
-    # row_object_url_name = "pacificsalmondatahub:data_detail"
+    home_url_name = "pssi:index"
+    # row_object_url_name = "pssi:data_detail"
     # paginate_by = 25
 
     def get_context_data(self, **kwargs):
@@ -131,12 +131,12 @@ class DataGlossaryView(pacificsalmondatahubBasicMixin, CommonTemplateView):
 #       When making the page dynamic, pull data from BusinessGlossary model
 # Output:Same page structure as acronym view, but displays data glossary information
 #----------------------------------------------------
-class BusinessGlossaryView(pacificsalmondatahubBasicMixin, CommonTemplateView):
-    template_name = "pacificsalmondatahub/business_glossary_list.html"
+class BusinessGlossaryView(PSSIBasicMixin, CommonTemplateView):
+    template_name = "pssi/business_glossary_list.html"
     h1 = gettext_lazy("PSSI - Pacific Salmon Data Hub - Business Glossary")
     active_page_name_crumb = gettext_lazy("Business Glossary")
-    home_url_name = "pacificsalmondatahub:Index"
-    # row_object_url_name = "pacificsalmondatahub:data_detail"
+    home_url_name = "pssi:index"
+    # row_object_url_name = "pssi:data_detail"
     # paginate_by = 25
 
     def get_context_data(self, **kwargs):
@@ -149,13 +149,13 @@ class BusinessGlossaryView(pacificsalmondatahubBasicMixin, CommonTemplateView):
 # Input: Reads from details_page.html using the CommonTemplateView from shared_models/views.py
 # Output: Two-column page to display DataAsset fields. List of anchors on the left side of the screen.
 #----------------------------------------------------
-class DetailView(pacificsalmondatahubBasicMixin, CommonDetailView):
+class DetailView(PSSIBasicMixin, CommonDetailView):
     model = DataAsset
-    template_name = "pacificsalmondatahub/details_page.html"
+    template_name = "pssi/details_page.html"
     h1 = gettext_lazy("PSSI - Pacific Salmon Data Hub - Details")
     active_page_name_crumb = gettext_lazy("Details")
-    home_url_name = "pacificsalmondatahub:Index"
-    # row_object_url_name = "pacificsalmondatahub:data_detail"
+    home_url_name = "pssi:index"
+    # row_object_url_name = "pssi:data_detail"
     # paginate_by = 25
 
     def get_object(self, queryset=None):
@@ -166,7 +166,7 @@ class DetailView(pacificsalmondatahubBasicMixin, CommonDetailView):
     def dispatch(self, request, *args, **kwargs):
         obj = self.get_object()
         if not self.kwargs.get("uuid"):
-            return HttpResponseRedirect(reverse("pacificsalmondatahub:details_uuid", kwargs={"uuid": obj.uuid}))
+            return HttpResponseRedirect(reverse("pssi:details_uuid", kwargs={"uuid": obj.uuid}))
 
         # xml_export.verify(obj)
         return super().dispatch(request, *args, **kwargs)
