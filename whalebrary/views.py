@@ -315,6 +315,7 @@ def inventory_download(request):
 
 class ItemListView(WhalebraryAccessRequired, CommonFilterView):
     template_name = "whalebrary/item_list.html"
+    paginate_by = 50
     h1 = "Item List"
     filterset_class = filters.SpecificItemFilter
     home_url_name = "whalebrary:index"
@@ -387,6 +388,17 @@ class ItemDetailView(WhalebraryAccessRequired, CommonDetailView):
 
         ]
 
+        # context for _maintenance.html
+        context["random_maint"] = models.Maintenance.objects.first()
+        context["maint_field_list"] = [
+            'id',
+            'maint_type',
+            'assigned_to',
+            'last_maint_date',
+            'days_until_maint|Days until maintenance required',
+
+        ]
+
         # context for _lending.html
         context["random_lend"] = models.Transaction.objects.first()
         context["lend_field_list"] = [
@@ -414,6 +426,7 @@ class ItemTransactionListView(WhalebraryAdminAccessRequired, CommonFilterView):
         {"name": 'item', "class": "", "width": ""},
         {"name": 'quantity', "class": "", "width": ""},
         {"name": 'category', "class": "", "width": ""},
+        {"name": 'return_tracker', "class": "", "width": ""},
         {"name": 'comments', "class": "", "width": ""},
         {"name": 'audits', "class": "", "width": ""},
         {"name": 'location', "class": "", "width": ""},
@@ -600,17 +613,107 @@ class LocationDeleteView(WhalebraryAdminAccessRequired, CommonDeleteView):
     def get_parent_crumb(self):
         return {"title": self.get_object(), "url": reverse_lazy("whalebrary:location_detail", kwargs=self.kwargs)}
 
+
     ##TRANSACTION##
 
+#TODO: Need to add verification of quantities available at locations to form_valids
 
 def lending_return_item(request, transaction):
-    """simple function to change item status from lend to return"""
+    """simple function to create return transaction"""
+    # First get the transaction that indicates the 'lend' and toggle boolean to indicate return
     my_return = models.Transaction.objects.get(pk=transaction)
-    my_return.category_id = 4
+    my_return.return_tracker = True
     my_return.save()
+
+    # Second create a new transaction that shows the return
+    my_user = request.user
+    my_transaction = models.Transaction.objects.create(
+        item=my_return.item,
+        quantity=my_return.quantity,
+        category=TransactionCategory.objects.get(id=4),
+        location=my_return.location,
+        created_by=my_user
+    )
+    my_transaction.save()
+
     messages.success(request, "Items returned")
     return HttpResponseRedirect(reverse_lazy(
         'shared_models:close_me'))  # TODO Ideally want to have a confirm step using 'confirm_status_change.html'
+
+
+# def transfer_item_to_new_location(request, item):
+#     """
+#     Transfer items from one location to another and create transaction records.
+#     """
+#     # First transaction to transfer out
+#     my_item = models.Item.objects.get(pk=item)
+#     my_user = request.user
+#
+#     out_transaction = models.Transaction.objects.create(
+#         item=my_item,
+#         category=TransactionCategory.objects.get(id=5),
+#         created_by=my_user
+#     )
+#
+#     return HttpResponseRedirect(
+#         reverse('whalebrary:transaction_transfer', kwargs={'pk': out_transaction.id, 'pop': my_item.id}))
+
+
+class TransactionTransferView(WhalebraryEditRequiredMixin, CommonCreateView):
+    model = models.Transaction
+    h1 = "Transfer Item From"
+    submit_text = "Transfer Out"
+    home_url_name = "whalebrary:index"
+    parent_crumb = {"title": gettext_lazy("Transaction List"), "url": reverse_lazy("whalebrary:transaction_list")}
+
+    def get_template_names(self):
+        return "shared_models/generic_popout_form.html" if self.kwargs.get("pk") else "whalebrary/form.html"
+
+    def get_form_class(self):
+        return forms.TransactionForm1 if self.kwargs.get("pk") else forms.TransactionForm
+
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class=None)
+        form.fields['location'].queryset = form.fields['location'].queryset.filter(transactions__item=self.kwargs.get("pk")).distinct()
+        return form
+
+    def form_valid(self, form):
+        my_object = form.save()
+        my_item = form.instance.item.id
+        messages.success(self.request, _(f"Transaction record successfully created for : {my_object}"))
+        success_url = reverse_lazy('whalebrary:transaction_transfer_in', kwargs={'pk': my_item})
+        return HttpResponseRedirect(success_url)
+
+    def get_initial(self):
+        return {'item': self.kwargs.get('pk'),
+                'category': 5,
+                'created_by': self.request.user}
+
+
+class TransactionTransferInView(WhalebraryEditRequiredMixin, CommonCreateView):
+    model = models.Transaction
+    h1 = "Transfer Item To"
+    submit_text = "Transfer In"
+    home_url_name = "whalebrary:index"
+    parent_crumb = {"title": gettext_lazy("Transaction List"), "url": reverse_lazy("whalebrary:transaction_list")}
+
+    def get_template_names(self):
+        return "shared_models/generic_popout_form.html" if self.kwargs.get("pk") else "whalebrary/form.html"
+
+    def get_form_class(self):
+        return forms.TransactionForm1 if self.kwargs.get("pk") else forms.TransactionForm
+
+    def form_valid(self, form):
+        my_object = form.save()
+        messages.success(self.request, _(f"Transaction record successfully created for : {my_object}"))
+        return HttpResponseRedirect(
+            reverse_lazy('shared_models:close_me') if self.kwargs.get("pk") else reverse_lazy(
+                'whalebrary:transaction_list'))
+
+    def get_initial(self):
+        return {'item': self.kwargs.get('pk'),
+                'category': 6,
+                'created_by': self.request.user}
 
 
 # TODO create the location lend out function
@@ -641,6 +744,7 @@ class TransactionListView(WhalebraryAdminAccessRequired, CommonFilterView):
         {"name": 'item', "class": "", "width": ""},
         {"name": 'quantity', "class": "", "width": ""},
         {"name": 'category', "class": "", "width": ""},
+        {"name": 'return_tracker', "class": "", "width": ""},
         {"name": 'comments', "class": "", "width": ""},
         {"name": 'audits', "class": "", "width": ""},
         {"name": 'location', "class": "", "width": ""},
@@ -661,6 +765,7 @@ class TransactionDetailView(WhalebraryAccessRequired, CommonDetailView):
         'item',
         'quantity',
         'category',
+        'return_tracker',
         'comments',
         'audits',
         'location',
@@ -714,8 +819,7 @@ class TransactionUpdateView(WhalebraryEditRequiredMixin, CommonUpdateView):
 #     model = models.Transaction
 #     form_class = forms.TransactionForm1
 
-
-class TransactionCreateView(WhalebraryEditRequiredMixin, CommonCreateView):
+class TransactionAddCreateView(WhalebraryEditRequiredMixin, CommonCreateView):
     model = models.Transaction
     home_url_name = "whalebrary:index"
     parent_crumb = {"title": gettext_lazy("Transaction List"), "url": reverse_lazy("whalebrary:transaction_list")}
@@ -735,6 +839,36 @@ class TransactionCreateView(WhalebraryEditRequiredMixin, CommonCreateView):
 
     def get_initial(self):
         return {'item': self.kwargs.get('pk'),
+                'category': 1,
+                'created_by': self.request.user}
+
+
+class TransactionUseCreateView(WhalebraryEditRequiredMixin, CommonCreateView):
+    model = models.Transaction
+    home_url_name = "whalebrary:index"
+    parent_crumb = {"title": gettext_lazy("Transaction List"), "url": reverse_lazy("whalebrary:transaction_list")}
+
+    def get_template_names(self):
+        return "shared_models/generic_popout_form.html" if self.kwargs.get("pk") else "whalebrary/form.html"
+
+    def get_form_class(self):
+        return forms.TransactionForm1 if self.kwargs.get("pk") else forms.TransactionForm
+
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class=None)
+        form.fields['location'].queryset = form.fields['location'].queryset.filter(transactions__item=self.kwargs.get("pk")).distinct()
+        return form
+
+    def form_valid(self, form):
+        my_object = form.save()
+        messages.success(self.request, _(f"Transaction record successfully created for : {my_object}"))
+        return HttpResponseRedirect(
+            reverse_lazy('shared_models:close_me') if self.kwargs.get("pk") else reverse_lazy(
+                'whalebrary:transaction_list'))
+
+    def get_initial(self):
+        return {'item': self.kwargs.get('pk'),
+                'category': 2,
                 'created_by': self.request.user}
 
 
@@ -744,6 +878,11 @@ class TransactionLendCreateView(WhalebraryEditRequiredMixin, CommonCreateView):
     template_name = 'shared_models/generic_popout_form.html'
     home_url_name = "whalebrary:index"
     submit_text = "Borrow"
+
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class=None)
+        form.fields['location'].queryset = form.fields['location'].queryset.filter(transactions__item=self.kwargs.get("pk")).distinct()
+        return form
 
     def form_valid(self, form):
         my_object = form.save()
@@ -755,6 +894,25 @@ class TransactionLendCreateView(WhalebraryEditRequiredMixin, CommonCreateView):
                 'category': TransactionCategory.objects.get(id=3),
                 'created_by': self.request.user
                 }
+
+
+# class TransactionTransferCreateView(WhalebraryEditRequiredMixin, CommonCreateView):
+#     model = models.Transaction
+#     form_class = forms.TransactionForm2
+#     template_name = 'shared_models/generic_popout_form.html'
+#     home_url_name = "whalebrary:index"
+#     submit_text = "Transfer"
+#
+#     def form_valid(self, form):
+#         my_object = form.save()
+#         messages.success(self.request, _(f"Transaction record successfully created for : {my_object}"))
+#         return HttpResponseRedirect(reverse_lazy('shared_models:close_me'))
+#
+#     def get_initial(self):
+#         return {'item': self.kwargs.get('pk'),
+#                 'category': TransactionCategory.objects.get(id=5),
+#                 'created_by': self.request.user
+#                 }
 
 
 class TransactionDeleteView(WhalebraryEditRequiredMixin, CommonDeleteView):
@@ -772,6 +930,40 @@ class TransactionDeleteView(WhalebraryEditRequiredMixin, CommonDeleteView):
 class TransactionDeletePopoutView(WhalebraryEditRequiredMixin, CommonPopoutDeleteView):
     model = models.Transaction
     delete_protection = False
+
+
+    ## LENDING ##
+
+
+class LendingListView(WhalebraryAccessRequired, CommonFilterView):
+    template_name = "whalebrary/lending_list.html"
+    h1 = "Lending List"
+    filterset_class = filters.LendingFilter
+    home_url_name = "whalebrary:index"
+    row_object_url_name = "whalebrary:item_detail"
+    # new_btn_text = "New Lending Record"
+
+    queryset = models.Transaction.objects.annotate(
+        search_term=Concat('id', 'item__item_name', 'quantity', 'category__type', 'comments',
+                           'location__location', 'created_by__first_name',
+                           output_field=TextField())).filter(category=3, return_tracker=False)
+
+    field_list = [
+        {"name": 'id', "class": "", "width": ""},
+        {"name": 'item', "class": "", "width": ""},
+        {"name": 'quantity', "class": "", "width": ""},
+        {"name": 'category', "class": "", "width": ""},
+        {"name": 'comments', "class": "", "width": ""},
+        {"name": 'location', "class": "", "width": ""},
+        {"name": 'created_at', "class": "", "width": ""},
+        {"name": 'created_by', "class": "", "width": ""},
+        {"name": 'updated_at', "class": "", "width": ""},
+
+    ]
+
+    # def get_new_object_url(self):
+    #     return reverse("whalebrary:maintenance_new", kwargs=self.kwargs)
+
 
     ##BULK TRANSACTION##
 
@@ -852,6 +1044,7 @@ class ConfirmStatusChangeView(WhalebraryAdminAccessRequired, CommonPopoutFormVie
 class OrderListView(WhalebraryAccessRequired, CommonFilterView):
     template_name = "whalebrary/order_list.html"
     h1 = "Order List"
+    paginate_by = 50
     filterset_class = filters.OrderFilter
     home_url_name = "whalebrary:index"
     row_object_url_name = "whalebrary:order_detail"
@@ -1012,6 +1205,163 @@ class OrderDeleteView(WhalebraryEditRequiredMixin, CommonDeleteView):
 class OrderDeletePopoutView(WhalebraryEditRequiredMixin, CommonPopoutDeleteView):
     model = models.Order
     delete_protection = False
+
+    ## MAINTENANCE ##
+
+
+class MaintenanceListView(WhalebraryAccessRequired, CommonFilterView):
+    template_name = "whalebrary/maintenance_list.html"
+    h1 = "Maintenance List"
+    filterset_class = filters.MaintenanceFilter
+    home_url_name = "whalebrary:index"
+    row_object_url_name = "whalebrary:maintenance_detail"
+    new_btn_text = "New Maintenance Record"
+
+    queryset = models.Maintenance.objects.annotate(
+        search_term=Concat('id', 'item__item_name', 'maint_type', 'schedule', 'assigned_to', 'comments',
+                           'last_maint_by', 'last_maint_date',
+                           output_field=TextField()))
+
+    field_list = [
+        {"name": 'id', "class": "", "width": ""},
+        {"name": 'item', "class": "", "width": ""},
+        {"name": 'maint_type', "class": "", "width": ""},
+        {"name": 'schedule', "class": "", "width": ""},
+        {"name": 'assigned_to', "class": "", "width": ""},
+        {"name": 'comments', "class": "", "width": ""},
+        {"name": 'last_maint_by', "class": "", "width": ""},
+        {"name": 'last_maint_date', "class": "", "width": ""},
+        {"name": 'days_until_maint|Days until maintenance required', "class": "red-font", "width": ""},
+
+    ]
+
+    def get_new_object_url(self):
+        return reverse("whalebrary:maintenance_new", kwargs=self.kwargs)
+
+
+class MaintenanceDetailView(WhalebraryAccessRequired, CommonDetailView):
+    model = models.Maintenance
+    field_list = [
+        'id',
+        'item',
+        'maint_type',
+        'schedule',
+        'assigned_to',
+        'comments',
+        'last_maint_by',
+        'last_maint_date',
+
+    ]
+    home_url_name = "whalebrary:index"
+
+    # def get_h1(self):
+    #     order_num = models.Order.objects.get(pk=self.kwargs.get('pk'))
+    #     h1 = _("Order # ") + f' {str(order_num)}'
+    #     return h1
+
+    def get_parent_crumb(self):
+        return {"title": gettext_lazy("Maintenance List"), "url": reverse_lazy("whalebrary:maintenance_list")}
+
+    # def get_parent_crumb(self):
+    #     parent_crumb_url = ""
+    #     return {"title": self.get_object(), "url": parent_crumb_url}
+
+
+class MaintenanceUpdateView(WhalebraryEditRequiredMixin, CommonUpdateView):
+    model = models.Maintenance
+    form_class = forms.MaintenanceForm
+    home_url_name = "whalebrary:index"
+    template_name = "whalebrary/form.html"
+    cancel_text = _("Cancel")
+
+    # def get_h1(self):
+    #     order_num = models.Maintenance.objects.get(pk=self.kwargs.get('pk'))
+    #     h1 = _("Order # ") + f' {str(order_num)}'
+    #     return h1
+
+    def get_parent_crumb(self):
+        return {"title": str(self.get_h1()),
+                "url": reverse_lazy("whalebrary:maintenance_detail", kwargs=self.kwargs)}
+
+    def get_grandparent_crumb(self):
+        return {"title": _("Maintenance List"), "url": reverse("whalebrary:maintenance_list")}
+
+    def form_valid(self, form):
+        my_object = form.save()
+        messages.success(self.request, _(f"Maintenance record successfully updated for : {my_object}"))
+        return HttpResponseRedirect(reverse("whalebrary:maintenance_detail", kwargs=self.kwargs))
+
+
+class MaintenanceUpdatePopoutView(WhalebraryEditRequiredMixin, CommonPopoutUpdateView):
+    model = models.Maintenance
+    form_class = forms.MaintenanceForm1
+
+
+def mark_maintenance_done(request, maintenance):
+    """function to log that a new maintenance has been completed"""
+    # put in check to see if user wants to do this, javascript
+    # XYZ
+
+    # record logged in user and today's date
+    my_maintenance = models.Maintenance.objects.get(pk=maintenance)
+    my_user = request.user
+    my_maintenance.last_maint_date = timezone.now()
+    my_maintenance.last_maint_by = my_user
+    my_maintenance.save()
+    messages.success(request, "New maintenance completed!")
+
+    return HttpResponseRedirect(reverse_lazy('shared_models:close_me'))
+
+#
+# class OrderReceivedTransactionUpdateView(WhalebraryEditRequiredMixin, CommonPopoutUpdateView):
+#     model = models.Transaction
+#     form_class = forms.TransactionForm2
+
+
+class MaintenanceCreateView(WhalebraryEditRequiredMixin, CommonCreateView):
+    model = models.Maintenance
+    home_url_name = "whalebrary:index"
+    parent_crumb = {"title": gettext_lazy("Maintenance List"), "url": reverse_lazy("whalebrary:maintenance_list")}
+
+    def get_template_names(self):
+        return "shared_models/generic_popout_form.html" if self.kwargs.get("pk") else "whalebrary/form.html"
+
+    def get_form_class(self):
+        return forms.MaintenanceForm1 if self.kwargs.get("pk") else forms.MaintenanceForm
+
+    def form_valid(self, form):
+        my_object = form.save()
+        messages.success(self.request, _(f"Maintenance record successfully created for : Item # {str(my_object)}"))
+
+        # if there's a pk argument, this means user is calling from item_detail page and
+        if self.kwargs.get("pk"):
+            my_item = models.Item.objects.get(pk=self.kwargs.get("pk"))
+            my_item.maintenaces.add(my_object)
+            return HttpResponseRedirect(reverse_lazy('shared_models:close_me'))
+        else:
+            return HttpResponseRedirect(reverse_lazy('whalebrary:maintenance_list'))
+
+    def get_initial(self):
+        return {'item': self.kwargs.get('pk')}
+
+
+class MaintenanceDeleteView(WhalebraryEditRequiredMixin, CommonDeleteView):
+    model = models.Maintenance
+    permission_required = "__all__"
+    success_url = reverse_lazy('whalebrary:maintenance_list')
+    template_name = 'whalebrary/confirm_delete.html'
+    home_url_name = "whalebrary:index"
+    grandparent_crumb = {"title": gettext_lazy("Maintenance List"), "url": reverse_lazy("whalebrary:maintenance_list")}
+
+    def get_parent_crumb(self):
+        return {"title": str(self.get_object()),
+                "url": reverse_lazy("whalebrary:maintenance_detail", kwargs=self.kwargs)}
+
+
+class MaintenanceDeletePopoutView(WhalebraryEditRequiredMixin, CommonPopoutDeleteView):
+    model = models.Maintenance
+    delete_protection = False
+
 
     ## PERSONNEL ##
 
@@ -1392,7 +1742,8 @@ class IncidentDetailView(WhalebraryAccessRequired, CommonDetailView):
         'necropsy',
         'results',
         'photos',
-        'data_folder',
+        # 'data_folder',
+        'data_folder_path|{}'.format(gettext_lazy(r"Data folder (Y:\path\folder)")),
         'comments',
         'date_email_sent',
 
