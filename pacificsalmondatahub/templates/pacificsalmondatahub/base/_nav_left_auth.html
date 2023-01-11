@@ -1,0 +1,18 @@
+{% load i18n %}
+<li class="nav-item"><a class="nav-link" href="{% url 'pacificsalmondatahub:search' %}">
+  {% trans "Search" %}
+</a></li>
+<li class="nav-item"><a class="nav-link" href="{% url 'pacificsalmondatahub:acronym_list' %}">
+  {% trans "Acronym List" %}
+</a></li>
+<li class="nav-item"><a class="nav-link" href="{% url 'pacificsalmondatahub:data_glossary_list' %}">
+  {% trans "Data Glossary" %}
+</a></li>
+<li class="nav-item"><a class="nav-link" href="{% url 'pacificsalmondatahub:business_glossary_list' %}">
+  {% trans "Business Glossary" %}
+</a></li>
+{% if is_admin %}
+{% endif %}
+
+
+

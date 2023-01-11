@@ -1,0 +1,138 @@
+<title>PSSI - Pacific Salmon Data Hub</title>
+
+{% extends "pacificsalmondatahub/base.html" %}   <!-- Extention of base.html page -->
+
+<!-- 
+    Purpose: Display the details of a particular data asset
+    Input: Pulled entry of data asset.
+    Output: Displays the details in an organised format.
+ -->
+
+{% block subcontent %}
+<div class="row">
+    <!-- Left side of the page -->
+    <div class="col-3">
+
+      <!-- DIsplay data stewards associated with data asset -->
+      <h4 class="neighbours">Data Stewards</h4> 
+      <ul>
+          <!-- Need to change their names to hyperlinks to their contacts/email -->
+          <li>
+            MacKenzie, Julia
+          </li>
+          <li>
+            Hamilton, Shelee (SDC)
+          </li>
+      </ul>
+
+      <br>
+
+      <!-- Table of Contents with hyperlinks to page anchors -->
+      <h4 class="neighbours">Table of Contents</h4>
+      <br>
+      <a href="">Data Asset Name</a>
+      <br>
+      <a href="">Data Asset Description</a>
+      <br>
+      <a href="">Data Asset Format</a>
+      <br>
+      <a href="">Data Asset Trustee</a>
+      <br>
+      <a href="">Access Point</a>
+      <br>
+      <a href="">Key Decisions</a>
+      <br>
+      <a href="">Update Frequency</a>
+      <br>
+      <a href="">Security Classification</a>
+      <br>
+    </div>
+
+    <!-- Right side of page -->
+    <div class="col">
+      <!-- Display each detail of the data asset in a table format -->
+      <!-- Currently is a static view, but will need to be change dynamically -->
+      <h4>Details</h4>
+      <table class="table table-striped table-sm" style="font-size: 15px">
+        <tr><th>Data Asset Name</th><td>Fishery Operations System</td></tr>
+        <tr><th>Data Asset Sorting Category</th><td>1</td></tr>
+        <tr><th>Operational or Analytical Data</th><td></td></tr>
+        <tr><th>Data Asset Acronym</th><td>FOS</td></tr>
+        <tr><th>Data Asset Description</th><td>	<p>The Fishery Operations System (FOS) is the Department of Fisheries and Oceans Canada’s (DFO) centralized Oracle database that holds commercial salmon fishery catch, effort and biological data. The FOS database was built in 2001 and continues to be the current repository for all data pertaining to DFO’s Pacific Region Commercial Salmon Logbook program.</p></td></tr>
+        <tr><th>APM_ID</th><td>523</td></tr>
+        <tr><th>Non Salmon Data</th><td>Yes</td></tr>
+        <tr><th>Data Asset Status</th><td>Production</td></tr>
+        <tr><th>Data Asset Format</th><td>Oracle database</td></tr>
+        <tr><th>Data Type</th><td>Structured</td></tr>
+        <tr><th>Data Asset Location</th><td>DFO Server</td></tr>
+        <tr><th>Data Asset Trustee</th><td>Ecosystems and Fisheries Management</td></tr>
+        <tr><th>Data Asset Custodian</th><td>Jason Parsley/ Fifi Esenam</td></tr>
+        <tr><th>Application Data Asset is Associated With</th><td>Fishery Operations System - FOS<br>
+          1. Fishery notifications System - FOS_FNS APM 525<br>
+          2. Salmon Module SQL scripts & calls - FOS_SM APM 534<br>
+          3. Fishery Notice Module - FOS_FNM APM 531<br>
+          4. Importer Module IMPORTER SPECS - FOS_IM APM 533<br>
+          5. Web Services INCOMING EMAIL - FOS_WS APM 536</td></tr>
+        <tr><th>Application Description</th><td>Same as db description.<br>
+          1. Function of FOS to provide the public and industry with notification of fishery openings, closures and ammendments, and public health notices for PSP marine biotoxin closures. All previous notices are available online for public reference.<br>
+          2. Module of the Fishery Operations System containing specific screens and code (PL/SQL) for salmon fishery business functions. Contains commercial, economic opportunity, and test fishery catch, effort and biodata<br>
+          3. Jason Parsely says not part of FOS. Allows public to sign up to receive fishery notices by email .  Controls sending and storing Fishery notices. FOS FNS allows a notice to be built, the fishery and areas affected identified and then automatically determines which clients to send notices to via email.<br>
+          4. Function or module of the Fishery Operations System for automated importing of remote transmitted data via email and interactive importing of data from flat files.<br>
+          5. Related to FOS Importer, recieves external emails and inserts data into FOS.</td></tr>
+        <tr><th>Technical Documentation</th><td>Entitiy Relationship Diagram (ERD)</td></tr>
+        <tr><th>Access Point</th><td>Internet Browser, Microsoft Edge (IE Mode only)<br>
+          <br>
+          PROD-Internal<br>
+          http://paccfprodin/fos2/<br>
+          <br>
+          PROD-External<br>
+          https://www-ops2.pac.dfo-mpo.gc.ca/fos2/<br>
+          <br>
+          TEST-Internal<br>
+          http://paccftestin/fos2/<br>
+          <br>
+          TEST-External<br>
+          https://fm-training.rhq.pac.dfo-mpo.gc.ca/fos2/</td></tr>
+        <tr><th>Policy Levers Data Asset Supports</th><td>Harvest - Commercial</td></tr>
+        <tr><th>Key Decisions</th><td>FOS supports decisions on commercial opening and closings.<br>
+          <br>
+          The data / products produced by FOS are used by Stock Assessment staff in their run-size prediction models. <br>
+          <br>
+          The data / products produced by FOS are used by fishery / resource managers to determine commercial fishing openings and closures</td></tr>
+        <tr><th>Impact to DFO Data Consumer</th><td>Infinite</td></tr>
+        <tr><th>Decision Supporting Key Products</th><td>In-season and post-season estimates; Price Matched Log Books, Diversification Tables and exploitation rate analysis<br>
+          <br>
+          Fisher reported catch based on the logbook program. Raw data is collected in-season via a call-centre. QA/QC'd analyzed data is collected and entered post-season directly from the fisher's logbooks. <br>
+          <br>
+          Commercial Salmon in-season estimates. Produced by fishery managers. Based primarily on the raw in-season fisher reported catch but takes other data sources into account as well such as overflight data and observer data. In-season estimates are entered and stored in FOS from 2005 to the present. <br>
+          <br>
+          Commercial Salmon post-season estimates. Produced by fishery managers post-season factoring many different data sources. Histrorical estimates from 1996-2004 are stored in FOS.<br> 
+          <br>
+          Test Fishery salmon catch and bio data. Historical data held from 1955. Data shared with American colleagues as part of the Pacific Salmon Treaty</td></tr>
+        <tr><th>Impact of Decision Making</th><td>50 - 100</td></tr>
+        <tr><th>Uniqueness</th><td>No</td></tr>
+        <tr><th>Cost</th><td>10<br>
+          We could recover commercial salmon harvest data back to about 2017. It would require staff going through each logbook and re-entering data manually. <br>
+          <br>
+          Prior to this paper logbooks were only held for 3 years and were then destroyed. Anything prior to 2017 would be permanently lost. </td></tr>
+        <tr><th>Data Asset Size</th><td>>10<br>
+          No idea. It's only text. No pictures or videos etc. Estimated less than 10GB</td></tr>
+        <tr><th>Update Frequency</th><td>Real-time</td></tr>
+        <tr><th>Data Standards</th><td>Formal QA/QC standards and checks built into FOS</td></tr>
+        <tr><th>Metadata Maturity</th><td>No</td></tr>
+        <tr><th>Data Quality Rating</th><td>High</td></tr>
+        <tr><th>Naming Conventions</th><td>Yes</td></tr>
+        <tr><th>Security Classification</th><td>Protected B</td></tr>
+        <tr><th>Inbound Data Linkage</th><td>PADS,  NOLS<br>
+          Licencing information used to come in thorugh PLS. Might be NOLS now not sure. Data comes in as a view. <br>
+          PAC HARV Fish slips data comes in thorugh PAC HARV</td></tr>
+        <tr><th>Outbound Data Linkage</th><td>Salmon ITQ_Database - Commercial salmon catch is accessed by the ITQ Database. <br>
+          MRP -SYS - Commercial Salmon and Test Fishery data is pulled by the MRP group to share with U.S. colleagues as part of the Pacific Salmon Treaty<br>
+          Albion Fraser Interior Test Fishery Dataset</td></tr>
+        <tr><th>Publication Status</th><td>Yes; Open Data</td></tr>
+      </table>
+    </div>
+  </div>>
+{% endblock %}
+
+

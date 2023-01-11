@@ -1,0 +1,122 @@
+{% extends "pacificsalmondatahub/base.html" %} <!-- Extention of base.html page -->
+{% load i18n %}
+{% load static %}
+{% load custom_filters %}
+
+<!-- 
+    Purpose: Act as the home page, with redirects to other pages.
+    Input: 
+    Output: Displays the home page, and add redirects to other pages.
+ -->
+
+{% block subcontent %}
+  <!-- Styling for elements in the page -->
+  <style>
+  body {
+      background-color: #eeefff;
+  }
+
+  .card, .jumbotron {
+      background-color: rgba(255, 255, 255, 1);
+      height: 200px;
+  }
+
+  .card-text {
+      height: 75px;
+  }
+
+  .card-button {
+      text-align: left;
+  }
+
+  .container-fluid, .container {
+      border-radius: 25px;
+      margin-top: 15px;
+      padding: 15px;
+      background-color: transparent;
+
+  }
+  </style>
+
+  <!-- Summary of App - Currently not needed, but could be implemented in the future -->
+  <!-- <div class="my-5">
+    <ul>
+      <li class="">{% trans "This tool allows users to search, create, maintain and export metadata associated with Science data resources." %}</li>
+      <li class="">
+        {% blocktrans %}
+          A valid metadata record is ISO 19115 HNAP compliant and can export as an XML file which can be subsequently uploaded to the
+          <a href="https://gcgeo.gc.ca/en/index.html">Federal Geospatial Portal (FGP)</a>.
+        {% endblocktrans %}
+      </li>
+      <li>
+        Any questions, comments TESDWADor feature requests can be sent to <a
+        href="mailto:DFO.DMApps-ApplisGD.MPO@dfo-mpo.gc.ca">DFO.DMApps-ApplisGD.MPO@dfo-mpo.gc.ca</a>
+      </li>
+    </ul>
+  </div> -->
+
+  <!-- Redirect to Search Page -->
+  <div class=" row justify-content-center">
+    <div class=" col">
+      <div class="card mb-3 ">
+        <div class="card-body">
+          <!-- Title of Page -->
+          <h5 class="card-title">{% trans "Search Data Assets" %}</h5>
+          <!-- Short description of page -->
+          <p class="card-text">{% trans "View the full PSSI - Pacific Salmon Data Hub List" %}.</p>
+          <!-- Redirect Button -->
+          <div class="card-button">
+            <!-- Redirect to url specified in urls.py -->
+            <a href="{% url 'pacificsalmondatahub:search' %}" class="btn btn-primary">{% trans "Go" %}</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class=" col">
+      <div class="card mb-3 ">
+        <div class="card-body">
+          <!-- Title of Page -->
+          <h5 class="card-title">{% trans "Acronym List" %}</h5>
+          <!-- Short description of page -->
+          <p class="card-text">{% trans "View the full list of Acyronyms used in the Data Inventory" %}.</p>
+          <!-- Redirect Button -->
+          <div class="card-button">
+            <!-- Redirect to url specified in urls.py -->
+            <a href="{% url 'pacificsalmondatahub:acronym_list' %}" class="btn btn-primary">{% trans "Go" %}</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class=" col">
+      <div class="card mb-3 ">
+        <div class="card-body">
+          <!-- Title of Page -->
+          <h5 class="card-title">{% trans "Data Glossary List" %}</h5>
+          <!-- Short description of page -->
+          <p class="card-text">{% trans "View the full list of data terms used in the Data Inventory" %}.</p>
+          <!-- Redirect Button -->
+          <div class="card-button">
+            <!-- Redirect to url specified in urls.py -->
+            <a href="{% url 'pacificsalmondatahub:data_glossary_list' %}" class="btn btn-primary">{% trans "Go" %}</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class=" col">
+      <div class="card mb-3 ">
+        <div class="card-body">
+          <!-- Title of Page -->
+          <h5 class="card-title">{% trans "Business Glossary List" %}</h5>
+          <!-- Short description of page -->
+          <p class="card-text">{% trans "View the full list of business terms used in the Data Inventory" %}.</p>
+          <!-- Redirect Button -->
+          <div class="card-button">
+            <!-- Redirect to url specified in urls.py -->
+            <a href="{% url 'pacificsalmondatahub:business_glossary_list' %}" class="btn btn-primary">{% trans "Go" %}</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% endblock %}

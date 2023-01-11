@@ -1,0 +1,64 @@
+{% extends "shared_models/generic_base.html" %} <!-- Extention of generic_base.html page -->
+
+<!-- 
+    Purpose: Call and format page layout.
+    Input: Pulling generic_base.html blocks and layout
+    Output: Basic page layout of pages
+-->
+
+<!-- This is for creating bug reports for our app, this is done for every app in DMApps -->
+<!-- 
+    Purpose: Link to bug report ticket for PSSI Data Center App
+    Input: 
+    Output: Redirect to tickets page with ticket relating to PSSI Data Center App
+-->
+{% block bug_create %}
+    {% include "pacificsalmondatahub/base/_bug_url.html" %}
+{% endblock %}
+
+<!-- Title of Page -->
+<!-- 
+    Purpose: Setting the title of app to display.
+    Input: 
+    Output: Output name of app name.
+-->
+{% block title %}
+    {% include "pacificsalmondatahub/base/_app_title.html" %}
+    {% block subtitle %} - {{ subtitle }}{% endblock %}
+{% endblock %}
+
+<!-- CSS Style for all pages-->
+<!-- 
+    Purpose: Implement styles for containters and tables.
+    Input: 
+    Output: Styles for elements.
+-->
+{% block header %}
+    {{ block.super }}
+    {% include "pacificsalmondatahub/base/_style.html" %}
+{% endblock %}
+
+<!-- This is where the body of the content is at -->
+{% block body %}
+    {{ block.super }}
+{% endblock %}
+
+<!-- Navigation for specfic users, might not be needed in the future -->
+<!-- 
+    Purpose: Navigation for specific users.
+    Input: 
+    Output: Redirects to other pages.
+-->
+{% block left_auth %}
+    {% include "pacificsalmondatahub/base/_nav_left_auth.html" %}
+{% endblock %}
+
+<!-- Navigation for all users, like the home button -->
+<!-- 
+    Purpose: Navigation for all users.
+    Input: 
+    Output: Redirects to other pages.
+-->
+{% block left_all %}
+    {% include "pacificsalmondatahub/base/_nav_left_all.html" %}
+{% endblock %}
