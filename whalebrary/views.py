@@ -315,6 +315,7 @@ def inventory_download(request):
 
 class ItemListView(WhalebraryAccessRequired, CommonFilterView):
     template_name = "whalebrary/item_list.html"
+    paginate_by = 50
     h1 = "Item List"
     filterset_class = filters.SpecificItemFilter
     home_url_name = "whalebrary:index"
@@ -615,6 +616,7 @@ class LocationDeleteView(WhalebraryAdminAccessRequired, CommonDeleteView):
 
     ##TRANSACTION##
 
+#TODO: Need to add verification of quantities available at locations to form_valids
 
 def lending_return_item(request, transaction):
     """simple function to create return transaction"""
@@ -639,20 +641,79 @@ def lending_return_item(request, transaction):
         'shared_models:close_me'))  # TODO Ideally want to have a confirm step using 'confirm_status_change.html'
 
 
-def transfer_item_to_new_location(request, item):
-    """
-    Transfer items from one location to another and create transaction records.
-    """
-    # First transaction to transfer out
-    my_item = models.Item.objects.get(pk=item)
-    my_user = request.user
+# def transfer_item_to_new_location(request, item):
+#     """
+#     Transfer items from one location to another and create transaction records.
+#     """
+#     # First transaction to transfer out
+#     my_item = models.Item.objects.get(pk=item)
+#     my_user = request.user
+#
+#     out_transaction = models.Transaction.objects.create(
+#         item=my_item,
+#         category=TransactionCategory.objects.get(id=5),
+#         created_by=my_user
+#     )
+#
+#     return HttpResponseRedirect(
+#         reverse('whalebrary:transaction_transfer', kwargs={'pk': out_transaction.id, 'pop': my_item.id}))
 
-    out_transaction = models.Transaction.objects.create(
-        item=my_item,
-        category=TransactionCategory.objects.get(id=5),
-        created_by=my_user
-    )
-    pass
+
+class TransactionTransferView(WhalebraryEditRequiredMixin, CommonCreateView):
+    model = models.Transaction
+    h1 = "Transfer Item From"
+    submit_text = "Transfer Out"
+    home_url_name = "whalebrary:index"
+    parent_crumb = {"title": gettext_lazy("Transaction List"), "url": reverse_lazy("whalebrary:transaction_list")}
+
+    def get_template_names(self):
+        return "shared_models/generic_popout_form.html" if self.kwargs.get("pk") else "whalebrary/form.html"
+
+    def get_form_class(self):
+        return forms.TransactionForm1 if self.kwargs.get("pk") else forms.TransactionForm
+
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class=None)
+        form.fields['location'].queryset = form.fields['location'].queryset.filter(transactions__item=self.kwargs.get("pk")).distinct()
+        return form
+
+    def form_valid(self, form):
+        my_object = form.save()
+        my_item = form.instance.item.id
+        messages.success(self.request, _(f"Transaction record successfully created for : {my_object}"))
+        success_url = reverse_lazy('whalebrary:transaction_transfer_in', kwargs={'pk': my_item})
+        return HttpResponseRedirect(success_url)
+
+    def get_initial(self):
+        return {'item': self.kwargs.get('pk'),
+                'category': 5,
+                'created_by': self.request.user}
+
+
+class TransactionTransferInView(WhalebraryEditRequiredMixin, CommonCreateView):
+    model = models.Transaction
+    h1 = "Transfer Item To"
+    submit_text = "Transfer In"
+    home_url_name = "whalebrary:index"
+    parent_crumb = {"title": gettext_lazy("Transaction List"), "url": reverse_lazy("whalebrary:transaction_list")}
+
+    def get_template_names(self):
+        return "shared_models/generic_popout_form.html" if self.kwargs.get("pk") else "whalebrary/form.html"
+
+    def get_form_class(self):
+        return forms.TransactionForm1 if self.kwargs.get("pk") else forms.TransactionForm
+
+    def form_valid(self, form):
+        my_object = form.save()
+        messages.success(self.request, _(f"Transaction record successfully created for : {my_object}"))
+        return HttpResponseRedirect(
+            reverse_lazy('shared_models:close_me') if self.kwargs.get("pk") else reverse_lazy(
+                'whalebrary:transaction_list'))
+
+    def get_initial(self):
+        return {'item': self.kwargs.get('pk'),
+                'category': 6,
+                'created_by': self.request.user}
 
 
 # TODO create the location lend out function
@@ -835,23 +896,23 @@ class TransactionLendCreateView(WhalebraryEditRequiredMixin, CommonCreateView):
                 }
 
 
-class TransactionTransferCreateView(WhalebraryEditRequiredMixin, CommonCreateView):
-    model = models.Transaction
-    form_class = forms.TransactionForm2
-    template_name = 'shared_models/generic_popout_form.html'
-    home_url_name = "whalebrary:index"
-    submit_text = "Transfer"
-
-    def form_valid(self, form):
-        my_object = form.save()
-        messages.success(self.request, _(f"Transaction record successfully created for : {my_object}"))
-        return HttpResponseRedirect(reverse_lazy('shared_models:close_me'))
-
-    def get_initial(self):
-        return {'item': self.kwargs.get('pk'),
-                'category': TransactionCategory.objects.get(id=5),
-                'created_by': self.request.user
-                }
+# class TransactionTransferCreateView(WhalebraryEditRequiredMixin, CommonCreateView):
+#     model = models.Transaction
+#     form_class = forms.TransactionForm2
+#     template_name = 'shared_models/generic_popout_form.html'
+#     home_url_name = "whalebrary:index"
+#     submit_text = "Transfer"
+#
+#     def form_valid(self, form):
+#         my_object = form.save()
+#         messages.success(self.request, _(f"Transaction record successfully created for : {my_object}"))
+#         return HttpResponseRedirect(reverse_lazy('shared_models:close_me'))
+#
+#     def get_initial(self):
+#         return {'item': self.kwargs.get('pk'),
+#                 'category': TransactionCategory.objects.get(id=5),
+#                 'created_by': self.request.user
+#                 }
 
 
 class TransactionDeleteView(WhalebraryEditRequiredMixin, CommonDeleteView):
@@ -983,6 +1044,7 @@ class ConfirmStatusChangeView(WhalebraryAdminAccessRequired, CommonPopoutFormVie
 class OrderListView(WhalebraryAccessRequired, CommonFilterView):
     template_name = "whalebrary/order_list.html"
     h1 = "Order List"
+    paginate_by = 50
     filterset_class = filters.OrderFilter
     home_url_name = "whalebrary:index"
     row_object_url_name = "whalebrary:order_detail"
