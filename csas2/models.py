@@ -1,3 +1,4 @@
+import sys
 from datetime import timedelta
 from math import floor
 from uuid import uuid4
@@ -1303,12 +1304,13 @@ class Document(MetadataFields):
         ordering = ["process", _("title_en")]
 
     def save(self, *args, **kwargs):
-        # set status
-        self.status = 0  # unconfirmed
+        # set status if not set
+        if not self.status:
+            self.status = 0  # unconfirmed
 
-        if self.is_confirmed:
-            # self.status = 20  # confirmed
-            self.status = 1  # tracking started
+            if self.is_confirmed:
+                # self.status = 20  # confirmed
+                self.status = 1  # tracking started
 
         if hasattr(self, "tracking"):
             self.pub_number = self.tracking.pub_number

@@ -77,7 +77,7 @@ def clean_up_reviews():
 
 def digest_csv():
     # open the csv we want to read
-    my_target_data_file = os.path.join(settings.BASE_DIR, 'csas2', 'csas_import.csv')
+    my_target_data_file = os.path.join(settings.BASE_DIR, 'csas2', 'scripts', 'data', 'csas_import.csv')
     with open(my_target_data_file, 'r') as csv_read_file:
         my_csv = csv.DictReader(csv_read_file)
         i = 1
