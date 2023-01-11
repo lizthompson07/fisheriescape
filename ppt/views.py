@@ -1327,7 +1327,6 @@ class StatusReportPrintDetailView(PPTLoginRequiredMixin, CommonDetailView):
 # DMAs #
 ########
 
-
 class DMACreateView(CanModifyProjectRequiredMixin, CommonCreateViewHelp):
     model = models.DMA
     form_class = forms.DMAForm

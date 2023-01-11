@@ -34,6 +34,7 @@ def is_custodian(user, resource):
             return models.ResourcePerson.objects.filter(person=person, resource=resource,
                                                         role_id__in=[1, 2, 8, 19, 13, 10]).count() > 0
 
+
 def can_modify(user, resource_id, as_dict=False):
     resource = get_object_or_404(models.Resource, pk=resource_id)
     can_modify = False
@@ -56,3 +57,38 @@ def can_modify(user, resource_id, as_dict=False):
         return can_modify
 
 
+def get_dma_field_list():
+    my_list = [
+        'title',
+        'data_contact',
+        'metadata_contact',
+        'metadata_tool',
+        'metadata_url',
+        'metadata_update_freq',
+        'metadata_freq_text',
+        'storage_solutions',
+        'storage_solution_text',
+        'storage_needed',
+        'raw_data_retention',
+        'data_retention',
+        'backup_plan',
+        'cloud_costs',
+        'had_sharing_agreements',
+        'sharing_agreements_text',
+        'publication_timeframe',
+        'publishing_platforms',
+        'comments',
+        'status',
+        'metadata',
+    ]
+    return my_list
+
+
+def get_dma_review_field_list():
+    my_list = [
+        'fiscal_year',
+        'decision',
+        'comments',
+        'metadata|{}'.format("metadata"),
+    ]
+    return my_list

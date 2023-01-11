@@ -10,12 +10,13 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
+from markdown import markdown
 
 from dm_apps import custom_widgets
 from lib.functions.custom_functions import truncate, fiscal_year
 from shared_models import models as shared_models
 # Choices for language
-from shared_models.models import SimpleLookup, Region
+from shared_models.models import SimpleLookup, Region, MetadataFields
 
 LANGUAGE_CHOICES = ((1, 'English'), (2, 'French'),)
 YES_NO_CHOICES = [(True, _("Yes")), (False, _("No")), ]
@@ -414,7 +415,7 @@ class DataResource(models.Model):
         (HTTPS, HTTPS),
         (FTP, FTP),
     ]
-    resource = models.ForeignKey(Resource, on_delete=models.CASCADE, related_name="data_resources" , editable=False)
+    resource = models.ForeignKey(Resource, on_delete=models.CASCADE, related_name="data_resources", editable=False)
     url = models.URLField()
     name_eng = models.CharField(max_length=255, verbose_name="Name (English)")
     name_fre = models.CharField(max_length=255, verbose_name="Name (French)")
@@ -553,3 +554,154 @@ def auto_delete_file_on_change(sender, instance, **kwargs):
     if not old_file == new_file:
         if os.path.isfile(old_file.path):
             os.remove(old_file.path)
+
+
+class StorageSolution(SimpleLookup):
+    pass
+
+
+class DMA(MetadataFields):
+    status_choices = (
+        (0, _("Unevaluated")),
+        (1, _("On-track")),
+        (2, _("Complete")),
+        (3, _("Encountering issues")),
+        (4, _("Aborted / cancelled")),
+        (5, _("Pending new evaluation")),
+    )
+    frequency_choices = (
+        (1, _("Daily")),
+        (2, _("Weekly")),
+        (3, _("Monthly")),
+        (4, _("Annually")),
+        (5, _("Irregular / as needed")),
+        (9, _("Other")),
+    )
+    status = models.IntegerField(default=3, editable=False, choices=status_choices)
+
+    # Identification
+
+    # todo make me non nullable
+    section = models.ForeignKey(shared_models.Section, on_delete=models.DO_NOTHING, null=True, blank=False, related_name="dmas")
+
+    title = models.CharField(max_length=1000, verbose_name=_("Title"), help_text=_("What is the title of the Data Management Agreement?"))
+    data_contact = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="data_contact_for_dmas", blank=True, null=True,
+                                     verbose_name=_("Who is the principal steward of this data?"),
+                                     help_text=_("i.e., who is the primary responsible party?"))
+    # delete me
+    data_contact_text = models.CharField(max_length=500, blank=True, null=True, verbose_name=_("Who is the principal steward of this data?"),
+                                         help_text=_("i.e., who is the primary responsible party?"))
+
+    # Metadata
+    metadata_contact = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="metadata_contact_for_dmas", blank=True, null=True,
+                                         verbose_name=_("Who is responsible for creating and maintaining the metadata?"),
+                                         help_text=_("i.e., who is responsible for keeping metadata records up-to-date?"))
+
+    # delete me
+    metadata_contact_text = models.CharField(max_length=500, blank=True, null=True,
+                                             verbose_name=_("Who is responsible for creating and maintaining the metadata?"),
+                                             help_text=_("i.e., who is responsible for keeping metadata records up-to-date?"))
+    metadata_tool = models.TextField(blank=True, null=True, verbose_name=_("Describe the tools or processes that will be used to create metadata"),
+                                     help_text=_(
+                                         "e.g., Metadata Inventory app in DM Apps, DFO Enterprise Data Hub, Federal Geospatial Portal, stand-alone file, ..."))
+    metadata_url = models.CharField(blank=True, null=True, max_length=1000, verbose_name=_("Please provide any URLs to the metadata"),
+                                    help_text=_("Full link to any metadata records available online, if applicable"))
+    metadata_update_freq = models.IntegerField(blank=True, null=True, verbose_name=_("At what frequency should the metadata be updated? "),
+                                               help_text=_("What should be the expectation for how often the metadata is updated?"), choices=frequency_choices)
+    metadata_freq_text = models.TextField(blank=True, null=True, verbose_name=_("Justification for frequency:"),
+                                          help_text=_("What justification can be provided for the above selection?"))
+
+    # Archiving / Storage
+    storage_solutions = models.ManyToManyField(StorageSolution, blank=True, verbose_name=_(
+        "Which storage solution(s) will be used to house the raw field data, processed data, and all other data products?"))
+    storage_solution_text = models.TextField(blank=True, null=True, verbose_name=_("Justification for selection of storage solution(s)"),
+                                             help_text=_("Provide your rational for the selection(s) made above."))
+    storage_needed = models.TextField(blank=True, null=True, verbose_name=_("What is the estimated storage space needed for the above?"),
+                                      help_text=_("This includes raw field data, processed data, and all other data products etc.)"))
+    raw_data_retention = models.TextField(blank=True, null=True, verbose_name=_("What is the retention policy for the raw field data?"), help_text=_(
+        "This would include instrument data, field sheets, physical samples etc. Please refer to the DFO EOS Retention Policy for clarification)"))
+    data_retention = models.TextField(blank=True, null=True, verbose_name=_("What is the retention policy for the data?"),
+                                      help_text=_("Please refer to the DFO EOS Retention Policy for clarification."))
+    backup_plan = models.TextField(blank=True, null=True, verbose_name=_("What procedures will be taken to back-up/secure the data?"))
+    cloud_costs = models.TextField(blank=True, null=True,
+                                   verbose_name=_("If using cloud storage, what is the estimated annual cost and who will be covering the cost? "),
+                                   help_text=_(
+                                       "e.g., cloud storage is estimated at $1000/yr and will be paid for under the the division manager's budget"))
+
+    # Sharing
+    had_sharing_agreements = models.BooleanField(default=False, verbose_name=_("Is the dataset subject to a data sharing agreement, MOU, etc.?"),
+                                                 choices=YES_NO_CHOICES)
+    sharing_agreements_text = models.TextField(blank=True, null=True, verbose_name=_("If yes, who are the counterparts for the agreement(s)?"),
+                                               help_text=_("please provide the name of the organization and the primary contact for each agreement."))
+    publication_timeframe = models.TextField(blank=True, null=True, verbose_name=_("How soon after data collection will data be made available?"),
+                                             help_text=_("The answer provided will set the expectation for the open data publication frequency"))
+    publishing_platforms = models.TextField(blank=True, null=True, verbose_name=_("Which open data publishing mechanism(s) will be used?"), help_text=_(
+        "The best option is the Government of Canada's Open Data Platform however other platforms / publications are acceptable provided they are"
+        " freely available to the general public."))
+    comments = models.TextField(blank=True, null=True, verbose_name=_("Additional comments to take into consideration (if applicable):"))
+    # todo remove once the Ppt models are removed
+    created_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, editable=False, related_name='inventorydmas_created_by')
+    updated_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, editable=False, related_name='inventorydmas_updated_by')
+
+    class Meta:
+        verbose_name = _("Data Management Agreement")
+        ordering = ["section__division__branch__sector__region", "section__division", "section", "title"]
+
+    def get_absolute_url(self):
+        return reverse('inventory:dma_detail', args=[self.id])
+
+    def save(self, *args, **kwargs):
+        # set the status...
+        if not self.reviews.exists():
+            self.status = 0  # unevaluated
+        else:
+            last_review = self.reviews.last()
+            if last_review.is_final_review:
+                self.status = 2  # complete
+            elif last_review.decision == 1:  # compliant
+                self.status = 1  # on-track
+                # but wait, what if this is an old evaluation?
+                # if the review was more than six months old, set the status to 5
+                if (timezone.now() - last_review.created_at).days > (28 * 6):
+                    self.status = 5  # pending evaluation
+
+            elif last_review.decision == 2:  # non-compliant
+                self.status = 3  # encountering issues
+
+        return super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.title
+
+    @property
+    def region(self):
+        if self.section:
+            return self.section.division.branch.sector.region
+
+class DMAReview(MetadataFields):
+    decision_choices = (
+        (0, _("Unevaluated")),
+        (1, _("Compliant")),
+        (2, _("Non-compliant")),
+    )
+    dma = models.ForeignKey(DMA, related_name="reviews", on_delete=models.CASCADE)
+    fiscal_year = models.ForeignKey(shared_models.FiscalYear, related_name="inventory_dma_reviews", on_delete=models.DO_NOTHING,
+                                    default=fiscal_year(timezone.now(), sap_style=True))
+    decision = models.IntegerField(default=0, choices=decision_choices)
+    is_final_review = models.BooleanField(default=False, verbose_name=_("Will this be the final review of this agreement?"),
+                                          help_text=_("If so, please make sure to provide an explanation in the comments field."))
+    comments = models.TextField(blank=True, null=True, verbose_name=_("comments"))
+    # todo remove once the Ppt models are removed
+    created_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, editable=False, related_name='inventorydmareviews_created_by')
+    updated_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, editable=False, related_name='inventorydmareviews_updated_by')
+
+    class Meta:
+        ordering = ["fiscal_year", '-created_at']
+        unique_together = [
+            ('dma', 'fiscal_year'),  # there should only be a single review per year on a given DMA
+        ]
+
+    @property
+    def comments_html(self):
+        if self.comments:
+            return mark_safe(markdown(self.comments))

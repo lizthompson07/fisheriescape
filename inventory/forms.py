@@ -281,6 +281,7 @@ class ReportSearchForm(forms.Form):
         (4, "Resources Report (xlsx)"),
         (5, "Resource published to Open Data"),
         (6, "Data Custodian Report (xlsx)"),
+        (7, "Data Management Agreements (xlsx)"),
     )
 
     report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
@@ -335,3 +336,29 @@ InventoryUserFormset = modelformset_factory(
     form=InventoryUserForm,
     extra=1,
 )
+
+
+
+class DMAForm(forms.ModelForm):
+    class Meta:
+        model = models.DMA
+        exclude = ["project"]
+        widgets = {
+            'storage_solutions': forms.SelectMultiple(attrs=chosen_js),
+            'data_contact': forms.Select(attrs=chosen_js),
+            'metadata_contact': forms.Select(attrs=chosen_js),
+            'section': forms.Select(attrs=chosen_js),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        SECTION_CHOICES = [(s.id, s.full_name) for s in
+                           shared_models.Section.objects.all().order_by("division__branch__region", "division__branch", "division", "name")]
+        SECTION_CHOICES.insert(0, tuple((None, "-------")))
+
+        self.fields['section'].choices = SECTION_CHOICES
+
+class DMAReviewForm(forms.ModelForm):
+    class Meta:
+        model = models.DMAReview
+        exclude = ["dma"]

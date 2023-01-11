@@ -1,12 +1,14 @@
 # from accounts import models as account_models
-from django.contrib.auth.models import User
-from django import forms
-from django.utils.translation import gettext as _
-from . import models
 import django_filters
+from django import forms
+from django.utils.translation import gettext as _, gettext_lazy
+
 from shared_models import models as shared_models
+from . import models
 
 chosen_js = {"class": "chosen-select-contains"}
+
+
 class ResourceFilter(django_filters.FilterSet):
     search_term = django_filters.CharFilter(field_name='search_term', label=_("Search term"), lookup_expr='icontains',
                                             widget=forms.TextInput())
@@ -17,20 +19,19 @@ class ResourceFilter(django_filters.FilterSet):
                                           widget=forms.Select(attrs=chosen_js))
     person = django_filters.ModelChoiceFilter(field_name="people", label=_("Person"), lookup_expr='exact',
                                               queryset=models.Person.objects.all(),
-                                              widget=forms.Select(attrs=chosen_js),)
-    resource_type = django_filters.ModelChoiceFilter(field_name="resource_type", label=_("Resource type"), lookup_expr='exact', queryset=models.ResourceType.objects.all())
+                                              widget=forms.Select(attrs=chosen_js), )
+    resource_type = django_filters.ModelChoiceFilter(field_name="resource_type", label=_("Resource type"), lookup_expr='exact',
+                                                     queryset=models.ResourceType.objects.all())
 
     fgp_publication_date = django_filters.BooleanFilter(field_name="fgp_publication_date",
                                                         lookup_expr='isnull', label=_("Published to FGP?"),
-                                                        exclude=True, # this will reverse the logic
-                                                        )
-    od_publication_date = django_filters.BooleanFilter(field_name="od_publication_date",
-                                                        lookup_expr='isnull', label=_("Published to Open Portal?"),
                                                         exclude=True,  # this will reverse the logic
                                                         )
-    flagged_4_publication = django_filters.BooleanFilter(field_name="flagged_4_publication", lookup_expr='exact') # placeholder for ordering
-
-
+    od_publication_date = django_filters.BooleanFilter(field_name="od_publication_date",
+                                                       lookup_expr='isnull', label=_("Published to Open Portal?"),
+                                                       exclude=True,  # this will reverse the logic
+                                                       )
+    flagged_4_publication = django_filters.BooleanFilter(field_name="flagged_4_publication", lookup_expr='exact')  # placeholder for ordering
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -44,7 +45,6 @@ class ResourceFilter(django_filters.FilterSet):
         #                                                      lookup_expr='exact', choices=status_choices)
         self.filters['section'] = django_filters.ChoiceFilter(field_name="section", label=_("Section"),
                                                               lookup_expr='exact', choices=section_choices)
-
 
         # if there is a filter on section, filter the people filter accordingly
         try:
@@ -73,3 +73,21 @@ class KeywordFilter(django_filters.FilterSet):
 
 class CitationFilter(django_filters.FilterSet):
     search_term = django_filters.CharFilter(label="Citation Search Term", lookup_expr='icontains')
+
+
+class DMAFilter(django_filters.FilterSet):
+    class Meta:
+        model = models.DMA
+        fields = {
+            'section__division__branch__sector__region': ['exact'],
+            'title': ['exact'],
+            'data_contact': ['exact'],
+            'metadata_contact': ['exact'],
+            'status': ['exact'],
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.filters["section__division__branch__sector__region"].label = "Region"
+        self.filters["data_contact"].label = _("Data contact")
+        self.filters["metadata_contact"].label = _("Metadata contact")

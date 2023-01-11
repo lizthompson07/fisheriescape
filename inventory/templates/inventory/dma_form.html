@@ -1,0 +1,78 @@
+{% extends "inventory/form.html" %}
+
+{% load static %}
+{% load bootstrap4 %}
+{% load i18n %}
+{% load custom_filters %}
+{% load csas_filters %}
+
+
+{% block pre_form_div %}
+  <p class="lead">
+    <a href="{% static 'markdown-cheatsheet-online.pdf' %}" data-toggle="tooltip" target="_blank" tabindex="-1"
+       title="{% trans "Markdown syntax is supported in this field" %}">
+      {% trans "Markdown syntax is supported in the textbox fields" %}
+    </a>
+  </p>
+{% endblock %}
+
+{% block form_fields %}
+
+
+  <div class="card mb-5">
+    <div class="card-header lead bg-primary text-light">
+      {% trans "Identification" %}
+    </div>
+    <div class="card-body">
+      {% bootstrap_field form.title placeholder="" %}
+      {% bootstrap_field form.section placeholder="" %}
+      {% bootstrap_field form.data_contact placeholder="" %}
+      {% bootstrap_field form.data_contact_text placeholder="" %}
+    </div>
+  </div>
+
+  <div class="card mb-5">
+    <div class="card-header lead bg-primary text-light">
+      {% trans "Metadata" %}
+    </div>
+    <div class="card-body">
+      {% bootstrap_field form.metadata_contact placeholder="" %}
+      {% bootstrap_field form.metadata_contact_text placeholder="" %}
+      {% bootstrap_field form.metadata_tool placeholder="" %}
+      {% bootstrap_field form.metadata_url placeholder="" %}
+      {% bootstrap_field form.metadata_update_freq placeholder="" %}
+      {% bootstrap_field form.metadata_freq_text placeholder="" %}
+
+    </div>
+  </div>
+
+  <div class="card mb-5">
+    <div class="card-header lead bg-primary text-light">
+      {% trans "Archiving and Storage" %}
+    </div>
+    <div class="card-body">
+      {% bootstrap_field form.storage_solutions placeholder="" %}
+      {% bootstrap_field form.storage_solution_text placeholder="" %}
+      {% bootstrap_field form.storage_needed placeholder="" %}
+      {% bootstrap_field form.raw_data_retention placeholder="" %}
+      {% bootstrap_field form.data_retention placeholder="" %}
+      {% bootstrap_field form.backup_plan placeholder="" %}
+      {% bootstrap_field form.cloud_costs placeholder="" %}
+    </div>
+  </div>
+
+  <div class="card mb-5">
+    <div class="card-header lead bg-primary text-light">
+      {% trans "Sharing" %}
+    </div>
+    <div class="card-body">
+      {% bootstrap_field form.had_sharing_agreements placeholder="" %}
+      {% bootstrap_field form.sharing_agreements_text placeholder="" %}
+      {% bootstrap_field form.publication_timeframe placeholder="" %}
+      {% bootstrap_field form.publishing_platforms placeholder="" %}
+      {% bootstrap_field form.comments placeholder="" %}
+    </div>
+  </div>
+
+
+{% endblock %}

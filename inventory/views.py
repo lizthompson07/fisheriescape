@@ -18,6 +18,7 @@ from django.views.generic import ListView, UpdateView, DeleteView, CreateView, D
 from django_filters.views import FilterView
 from easy_pdf.views import PDFTemplateView
 
+from dm_apps.context_processor import my_envr
 from dm_apps.utils import custom_send_mail
 from lib.functions.custom_functions import fiscal_year, listrify
 from shared_models import models as shared_models
@@ -30,7 +31,7 @@ from . import models
 from . import reports
 from . import xml_export
 from .mixins import SuperuserOrAdminRequiredMixin, CanModifyRequiredMixin, AdminRequiredMixin, InventoryBasicMixin, InventoryLoginRequiredMixin
-from .utils import can_modify
+from .utils import can_modify, get_dma_field_list, get_dma_review_field_list
 
 
 # USER PERMISSIONS
@@ -1465,6 +1466,8 @@ class ReportSearchFormView(AdminRequiredMixin, FormView):
             return HttpResponseRedirect(reverse("inventory:export_open_data_resources") + f"?regions={regions}")
         elif report == 6:
             return HttpResponseRedirect(reverse("inventory:export_custodians") + f"?regions={regions}")
+        elif report == 7:
+            return HttpResponseRedirect(reverse("inventory:export_dmas") + f"?regions={regions}")
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
             return HttpResponseRedirect(reverse("inventory:report_search"))
@@ -1554,6 +1557,25 @@ def export_open_data_resources(request):
             return response
     raise Http404
 
+
+@login_required()
+def export_dmas(request):
+    qs = models.DMA.objects.all()
+    regions = request.GET.get("regions") if request.GET.get("regions") else None
+    if regions:
+        regions = regions.split(",")
+        qs = qs.filter(section__division__branch__sector__region_id__in=regions)
+
+    site_url = my_envr(request)["SITE_FULL_URL"]
+    file_url = reports.generate_dma_report(qs, site_url)
+    if os.path.exists(file_url):
+        with open(file_url, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+            response['Content-Disposition'] = f'inline; filename="data management agreements.xlsx"'
+            return response
+    raise Http404
+
+
 #
 # # TEMP #
 # ########
@@ -1585,3 +1607,173 @@ def export_open_data_resources(request):
 #     context['my_object'] = models.Resource.objects.first()
 #     context['field_list'] = ["title_eng", "section", "status", "descr_eng", "purpose_eng"]
 #     return render(request, 'inventory/temp_formset.html', context)
+
+
+# DMAs #
+########
+
+class DMAListView(AdminRequiredMixin, CommonFilterView):
+    template_name = 'inventory/list.html'
+    filterset_class = filters.DMAFilter
+    home_url_name = "inventory:index"
+    new_object_url = reverse_lazy("inventory:dma_new")
+    row_object_url_name = row_ = "inventory:dma_detail"
+    container_class = "container"
+    fields = [
+        "region",
+        "section",
+        "title",
+        "data_contact|{}".format(_("data contact")),
+        "metadata_contact|{}".format(_("metadata contact")),
+        "status",
+    ]
+
+    def get_queryset(self):
+        return models.DMA.objects.all()
+
+
+class DMACreateView(InventoryBasicMixin, CommonCreateView):
+    model = models.DMA
+    form_class = forms.DMAForm
+    home_url_name = "inventory:index"
+    template_name = 'inventory/dma_form.html'
+    container_class = "container bg-light curvy"
+    parent_crumb = {"title": _("Data Management Agreements"), "url": reverse_lazy("inventory:dma_list")}
+
+    # def get_initial(self):
+    #     return dict(title=f"Data management agreement for _____")
+
+    def form_valid(self, form):
+        dma = form.save(commit=False)
+        dma.updated_by = self.request.user
+        dma.save()
+        return super().form_valid(form)
+
+
+class DMADeleteView(InventoryBasicMixin, CommonDeleteView):
+    template_name = "inventory/confirm_delete.html"
+    model = models.DMA
+    container_class = "container bg-light curvy"
+    delete_protection = False
+    grandparent_crumb = {"title": _("Data Management Agreements"), "url": reverse_lazy("inventory:dma_list")}
+
+    def get_success_url(self, **kwargs):
+        return self.get_grandparent_crumb()["url"]
+
+    def get_parent_crumb(self):
+        return {"title": str(self.get_object()), "url": reverse_lazy("inventory:dma_detail", args=[self.get_object().id])}
+
+
+class DMADetailView(InventoryBasicMixin, CommonDetailView):
+    model = models.DMA
+    home_url_name = "inventory:index"
+    template_name = "inventory/dma_detail.html"
+    field_list = get_dma_field_list()
+    parent_crumb = {"title": _("Data Management Agreements"), "url": reverse_lazy("inventory:dma_list")}
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["dma_review_field_list"] = get_dma_review_field_list()
+
+        context["fields_id"] = [
+            'title',
+            'section',
+            'data_contact',
+            'status',
+            'comments',
+            'metadata',
+        ]
+        context["fields_metadata"] = [
+            'metadata_contact',
+            'metadata_tool',
+            'metadata_url',
+            'metadata_update_freq',
+            'metadata_freq_text',
+        ]
+        context["fields_storage"] = [
+            'storage_solutions',
+            'storage_solution_text',
+            'storage_needed',
+            'raw_data_retention',
+            'data_retention',
+            'backup_plan',
+            'cloud_costs',
+        ]
+        context["fields_sharing"] = [
+            'had_sharing_agreements',
+            'sharing_agreements_text',
+            'publication_timeframe',
+            'publishing_platforms',
+        ]
+        return context
+
+
+class DMAUpdateView(InventoryBasicMixin, CommonUpdateView):
+    model = models.DMA
+    form_class = forms.DMAForm
+    home_url_name = "inventory:index"
+    template_name = "inventory/dma_form.html"
+    is_multipart_form_data = True
+    container_class = "container bg-light curvy"
+    grandparent_crumb = {"title": _("Data Management Agreements"), "url": reverse_lazy("inventory:dma_list")}
+
+    def get_parent_crumb(self):
+        return {"title": str(self.get_object()), "url": reverse_lazy("inventory:dma_detail", args=[self.get_object().id])}
+
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+        obj.updated_by = self.request.user
+        obj.save()
+        return super().form_valid(form)
+
+
+class DMACloneView(DMAUpdateView):
+
+    def get_h1(self):
+        return _("Cloning: ") + str(self.get_object())
+
+    def form_valid(self, form):
+        new_obj = form.save(commit=False)
+        old_obj = get_object_or_404(models.DMA, pk=new_obj.pk)
+        new_obj.pk = None
+        new_obj.title = f"Data management agreement for {new_obj.project.title}"
+
+        new_obj.save()
+
+        # Now we need to replicate all the related records:
+        for item in old_obj.storage_solutions.all():
+            new_obj.storage_solutions.add(item)
+
+        return HttpResponseRedirect(reverse_lazy("inventory:dma_edit", args=[new_obj.id]))
+
+
+# DMA Reviews #
+###############
+
+class DMAReviewCreateView(AdminRequiredMixin, CommonPopoutCreateView):
+    model = models.DMAReview
+    form_class = forms.DMAReviewForm
+
+    def form_valid(self, form):
+        r = form.save(commit=False)
+        r.updated_by = self.request.user
+        r.dma_id = self.kwargs.get("dma")
+        r.save()
+        return super().form_valid(form)
+
+
+class DMAReviewDeleteView(AdminRequiredMixin, CommonPopoutDeleteView):
+    model = models.DMAReview
+    delete_protection = False
+
+
+class DMAReviewUpdateView(AdminRequiredMixin, CommonPopoutUpdateView):
+    model = models.DMAReview
+    form_class = forms.DMAReviewForm
+    home_url_name = "inventory:index"
+
+    def form_valid(self, form):
+        r = form.save(commit=False)
+        r.updated_by = self.request.user
+        r.save()
+        return super().form_valid(form)

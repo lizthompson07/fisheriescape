@@ -123,6 +123,21 @@ urlpatterns = [
     path('web-service/<int:pk>/delete/', views.WebServiceDeleteView.as_view(), name='web_service_delete'),
     path('web-service/<int:pk>/clone/', views.web_service_clone, name='web_service_clone'),
 
+    # DMAs #
+    #################
+    path('dmas/', views.DMAListView.as_view(), name="dma_list"),
+    path('dmas/new/', views.DMACreateView.as_view(), name="dma_new"),
+    path('dmas/<int:pk>/view/', views.DMADetailView.as_view(), name="dma_detail"),
+    path('dmas/<int:pk>/edit/', views.DMAUpdateView.as_view(), name="dma_edit"),
+    path('dmas/<int:pk>/delete/', views.DMADeleteView.as_view(), name="dma_delete"),
+    path('dmas/<int:pk>/clone/', views.DMACloneView.as_view(), name="dma_clone"),
+
+    # DMA Reviews #
+    #################
+    path('dmas/<int:dma>/new-review/', views.DMAReviewCreateView.as_view(), name="dma_review_new"),
+    path('dma-reviews/<int:pk>/edit/', views.DMAReviewUpdateView.as_view(), name="dma_review_edit"),
+    path('dmas-reviews/<int:pk>/delete/', views.DMAReviewDeleteView.as_view(), name="dma_review_delete"),
+
     # Reports #
     ###########
     path('reports/search/', views.ReportSearchFormView.as_view(), name="report_search"),
@@ -132,6 +147,7 @@ urlpatterns = [
     path('reports/general-export/', views.export_resources, name="export_resources"),
     path('reports/open-data/', views.export_open_data_resources, name="export_open_data_resources"),
     path('reports/custodians/', views.export_custodians, name="export_custodians"),
+    path('reports/dmas/', views.export_dmas, name="export_dmas"),
 
     # TEMP #
     ########
