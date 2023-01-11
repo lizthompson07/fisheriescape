@@ -44,7 +44,7 @@ status_choices = (
 sample_type_choices = (
     (1, _("Rotary Screw Trap")),
     (2, _("Electrofishing")),
-    (3, _("Trap Net")),
+    (3, _("Trapnet")),
 )
 
 site_type_choices = (
@@ -53,8 +53,8 @@ site_type_choices = (
 )
 
 seine_type_choices = (
-    (1, _("2 man lip seine (3m wide X 1m high)")),
-    (2, _("1 man seine (1m wide X 1m high)")),
+    (1, _("1 man seine (1m wide X 1m high)")),
+    (2, _("2 man lip seine (3m wide X 1m high)")),
 )
 
 pulse_type_choices = (
@@ -63,14 +63,30 @@ pulse_type_choices = (
     (3, _("Burst of pulses")),
 )
 
-fish_size_choices = (
-    (1, _("Fry")),
-    (2, _("Parr")),
+adipose_condition_choices = (
+    (None, _("Not checked")),
+    (0, _("Absent")),
+    (1, _("Present")),
+)
+
+didymo_choices = (
+    (None, _("No data")),
+    (0, _("Absent")),
+    (1, _("Present")),
+)
+
+sea_lice_choices = (
+    (None, "None"),
+    (1, "< 5"),
+    (2, "5-15"),
+    (3, "15-50"),
+    (4, "> 50"),
 )
 
 age_type_choices = (
     (1, _("scale")),
-    (2, _("length-frequency")),
+    (2, _("length-frequency, manual")),
+    (3, _("length-frequency, auto")),
 )
 
 length_type_choices = (

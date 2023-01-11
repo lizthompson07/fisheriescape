@@ -315,6 +315,24 @@ class CommonListMixin(CommonMixin):
     random_object = None
     # the text of the "new" button
     new_btn_text = None
+    # the list of dicts to be passed in to populate the list
+    field_list = None
+    # a list of strings of fields to display; not compatible with providing entire field list but is a lightweight alternative
+    fields = None
+    def get_field_list(self):
+        if self.field_list:
+            return self.field_list
+        else:
+            # let's take a good guess at which fields to populate
+            payload = list()
+            if not self.fields:
+                field_names = [field.name for field in self.get_queryset().model._meta.fields]
+            else:
+                field_names = self.fields
+
+            for field in field_names:
+                payload.append(dict(name=field))
+            return payload
 
     def get_h1(self):
         # take a stab at getting the h1
@@ -359,4 +377,5 @@ class CommonListMixin(CommonMixin):
         context["new_object_url"] = self.get_new_object_url()
         context["random_object"] = self.get_random_object()
         context["new_btn_text"] = self.get_new_btn_text()
+        context["field_list"] = self.get_field_list()
         return context

@@ -1,0 +1,37 @@
+{% load i18n %}
+<div class="mb-5">
+  <div class="row">
+    {% if lw %}
+      <div class="col">
+        <div class="card">
+          <div class="card-header lead">
+            {% trans "Salmon Length vs. Weight" %}
+          </div>
+          <div class="card-body">
+            <canvas id="length-weight" width="100%"></canvas>
+          </div>
+        </div>
+      </div>
+    {% endif %}
+
+    {% if hist %}
+      <div class="col">
+        <div class="card">
+          <div class="card-header lead">
+            {% trans "Salmon Length-frequency Distribution" %}
+          </div>
+          <div class="card-body">
+            <canvas id="bar-chart" width="100%"></canvas>
+          </div>
+        </div>
+      </div>
+    {% endif %}
+
+  </div>
+  <div class="btn-group">
+  <a class="btn btn-outline-dark btn-sm" href="{% url 'trapnet:sample_edit' object.id %}#id_age_thresh_0_1">Set 0+ to 1+ thresholds</a>
+  <a class="btn btn-outline-dark btn-sm" href="{% url 'trapnet:sample_edit' object.id %}#id_age_thresh_1_2">Set 1+ to 2+ thresholds</a>
+  <a class="btn btn-outline-dark btn-sm" href="{% url 'trapnet:sample_edit' object.id %}#id_age_thresh_2_3">Set 2+ to 3+ thresholds</a>
+  </div>
+
+</div>

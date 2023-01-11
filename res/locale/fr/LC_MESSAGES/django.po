@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-10-13 09:34-0300\n"
+"POT-Creation-Date: 2023-01-10 15:26-0400\n"
 "PO-Revision-Date: 2021-10-28 13:40-0300\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -32,7 +32,19 @@ msgstr "La date de votre dernière demande doit être dans le passé"
 msgid "The date of your last promotion must be in the past"
 msgstr "La date de votre dernière promotion doit être dans le passé"
 
-#: .\res\api\views.py:90
+#: .\res\api\views.py:70
+msgid "Cannot update starting count without specifying a publication."
+msgstr ""
+
+#: .\res\api\views.py:72
+msgid "Cannot update starting count without specifying a count."
+msgstr ""
+
+#: .\res\api\views.py:78 .\res\api\views.py:143 .\res\api\views.py:207
+msgid "This endpoint cannot be used without a query param"
+msgstr "Ce point de contact ne peut pas être utilisé sans paramètre de requête"
+
+#: .\res\api\views.py:106
 msgid ""
 "Sorry, you are not the right person to be recommending this application. We "
 "were expecting:"
@@ -40,13 +52,13 @@ msgstr ""
 "Désolé, vous n'êtes pas la bonne personne pour recommander cette "
 "application. Nous attendions :"
 
-#: .\res\api\views.py:93
+#: .\res\api\views.py:109
 msgid "You must provide recommendation text and a decision before signing."
 msgstr ""
 "Vous devez fournir un texte de recommandation et une décision avant de "
 "signer."
 
-#: .\res\api\views.py:95 .\res\api\views.py:116
+#: .\res\api\views.py:111 .\res\api\views.py:132
 msgid ""
 "You can only sign a recommendation for an application that has been "
 "submitted."
@@ -54,29 +66,31 @@ msgstr ""
 "Vous ne pouvez signer une recommandation que pour une demande qui a été "
 "soumise."
 
-#: .\res\api\views.py:97 .\res\api\views.py:120
+#: .\res\api\views.py:113 .\res\api\views.py:136
 msgid "You have already signed this recommendation."
 msgstr "Vous avez déjà signé cette recommandation."
 
-#: .\res\api\views.py:113
+#: .\res\api\views.py:129
 msgid "Sorry, you are not the right person to be signing. We were expecting:"
 msgstr ""
 "Désolé, vous n'êtes pas la bonne personne pour signer. Nous attendions :"
 
-#: .\res\api\views.py:118
+#: .\res\api\views.py:134
 msgid "Your manager has not yet signed this recommendation."
 msgstr "Votre gestionnaire n'a pas encore signé cette recommandation."
 
-#: .\res\api\views.py:127 .\res\api\views.py:188
-msgid "This endpoint cannot be used without a query param"
-msgstr "Ce point de contact ne peut pas être utilisé sans paramètre de requête"
-
-#: .\res\api\views.py:142
+#: .\res\api\views.py:158
 msgid "You need to specify a RES application"
 msgstr "Vous devez spécifier une application RES"
 
-#: .\res\api\views.py:166
+#: .\res\api\views.py:182
 msgid "Cannot run summary without user param."
+msgstr "Impossible d'exécuter le résumé sans paramètre utilisateur."
+
+#: .\res\api\views.py:184
+#, fuzzy
+#| msgid "Cannot run summary without user param."
+msgid "Cannot run summary without application param."
 msgstr "Impossible d'exécuter le résumé sans paramètre utilisateur."
 
 #: .\res\filters.py:18 .\res\filters.py:37
@@ -167,234 +181,238 @@ msgstr "Non approuvé"
 msgid "Approved"
 msgstr "Approuvé"
 
-#: .\res\models.py:17
+#: .\res\models.py:18
 msgid "Yes"
 msgstr "Oui"
 
-#: .\res\models.py:18
+#: .\res\models.py:19
 msgid "No"
 msgstr "Non"
 
-#: .\res\models.py:23
+#: .\res\models.py:24
 msgid "DM Apps user"
 msgstr "Utilisateur de Applis GD"
 
-#: .\res\models.py:24
+#: .\res\models.py:25
 #, fuzzy
 #| msgid "Travel App ADM Administrator"
 msgid "app administrator?"
 msgstr "Application de voyage - Administrateur de la SMA"
 
-#: .\res\models.py:39 .\res\views.py:169
+#: .\res\models.py:40 .\res\views.py:169
 msgid "section"
 msgstr "section"
 
-#: .\res\models.py:40 .\res\models.py:70
+#: .\res\models.py:41 .\res\models.py:71
 msgid "Description (en)"
 msgstr "Description (an)"
 
-#: .\res\models.py:41 .\res\models.py:72
+#: .\res\models.py:42 .\res\models.py:73
 msgid "Description (fr)"
 msgstr "Description (fr)"
 
 # never touch
-#: .\res\models.py:46 .\res\models.py:47
+#: .\res\models.py:47 .\res\models.py:48
 msgid "description_en"
 msgstr "description_en"
 
-#: .\res\models.py:63
+#: .\res\models.py:64
 msgid "word limit"
 msgstr "limite de mots"
 
 # please never touch this translation!!
-#: .\res\models.py:67
+#: .\res\models.py:68
 msgid "context"
 msgstr "context"
 
-#: .\res\models.py:68
+#: .\res\models.py:69
 msgid "name (en)"
 msgstr "nom (anglais)"
 
-#: .\res\models.py:71
+#: .\res\models.py:72
 msgid "name (fr)"
 msgstr "nom (français)"
 
-#: .\res\models.py:73
+#: .\res\models.py:74
 msgid "order"
 msgstr "ordre"
 
-#: .\res\models.py:88
+#: .\res\models.py:89
 msgid "category code"
 msgstr "code de catégorie"
 
-#: .\res\models.py:89
+#: .\res\models.py:90
 msgid "Is this a category for publications?"
 msgstr "Est-ce une catégorie pour les publications ?"
 
-#: .\res\models.py:107 .\res\models.py:117
+#: .\res\models.py:108 .\res\models.py:118
 msgid "display code"
 msgstr "code d'affichage"
 
-#: .\res\models.py:128
+#: .\res\models.py:129
 msgid "researcher"
 msgstr "chercheur/euse"
 
-#: .\res\models.py:129
+#: .\res\models.py:130
 msgid "accountable manager"
 msgstr "gestionnaire responsable"
 
-#: .\res\models.py:130
+#: .\res\models.py:131
 msgid ""
 "This is the person who will provide a recommendation on this application"
 msgstr ""
 "C'est la personne qui fournira une recommandation sur cette application"
 
-#: .\res\models.py:131
+#: .\res\models.py:132
 msgid "DFO section"
 msgstr "Section MPO"
 
-#: .\res\models.py:133
+#: .\res\models.py:134
 msgid "Current group / level"
 msgstr "Groupe et niveau actuels"
 
-#: .\res\models.py:135
+#: .\res\models.py:136
 msgid "Group / level being sought"
 msgstr "Groupe et niveau demandés"
 
-#: .\res\models.py:136
+#: .\res\models.py:137
 msgid "period covered by this application (start) "
 msgstr "période couverte par la présente demande (début) "
 
-#: .\res\models.py:137
+#: .\res\models.py:138
 msgid "period covered by this application (end) "
 msgstr "période couverte par la présente demande (fin) "
 
-#: .\res\models.py:139
+#: .\res\models.py:140
 msgid "position title"
 msgstr "titre du poste"
 
-#: .\res\models.py:140
+#: .\res\models.py:141
 msgid "work location"
 msgstr "lieu de travail"
 
-#: .\res\models.py:141
+#: .\res\models.py:142
 msgid "last application for advancement"
 msgstr "dernière demande d’avancement"
 
-#: .\res\models.py:142
+#: .\res\models.py:143
 msgid "last promotion"
 msgstr "dernière promotion"
 
-#: .\res\models.py:143
+#: .\res\models.py:144
 msgid "academic background"
 msgstr "antécédents scolaires"
 
-#: .\res\models.py:144
+#: .\res\models.py:145
 msgid "employment history"
 msgstr "antécédents professionnels"
 
-#: .\res\models.py:145
+#: .\res\models.py:146
 msgid "department / sectoral objectives"
 msgstr "objectifs ministériels / sectoriels"
 
-#: .\res\models.py:145
+#: .\res\models.py:146
 msgid "no more than 200 words"
 msgstr "pas plus de 200 mots"
 
-#: .\res\models.py:146
+#: .\res\models.py:147
 msgid "relevant factors"
 msgstr "facteurs connexes"
 
-#: .\res\models.py:146
+#: .\res\models.py:147
 msgid "no more than 400 words"
 msgstr "pas plus de 400 mots"
 
-#: .\res\models.py:149
+#: .\res\models.py:150
 msgid "submission date"
 msgstr "date de soumission"
 
-#: .\res\models.py:152
+#: .\res\models.py:153
 msgid "fiscal year"
 msgstr "exercice fiscal"
 
-#: .\res\models.py:154
+#: .\res\models.py:155
 msgid "status"
 msgstr "statut"
 
-#: .\res\models.py:255
+#: .\res\models.py:257
+msgid "starting count"
+msgstr ""
+
+#: .\res\models.py:265
 msgid "accountable manager's assessment"
 msgstr "évaluation du gestionnaire responsable"
 
-#: .\res\models.py:255 .\res\models.py:257
+#: .\res\models.py:265 .\res\models.py:267
 msgid "no more than 250 words"
 msgstr "pas plus de 250 mots"
 
-#: .\res\models.py:256
+#: .\res\models.py:266
 msgid "decision"
 msgstr "décision"
 
-#: .\res\models.py:257
+#: .\res\models.py:267
 msgid "researcher's comment"
 msgstr "comméntaire du chercheur"
 
-#: .\res\models.py:260
+#: .\res\models.py:270
 msgid "manager signed by"
 msgstr "gestionnaire signé par"
 
-#: .\res\models.py:262 .\res\reports.py:48 .\res\views.py:247
+#: .\res\models.py:272 .\res\reports.py:48 .\res\views.py:251
 msgid "manager signature"
 msgstr "signature du gestionnaire responsable"
 
-#: .\res\models.py:263
+#: .\res\models.py:273
 msgid "researcher signature"
 msgstr "signature du chercheur"
 
-#: .\res\models.py:264
+#: .\res\models.py:274
 msgid "applicant signed by"
 msgstr "demandeur signé par"
 
-#: .\res\models.py:280 .\res\models.py:285
+#: .\res\models.py:290 .\res\models.py:295
 msgid "Signed by {user} at {date}"
 msgstr "Signé par {user} à {date}"
 
-#: .\res\models.py:291
+#: .\res\models.py:301
 msgid "text"
 msgstr "texte"
 
-#: .\res\models.py:314
+#: .\res\models.py:324
 msgid "achievement category"
 msgstr "catégories de réalisations"
 
-#: .\res\models.py:316
+#: .\res\models.py:326
 #, fuzzy
 #| msgid "achievement category"
 msgid "achievement sub-category "
 msgstr "catégories de réalisations"
 
-#: .\res\models.py:318
+#: .\res\models.py:328
 msgid "peer review type"
 msgstr "type d'examen par les pairs"
 
-#: .\res\models.py:319
+#: .\res\models.py:329
 #, fuzzy
 #| msgid "Add Achievement / Publication"
 msgid "date of achievement / publication "
 msgstr "Ajouter une réalisation / une publication"
 
-#: .\res\models.py:320
+#: .\res\models.py:330
 msgid "detail"
 msgstr "détails"
 
-#: .\res\models.py:330
+#: .\res\models.py:340
 #: .\res\templates\res\application_detail\components\ref_insert.html:59
 msgid "Reference"
 msgstr "Référence"
 
-#: .\res\reports.py:34 .\res\views.py:231
+#: .\res\reports.py:34 .\res\views.py:235
 msgid "dates"
 msgstr "dates"
 
-#: .\res\reports.py:49 .\res\views.py:248
+#: .\res\reports.py:49 .\res\views.py:252
 msgid "applicant signature"
 msgstr "signature du demandeur"
 
@@ -430,16 +448,23 @@ msgid "Publication Type"
 msgstr "Type de publication"
 
 #: .\res\templates\res\application_detail\_achievements.html:79
-#: .\res\templates\res\application_print\_summary_table.html:9
-msgid "Before last promotion"
+#, fuzzy
+#| msgid "Before last promotion"
+msgid "Before last promotion (external to app)"
 msgstr "Avant la dernière promotion"
 
 #: .\res\templates\res\application_detail\_achievements.html:80
+#, fuzzy
+#| msgid "Before last promotion"
+msgid "Before last promotion (from app)"
+msgstr "Avant la dernière promotion"
+
+#: .\res\templates\res\application_detail\_achievements.html:81
 #: .\res\templates\res\application_print\_summary_table.html:10
 msgid "Since last promotion"
 msgstr "Depuis la dernière promotion"
 
-#: .\res\templates\res\application_detail\_achievements.html:81
+#: .\res\templates\res\application_detail\_achievements.html:82
 #: .\res\templates\res\application_print\_summary_table.html:11
 msgid "Career total"
 msgstr "Total durant la carrière"
@@ -661,7 +686,7 @@ msgstr "Annuler la soumission"
 msgid "Submit"
 msgstr "Soumettre"
 
-#: .\res\templates\res\application_detail\main.html:56 .\res\views.py:267
+#: .\res\templates\res\application_detail\main.html:56 .\res\views.py:271
 msgid "All fields are mandatory before approvals and submission"
 msgstr ""
 "Tous les champs sont obligatoires avant les approbations et la soumission"
@@ -678,21 +703,25 @@ msgstr "Clonez-moi"
 msgid "Print View"
 msgstr "Aperçu avant impression"
 
-#: .\res\templates\res\application_detail\main.html:282
+#: .\res\templates\res\application_detail\main.html:290
 msgid "Are you certain you want to permanently delete this achievement?"
 msgstr "Êtes-vous sûr de vouloir supprimer définitivement cette réalisation ?"
 
-#: .\res\templates\res\application_detail\main.html:370
+#: .\res\templates\res\application_detail\main.html:378
 msgid "Are you sure you want to sign this record?"
 msgstr "Êtes-vous sûr de vouloir signer cet enregistrement ?"
 
-#: .\res\templates\res\application_detail\main.html:371
+#: .\res\templates\res\application_detail\main.html:379
 msgid "Comments (optional):"
 msgstr "Remarques (facultatif) :"
 
 #: .\res\templates\res\application_print\_recommendation.html:13
 msgid "No Recommendation has been created."
 msgstr "Aucune recommandation n'a été créée."
+
+#: .\res\templates\res\application_print\_summary_table.html:9
+msgid "Before last promotion"
+msgstr "Avant la dernière promotion"
 
 #: .\res\templates\res\application_print\main.html:47
 msgid "Back"
@@ -881,24 +910,24 @@ msgstr "Gestionnaire des réalistions"
 msgid "Please select a report"
 msgstr "Veuillez sélectionner un rapport"
 
-#: .\res\utils.py:58 .\res\utils.py:120 .\res\utils.py:149
+#: .\res\utils.py:60 .\res\utils.py:122 .\res\utils.py:151
 msgid "You are not logged in"
 msgstr "Vous n'êtes pas connecté"
 
 # please never touch this translation!!
-#: .\res\utils.py:178
+#: .\res\utils.py:180
 msgid "name"
 msgstr "nom"
 
-#: .\res\utils.py:251
+#: .\res\utils.py:253
 msgid "Bad reference!!"
 msgstr "Mauvaise référence !!"
 
-#: .\res\utils.py:287
+#: .\res\utils.py:301
 msgid "TOTAL"
 msgstr "TOTAL"
 
-#: .\res\utils.py:312
+#: .\res\utils.py:326
 msgid "metadata"
 msgstr "métadonnées"
 
@@ -910,28 +939,28 @@ msgstr "région"
 msgid "My Applications"
 msgstr "Mes demandes"
 
-#: .\res\views.py:182 .\res\views.py:188 .\res\views.py:264 .\res\views.py:304
-#: .\res\views.py:316
+#: .\res\views.py:182 .\res\views.py:188 .\res\views.py:268 .\res\views.py:308
+#: .\res\views.py:320
 msgid "Applications"
 msgstr "Les demandes"
 
-#: .\res\views.py:265 .\res\views.py:439
+#: .\res\views.py:269 .\res\views.py:443
 msgid "Save"
 msgstr "Sauvegarder"
 
-#: .\res\views.py:266
+#: .\res\views.py:270
 msgid "Application for the Preparation of Researchers’ Career Advancement"
 msgstr "Demande de préparation à l'avancement professionnel des chercheurs"
 
-#: .\res\views.py:315
+#: .\res\views.py:319
 msgid "Proceed"
 msgstr "Poursuivre"
 
-#: .\res\views.py:322
+#: .\res\views.py:326
 msgid "Do you wish to un-submit the following application?"
 msgstr "Souhaitez-vous annuler l'envoi de cette demande ?"
 
-#: .\res\views.py:324
+#: .\res\views.py:328
 msgid ""
 "Do you wish to submit the following application to your accountable manager "
 "for their assessment and recommendation?"
@@ -939,16 +968,16 @@ msgstr ""
 "Souhaitez-vous soumettre la demande suivante à votre gestionnaire "
 "responsable pour évaluation et recommandation ?"
 
-#: .\res\views.py:417
+#: .\res\views.py:421
 msgid "My Achievements"
 msgstr "Mes réalisations"
 
-#: .\res\views.py:418 .\res\views.py:424 .\res\views.py:438 .\res\views.py:459
-#: .\res\views.py:480
+#: .\res\views.py:422 .\res\views.py:428 .\res\views.py:442 .\res\views.py:463
+#: .\res\views.py:484
 msgid "Achievements"
 msgstr "Les réalisations"
 
-#: .\res\views.py:487
+#: .\res\views.py:491
 msgid "Clone an Achievement"
 msgstr "Cloner une réalisation"
 

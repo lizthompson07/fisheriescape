@@ -724,7 +724,8 @@ def can_cherry_pick(user, request=None):
     Stores the business rule for whom is allow to cherry pick approve travellers. If there is no request provided, we will simply provide only the authorization portion.
     """
     # the user has to have the correct authorization (e.g., ADM, RDG, DG) --> basically the head of a branch, sector or region, EOS travel coordinator
-    response = user.shared_models_branches.exists() or user.shared_models_sectors.exists() or user.shared_models_regions.exists() or is_adm(user) or in_travel_nat_admin_group(user)
+    response = user.shared_models_branches.exists() or user.shared_models_sectors.exists() or user.shared_models_regions.exists() or is_adm(
+        user) or in_travel_nat_admin_group(user)
 
     # there is a chance that this user may have expenditure initial for the region. we can only know this if we were supplied with a request.
     if not response and request and hasattr(user, "travel_default_reviewers") and user.travel_default_reviewers.expenditure_initiation_region:
@@ -874,3 +875,25 @@ def get_request_queryset(request):
         ids = qp.get("ids").split(",")  # get project year list
         qs = qs.filter(id__in=ids)  # get project year qs
     return qs.distinct()
+
+
+def can_view_delegations(user):
+    """ function to store the rules around who is allowed to see the trip delegation on the trip detail page"""
+
+    if is_admin(user):
+        return True
+
+    if is_adm(user):
+        return True
+
+    if user.shared_models_divisions.exists() or user.shared_models_admin_divisions.exists():
+        return True
+
+    if user.shared_models_branches.exists() or user.shared_models_admin_branches.exists():
+        return True
+
+    if user.shared_models_sectors.exists() or user.shared_models_admin_sectors.exists():
+        return True
+
+    if user.shared_models_regions.exists() or user.shared_models_admin_regions.exists():
+        return True

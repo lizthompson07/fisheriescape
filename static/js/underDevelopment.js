@@ -1,5 +1,5 @@
 $(".under-dev").click(function (e) {
-  alert("This feature is still under development. If this feature needs to be prioritized, please submit a ticket.");
+  alert("This feature is still under development.");
   e.preventDefaults();
   e.stopPropagation();
   e.stopImmediatePropagation();

@@ -61,7 +61,8 @@ urlpatterns = [
     path('manage/areas/', views.AreaFormsetView.as_view(), name="manage_areas"),
     path('manage/topics/', views.TopicFormsetView.as_view(), name="manage_topics"),
     path('manage/species/', views.SpeciesFormsetView.as_view(), name="manage_species"),
-    path('manage/org_categories/', views.OrgCategoriesFormsetView.as_view(), name="manage_org_categories"),
+    path('manage/groupings/', views.GroupingFormsetView.as_view(), name="manage_groupings"),
+    path('manage/groupings/<int:pk>/delete/', views.GroupingHardDeleteView.as_view(), name="delete_grouping"),
 
     path('ajax/get_divisions/', utils.ajax_get_divisions, name='ajax_get_divisions'),
     path('ajax/get_aops/', utils.ajax_get_aops, name='ajax_get_aops'),

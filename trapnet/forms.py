@@ -44,6 +44,7 @@ class SampleForm(forms.ModelForm):
         fields = "__all__"
         widgets = {
             "site": forms.Select(attrs=chosen_js),
+            "monitoring_program": forms.Select(attrs=chosen_js),
             "samplers": forms.Textarea(attrs={"rows": "2", }),
             "notes": forms.Textarea(attrs={"rows": "3", }),
             "time_released": forms.DateTimeInput(attrs={"type": "datetime-local"}, format="%Y-%m-%dT%H:%M:%S"),
@@ -59,6 +60,9 @@ class SampleForm(forms.ModelForm):
         site_choices = [(obj.id, f"{obj.river} --> {obj.name} ({nz(obj.province, 'unknown prov.')})") for obj in models.RiverSite.objects.all()]
         site_choices.insert(0, (None, "-----"))
         self.fields["site"].choices = site_choices
+        if kwargs.get("instance"):
+            del self.fields["sample_type"]
+
 
     def clean_percent_cloud_cover(self):
         percent_cloud_cover = self.cleaned_data['percent_cloud_cover']
@@ -75,7 +79,14 @@ class SampleForm(forms.ModelForm):
                 ))
         return percent_cloud_cover
 
+    def clean_monitoring_program(self):
+        monitoring_program = self.cleaned_data['monitoring_program']
 
+        if not monitoring_program:
+            raise forms.ValidationError(
+                gettext("You must select a monitoring program!")
+            )
+        return monitoring_program
 
     def clean(self):
         cleaned_data = super().clean()
@@ -87,6 +98,27 @@ class SampleForm(forms.ModelForm):
             self.add_error('departure_date', gettext(
                 "The departure date must be after the arrival date!"
             ))
+
+        # make sure the age thresholds make sense
+        age_thresh_0_1 = cleaned_data.get("age_thresh_0_1")
+        age_thresh_1_2 = cleaned_data.get("age_thresh_1_2")
+        age_thresh_parr_smolt = cleaned_data.get("age_thresh_parr_smolt")
+        if age_thresh_0_1 and age_thresh_1_2 and age_thresh_1_2 < age_thresh_0_1:
+            self.add_error('age_thresh_1_2', gettext(
+                "the 1-2 age threshold must be greater than that for the 0-1 age threshold!"
+            ))
+
+
+class EFSampleForm(forms.ModelForm):
+    class Meta:
+        model = models.EFSample
+        fields = "__all__"
+        widgets = {
+            "time_released": forms.DateTimeInput(attrs={"type": "datetime-local"}, format="%Y-%m-%dT%H:%M:%S"),
+        }
+
+    def clean(self):
+        cleaned_data = super().clean()
 
         # make sure site characterization is null or 1
         percent_riffle = cleaned_data.get("percent_riffle")
@@ -116,6 +148,24 @@ class SampleForm(forms.ModelForm):
             )
 
 
+class TrapnetSampleForm(forms.ModelForm):
+    class Meta:
+        model = models.TrapnetSample
+        fields = "__all__"
+        widgets = {
+            "time_released": forms.DateTimeInput(attrs={"type": "datetime-local"}, format="%Y-%m-%dT%H:%M:%S"),
+        }
+
+
+class RSTSampleForm(forms.ModelForm):
+    class Meta:
+        model = models.RSTSample
+        fields = "__all__"
+        widgets = {
+            "time_released": forms.DateTimeInput(attrs={"type": "datetime-local"}, format="%Y-%m-%dT%H:%M:%S"),
+        }
+
+
 class SweepForm(forms.ModelForm):
     class Meta:
         model = models.Sweep
@@ -128,15 +178,28 @@ class SweepForm(forms.ModelForm):
         return sweep_number
 
 
-class ObservationForm(forms.ModelForm):
+class SpecimenForm(forms.ModelForm):
     class Meta:
-        model = models.Observation
+        model = models.Specimen
         fields = "__all__"
         widgets = {
             'sample': forms.HiddenInput(),
             'sweep': forms.HiddenInput(),
         }
 
+    def clean(self):
+        river_age = self.cleaned_data["river_age"]
+        age_type = self.cleaned_data["age_type"]
+
+        if river_age is not None and age_type == 3:
+            self.add_error('age_type', gettext(
+                "You cannot manually enter a river age while specifying this river age type!"
+            ))
+
+        if river_age is not None and not age_type:
+            self.add_error('age_type', gettext(
+                "You must specify a river age type!"
+            ))
 
 class FileForm(forms.ModelForm):
     class Meta:
@@ -152,39 +215,41 @@ class SampleFileForm(forms.ModelForm):
 
 class ReportSearchForm(forms.Form):
     REPORT_CHOICES = (
-        # (1, "List of samples (trap data) (CSV)"),
-        # (2, "List of entries (fish data) (CSV)"),
 
         (None, ""),
         (None, "RAW DATA"),
-        (None, "------------"),
-        (1, "sample data export (csv)"),
-        (2, "sweep data export (csv)"),
-        (3, "observation data export (csv)"),
-        (4, "Atlantic salmon individual observation event report (csv)"),
+        (None, "--------------------"),
+        (1, "sample data (csv)"),
+        (2, "sweep data - EF Only (csv)"),
+        (3, "specimen data (csv)"),
+        (4, "river sites (csv)"),
+        (5, "historical biological detail data (csv)"),
 
         (None, ""),
-        (None, "ELECTROFISHING"),
-        (None, "------------"),
-        (10, "juvenile salmon CSAS report (csv)"),
+        (None, ""),
+        (None, "CUSTOM REPORTS"),
+        (None, "----------------------------------------"),
+        (10, "Electrofishing juvenile salmon CSAS report (csv)"),
+        (11, "Atlantic salmon individual specimen event report - Guillaume (csv)"),
 
         (None, ""),
-        (None, "OPEN DATA"),
-        (None, "------------"),
-        (91, "summary by site by year (csv)"),
-        (92, "data dictionary (csv)"),
-        (93, "species list (csv)"),
-        (94, "web mapping service (WMS) report ENGLISH (csv)"),
-        (95, "web mapping service (WMS) report FRENCH (csv)"),
+        (None, ""),
+        (None, "OPEN DATA - Restigouche RST"),
+        (None, "------------------------------------------------------------"),
+        (20, "species list (csv)"),
+        (21, "data dictionary (csv)"),
+        (22, "summary by site by year (csv)"),
+        (23, "web mapping service (WMS) ENGLISH (csv)"),
+        (24, "web mapping service (WMS) FRENCH (csv)"),
     )
 
     leave_blank_text = gettext_lazy("leave blank for all")
     report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
-    year = forms.CharField(required=False, widget=forms.NumberInput(), label="Year", help_text=leave_blank_text)
     sample_type = forms.ChoiceField(required=False, label="Sample type", help_text=leave_blank_text)
+    year = forms.CharField(required=False, widget=forms.NumberInput(), label="Year", help_text=leave_blank_text)
     fishing_areas = forms.MultipleChoiceField(required=False, label="Fishing areas", help_text=leave_blank_text)
-    rivers = forms.MultipleChoiceField(required=False, label="Rivers", help_text=leave_blank_text)
-    sites = forms.MultipleChoiceField(required=False, label="Sites", help_text=leave_blank_text)
+    rivers = forms.MultipleChoiceField(required=False, label="Rivers", help_text=leave_blank_text, widget=forms.SelectMultiple(attrs=chosen_js))
+    sites = forms.MultipleChoiceField(required=False, label="Sites", help_text=leave_blank_text, widget=forms.SelectMultiple(attrs=chosen_js))
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -194,7 +259,7 @@ class ReportSearchForm(forms.Form):
         river_choices = [(obj.id, str(obj)) for obj in River.objects.filter(sites__samples__isnull=False).distinct()]
         self.fields['rivers'].choices = river_choices
 
-        fa_choices = [(obj.id, str(obj)) for obj in FishingArea.objects.all()]
+        fa_choices = [(obj.id, f"{obj} - {obj.description}") for obj in FishingArea.objects.all()]
         self.fields['fishing_areas'].choices = fa_choices
         self.fields['fishing_areas'].widget.attrs = chosen_js
 
@@ -321,3 +386,22 @@ TrapNetUserFormset = modelformset_factory(
     form=TrapNetUserForm,
     extra=1,
 )
+
+
+class MonitoringProgramForm(forms.ModelForm):
+    class Meta:
+        model = models.MonitoringProgram
+        fields = "__all__"
+
+
+MonitoringProgramFormset = modelformset_factory(
+    model=models.MonitoringProgram,
+    form=MonitoringProgramForm,
+    extra=1,
+)
+
+
+class BiologicalDetailingForm(forms.ModelForm):
+    class Meta:
+        model = models.BiologicalDetailing
+        fields = "__all__"

@@ -250,6 +250,7 @@ class DocumentFilter(django_filters.FilterSet):
         model = models.Document
         fields = {
             'id': ['exact'],
+            'title_en': ['exact'],
             'document_type': ['exact'],
             'status': ['exact'],
             'translation_status': ['exact'],
@@ -258,5 +259,5 @@ class DocumentFilter(django_filters.FilterSet):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.filters["id"] = django_filters.CharFilter(field_name='search_term', label=_("Title contains"),
+        self.filters["title_en"] = django_filters.CharFilter(field_name='search_term', label=_("Title contains"),
                                                        lookup_expr='icontains', widget=forms.TextInput())

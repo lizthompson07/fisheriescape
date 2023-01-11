@@ -57,6 +57,16 @@ class RegionSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
     metadata = serializers.SerializerMethodField()
+    head_display = serializers.SerializerMethodField()
+    admin_display = serializers.SerializerMethodField()
+
+    def get_admin_display(self, instance):
+        if instance.admin:
+            return instance.admin.get_full_name()
+
+    def get_head_display(self, instance):
+        if instance.head:
+            return instance.head.get_full_name()
 
     def get_metadata(self, instance):
         return instance.metadata

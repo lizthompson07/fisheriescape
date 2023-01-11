@@ -2,9 +2,11 @@ from django import forms
 from django.contrib.auth.models import User
 from django.db.models import Q
 from django.forms import modelformset_factory
+from django.templatetags.static import static
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy, gettext
 
+from shared_models.models import Section
 from . import models
 from .utils import is_dt_intersection
 
@@ -23,8 +25,15 @@ class VehicleForm(forms.ModelForm):
         model = models.Vehicle
         fields = "__all__"
         widgets = {
-            "custodian": forms.Select(attrs=chosen_js)
+            "custodian": forms.Select(attrs=chosen_js),
+            "section": forms.Select(attrs=chosen_js),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        section_choices = [(s.id, s.full_name) for s in Section.objects.all().order_by("division__branch__region", "division__branch", "division", "name")]
+        section_choices.insert(0, (None, "-----"))
+        self.fields['section'].choices = section_choices
 
 
 class ReservationForm(forms.ModelForm):
@@ -61,8 +70,12 @@ class ReservationForm(forms.ModelForm):
             del self.fields["box3"]
         else:
             self.fields["box1"].label = mark_safe(
-                gettext("I have signed the <a target='_blank' href='{url}'>Acknowledgement of Motor Vehicle Operator Role and Responsibilities Form</a>.").format(url="https://forms-formulaires.dfo-mpo.gc.ca/Forms/FP_0024-E.pdf"))
-            self.fields["box2"].label = mark_safe(gettext("I have signed off on the safe work procedure <a href='{url}'>Driving a Road Vehicle</a>.").format(url="#"))
+                gettext(
+                    "I have signed the <a target='_blank' href='{url}'>Acknowledgement of Motor Vehicle Operator Role and Responsibilities Form</a>.").format(
+                    url="https://forms-formulaires.dfo-mpo.gc.ca/Forms/FP_0024-E.pdf"))
+            self.fields["box2"].label = mark_safe(
+                gettext("I have signed off on the safe work procedure <a target='_blank' href='{url}'>Driving a Road Vehicle</a>.").format(
+                    url=static("cars/SWP 09.pdf")))
             self.fields["box3"].label = gettext("I have my manager's authorization to proceed.")
 
     def clean_primary_driver(self):
@@ -106,9 +119,19 @@ class VehicleFinderForm(forms.Form):
     vehicle_type = forms.ModelChoiceField(required=False,
                                           queryset=models.VehicleType.objects.filter(vehicles__isnull=False).distinct(),
                                           label=gettext_lazy("Vehicle type"), help_text=gettext_lazy("leave blank for all"))
-    vehicle = forms.ModelChoiceField(required=False, queryset=models.Vehicle.objects.all(),
+    vehicle_section = forms.ModelChoiceField(required=False,
+                                             queryset=models.Section.objects.filter(vehicles__isnull=False).distinct(), widget=forms.Select(attrs=chosen_js),
+                                             label=gettext_lazy("Vehicle belongs to which DFO Section"), help_text=gettext_lazy("leave blank for all"))
+    vehicle = forms.ModelChoiceField(required=False, queryset=models.Vehicle.objects.all(), widget=forms.Select(attrs=chosen_js),
                                      label=gettext_lazy("Vehicle"), help_text=gettext_lazy("leave blank for all"))
     no_passengers = forms.IntegerField(required=False, label=gettext_lazy("Passenger minimum capacity"), help_text=gettext_lazy("leave blank for all"))
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        section_choices = [(s.id, s.full_name) for s in Section.objects.filter(vehicles__isnull=False).distinct().order_by(
+            "division__branch__region", "division__branch", "division", "name")]
+        section_choices.insert(0, (None, "-----"))
+        self.fields['vehicle_section'].choices = section_choices
 
 
 class CarsUserForm(forms.ModelForm):
@@ -163,12 +186,17 @@ LocationFormset = modelformset_factory(
 )
 
 
-class VehicleShortForm(forms.ModelForm):
+class VehicleShortForm(VehicleForm):
     class Meta:
         model = models.Vehicle
         exclude = [
             "thumbnail",
         ]
+        widgets = {
+            "make": forms.Textarea(),
+            "model": forms.Textarea(),
+            "section": forms.Select(attrs=chosen_js),
+        }
 
 
 VehicleFormset = modelformset_factory(
@@ -198,3 +226,15 @@ class ReferenceMaterialForm(forms.ModelForm):
         widgets = {
             "date": forms.DateInput(attrs={"type": "date"})
         }
+
+
+class ReportSearchForm(forms.Form):
+    REPORT_CHOICES = (
+        (None, "---"),
+        (1, "Vehicle / Custodian Report (Excel)"),
+    )
+
+    report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)

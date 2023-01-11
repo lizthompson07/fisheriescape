@@ -194,6 +194,10 @@ class ApplicationDetailView(CanViewApplicationRequiredMixin, CommonDetailView):
         for o in models.Outcome.objects.all():
             models.ApplicationOutcome.objects.get_or_create(application=obj, outcome=o)
 
+        # attach all possible outcomes
+        for pt in models.PublicationType.objects.all():
+            models.ApplicationPublicationStartingCounts.objects.get_or_create(application=obj, publication_type=pt)
+
         # if has "export" param, then the user is trying to get a word doc
         if self.request.GET.get("export"):
             file_url = reports.generate_word_application(obj, request)

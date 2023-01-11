@@ -261,7 +261,7 @@ else:
     print("not connecting res app")
 
 if settings.INSTALLED_APPS.count("cars"):
-    urlpatterns += i18n_patterns(path('cars/', include('cars.urls')),
+    urlpatterns += i18n_patterns(path('field-work/', include('cars.urls')),
                                  prefix_default_language=True)
 else:
     print("not connecting cars app")

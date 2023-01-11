@@ -4,6 +4,15 @@
 {% load custom_filters %}
 {% load bootstrap5 %}
 
+{% block header %}
+  {{ block.super }}
+  <style>
+  body{
+      background-color: #f3f3f3;
+  }
+  </style>
+{% endblock %}
+
 {% block filter %}
   {% include 'cars/_vehicle_filter.html' %}
 {% endblock %}
@@ -41,13 +50,15 @@
                 </div>
                 <div class="col">
                   <p>
-                    <span class="label">{% trans "Location" %}</span><br><a target="_blank" href="{{ object.location.map_url }}">{{ object.location }}</a>
+                    <span class="label">{% trans "Location" %}</span><br>
+                    <span class="mdi mdi-map-marker text-danger mr-1"></span><a target="_blank" href="{{ object.location.map_url }}">{{ object.location }}</a>
                   </p>
 
                   {% verbose_field_display object "max_passengers" %}
                 </div>
                 <div class="col">
                   {% verbose_field_display object "vehicle_type" %}
+                  {% verbose_field_display object "section" %}
                 </div>
               </div>
               <hr>

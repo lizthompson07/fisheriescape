@@ -796,6 +796,7 @@ def get_status_report_field_list():
         'major_accomplishments_html|{}'.format(_("major accomplishments")),
         'major_issues_html|{}'.format(_("major issues")),
         'target_completion_date',
+        'rationale_for_modified_completion_date',
         'excess_funds',
         'excess_funds_amt',
         'excess_funds_comment_html|{}'.format(_("suggested uses for remaining funds")),

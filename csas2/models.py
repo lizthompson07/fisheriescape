@@ -1,3 +1,4 @@
+import sys
 from datetime import timedelta
 from math import floor
 from uuid import uuid4
@@ -194,7 +195,7 @@ class CSASOffice(models.Model):
     coordinator = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="csas_offices", verbose_name=_("coordinator / CSA"))
     advisors = models.ManyToManyField(User, blank=True, verbose_name=_("science advisors"), related_name="csas_offices_advisors")
     administrators = models.ManyToManyField(User, blank=True, verbose_name=_("administrators"), related_name="csas_offices_administrators")
-    generic_email = models.EmailField(verbose_name=_("generic email address"), blank=True, null=True)
+    generic_email = models.EmailField(verbose_name=_("generic email address"))
     disable_request_notifications = models.BooleanField(default=False, verbose_name=_("disable notifications from new requests?"), choices=YES_NO_CHOICES)
     no_staff_emails = models.BooleanField(default=False, verbose_name=_("do not send emails directly to office staff?"), choices=YES_NO_CHOICES)
     ppt_default_section = models.ForeignKey(Section, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="csas_offices",
@@ -489,6 +490,7 @@ class CSASRequestReview(MetadataFields):
     decision_date = models.DateTimeField(null=True, blank=True, verbose_name=_("recommendation date"))
     advice_date = models.DateTimeField(verbose_name=_("advice required by (final)"), blank=True, null=True)
     deferred_text = models.TextField(null=True, blank=True, verbose_name=_("rationale for alternate scheduling"))
+    is_other_mandate = models.BooleanField(default=False, verbose_name=_("does this fall under another scientific mandate?"), choices=YES_NO_CHOICES)
     notes = models.TextField(blank=True, null=True, verbose_name=_("administrative notes"))
 
     # non-editable
@@ -497,6 +499,9 @@ class CSASRequestReview(MetadataFields):
     def save(self, *args, **kwargs):
         if self.is_valid == 0 or self.is_feasible == 0:
             self.decision = 2  # the decision MUST be to withdraw
+
+        if self.decision != 2:
+            self.is_other_mandate = False  # the only time this can ever be true is when it has been returned to client
 
         # if there is a decision, but no decision date, it should be populated
         if self.decision and not self.decision_date:
@@ -673,6 +678,12 @@ class Process(SimpleLookupWithUUID, MetadataFields):
             mystr = f"<b><u>{mystr}</u></b>"
             mystr += f", {listrify([o for o in self.other_offices.all()])}"
         return mystr
+
+    @property
+    def regions_qs(self):
+        region_ids =[self.lead_office.region.id] + [o.region.id for o in self.other_offices.all()]
+        qs = Region.objects.filter(id__in=region_ids)
+        return qs
 
     @property
     def formatted_notes(self):
@@ -1211,24 +1222,28 @@ class Document(MetadataFields):
     title_en = models.CharField(max_length=255, verbose_name=_("title (English)"), blank=True, null=True)
     title_fr = models.CharField(max_length=255, verbose_name=_("title (French)"), blank=True, null=True)
     title_in = models.CharField(max_length=255, verbose_name=_("title (Inuktitut)"), blank=True, null=True)
-    year = models.PositiveIntegerField(null=True, blank=True, validators=[MaxValueValidator(9999)], verbose_name=_("Publication Year"))
-    pages = models.IntegerField(null=True, blank=True, verbose_name=_("pages"))
 
-    # file (should be able to get size as well!
-    file_en = models.FileField(upload_to=doc_directory_path, blank=True, null=True, verbose_name=_("file attachment (en)"))
-    file_fr = models.FileField(upload_to=doc_directory_path, blank=True, null=True, verbose_name=_("file attachment (fr)"))
-
-    url_en = models.URLField(verbose_name=_("document url (en)"), blank=True, null=True, max_length=2000)
-    url_fr = models.URLField(verbose_name=_("document url (fr)"), blank=True, null=True, max_length=2000)
-
-    dev_link_en = models.URLField(_("dev link (en)"), max_length=2000, blank=True, null=True)
-    dev_link_fr = models.URLField(_("dev link (fr)"), max_length=2000, blank=True, null=True)
+    pages_en = models.IntegerField(null=True, blank=True, verbose_name=_("pages (en)"))
+    pages_fr = models.IntegerField(null=True, blank=True, verbose_name=_("pages (fr)"))
 
     ekme_gcdocs_en = models.CharField(blank=True, null=True, max_length=255, verbose_name=_("EKME# / GCDocs (en)"))
     ekme_gcdocs_fr = models.CharField(blank=True, null=True, max_length=255, verbose_name=_("EKME# / GCDocs (fr)"))
 
+    dev_link_en = models.URLField(_("dev link (en)"), max_length=2000, blank=True, null=True)
+    dev_link_fr = models.URLField(_("dev link (fr)"), max_length=2000, blank=True, null=True)
+
+    url_en = models.URLField(verbose_name=_("document url (en)"), blank=True, null=True, max_length=2000)
+    url_fr = models.URLField(verbose_name=_("document url (fr)"), blank=True, null=True, max_length=2000)
+
+    pdf_size_kb_en = models.IntegerField(blank=True, null=True, verbose_name=_("size of PDF (en)"))
+    pdf_size_kb_fr = models.IntegerField(blank=True, null=True, verbose_name=_("size of PDF (fr)"))
+
     lib_cat_en = models.CharField(blank=True, null=True, max_length=255, verbose_name=_("library catalogue # (en)"))
     lib_cat_fr = models.CharField(blank=True, null=True, max_length=255, verbose_name=_("library catalogue # (fr)"))
+
+    # file (should be able to get size as well!
+    file_en = models.FileField(upload_to=doc_directory_path, blank=True, null=True, verbose_name=_("file attachment (en)"))
+    file_fr = models.FileField(upload_to=doc_directory_path, blank=True, null=True, verbose_name=_("file attachment (fr)"))
 
     # non-editable
     due_date = models.DateTimeField(null=True, blank=True, verbose_name=_("document due date"), editable=False)
@@ -1281,16 +1296,21 @@ class Document(MetadataFields):
     def lead_authors(self):
         return self.authors.filter(is_lead=True)
 
+    @property
+    def other_authors(self):
+        return self.authors.filter(is_lead=False)
+
     class Meta:
         ordering = ["process", _("title_en")]
 
     def save(self, *args, **kwargs):
-        # set status
-        self.status = 0  # unconfirmed
+        # set status if not set
+        if not self.status:
+            self.status = 0  # unconfirmed
 
-        if self.is_confirmed:
-            # self.status = 20  # confirmed
-            self.status = 1  # tracking started
+            if self.is_confirmed:
+                # self.status = 20  # confirmed
+                self.status = 1  # tracking started
 
         if hasattr(self, "tracking"):
             self.pub_number = self.tracking.pub_number
@@ -1344,6 +1364,24 @@ class Document(MetadataFields):
     def tstatus_class(self):
         return model_choices.get_translation_status_lookup().get(self.translation_status).get("stage")
 
+    @property
+    def last_meeting(self):
+        """most recent peer reviewed meeting"""
+        return self.meetings.filter(is_planning=False).order_by("-start_date").first()
+
+    @property
+    def other_regions(self):
+        """pulls in the offices from the process and excludes the lead as per the document"""
+        if not self.lead_office:
+            return self.process.regions_qs.all()
+        return self.process.regions_qs.filter(~Q(id=self.lead_office.region_id))
+
+    @property
+    def is_past_due(self):
+        """decided at whether the document is past due"""
+        if self.due_date:
+            return timezone.now() > self.tracking.due_date
+        return gettext("No due date assigned")
 
 class DocumentNote(GenericNote):
     ''' a note pertaining to a meeting'''
@@ -1424,3 +1462,6 @@ class Author(models.Model):
     class Meta:
         ordering = ['-is_lead', 'person__first_name', "person__last_name"]
         unique_together = (("document", "person"),)
+
+    def __str__(self):
+        return str(self.person)

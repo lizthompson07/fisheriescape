@@ -19,8 +19,6 @@ from . import serializers
 from .pagination import StandardResultsSetPagination
 from .permissions import CanModifyApplicationOrReadOnly
 from .. import models, utils, model_choices, emails
-
-
 # USER
 #######
 from ..utils import achievements_summary_table
@@ -62,6 +60,24 @@ class ApplicationViewSet(ModelViewSet):
 
     def perform_update(self, serializer):
         serializer.save(updated_by=self.request.user)
+
+    def post(self, request, pk):
+        qp = request.query_params
+        application = get_object_or_404(models.Application, pk=pk)
+        if qp.get("update-starting-counts"):
+            self.check_object_permissions(request, application)
+            if not request.data.get("publication_type"):
+                raise ValidationError(_("Cannot update starting count without specifying a publication."))
+            elif not request.data.get("count"):
+                raise ValidationError(_("Cannot update starting count without specifying a count."))
+            obj = application.starting_counts.get(publication_type_id=request.data.get("publication_type"))
+            obj.starting_count = starting_count=request.data.get("count")
+            obj.save()
+            return Response(serializers.ApplicationSerializer(application).data, status=status.HTTP_200_OK)
+
+        raise ValidationError(_("This endpoint cannot be used without a query param"))
+
+
 
 
 class RecommendationViewSet(ModelViewSet):
@@ -164,8 +180,11 @@ class AchievementViewSet(ModelViewSet):
         if qp.get("summary-table"):
             if not qp.get("user"):
                 raise ValidationError(_("Cannot run summary without user param."))
+            if not qp.get("application"):
+                raise ValidationError(_("Cannot run summary without application param."))
             user = get_object_or_404(User, pk=qp.get("user"))
-            data = achievements_summary_table(user)
+            application = get_object_or_404(models.Application, pk=qp.get("application"))
+            data = achievements_summary_table(user, application)
             return Response(data)
         return super().list(request, *args, **kwargs)
 

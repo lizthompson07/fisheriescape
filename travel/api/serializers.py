@@ -148,6 +148,32 @@ class RequestReviewerSerializerLITE(serializers.ModelSerializer):
         return instance.user.get_full_name() if instance.user else None
 
 
+class TripRequestSerializerVeryLite(serializers.ModelSerializer):
+    class Meta:
+        model = models.TripRequest
+        fields = "__all__"
+
+    display = serializers.SerializerMethodField()
+    section = SectionSerializer()
+    status_class = serializers.SerializerMethodField()
+    status_display = serializers.SerializerMethodField()
+    fiscal_year = serializers.StringRelatedField()
+
+    def get_display(self, instance):
+        return str(instance)
+    def get_section(self, instance):
+        return instance.section.shortish_name
+    def get_status_class(self, instance):
+        lang = get_language()
+        activate("en")
+        mystr = slugify(instance.get_status_display())
+        activate(lang)
+        return mystr
+
+    def get_status_display(self, instance):
+        return instance.get_status_display()
+
+
 class TripRequestSerializerLITE(serializers.ModelSerializer):
     class Meta:
         model = models.TripRequest
@@ -318,8 +344,8 @@ class TravellerSerializer(serializers.ModelSerializer):
     def get_adm_travel_history(self, instance):
         if instance.user:
             qs = models.TripRequest.objects.filter(
-                travellers__user=instance.user, trip__is_adm_approval_required=True).order_by("status", "trip__start_date").distinct()
-            return TripRequestSerializerLITE(qs, many=True, read_only=True).data
+                travellers__user=instance.user, trip__is_adm_approval_required=True).filter(~Q(id=instance.request.id)).order_by("status", "trip__start_date").distinct()
+            return TripRequestSerializerVeryLite(qs, many=True, read_only=True).data
         return list()
 
     def get_cost_breakdown_html(self, instance):

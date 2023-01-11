@@ -1395,7 +1395,7 @@ class NJCRatesFormsetView(TravelADMAdminRequiredMixin, CommonFormsetView):
 
 class TripCategoryFormsetView(TravelADMAdminRequiredMixin, CommonFormsetView):
     template_name = 'travel/formset.html'
-    h1 = "Manage Trip Categories"
+    h1 = "Manage Trip Categories (TRAF Trip Purposes)"
     queryset = models.TripCategory.objects.all()
     formset_class = forms.TripCategoryFormset
     success_url = reverse_lazy("travel:manage_trip_categories")
@@ -1404,7 +1404,7 @@ class TripCategoryFormsetView(TravelADMAdminRequiredMixin, CommonFormsetView):
 
 class TripSubcategoryFormsetView(TravelADMAdminRequiredMixin, CommonFormsetView):
     template_name = 'travel/formset.html'
-    h1 = "Manage Trip Subcategories"
+    h1 = "Manage Trip Sub-categories"
     queryset = models.TripSubcategory.objects.all()
     formset_class = forms.TripSubcategoryFormset
     success_url = reverse_lazy("travel:manage_trip_subcategories")

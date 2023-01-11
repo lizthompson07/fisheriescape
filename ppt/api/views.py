@@ -22,7 +22,7 @@ from shared_models.utils import get_labels
 from . import permissions, pagination
 from . import serializers
 from .. import models, stat_holidays, emails
-from ..filters import ProjectYearChildFilter, ProjectYearFilter, DMAFilter
+from ..filters import ProjectYearChildFilter, ProjectYearFilter, DMAFilter, StatusReportFilter, ActivityFilter
 from ..utils import financial_project_year_summary_data, financial_project_summary_data, get_user_fte_breakdown, can_modify_project, \
     get_manageable_sections, multiple_financial_project_year_summary_data, is_section_head, get_staff_summary
 from ..utils import is_management_or_admin
@@ -198,7 +198,7 @@ class ProjectViewSet(ModelViewSet):
 
 class ProjectYearViewSet(ModelViewSet):
     queryset = models.ProjectYear.objects.all().order_by("start_date")\
-        .select_related("project", "project__section", "fiscal_year","project__functional_group",
+        .select_related("project", "project__section", "fiscal_year", "project__functional_group",
                         "project__default_funding_source", "project__activity_type")\
         .prefetch_related('staff_set__funding_source',
                           'omcost_set__funding_source',
@@ -450,8 +450,9 @@ class ActivityViewSet(ModelViewSet):
     queryset = models.Activity.objects.all()
     serializer_class = serializers.ActivitySerializer
     permission_classes = [permissions.CanModifyOrReadOnly]
+    pagination_class = pagination.StandardResultsSetPagination
     filter_backends = (DjangoFilterBackend,)
-    filterset_class = ProjectYearChildFilter
+    filterset_class = ActivityFilter
 
     def perform_create(self, serializer):
         obj = serializer.save()
@@ -510,6 +511,16 @@ class ActivityViewSet(ModelViewSet):
             new_activity.save()
             return Response(serializers.ActivitySerializer(new_activity).data, status=status.HTTP_200_OK)
         raise ValidationError("sorry, I am missing the query param for 'action' or 'clone'")
+
+
+
+class ActivityExtendedViewSet(ModelViewSet):
+    queryset = models.Activity.objects.all()
+    serializer_class = serializers.ActivityFullSerializer
+    permission_classes = [permissions.CanModifyOrReadOnly]
+    pagination_class = pagination.StandardResultsSetPagination
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = ActivityFilter
 
 
 class CollaborationViewSet(ModelViewSet):
@@ -579,7 +590,7 @@ class StatusReportViewSet(ModelViewSet):
     serializer_class = serializers.StatusReportSerializer
     permission_classes = [permissions.CanModifyOrReadOnly]
     filter_backends = (DjangoFilterBackend,)
-    filterset_class = ProjectYearChildFilter
+    filterset_class = StatusReportFilter
 
     def perform_update(self, serializer):
         obj = serializer.save()

@@ -23,12 +23,12 @@ class CurrentUserAPIView(APIView):
         return Response(data)
 
 
-# Observations
+# Specimens
 ##############
 
-class ObservationViewSet(ModelViewSet):
-    queryset = models.Observation.objects.order_by("-id")
-    serializer_class = serializers.ObservationSerializer
+class SpecimenViewSet(ModelViewSet):
+    queryset = models.Specimen.objects.order_by("-id")
+    serializer_class = serializers.SpecimenSerializer
     permission_classes = [TrapnetCRUDOrReadOnly]
 
     def perform_create(self, serializer):
@@ -41,26 +41,25 @@ class ObservationViewSet(ModelViewSet):
         qp = request.query_params
         if qp.get("sample"):
             sample = get_object_or_404(models.Sample, pk=qp.get("sample"))
-            qs = sample.observations.all()
+            qs = sample.specimens.all()
             serializer = self.get_serializer(qs, many=True)
             return Response(serializer.data)
         elif qp.get("sweep"):
             sweep = get_object_or_404(models.Sweep, pk=qp.get("sweep"))
-            qs = sweep.observations.all()
+            qs = sweep.specimens.all()
             serializer = self.get_serializer(qs, many=True)
             return Response(serializer.data)
         if qp.get("get_labels"):
             data = dict()
             data['labels'] = _get_labels(self.queryset.model)
-            species_choices = [dict(text=obj.search_name, value=obj.id) for obj in models.Species.objects.all()]
+            species_choices = [dict(text=str(obj), value=obj.id) for obj in models.Species.objects.all()]
             species_choices.insert(0, dict(text="-----", value=None))
             data['species_choices'] = species_choices
             status_choices = [dict(text=obj.choice, value=obj.id) for obj in models.Status.objects.all()]
             status_choices.insert(0, dict(text="-----", value=None))
             data['status_choices'] = status_choices
-            origin_choices = [dict(text=obj.choice, value=obj.id) for obj in models.Origin.objects.all()]
-            origin_choices.insert(0, dict(text="-----", value=None))
-            data['origin_choices'] = origin_choices
+            adipose_condition_choices = [dict(text=obj[1], value=obj[0]) for obj in model_choices.adipose_condition_choices]
+            data['adipose_condition_choices'] = adipose_condition_choices
             sex_choices = [dict(text=obj.choice, value=obj.id) for obj in models.Sex.objects.all()]
             sex_choices.insert(0, dict(text="-----", value=None))
             data['sex_choices'] = sex_choices

@@ -20,7 +20,7 @@
       </div>
     </div>
     <div v-else>
-      <div class="btns mb-5" v-if="!sectionToEdit && !divisionToEdit && !branchToEdit && !sectorToEdit">
+      <div class="btns mb-5" v-if="!sectionToEdit && !divisionToEdit && !branchToEdit && !sectorToEdit && !regionToEdit">
         <button @click="changeTab('regions')" :class="{'btn btn-lg':true, 'btn-success':showRegions, 'btn-primary':!showRegions}">
           {% trans "Regions" %}
         </button>
@@ -611,7 +611,7 @@
       </div>
 
       <div v-else-if="showRegions">
-        <div v-if="!divisionToEdit">
+        <div v-if="!regionToEdit">
           <div class="mb-3">
             <h3>{% trans "Regions" %}</h3>
           </div>

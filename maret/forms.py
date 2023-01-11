@@ -1,6 +1,8 @@
 import inspect
 
 from django import forms
+from django.db.models import Q
+
 from maret import models
 from masterlist import models as ml_models
 from shared_models import models as shared_models
@@ -98,7 +100,6 @@ class InteractionForm(forms.ModelForm):
 
 class OrganizationForm(forms.ModelForm):
     asc_province = forms.MultipleChoiceField(required=False, label=_("Associated Province(s)"))
-    category = forms.MultipleChoiceField(required=False, label=_("Categories"))
     area = forms.MultipleChoiceField(required=False, label=_("Area(s)"))
     email = forms.EmailField(required=False, label=_("E-mail"))
     committee = forms.MultipleChoiceField(required=False, label=_("Committees/Working Groups"))
@@ -122,12 +123,11 @@ class OrganizationForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.order_fields(['name_eng', 'category', 'grouping', 'name_ind', 'abbrev', 'email', 'address', 'mailing_address', 'city',
+        self.order_fields(['name_eng', 'grouping', 'name_ind', 'abbrev', 'email', 'address', 'mailing_address', 'city',
                            'postal_code', 'province', 'phone', 'fax', 'notes',
                            'key_species', 'area', 'regions', 'asc_province', 'committee'])
 
         self.fields['area'].widget = forms.SelectMultiple(attrs=multi_select_js)
-        self.fields['category'].widget = forms.SelectMultiple(attrs=multi_select_js)
         self.fields['orgs'].widget = forms.SelectMultiple(attrs=multi_select_js)
         self.fields['asc_province'].widget = forms.SelectMultiple(attrs=multi_select_js)
         self.fields['committee'].widget = forms.SelectMultiple(attrs=chosen_js)
@@ -138,14 +138,18 @@ class OrganizationForm(forms.ModelForm):
         area_choices = [(a.id, a) for a in models.Area.objects.all()]
         self.fields['area'].choices = area_choices
 
-        category_choices = [(c.id, c) for c in models.OrgCategory.objects.all()]
-        self.fields['category'].choices = category_choices
-
         province_choices = [(p.id, p) for p in shared_models.Province.objects.all()]
         self.fields['asc_province'].choices = province_choices
 
         self.fields['committee'].choices = [(c.id, c) for c in models.Committee.objects.all()]
-
+        if self.initial:
+            self.fields['grouping'].queryset = ml_models.Grouping.objects.filter(
+                Q(in_maret=True) |
+                Q(id__in=[grouping.id for grouping in self.initial["grouping"]])
+            ).distinct()
+        else:
+            self.fields['grouping'].queryset = ml_models.Grouping.objects.filter(in_maret=True)
+            self.fields['grouping'].widget.attrs = multi_select_js
 
 
 class MemberForm(forms.ModelForm):
@@ -219,19 +223,6 @@ SpeciesFormSet = modelformset_factory(
 )
 
 
-class OrgCategoryForm(forms.ModelForm):
-    class Meta:
-        model = models.OrgCategory
-        fields = "__all__"
-
-
-OrgCategoriesFormSet = modelformset_factory(
-    model=models.OrgCategory,
-    form=OrgCategoryForm,
-    extra=3,
-)
-
-
 class AreaForm(forms.ModelForm):
     class Meta:
         model = models.AreaOffice
@@ -270,6 +261,18 @@ AreaOfficesProgramFormSet = modelformset_factory(
     extra=3,
 )
 
+
+class GroupingForm(forms.ModelForm):
+    class Meta:
+        model = ml_models.Grouping
+        fields = "__all__"
+
+
+GroupingFormSet = modelformset_factory(
+    model=ml_models.Grouping,
+    form=GroupingForm,
+    extra=1,
+)
 
 class HelpTextPopForm(forms.ModelForm):
 

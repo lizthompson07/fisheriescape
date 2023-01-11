@@ -742,12 +742,12 @@ class Language(models.Model):
 
 
 class FishingArea(UnilingualSimpleLookup):
-    pass
+    description = models.CharField(blank=True, null=True, verbose_name=_("Description"), max_length=1000)
 
 
 class River(MetadataFields):
     name = models.CharField(max_length=255)
-    fishing_area = models.ForeignKey(FishingArea, on_delete=models.DO_NOTHING, related_name="rivers", blank=True, null=True)
+    fishing_area = models.ForeignKey(FishingArea, on_delete=models.DO_NOTHING, related_name="rivers", blank=False, null=True)
     maritime_river_code = models.IntegerField(blank=True, null=True)
     old_maritime_river_code = models.IntegerField(blank=True, null=True)
     cgndb = models.CharField(max_length=255, blank=True, null=True, unique=True, verbose_name=_("GCNDB key"))

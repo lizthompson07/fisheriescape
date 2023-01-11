@@ -76,7 +76,8 @@
     <thead>
     <tr>
       <th>{% trans "Publication Type" %}</th>
-      <th class="text-center">{% trans "Before last promotion" %}</th>
+      <th class="">{% trans "Before last promotion (external to app)" %}</th>
+      <th class="text-center">{% trans "Before last promotion (from app)" %}</th>
       <th class="text-center">{% trans "Since last promotion" %}</th>
       <th class="text-center">{% trans "Career total" %}</th>
     </tr>
@@ -84,6 +85,14 @@
     <tbody>
     <tr v-for="row, index in achievementsSummary" :key="index">
       <td>${row.publication_type}</td>
+      <td>
+        <span v-if="index+1 < achievementsSummary.length && canModify">
+          <input type="number" v-model="row.starting_count" @change="updateStartingCounts(row.publication_type_id, row.starting_count)">
+        </span>
+        <span v-else>
+          ${row.starting_count}
+        </span>
+      </td>
       <td class="text-center">${row.before_last_promotion}</td>
       <td class="text-center">${row.since_last_promotion}</td>
       <td class="text-center">${row.total}</td>

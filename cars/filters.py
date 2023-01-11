@@ -1,8 +1,9 @@
 import django_filters
+from django import forms
 from django.contrib.auth.models import User
 from django.utils.translation import gettext, gettext_lazy
 
-from shared_models.models import Region
+from shared_models.models import Region, Section
 from . import models
 
 chosen_js = {"class": "chosen-select-contains"}
@@ -24,6 +25,7 @@ class VehicleFilter(django_filters.FilterSet):
             'is_active': ["exact"],
             'reference_number': ["contains"],
             'custodian': ["exact"],
+            'section': ["exact"],
         }
 
     def __init__(self, *args, **kwargs):
@@ -34,6 +36,12 @@ class VehicleFilter(django_filters.FilterSet):
         self.filters['location__region'].queryset = Region.objects.filter(vehicle_locations__isnull=False).distinct()
         self.filters['custodian'].queryset = User.objects.filter(vehicles__isnull=False).distinct().order_by("first_name", "last_name")
         self.filters['custodian'].field.widget.attrs = chosen_js
+
+        section_choices = [(s.id, s.full_name) for s in
+                           Section.objects.filter(vehicles__isnull=False).distinct().order_by("division__branch__region", "division__branch",
+                                                                        "division", "name")]
+        self.filters['section'] = django_filters.ChoiceFilter(field_name="section", label=gettext("Section"),
+                                                              lookup_expr='exact', choices=section_choices, widget=forms.Select(attrs=chosen_js))
 
 
 class ReservationFilter(django_filters.FilterSet):

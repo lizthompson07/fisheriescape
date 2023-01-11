@@ -1,0 +1,182 @@
+{% extends 'trapnet/sample_form/basic.html' %}
+
+{% load bootstrap4 %}
+{% load i18n %}
+{% load custom_tags %}
+
+
+{% block more_fields %}
+  <div class="card info-card mb-5">
+    <div class="card-header bg-primary text-light">
+      <h4 class="card-title">
+        {% trans "Electrofishing Specific" %}
+      </h4>
+    </div>
+    <div class="card-body">
+
+      <div class="row">
+        <div class="col">
+          {% bootstrap_field sub_form.site_type placeholder="" %}
+        </div>
+        <div class="col">
+          {% bootstrap_field sub_form.seine_type placeholder="" %}
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col">
+          {% bootstrap_field sub_form.air_temp_arrival placeholder="" %}
+        </div>
+        <div class="col">
+          {% bootstrap_field sub_form.water_temp_c placeholder="" %}
+        </div>
+      </div>
+
+      <label for="">{% trans "Site characterization % (0-100)" %}</label>
+      <table class="table table-bordered">
+        <tr>
+          <td>{{ sub_form.percent_riffle.label }}</td>
+          <td>{{ sub_form.percent_run.label }}</td>
+          <td>{{ sub_form.percent_flat.label }}</td>
+          <td>{{ sub_form.percent_pool.label }}</td>
+        </tr>
+        <tr>
+          <td>{% bootstrap_field sub_form.percent_riffle show_label=False placeholder="" %}</td>
+          <td>{% bootstrap_field sub_form.percent_run show_label=False placeholder="" %}</td>
+          <td>{% bootstrap_field sub_form.percent_flat show_label=False placeholder="" %}</td>
+          <td>{% bootstrap_field sub_form.percent_pool show_label=False placeholder="" %}</td>
+        </tr>
+      </table>
+
+
+      <label for="">{% trans "River Description" %}</label>
+      <table class="table table-bordered">
+        <tr>
+          <td></td>
+          <td>{% trans "Bank length (m)" %}</td>
+          <td>{% trans "Overhanging vegetation (%)" %}</td>
+          <td>{% trans "Max overhanging vegetation (m)" %}</td>
+        </tr>
+        <tr>
+          <td>{% trans "Left side" %}</td>
+          <td>{% bootstrap_field sub_form.bank_length_left show_label=False placeholder="" %}</td>
+          <td>{% bootstrap_field sub_form.overhanging_veg_left show_label=False placeholder="" %}</td>
+          <td>{% bootstrap_field sub_form.max_overhanging_veg_left show_label=False placeholder="" %}</td>
+        </tr>
+        <tr>
+          <td>{% trans "Right side" %}</td>
+          <td>{% bootstrap_field sub_form.bank_length_right show_label=False placeholder="" %}</td>
+          <td>{% bootstrap_field sub_form.overhanging_veg_right show_label=False placeholder="" %}</td>
+          <td>{% bootstrap_field sub_form.max_overhanging_veg_right show_label=False placeholder="" %}</td>
+
+        </tr>
+      </table>
+
+
+      <label for="">{% trans "River width and depth" %}</label>
+      <table class="table table-bordered">
+        <tr>
+          <td rowspan="2"></td>
+          <td rowspan="2" style="vertical-align: bottom">{% trans "Stream Width (m)" %}</td>
+          <td colspan="3" class="text-center">{% trans "Depth (cm)" %}</td>
+        </tr>
+        <tr>
+          <td class="text-center">{% trans "25%" %}</td>
+          <td class="text-center">{% trans "50%" %}</td>
+          <td class="text-center">{% trans "75%" %}</td>
+        </tr>
+        <tr>
+          <td>{% trans "Lower" %}</td>
+          <td>{% bootstrap_field sub_form.width_lower show_label=False placeholder="" %}</td>
+          <td>{% bootstrap_field sub_form.depth_2_lower show_label=False placeholder="" %}</td>
+          <td>{% bootstrap_field sub_form.depth_1_lower show_label=False placeholder="" %}</td>
+          <td>{% bootstrap_field sub_form.depth_3_lower show_label=False placeholder="" %}</td>
+        </tr>
+        <tr>
+          <td>{% trans "Middle" %}</td>
+          <td>{% bootstrap_field sub_form.width_middle show_label=False placeholder="" %}</td>
+          <td>{% bootstrap_field sub_form.depth_2_middle show_label=False placeholder="" %}</td>
+          <td>{% bootstrap_field sub_form.depth_1_middle show_label=False placeholder="" %}</td>
+          <td>{% bootstrap_field sub_form.depth_3_middle show_label=False placeholder="" %}</td>
+        </tr>
+        <tr>
+          <td>{% trans "Upper" %}</td>
+          <td>{% bootstrap_field sub_form.width_upper show_label=False placeholder="" %}</td>
+          <td>{% bootstrap_field sub_form.depth_2_upper show_label=False placeholder="" %}</td>
+          <td>{% bootstrap_field sub_form.depth_1_upper show_label=False placeholder="" %}</td>
+          <td>{% bootstrap_field sub_form.depth_3_upper show_label=False placeholder="" %}</td>
+        </tr>
+      </table>
+
+      <div class="row">
+        <div class="col">
+          {% bootstrap_field sub_form.max_depth placeholder="" %}
+        </div>
+        <div class="col">
+          {% bootstrap_field sub_form.water_cond placeholder="" %}
+        </div>
+        <div class="col">
+          {% bootstrap_field sub_form.water_ph placeholder="" %}
+        </div>
+      </div>
+
+      <label for="">{% trans "Substrate characterization % (0-100)" %}</label>
+      <table class="table table-bordered">
+        <tr>
+          <td>{{ sub_form.percent_fine.label }}</td>
+          <td>{{ sub_form.percent_sand.label }}</td>
+          <td>{{ sub_form.percent_gravel.label }}</td>
+          <td>{{ sub_form.percent_pebble.label }}</td>
+          <td>{{ sub_form.percent_cobble.label }}</td>
+          <td>{{ sub_form.percent_rocks.label }}</td>
+          <td>{{ sub_form.percent_boulder.label }}</td>
+          <td>{{ sub_form.percent_bedrock.label }}</td>
+        </tr>
+        <tr>
+          <td>{% bootstrap_field sub_form.percent_fine show_label=False placeholder="" %}</td>
+          <td>{% bootstrap_field sub_form.percent_sand show_label=False placeholder="" %}</td>
+          <td>{% bootstrap_field sub_form.percent_gravel show_label=False placeholder="" %}</td>
+          <td>{% bootstrap_field sub_form.percent_pebble show_label=False placeholder="" %}</td>
+          <td>{% bootstrap_field sub_form.percent_cobble show_label=False placeholder="" %}</td>
+          <td>{% bootstrap_field sub_form.percent_rocks show_label=False placeholder="" %}</td>
+          <td>{% bootstrap_field sub_form.percent_boulder show_label=False placeholder="" %}</td>
+          <td>{% bootstrap_field sub_form.percent_bedrock show_label=False placeholder="" %}</td>
+        </tr>
+      </table>
+
+      {% bootstrap_field sub_form.electrofisher placeholder="" %}
+      <div class="row">
+        <div class="col">
+          {% bootstrap_field sub_form.electrofisher_voltage placeholder="" %}
+        </div>
+        <div class="col">
+          {% bootstrap_field sub_form.electrofisher_output_low placeholder="" %}
+        </div>
+        <div class="col">
+          {% bootstrap_field sub_form.electrofisher_output_high placeholder="" %}
+        </div>
+        <div class="col">
+          {% bootstrap_field sub_form.electrofisher_frequency placeholder="" %}
+        </div>
+      </div>
+      <div class="row">
+        <div class="col">
+          {% bootstrap_field sub_form.electrofisher_pulse_type placeholder="" %}
+        </div>
+        <div class="col">
+          {% bootstrap_field sub_form.duty_cycle placeholder="" %}
+        </div>
+      </div>
+
+      {% bootstrap_field sub_form.crew_probe placeholder="" %}
+      {% bootstrap_field sub_form.crew_seine placeholder="" %}
+      {% bootstrap_field sub_form.crew_dipnet placeholder="" %}
+      {% bootstrap_field sub_form.crew_extras placeholder="" %}
+
+    </div>
+  </div>
+
+
+
+{% endblock %}
+

@@ -15,7 +15,7 @@
   {% for row in object.achievement_summary_table %}
     <tr v-for="row, index in achievementsSummary" :key="index">
       <td>{{row.publication_type}}</td>
-      <td class="text-center">{{row.before_last_promotion}}</td>
+      <td class="text-center">{{row.before_last_promotion|add:row.starting_count}}</td>
       <td class="text-center">{{row.since_last_promotion}}</td>
       <td class="text-center">{{row.total}}</td>
     </tr>

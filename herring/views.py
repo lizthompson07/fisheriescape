@@ -6,7 +6,7 @@ from io import StringIO
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.db.models import Q, Value, TextField
+from django.db.models import Q, Value, TextField, Max, Sum
 from django.db.models.functions import Concat
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
@@ -293,9 +293,9 @@ class SampleFilterView(HerringAccess, CommonFilterView):
         {"name": 'sampler', },
         {"name": 'port', },
         {"name": 'experimental_net_used', },
-        {"name": 'fish_processed|# Fish processed', },
         {"name": 'date_processed|Date processed<br>(yyyy-mm-dd)', },
         {"name": 'lab_complete|Lab complete', },
+        {"name": 'egg_complete|Egg complete', },
         {"name": 'otoliths_complete|Otoliths complete', },
     ]
 
@@ -334,6 +334,32 @@ class SampleDetailView(HerringCRUD, CommonDetailView):
     model = models.Sample
     home_url_name = "herring:index"
     parent_crumb = {"title": "Samples", "url": reverse_lazy("herring:sample_list")}
+    field_list = [
+        'species',
+        'type',
+        'sample_date',
+        'sampler_ref_number',
+        'sampler',
+        'port',
+        'survey_id',
+        'latitude_n',
+        'longitude_w',
+        'fishing_area',
+        'gear',
+        'experimental_net_used',
+        'vessel_cfvn',
+        'mesh_size',
+        'catch_weight_lbs',
+        'sample_weight_lbs',
+        'total_fish_measured',
+        'total_fish_preserved',
+        'old_id',
+        'remarks',
+        'created_by',
+        'creation_date',
+        'last_modified_by',
+        'last_modified_date',
+    ]
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -341,49 +367,12 @@ class SampleDetailView(HerringCRUD, CommonDetailView):
         # pass in the tests
         tests = models.Test.objects.filter(Q(id=205) | Q(id=230) | Q(id=231) | Q(id=232))
         context['tests'] = tests
-        context['field_list'] = [
-            'species',
-            'type',
-            'sample_date',
-            'sampler_ref_number',
-            'sampler',
-            'port',
-            'survey_id',
-            'latitude_n',
-            'longitude_w',
-            'fishing_area',
-            'gear',
-            'experimental_net_used',
-            'vessel_cfvn',
-            'mesh_size',
-            'catch_weight_lbs',
-            'sample_weight_lbs',
-            'total_fish_measured',
-            'total_fish_preserved',
-            'old_id',
-            'remarks',
-            'created_by',
-            'creation_date',
-            'last_modified_by',
-            'last_modified_date',
-        ]
 
         # create a list of length freq counts FOR SAMPLE
         if self.object.length_frequency_objects.count() > 0:
-            count_list = []
-            for obj in self.object.length_frequency_objects.all():
-                count_list.append(obj.count)
+            context['max_count'] = self.object.length_frequency_objects.aggregate(max=Max("count"))["max"]
+            context['sum_count'] = self.object.length_frequency_objects.aggregate(sum=Sum("count"))["sum"]
 
-            # add the max count as context
-            context['max_count'] = max(count_list)
-
-            # add the sum as context
-            context['sum_count'] = sum(count_list)
-
-            # add the phrase to read
-            playback_string = "Reading back frequency counts. "
-            playback_string = playback_string + ", ".join(str(count) for count in count_list)
-            context['playback_string'] = playback_string
 
         # create a list of length freq counts FISH DETAILs
         length_list = []
@@ -416,15 +405,7 @@ class SampleDetailView(HerringCRUD, CommonDetailView):
             context['max_fish_detail_count'] = max_fish_detail_count
             context['sum_fish_detail_count'] = sum_fish_detail_count
 
-        # provide a list of fish detail lab_processed_dates
-        for fishy in self.object.fish_details.all():
-            fishy.save()
-            # delete any empty fish details
-            if fishy.is_empty:
-                fishy.delete()
-        # resave the sample instance to run thought sample save method
-        self.object.save()
-        # now conduct the test
+        self.object.fish_details.filter(is_empty=True).delete()
 
         return context
 
@@ -882,7 +863,6 @@ class EggUpdateView(HerringCRUD, CommonDetailView):
             id_list.sort()
             current_index = id_list.index(obj.id)
 
-
         is_last = False
 
         try:
@@ -949,10 +929,11 @@ def move_record(request, sample, type, direction, current_id):
 ###########
 
 
-class ReportSearchFormView(HerringAccess, FormView):
+class ReportSearchFormView(HerringAccess, CommonFormView):
     template_name = 'herring/reports.html'
     home_url_name = "herring:index"
     form_class = forms.ReportSearchForm
+    h1 = "Reports"
 
     def get_initial(self):
         # default the year to the year of the latest samples
@@ -967,7 +948,10 @@ class ReportSearchFormView(HerringAccess, FormView):
     def form_valid(self, form):
         report = int(form.cleaned_data["report"])
         year = int(form.cleaned_data["year"])
-        species = int(form.cleaned_data["species"].id)
+        try:
+            species = int(form.cleaned_data["species"].id)
+        except AttributeError:
+            species = None
 
         if report == 1:
             return HttpResponseRedirect(reverse("herring:progress_report_detail") + f"?year={year}&species={species}")
@@ -1002,11 +986,13 @@ class ProgressReportListView(HerringCRUD, CommonListView):
         {"name": 'sample_date', },
         {"name": "sampler_ref_number"},
         {"name": 'sampler', },
-        {"name": '|# fish measured (from sheet)', },
-        {"name": '|# fish measured (from LF)', },
-        {"name": '|Fish preserved', },
-        {"name": '|Lab processed', },
-        {"name": '|Otoliths processed', },
+        {"name": '|Lengths (measured vs. histogram)', },
+        {"name": '|Lab processed date', },
+        {"name": '|Lab progress', },
+        {"name": '|Eggs processed date', },
+        {"name": '|Eggs progress', },
+        {"name": '|Otoliths processed date', },
+        {"name": '|Otoliths progress', },
     ]
 
     def get_h1(self):
@@ -1022,22 +1008,26 @@ class ProgressReportListView(HerringCRUD, CommonListView):
 
         # sum of samples
         context["sample_sum"] = qs.count
+        qs_with_eggs = qs.filter(fish_details__will_count_eggs=True).distinct()
+        context["sample_sum_with_eggs"] = qs_with_eggs.count()
 
         # sum of fish
         running_total = 0
         for sample in qs:
             running_total = running_total + nz(sample.total_fish_preserved, 0)
         context["fish_sum"] = running_total
+        context["fish_egg_sum"] = models.FishDetail.objects.filter(sample__in=qs, will_count_eggs=True).count()
 
         # LAB PROCESSING
 
         # sum of samples COMPLETE
-        context["sample_sum_lab_complete"] = qs.filter(lab_processing_complete=True).count
+        context["sample_sum_lab_complete"] = qs.filter(lab_processing_complete=True).count()
+        context["sample_sum_egg_complete"] = qs.filter(egg_processing_complete=True, fish_details__will_count_eggs=True).distinct().count()
 
         # sum of fish COMPLETE
         running_total = 0
         for sample in qs.filter(lab_processing_complete=True):
-            running_total = running_total + sample.total_fish_preserved
+            running_total = running_total + nz(sample.total_fish_preserved,0)
         context["fish_sum_lab_complete"] = running_total
 
         # sum of samples REMAINING
@@ -1059,6 +1049,7 @@ class ProgressReportListView(HerringCRUD, CommonListView):
         for sample in qs.filter(otolith_processing_complete=True):
             running_total = running_total + nz(sample.total_fish_preserved, 0)
         context["fish_sum_oto_complete"] = running_total
+        context["fish_sum_egg_complete"] = models.FishDetail.objects.filter(egg_processed_date__isnull=False, sample__in=qs_with_eggs).distinct().count()
 
         # sum of samples REMAINING
         context["sample_sum_oto_remaining"] = qs.filter(otolith_processing_complete=False).count

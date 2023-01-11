@@ -60,6 +60,16 @@ class PublicationNumberRequestEmail(Email):
         return [csas_generic_email]
 
 
+class PublicationNumberConfirmationEmail(Email):
+    email_template_path = 'csas2/emails/pub_number_confirmation.html'
+    subject_en = "Publication number assigned"
+    subject_fr = "numéro de publication"
+
+    def get_recipient_list(self):
+        # should go to all emails associated with csas office
+        return self.instance.lead_office.generic_email  # where instance is a document
+
+
 class PostingRequestEmail(Email):
     email_template_path = 'csas2/emails/posting_request.html'
     subject_en = 'Request to post new CSAS meeting'
@@ -129,7 +139,8 @@ class UpdatedMeetingEmail(Email):
         return [csas_generic_email]
 
     def __init__(self, request, meeting, old_meeting=None, new_expected_publications_en=None, old_expected_publications_en=None,
-                 new_expected_publications_fr=None, old_expected_publications_fr=None, new_chair=None, old_chair=None):
+                 new_expected_publications_fr=None, old_expected_publications_fr=None, new_chair=None, old_chair=None, new_lead_office=None,
+                 old_lead_office=None, new_other_offices=None, old_other_offices=None):
         super().__init__(request)
         self.request = request
         self.meeting = meeting
@@ -140,6 +151,10 @@ class UpdatedMeetingEmail(Email):
         self.old_expected_publications_fr = old_expected_publications_fr
         self.new_chair = new_chair
         self.old_chair = old_chair
+        self.new_lead_office = new_lead_office
+        self.old_lead_office = old_lead_office
+        self.new_other_offices = new_other_offices
+        self.old_other_offices = old_other_offices
 
     def get_context_data(self):
         context = super().get_context_data()
@@ -155,6 +170,10 @@ class UpdatedMeetingEmail(Email):
             'old_expected_publications_fr': self.old_expected_publications_fr,
             'new_chair': self.new_chair,
             'old_chair': self.old_chair,
+            "new_lead_office": self.new_lead_office,
+            "old_lead_office": self.old_lead_office,
+            "new_other_offices": self.new_other_offices,
+            "old_other_offices": self.old_other_offices,
         })
         return context
 
@@ -305,7 +324,6 @@ class RequestChangesRequestedEmail(Email):
 
     def get_recipient_list(self):
         return [self.instance.csas_request.client.email]
-
 
 
 class RequestReviewReminderEmail(Email):

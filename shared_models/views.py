@@ -34,6 +34,8 @@ class CloserNoRefreshTemplateView(TemplateView):
 
 def in_admin_group(user):
     if user.id:
+        if user.is_superuser:
+            return True
 
         if settings.INSTALLED_APPS.count("travel"):
             from travel.utils import in_travel_nat_admin_group
@@ -272,8 +274,11 @@ class CommonDeleteView(CommonFormMixin, DeleteView):
                 except:
                     pass
                 else:
-                    if related_name and getattr(self.get_object(), related_name).count():
-                        return True
+                    try:
+                        if related_name and getattr(self.get_object(), related_name).count():
+                            return True
+                    except AttributeError:  # this would be the case with a one to one
+                        pass
             # if we got to this point, delete protection should be set to false, since there are no related objects
             return False
 
@@ -425,6 +430,14 @@ class CommonDetailView(CommonMixin, DetailView):
     # template_name = 'shared_models/generic_detail.html'
     delete_url_name = None
     edit_url_name = None
+    field_list = None
+
+    def get_field_list(self):
+        if self.field_list:
+            return self.field_list
+        else:
+            # let's take a good guess at which fields to populate
+            return [field.name for field in self.get_object()._meta.fields]
 
     def get_context_data(self, **kwargs):
         # we want to update the context with the context vars added by CommonMixin classes
@@ -432,6 +445,7 @@ class CommonDetailView(CommonMixin, DetailView):
         context.update(super().get_common_context())
         context["edit_url_name"] = self.get_edit_url_name()
         context["delete_url_name"] = self.get_delete_url_name()
+        context["field_list"] = self.get_field_list()
         return context
 
     def get_h1(self):

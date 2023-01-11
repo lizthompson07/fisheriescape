@@ -60,6 +60,9 @@ urlpatterns = [
     path('settings/activity-types/', views.ActivityTypeFormsetView.as_view(), name="manage_activity_types"),  # tested
     path('settings/activity-type/<int:pk>/delete/', views.ActivityTypeHardDeleteView.as_view(), name="delete_activity_type"),  # tested
 
+    path('settings/activity-classification/', views.ActivityClassificationFormsetView.as_view(), name="manage_activity_classifications"),  # tested
+    path('settings/activity-classification/<int:pk>/delete/', views.ActivityClassificationHardDeleteView.as_view(), name="delete_activity_classification"),  # tested
+
     path('settings/om-categories/', views.OMCategoryFormsetView.as_view(), name="manage_om_cats"),  # tested
     path('settings/om-category/<int:pk>/delete/', views.OMCategoryHardDeleteView.as_view(), name="delete_om_cat"),  # tested
 
@@ -143,7 +146,7 @@ urlpatterns = [
 
     path('reports/project-basic/', views.export_py_list, name="export_py_list"),  # TODO: test
     path('reports/cost-descriptions/', views.export_cost_descriptions, name="export_cost_descriptions"),  # TODO: test
-
+    path('reports/dmas/', views.export_dmas, name="export_dmas"),  # TODO: test
 
     # special
     path('projects/<int:pk>/acrdp-application/', views.export_acrdp_application, name="export_acrdp_application"),

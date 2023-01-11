@@ -1200,6 +1200,21 @@ class ReserveHardDeleteView(iHubAdminRequiredMixin, CommonHardDeleteView):
     success_url = reverse_lazy("ihub:manage_reserves")
 
 
+class GroupingFormsetView(iHubAdminRequiredMixin, CommonFormsetView):
+    template_name = 'ihub/formset.html'
+    h1 = "Manage Groupings"
+    queryset = ml_models.Grouping.objects.all()
+    formset_class = forms.GroupingFormSet
+    success_url_name = "ihub:manage_groupings"
+    home_url_name = "ihub:index"
+    delete_url_name = "ihub:delete_grouping"
+
+
+class GroupingHardDeleteView(iHubAdminRequiredMixin, CommonHardDeleteView):
+    model = ml_models.Grouping
+    success_url = reverse_lazy("ihub:manage_groupings")
+
+
 class NationFormsetView(iHubAdminRequiredMixin, CommonFormsetView):
     template_name = 'ihub/formset.html'
     h1 = "Manage Nations"

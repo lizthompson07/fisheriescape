@@ -183,6 +183,10 @@ class FundingSource(SimpleLookup):
         unique_together = [('funding_source_type', 'name'), ]
 
 
+class ActivityClassification(SimpleLookup):
+    pass
+
+
 class Tag(SimpleLookup):
     pass
 
@@ -1325,7 +1329,8 @@ class Activity(models.Model):
     )
 
     project_year = models.ForeignKey(ProjectYear, related_name="activities", on_delete=models.CASCADE)
-    type = models.IntegerField(choices=type_choices)
+    type = models.IntegerField(choices=type_choices, verbose_name="Milestone or Deliverable?")
+    classification = models.ForeignKey(ActivityClassification, blank=True, null=True, on_delete=models.DO_NOTHING, verbose_name=_("Type"))
     name = models.CharField(max_length=500, verbose_name=_("name"))
     target_start_date = models.DateTimeField(blank=True, null=True, verbose_name=_("Target start date (optional)"))
     target_date = models.DateTimeField(blank=True, null=True, verbose_name=_("Target end date (optional)"))
@@ -1431,6 +1436,7 @@ class DMA(MetadataFields):
         (2, _("Complete")),
         (3, _("Encountering issues")),
         (4, _("Aborted / cancelled")),
+        (5, _("Pending new evaluation")),
     )
     frequency_choices = (
         (1, _("Daily")),
@@ -1507,6 +1513,11 @@ class DMA(MetadataFields):
                 self.status = 2  # complete
             elif last_review.decision == 1:  # compliant
                 self.status = 1  # on-track
+                # but wait, what if this is an old evaluation?
+                # if the review was more than six months old, set the status to 5
+                if (timezone.now() - last_review.created_at).days > (28*6):
+                    self.status = 5  # pending evaluation
+
             elif last_review.decision == 2:  # non-compliant
                 self.status = 3  # encountering issues
 

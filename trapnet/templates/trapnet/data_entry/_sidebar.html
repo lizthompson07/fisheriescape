@@ -1,11 +1,11 @@
 {% load i18n %}
 
-<div v-if="showSidebar" :class="{'edit':!observation.id, 'mild-concern':observation.id, 'sidebar-opened':true}">
+<div v-if="showSidebar" :class="{'edit':!specimen.id, 'mild-concern':specimen.id, 'sidebar-opened':true}">
   <div class="float-right">
     <button class="btn btn-sm btn-primary m-2" @click="showSidebar=!showSidebar">{% trans "Hide" %}</button>
   </div>
   <div>
-    <div v-if="observation.id" class="card-header lead concern"> {% trans "Edit" %} </div>
+    <div v-if="specimen.id" class="card-header lead concern"> {% trans "Edit" %} </div>
     <div v-else class="card-header lead good"> {% trans "New" %} </div>
     <div class="card-body">
       <div v-if="errorMsg" class="alert alert-danger mb-3" role="alert">
@@ -15,7 +15,7 @@
         ${successMsg}
       </div>
 
-      <form @submit.prevent="updateObservation(true)">
+      <form @submit.prevent="updateSpecimen(true)">
 
         <table class="side-table">
           <tbody>
@@ -26,7 +26,7 @@
             <td>
               <v-select
                 ref="start"
-                v-model="observation.species"
+                v-model="specimen.species"
                 :options="speciesChoices"
                 :reduce="choice => choice.value"
                 label="text"
@@ -40,7 +40,7 @@
             <th><label for="" class="text-danger">${labels.status} (*)</label></th>
             <td>
               <v-select
-                v-model="observation.status"
+                v-model="specimen.status"
                 :options="statusChoices"
                 :reduce="choice => choice.value"
                 label="text"
@@ -54,7 +54,7 @@
             <th><label for="">${labels.life_stage}</label></th>
             <td>
               <v-select
-                v-model="observation.life_stage"
+                v-model="specimen.life_stage"
                 :options="lifeStageChoices"
                 :reduce="choice => choice.value"
                 label="text"
@@ -68,7 +68,7 @@
             <th><label for="">${labels.reproductive_status}</label></th>
             <td>
               <v-select
-                v-model="observation.reproductive_status"
+                v-model="specimen.reproductive_status"
                 :options="reproductiveStatusChoices"
                 :reduce="choice => choice.value"
                 label="text"
@@ -81,7 +81,7 @@
             <th><label for="">${labels.origin}</label></th>
             <td>
               <v-select
-                v-model="observation.origin"
+                v-model="specimen.origin"
                 :options="originChoices"
                 :reduce="choice => choice.value"
                 label="text"
@@ -94,7 +94,7 @@
             <th><label for="">${labels.sex}</label></th>
             <td>
               <v-select
-                v-model="observation.sex"
+                v-model="specimen.sex"
                 :options="sexChoices"
                 :reduce="choice => choice.value"
                 label="text"
@@ -106,38 +106,38 @@
 
           <tr>
             <th><label for="">${labels.fork_length}</label></th>
-            <td><input type="number" step="any" v-model="observation.fork_length" class="form-control w-100"/></td>
+            <td><input type="number" step="any" v-model="specimen.fork_length" class="form-control w-100"/></td>
           </tr>
           <tr v-if="!isElectro">
             <th><label for="">${labels.total_length}</label></th>
-            <td><input type="number" step="any" v-model="observation.total_length" class="form-control"/></td>
+            <td><input type="number" step="any" v-model="specimen.total_length" class="form-control"/></td>
           </tr>
           <tr>
             <th><label for="">${labels.weight}</label></th>
-            <td><input type="number" step="any" v-model="observation.weight" class="form-control"/></td>
+            <td><input type="number" step="any" v-model="specimen.weight" class="form-control"/></td>
           </tr>
           <tr v-if="!isElectro">
             <th><label for="">${labels.tag_number}</label></th>
-            <td><input type="text" v-model="observation.tag_number" class="form-control"/></td>
+            <td><input type="text" v-model="specimen.tag_number" class="form-control"/></td>
           </tr>
           <tr>
             <th><label for="">${labels.scale_id_number}</label></th>
-            <td><input type="text" v-model="observation.scale_id_number" class="form-control"/></td>
+            <td><input type="text" v-model="specimen.scale_id_number" class="form-control"/></td>
           </tr>
           <tr>
             <th><label for="">${labels.notes}</label></th>
-            <td><input type="text" v-model="observation.notes" class="form-control"/></td>
+            <td><input type="text" v-model="specimen.notes" class="form-control"/></td>
           </tr>
           </tbody>
         </table>
 
         <div class="form-group mt-3">
           <div class="float-right">
-            <multiple-overlay v-if="!observation.id" :obs="observation" @submitted="addMultiple" ref="multiple"></multiple-overlay>
+            <multiple-overlay v-if="!specimen.id" :specimen="specimen" @submitted="addMultiple" ref="multiple"></multiple-overlay>
           </div>
-          <button v-if="!observation.id" type="submit" class="btn btn-sm btn-success">{% trans "Add" %}</button>
+          <button v-if="!specimen.id" type="submit" class="btn btn-sm btn-success">{% trans "Add" %}</button>
           <button v-else type="submit" class="btn btn-sm btn-warning">{% trans "Save" %}</button>
-          <button v-if="observation.id" type="button" class="btn btn-sm btn-secondary" @click="primeObservation">
+          <button v-if="specimen.id" type="button" class="btn btn-sm btn-secondary" @click="primeSpecimen">
             {% trans "Cancel" %}
           </button>
         </div>

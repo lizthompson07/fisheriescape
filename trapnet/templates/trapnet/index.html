@@ -19,10 +19,15 @@
         <small class="text-muted">Photo credit: Jeffrey C. Domm</small>
       </div>
     </div>
-    <div class="text-center">
+    <div class="text-center mb-5">
       <a href="{% url 'trapnet:sample_list' %}" class="btn btn-dark">{% trans "Samples" %}</a>
-      <a href="{% url 'trapnet:obs_list' %}" class="btn btn-dark">{% trans "Find a Fish" %}</a>
+      <a href="{% url 'trapnet:specimen_list' %}" class="btn btn-dark">{% trans "Find a Fish" %}</a>
     </div>
+
+    <div class="text-center">
+      <a href="{% url 'trapnet:biological_detailing_list' %}">View historical biological detail data (read only)</a>
+    </div>
+
 
   </div>
 

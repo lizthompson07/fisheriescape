@@ -55,29 +55,33 @@
     $(".fishing_areas_div").hide();
     $(".sample_type_div").hide();
     $("#id_report").prop('required', true);
+    $("#id_sample_type").prop('required', false);
 
   }
 
   function configureForm() {
     var reportChoice = $("#id_report").val();
     // masterlist count report
-    if (reportChoice === '1' || reportChoice === '2' || reportChoice === '3'|| reportChoice === '4') {
+    if (reportChoice === '1' || reportChoice === '2' || reportChoice === '3' || reportChoice === '5' || reportChoice === '11' || reportChoice === '12') {
       $(".sites_div").show();
       $(".rivers_div").show();
       $(".year_div").show();
       $(".fishing_areas_div").show();
       $(".sample_type_div").show();
-      $("#id_sites").multiSelect();
-      $("#id_rivers").multiSelect();
-      if (reportChoice === '3') {
-        alert("Please note that running this report for all sites/years will " +
-            "take several minutes to complete. The resulting file is approximately 10 MB in size.")
+
+      if (reportChoice === '3') alert("Please note that running this report for all sites/years will " +
+          "take several minutes to complete. The resulting file is approximately 10 MB in size.");
+      if (reportChoice === '1' || reportChoice === '3') $("#id_sample_type").prop('required', true);
+      if (reportChoice === '2') {
+        $("#id_sample_type").prop('required', false);
+        $(".sample_type_div").hide();
       }
+
+
     } else if (reportChoice === '10') {
       $(".rivers_div").show();
       $(".year_div").show();
       $(".fishing_areas_div").show();
-      $("#id_rivers").multiSelect();
     }
   }
 

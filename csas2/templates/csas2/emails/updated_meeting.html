@@ -39,6 +39,12 @@
       <b>Expected publications (English): </b>{{ new_expected_publications_en }} <br>
       <b>Expected publications (French): </b>{{ new_expected_publications_fr }} <br>
     {% endif %}
+    {% if new_lead_office != old_lead_office %}
+      <b>Lead Office: </b>{{ new_lead_office }} <br>
+    {% endif %}
+    {% if new_other_offices != old_other_offices %}
+      <b>Other Offices: </b>{{ new_other_offices }} <br>
+    {% endif %}
   </p>
 
 

@@ -136,9 +136,9 @@
         }
       },
       updateLF(lf) {
-        apiService(`/api/herman/samples/${lf.id}/`, "PUT", lf)
+        apiService(`/api/herman/length-frequencies/${lf.id}/`, "PUT", lf)
             .then(response => {
-              apiService(`/api/herman/samples/${lf.id}/`, "GET")
+              apiService(`/api/herman/length-frequencies/${lf.id}/`, "GET")
                   .then(response => {
                     this.$set(this.lengthFrequencies, this.lengthFrequencies.indexOf(lf), response)
                   })

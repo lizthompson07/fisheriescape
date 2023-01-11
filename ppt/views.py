@@ -172,6 +172,12 @@ class ExploreProjectsTemplateView(PPTLoginRequiredMixin, CommonTemplateView):
         context = super().get_context_data(**kwargs)
         context["random_project"] = models.Project.objects.first()
         context["status_choices"] = [dict(label=item[1], value=item[0]) for item in models.ProjectYear.status_choices]
+        context["activity_status_choices"] = [dict(label=f"{item[1]}", value=item[0]) for item in
+                                              models.ActivityUpdate.status_choices]
+        context["activity_type_choices"] = [dict(label=f"{item[1]}", value=item[0]) for item in
+                                            models.Activity.type_choices]
+        context["activity_classification_choices"] = [dict(label=f"{item.__str__()}", value=item.id) for item in
+                                                      models.ActivityClassification.objects.all()]
         return context
 
 
@@ -209,13 +215,16 @@ class ManageProjectsTemplateView(ManagerOrAdminRequiredMixin, CommonTemplateView
         context["funding_status_choices"] = [dict(label=item[1], value=item[0]) for item in models.Review.funding_status_choices]
         context["om_cost_categories"] = [dict(label=f"{item.get_group_display()} - {item}", value=item.id) for item in models.OMCategory.objects.all()]
         context["activity_types"] = [dict(label=f"{item}", value=item.id) for item in models.ActivityType.objects.all()]
+        context["status_report_status_choices"] = [dict(label=f"{item[1]}", value=item[0]) for item in models.StatusReport.status_choices]
+        context["activity_status_choices"] = [dict(label=f"{item[1]}", value=item[0]) for item in models.ActivityUpdate.status_choices]
+        context["activity_type_choices"] = [dict(label=f"{item[1]}", value=item[0]) for item in models.Activity.type_choices]
+        context["activity_classification_choices"] = [dict(label=f"{item.__str__()}", value=item.id) for item in models.ActivityClassification.objects.all()]
         context["review_form"] = forms.ReviewForm
         context["approval_form"] = forms.ApprovalForm
         context["capital_allocation_form"] = forms.CapitalAllocationForm
         context["salary_allocation_form"] = forms.SalaryAllocationForm
         context["om_allocation_form"] = forms.OMAllocationForm
         context["review_score_rubric"] = json.dumps(get_review_score_rubric())
-        context["short_fie"] = json.dumps(get_review_score_rubric())
         context["short_field_list"] = [
             'id',
             'fiscal year',
@@ -892,6 +901,21 @@ class ActivityTypeFormsetView(AdminRequiredMixin, CommonFormsetView):
     delete_url_name = "ppt:delete_activity_type"
     container_class = "container bg-light curvy"
 
+class ActivityClassificationHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
+    model = models.ActivityClassification
+    success_url = reverse_lazy("ppt:manage_activity_classifications")
+
+
+class ActivityClassificationFormsetView(AdminRequiredMixin, CommonFormsetView):
+    template_name = 'ppt/formset.html'
+    h1 = "Manage Activity Classifications"
+    queryset = models.ActivityClassification.objects.all()
+    formset_class = forms.ActivityClassificationFormset
+    success_url = reverse_lazy("ppt:manage_activity_classifications")
+    home_url_name = "ppt:index"
+    delete_url_name = "ppt:delete_activity_classification"
+    container_class = "container bg-light curvy"
+
 
 class ThemeHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
     model = models.Theme
@@ -1302,7 +1326,6 @@ class StatusReportPrintDetailView(PPTLoginRequiredMixin, CommonDetailView):
 
 # DMAs #
 ########
-
 
 class DMACreateView(CanModifyProjectRequiredMixin, CommonCreateViewHelp):
     model = models.DMA
@@ -2015,3 +2038,22 @@ def export_project_summary(request):
 
             return response
     raise Http404
+
+
+
+@login_required()
+def export_dmas(request):
+    qs = models.DMA.objects.all()
+    ids_qp = request.GET.get("ids")
+    if ids_qp:
+        ids = ids_qp.split(",")
+        qs = qs.filter(id__in=ids)
+    site_url = my_envr(request)["SITE_FULL_URL"]
+    file_url = reports.generate_dma_report(qs, site_url)
+    if os.path.exists(file_url):
+        with open(file_url, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+            response['Content-Disposition'] = f'inline; filename="data management agreements.xlsx"'
+            return response
+    raise Http404
+

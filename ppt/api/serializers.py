@@ -492,6 +492,7 @@ class ActivitySerializer(serializers.ModelSerializer):
     target_date_display = serializers.SerializerMethodField()
     project_year_id = serializers.SerializerMethodField()
     type_display = serializers.SerializerMethodField()
+    classification_display = serializers.SerializerMethodField()
     risk_rating_display = serializers.SerializerMethodField()
     dates = serializers.SerializerMethodField()
     responsible_parties_display = serializers.SerializerMethodField()
@@ -520,6 +521,10 @@ class ActivitySerializer(serializers.ModelSerializer):
 
     def get_type_display(self, instance):
         return instance.get_type_display()
+
+    def get_classification_display(self, instance):
+        if instance.classification:
+            return instance.classification.__str__()
 
     def get_risk_rating_display(self, instance):
         return instance.get_risk_rating_display()
@@ -559,6 +564,13 @@ class ActivitySerializer(serializers.ModelSerializer):
         return attrs
 
 
+class ActivityFullSerializer(ActivitySerializer):
+    project_year_obj = serializers.SerializerMethodField()
+
+    def get_project_year_obj(self, instance):
+        return ProjectYearSerializerLITE(instance.project_year).data
+
+
 class CollaborationSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Collaboration
@@ -586,6 +598,7 @@ class StatusReportSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
     target_completion_date_display = serializers.SerializerMethodField()
+    created_at_display = serializers.SerializerMethodField()
     report_number = serializers.SerializerMethodField()
     status_display = serializers.SerializerMethodField()
     supporting_resources = serializers.SerializerMethodField()
@@ -609,6 +622,10 @@ class StatusReportSerializer(serializers.ModelSerializer):
     def get_target_completion_date_display(self, instance):
         if instance.target_completion_date:
             return instance.target_completion_date.strftime("%Y-%m-%d")
+
+    def get_created_at_display(self, instance):
+        if instance.created_at:
+            return instance.created_at.strftime("%Y-%m-%d")
 
     def get_report_number(self, instance):
         return instance.report_number

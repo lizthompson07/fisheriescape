@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.forms import modelformset_factory
 from django.utils.safestring import mark_safe
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext as _, gettext_lazy
 
 from shared_models import models as shared_models
 from . import models
@@ -92,7 +92,6 @@ class ResourceForm(forms.ModelForm):
         status_choices.insert(0, tuple((None, "---")))
         self.fields['resource_type'].choices = resource_type_choices
         self.fields['status'].choices = status_choices
-
 
         if kwargs.get("instance"):
             del self.fields["add_custodian"]
@@ -281,12 +280,14 @@ class ReportSearchForm(forms.Form):
         (3, "Physical Collections Report (xlsx)"),
         (4, "Resources Report (xlsx)"),
         (5, "Resource published to Open Data"),
-        # (2, "Organizational Report / Cue Card (PDF)"),
+        (6, "Data Custodian Report (xlsx)"),
+        (7, "Data Management Agreements (xlsx)"),
     )
 
     report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
-    sections = forms.MultipleChoiceField(required=False, label='Region / Division / Section (Leave blank for all)')
-    regions = forms.MultipleChoiceField(required=False, label='Regions')
+    sections = forms.MultipleChoiceField(required=False, label='Section (Leave blank for all)',
+                                         widget=forms.SelectMultiple(attrs=chosen_js))
+    regions = forms.MultipleChoiceField(required=False, label='Regions (Leave blank for all)', widget=forms.SelectMultiple(attrs=chosen_js))
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -335,3 +336,36 @@ InventoryUserFormset = modelformset_factory(
     form=InventoryUserForm,
     extra=1,
 )
+
+
+class DMAForm(forms.ModelForm):
+    class Meta:
+        model = models.DMA
+        exclude = ["project"]
+        widgets = {
+            'storage_solutions': forms.SelectMultiple(attrs=chosen_js),
+            'data_contact': forms.Select(attrs=chosen_js),
+            'metadata_contact': forms.Select(attrs=chosen_js),
+            'section': forms.Select(attrs=chosen_js),
+            'resource': forms.Select(attrs=chosen_js),
+        }
+        labels = {
+            "resource": gettext_lazy("Is there an associated record in the DM Apps Science Data Inventory?")
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        section_choices = [(s.id, s.full_name) for s in
+                           shared_models.Section.objects.all().order_by("division__branch__region", "division__branch", "division", "name")]
+        section_choices.insert(0, tuple((None, "-------")))
+        self.fields['section'].choices = section_choices
+
+        resource_choices = [(r.id, f"{r.t_title} ({r.uuid})") for r in models.Resource.objects.all().order_by(_("title_eng"))]
+        resource_choices.insert(0, tuple((None, "-------")))
+        self.fields['resource'].choices = resource_choices
+
+
+class DMAReviewForm(forms.ModelForm):
+    class Meta:
+        model = models.DMAReview
+        exclude = ["dma"]

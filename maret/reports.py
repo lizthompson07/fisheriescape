@@ -135,7 +135,6 @@ class OrganizationReport:
         self.field_list = [
             'id|Organization Id',
             'name_eng',
-            'ext_org__category|Category',
             'grouping',
             'abbrev',
             'ext_org__email|Email',

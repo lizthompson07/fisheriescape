@@ -10,6 +10,10 @@ from . import utils
 chosen_js = {"class": "chosen-select-contains"}
 
 
+class ProjectYearsInFilter(django_filters.BaseInFilter, django_filters.NumberFilter):
+    pass
+
+
 class StaffFilter(django_filters.FilterSet):
     fiscal_year = django_filters.ChoiceFilter(field_name='project_year__fiscal_year', lookup_expr='exact')
     region = django_filters.ChoiceFilter(field_name="project_year__project__section__division__branch__region", label=_("Region"), lookup_expr='exact')
@@ -72,9 +76,27 @@ class ProjectFilter(django_filters.FilterSet):
 
 class ProjectYearChildFilter(django_filters.FilterSet):
     project_year = django_filters.NumberFilter(field_name='project_year')
+    project_years = ProjectYearsInFilter(field_name='project_year', lookup_expr="in")
     project = django_filters.NumberFilter(field_name='project_year__project')
     year = django_filters.NumberFilter(field_name='project_year__fiscal_year')
     region_name = django_filters.CharFilter(field_name='project_year__project__section__division__branch__region__name', lookup_expr="icontains")
+
+
+class StatusReportFilter(django_filters.FilterSet):
+    project_year = django_filters.NumberFilter(field_name='project_year')
+    project_years = ProjectYearsInFilter(field_name='project_year', lookup_expr="in")
+    created_at = django_filters.DateFilter(field_name='created_at', lookup_expr="gte")
+    status = django_filters.NumberFilter(field_name='status')
+
+
+class ActivityFilter(ProjectYearChildFilter):
+    status = django_filters.NumberFilter(field_name='updates__status')
+    type = django_filters.NumberFilter(field_name='type')
+    classification = django_filters.NumberFilter(field_name='classification')
+    project_years = ProjectYearsInFilter(field_name='project_year', lookup_expr="in")
+    start_date = django_filters.DateFilter(field_name='target_date', lookup_expr="gte")
+    end_date = django_filters.DateFilter(field_name='target_date', lookup_expr="lte")
+    approvedOnly = django_filters.NumberFilter(field_name='project_year__status')
 
 
 class DMAFilter(django_filters.FilterSet):
@@ -115,6 +137,7 @@ class ProjectYearFilter(django_filters.FilterSet):
     has_field_component = django_filters.BooleanFilter(field_name="has_field_component")
     has_data_component = django_filters.BooleanFilter(field_name="has_data_component")
     has_lab_component = django_filters.BooleanFilter(field_name="has_lab_component")
+    has_status_report = django_filters.BooleanFilter(field_name="reports", method='has_status_report_filter')
 
     approval_status = django_filters.NumberFilter(field_name='review__approval_status')
     approval_level = django_filters.NumberFilter(field_name='review__approval_level')
@@ -132,4 +155,11 @@ class ProjectYearFilter(django_filters.FilterSet):
                                  Q(salaryallocation__funding_source=value) |
                                  Q(capitalallocation__funding_source=value)).distinct()
 
+        return out_qs
+
+    def has_status_report_filter(self, queryset, name, value):
+        # flip the value so that has_status_report = True corresponds to project years with status reports:
+        # (reports__isnull=False)
+        filter_value = not value
+        out_qs = queryset.filter(reports__isnull=filter_value).distinct()
         return out_qs

@@ -91,7 +91,7 @@
         },
         editable: false,
         resourceAreaHeaderContent: 'Vehicles',
-        events: `/api/cars/reservations-for-calendar/?${params}&as_resource_list=true&vehicle={{ object.id }}`,
+        events: `/api/field-work/reservations-for-calendar/?${params}&as_resource_list=true&vehicle={{ object.id }}`,
 
         eventDidMount: function (info) {
           var tooltip = new bootstrap.Tooltip(info.el, {

@@ -37,20 +37,7 @@ def get_app_dict(request):
     except NoReverseMatch:
         pass
 
-    try:
-        app_dict["pacificsalmondatahub"] = {
-            "title": _("PSSI - Pacific Salmon Data Hub"),
-            "description": _("Query Tool to Search for Departmental Data Assets"),
-            "status": "dev",
-            "access": "open",
-            "url": reverse('pacificsalmondatahub:Index'),
-            "icon_path": 'img/icons/pacificsalmondatahub.svg',
-            "region": "all",
 
-        }
-    except NoReverseMatch:
-        pass
-    
     if settings.SHOW_TICKETING_APP or request.user.is_staff:
         try:
             app_dict["tickets"] = {
@@ -147,8 +134,8 @@ def get_app_dict(request):
 
     try:
         app_dict["cars"] = {
-            "title": _("Gulf RSVPs"),
-            "description": _("Beeep Beeep!!!"),
+            "title": _("Gulf Science Field Planning Tool"),
+            "description": _("Tool used for the planning and coordination of field work"),
             "status": "dev",
             "access": "login-required",
             "url": reverse('cars:index'),
@@ -235,6 +222,21 @@ def get_app_dict(request):
         }
     except NoReverseMatch:
         pass
+
+    try:
+        app_dict["pacificsalmondatahub"] = {
+            "title": _("PSSI - Pacific Salmon Data Hub"),
+            "description": _("Query Tool to Search for Departmental Data Assets"),
+            "status": "dev",
+            "access": "open",
+            "url": reverse('pacificsalmondatahub:Index'),
+            "icon_path": 'img/icons/pacificsalmondatahub.svg',
+            "region": "all",
+
+        }
+    except NoReverseMatch:
+        pass
+
 
     try:
         app_dict["shiny"] = {

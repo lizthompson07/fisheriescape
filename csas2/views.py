@@ -11,7 +11,6 @@ from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
-from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.utils.timezone import make_aware, utc
 from django.utils.translation import gettext_lazy, gettext as _
@@ -335,7 +334,8 @@ class CSASRequestPDFView(LoginAccessRequiredMixin, PDFTemplateView):
     def get_object_list(self):
         qp = self.request.GET
         csas_requests = qp.get("csas_requests") if qp.get("csas_requests") and qp.get("csas_requests") != "None" else None
-        fiscal_year = qp.get("fiscal_year") if qp.get("fiscal_year") and qp.get("fiscal_year") != "None" else None
+        advice_fys = qp.get("advice_fys") if qp.get("advice_fys") and qp.get("advice_fys") != "None" else None
+        request_fys = qp.get("request_fys") if qp.get("request_fys") and qp.get("request_fys") != "None" else None
         request_status = qp.get("request_status") if qp.get("request_status") and qp.get("request_status") != "None" else None
         region = qp.get("region") if qp.get("region") and qp.get("region") != "None" else None
         sector = qp.get("sector") if qp.get("sector") and qp.get("sector") != "None" else None
@@ -348,8 +348,12 @@ class CSASRequestPDFView(LoginAccessRequiredMixin, PDFTemplateView):
             csas_requests = qp.get("csas_requests").split(",")
             qs = qs.filter(id__in=csas_requests)
         else:
-            if fiscal_year:
-                qs = qs.filter(fiscal_year_id=fiscal_year)
+            if advice_fys:
+                advice_fys = advice_fys.split(",")
+                qs = qs.filter(advice_fiscal_year_id__in=advice_fys)
+            if request_fys:
+                request_fys = request_fys.split(",")
+                qs = qs.filter(fiscal_year_id__in=request_fys)
             if request_status:
                 qs = qs.filter(status=request_status)
             if region:
@@ -801,14 +805,35 @@ class ProcessUpdateView(CanModifyProcessRequiredMixin, CommonUpdateView):
     def form_valid(self, form):
         obj = form.save(commit=False)
         obj.updated_by = self.request.user
-        return super().form_valid(form)
+
+        old_obj = models.Process.objects.get(pk=obj.id)
+        old_lead_office = str(old_obj.lead_office)
+        old_other_offices = listrify(old_obj.other_offices.all())
+
+        obj.save()
+        super().form_valid(form)
+
+        new_lead_office = str(obj.lead_office)
+        new_other_offices = listrify(obj.other_offices.all())
+
+        # now for the piece about NCR email
+        if obj.has_tor and obj.tor.meeting and obj.tor.meeting.is_posted and (
+                old_lead_office != new_lead_office or old_other_offices != new_other_offices):
+            email = emails.UpdatedMeetingEmail(self.request, obj.tor.meeting,
+                                               new_lead_office=new_lead_office,
+                                               old_lead_office=old_lead_office,
+                                               new_other_offices=new_other_offices,
+                                               old_other_offices=old_other_offices,
+                                               )
+            email.send()
+        return HttpResponseRedirect(self.get_success_url())
 
 
 class ProcessDeleteView(CanModifyProcessRequiredMixin, CommonDeleteView):
     model = models.Process
     success_url = reverse_lazy('csas2:process_list')
     template_name = 'csas2/confirm_delete.html'
-    delete_protection = False
+    delete_protection = True
     grandparent_crumb = {"title": gettext_lazy("Processes"), "url": reverse_lazy("csas2:process_list")}
 
     def get_parent_crumb(self):
@@ -946,7 +971,6 @@ class TermsOfReferenceSubmitView(TermsOfReferenceUpdateView):
 
         utils.tor_approval_seeker(obj, self.request)
         return HttpResponseRedirect(self.get_success_url())
-
 
     def get_grandparent_crumb(self):
         return {"title": "{} {}".format(_("Process"), self.get_object().process.id),
@@ -1107,7 +1131,6 @@ class MeetingUpdateView(CanModifyProcessRequiredMixin, CommonUpdateView):
             return forms.MeetingSoMPForm
         return forms.MeetingForm
 
-
     def get_h3(self):
         obj = self.get_object()
         if obj.is_posted and hasattr(obj, "tor"):
@@ -1245,6 +1268,7 @@ class DocumentListView(LoginAccessRequiredMixin, CommonFilterView):
     open_row_in_new_tab = True
 
     field_list = [
+        {"name": 'id'},
         {"name": 'ttitle|{}'.format("title"), "class": "w-35"},
         {"name": 'document_type', "class": "", "width": ""},
         {"name": 'process', "class": "w-25"},
@@ -1402,9 +1426,11 @@ class ReportSearchFormView(CsasAdminRequiredMixin, CommonFormView):
     template_name = 'csas2/report_search.html'
     form_class = forms.ReportSearchForm
     h1 = gettext_lazy("CSAS Reports")
+    home_url_name = "csas2:index"
 
     def form_valid(self, form):
         report = int(form.cleaned_data["report"])
+        fy = form.cleaned_data["fiscal_year"] if form.cleaned_data["fiscal_year"] else "None"
         fy = form.cleaned_data["fiscal_year"] if form.cleaned_data["fiscal_year"] else "None"
         request_status = form.cleaned_data["request_status"] if form.cleaned_data["request_status"] else "None"
         region = form.cleaned_data["region"] if form.cleaned_data["region"] else "None"
@@ -1413,6 +1439,8 @@ class ReportSearchFormView(CsasAdminRequiredMixin, CommonFormView):
         division = form.cleaned_data["division"] if form.cleaned_data["division"] else "None"
         section = form.cleaned_data["section"] if form.cleaned_data["section"] else "None"
         csas_requests = listrify(form.cleaned_data["csas_requests"], ",") if form.cleaned_data["csas_requests"] else "None"
+        advice_fys = listrify(form.cleaned_data["advice_fys"], ",") if form.cleaned_data["advice_fys"] else "None"
+        request_fys = listrify(form.cleaned_data["request_fys"], ",") if form.cleaned_data["request_fys"] else "None"
         process_status = form.cleaned_data["process_status"] if form.cleaned_data["process_status"] else "None"
         process_type = form.cleaned_data["process_type"] if form.cleaned_data["process_type"] else "None"
         lead_region = form.cleaned_data["lead_region"] if form.cleaned_data["lead_region"] else "None"
@@ -1422,7 +1450,8 @@ class ReportSearchFormView(CsasAdminRequiredMixin, CommonFormView):
             return HttpResponseRedirect(f"{reverse('csas2:meeting_report')}?fiscal_year={fy}&is_posted={is_posted}")
         elif report == 2:
             return HttpResponseRedirect(f"{reverse('csas2:request_pdf')}?"
-                                        f"fiscal_year={fy}&"
+                                        f"advice_fys={advice_fys}&"
+                                        f"request_fys={request_fys}&"
                                         f"request_status={request_status}&"
                                         f"region={region}&"
                                         f"sector={sector}&"
@@ -1433,7 +1462,8 @@ class ReportSearchFormView(CsasAdminRequiredMixin, CommonFormView):
                                         )
         elif report == 3:
             return HttpResponseRedirect(f"{reverse('csas2:request_list_report')}?"
-                                        f"fiscal_year={fy}&"
+                                        f"advice_fys={advice_fys}&"
+                                        f"request_fys={request_fys}&"
                                         f"request_status={request_status}&"
                                         f"region={region}&"
                                         f"sector={sector}&"
@@ -1448,6 +1478,15 @@ class ReportSearchFormView(CsasAdminRequiredMixin, CommonFormView):
                                         f"process_status={process_status}&"
                                         f"process_type={process_type}&"
                                         f"lead_region={lead_region}&"
+                                        )
+
+
+        elif report == 5:
+            return HttpResponseRedirect(f"{reverse('csas2:unpublished_publications_report')}?"
+                                        # f"fiscal_year={fy}&"
+                                        # f"process_status={process_status}&"
+                                        # f"process_type={process_type}&"
+                                        # f"lead_region={lead_region}&"
                                         )
 
         messages.error(self.request, "Report is not available. Please select another report.")
@@ -1489,7 +1528,8 @@ def meeting_report(request):
 def request_list_report(request):
     qp = request.GET
     csas_requests = qp.get("csas_requests") if qp.get("csas_requests") and qp.get("csas_requests") != "None" else None
-    fiscal_year = qp.get("fiscal_year") if qp.get("fiscal_year") and qp.get("fiscal_year") != "None" else None
+    advice_fys = qp.get("advice_fys") if qp.get("advice_fys") and qp.get("advice_fys") != "None" else None
+    request_fys = qp.get("request_fys") if qp.get("request_fys") and qp.get("request_fys") != "None" else None
     request_status = qp.get("request_status") if qp.get("request_status") and qp.get("request_status") != "None" else None
     region = qp.get("region") if qp.get("region") and qp.get("region") != "None" else None
     sector = qp.get("sector") if qp.get("sector") and qp.get("sector") != "None" else None
@@ -1502,8 +1542,12 @@ def request_list_report(request):
         csas_requests = qp.get("csas_requests").split(",")
         qs = qs.filter(id__in=csas_requests)
     else:
-        if fiscal_year:
-            qs = qs.filter(fiscal_year_id=fiscal_year)
+        if advice_fys:
+            advice_fys = advice_fys.split(",")
+            qs = qs.filter(advice_fiscal_year_id__in=advice_fys)
+        if request_fys:
+            request_fys = request_fys.split(",")
+            qs = qs.filter(fiscal_year_id__in=request_fys)
         if request_status:
             qs = qs.filter(status=request_status)
         if region:
@@ -1558,5 +1602,34 @@ def process_list_report(request):
         with open(file_url, 'rb') as fh:
             response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
             response['Content-Disposition'] = f'inline; filename="CSAS processes export.xlsx"'
+            return response
+    raise Http404
+
+
+@login_required()
+def unpublished_publications_report(request):
+    qp = request.GET
+    # fiscal_year = qp.get("fiscal_year") if qp.get("fiscal_year") and qp.get("fiscal_year") != "None" else None
+    # process_status = qp.get("process_status") if qp.get("process_status") and qp.get("process_status") != "None" else None
+    # process_type = qp.get("process_type") if qp.get("process_type") and qp.get("process_type") != "None" else None
+    # lead_region = qp.get("lead_region") if qp.get("lead_region") and qp.get("lead_region") != "None" else None
+
+    qs = models.Document.objects.filter(is_confirmed=True, status__lt=12)
+    # if fiscal_year:
+    #     qs = qs.filter(fiscal_year_id=fiscal_year)
+    # if process_status:
+    #     qs = qs.filter(status=process_status)
+    # if process_type:
+    #     qs = qs.filter(type=process_type)
+    # if lead_region:
+    #     qs = qs.filter(lead_office__region_id=lead_region)
+
+    site_url = my_envr(request)["SITE_FULL_URL"]
+    file_url = reports.generate_unpublished_publications_report(qs, site_url)
+
+    if os.path.exists(file_url):
+        with open(file_url, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+            response['Content-Disposition'] = f'inline; filename="unpublished publications report.xlsx"'
             return response
     raise Http404

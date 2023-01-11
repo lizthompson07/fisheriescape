@@ -15,14 +15,16 @@
 
     <div class="p-5 mb-4 bg-light rounded-3">
       <div class="container-fluid py-5">
-        <h1 class="display-5 fw-bold">{% trans "Science Vehicle Reservation System" %}</h1>
+        <h1 class="display-5 fw-bold">{% trans "Gulf Science Field Planning Tool" %}</h1>
         <p class="col-md-8 fs-4">
           {% blocktrans %}
-            Welcome to the reservation system for the Science vehicle fleet.
+            Welcome to the Gulf Science Field Planning Tool.
           {% endblocktrans %}
         </p>
         <a href="{% url 'cars:calendar' %}" class="btn btn-success btn-lg"><span class="mdi mdi-calendar text-light me-1"></span> {% trans "Calendar" %} </a>
         <a href="{% url 'cars:vehicle_finder' %}" class="btn btn-warning btn-lg"><span class="mdi mdi-magnify me-1"></span> {% trans "Find a Vehicle" %} </a>
+        <a href="#" class="btn btn-warning btn-lg under-dev"><span class="mdi mdi-magnify me-1"></span> {% trans "Find a Boat" %} </a>
+        <a href="#" class="btn btn-warning btn-lg under-dev"><span class="mdi mdi-magnify me-1"></span> {% trans "Find Equipment " %} </a>
         <a href="{% url 'cars:faq' %}" class="btn btn-primary btn-lg">{% trans "Resources / FAQ" %} </a>
       </div>
     </div>

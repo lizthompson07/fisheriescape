@@ -10,41 +10,64 @@
 {% endblock %}
 
 {% block new_object_button %}
-  <a href="{% url 'herring:export_progress_report' %}?year={{ request.GET.year }}&species={{ request.GET.species }}" class="btn btn-success btn-sm">Export Spreadsheet</a>
+  <a href="{% url 'herring:export_progress_report' %}?year={{ request.GET.year }}&species={{ request.GET.species }}" class="btn btn-success btn-sm">Export
+    Spreadsheet</a>
 {% endblock %}
 
 {% block table_body_0 %}
   {% for sample in object_list %}
-    <tr href="{% url 'herring:sample_detail' sample.id %}">
+    <tr newtab href="{% url 'herring:sample_detail' sample.id %}">
       <td>{{ sample.season }}</td>
       <td>{{ sample.id }}</td>
       <td>{{ sample.get_type_display }}</td>
       <td>{{ sample.sample_date|date:'F d, Y' }}</td>
       <td>{{ sample.sampler_ref_number }}</td>
       <td>{{ sample.sampler }}</td>
-      <td>{{ sample.total_fish_measured }}</td>
 
-      <td {% if not sample.total_fish_measured == sample.lf_count %}class="concern"{% endif %}>{{ sample.lf_count }}</td>
-      <td>{{ sample.total_fish_preserved }}</td>
-      {% if sample.lab_processing_complete %}
-        <td class="good">
+
+      <td class="{% if sample.total_fish_measured|nz:0 == sample.lf_count %}good{% else %}bad{% endif %}">
+        {{ sample.lf_count }} vs. {{ sample.total_fish_measured|nz:0 }}
+      </td>
+
+
+      {# lab #}
+
+      <td>
+        {% if sample.fish_details.last.lab_processed_date %}
           {{ sample.fish_details.last.lab_processed_date|date:"Y-m-d" }}
+        {% endif %}
+      </td>
+      <td class="{% if sample.lab_processing_complete %}good{% else %}bad{% endif %}">
+        {{ sample.lab_complete_fish.count }} of {{ sample.total_fish_preserved|nz:0 }}
+      </td>
+
+
+      {# eggs #}
+
+      {% if sample.total_egg_fish.exists %}
+        <td>
+          {% if sample.total_egg_fish.last.egg_processed_date %}
+            {{ sample.total_egg_fish.last.egg_processed_date|date:"Y-m-d" }}
+          {% endif %}
+        </td>
+        <td class="{% if sample.egg_processing_complete %}good{% else %}bad{% endif %}">
+          {{ sample.egg_complete_fish.count }} of {{ sample.total_egg_fish.count }}
         </td>
       {% else %}
-        <td class="bad">
-          {{ sample.fish_details.last.lab_processed_date|date:"Y-m-d" }}
-        </td>
+        <td></td>
+        <td></td>
       {% endif %}
 
-      {% if sample.otolith_processing_complete %}
-        <td class="good">
+      {# oto #}
+
+      <td>
+        {% if sample.fish_details.last.otolith_processed_date %}
           {{ sample.fish_details.last.otolith_processed_date|date:"Y-m-d" }}
-        </td>
-      {% else %}
-        <td class="bad">
-          {{ sample.fish_details.last.otolith_processed_date|date:"Y-m-d" }}
-        </td>
-      {% endif %}
+        {% endif %}
+      </td>
+      <td class="{% if sample.otolith_processing_complete %}good{% else %}bad{% endif %}">
+        {{ sample.oto_complete_fish.count }} of {{ sample.total_fish_preserved|nz:0 }}
+      </td>
 
 
     </tr>
@@ -70,46 +93,31 @@
     <th>Percent</th>
     </thead>
     <tbody>
-{#    <tr>#}
-{#      <td>Total</td>#}
-{#      <td>{{ sample_sum }}</td>#}
-{#      <td>--</td>#}
-{##}
-{#      <td>{{ fish_sum }}</td>#}
-{#      <td>--</td>#}
-{#    </tr>#}
 
     <tr>
       <td>Lab complete</td>
-      <td>{{ sample_sum_lab_complete }} of {{ sample_sum }}</td>
+      <td>{{ sample_sum_lab_complete|nz:0 }} of {{ sample_sum|nz:0 }}</td>
       <td>{{ sample_sum_lab_complete|divide:sample_sum|percentage:1 }}</td>
-      <td>{{ fish_sum_lab_complete }} of {{ sample_sum }}</td>
+      <td>{{ fish_sum_lab_complete|nz:0 }} of {{ fish_sum|nz:0 }}</td>
       <td>{{ fish_sum_lab_complete|divide:fish_sum|percentage:1 }}</td>
     </tr>
 
-{#    <tr>#}
-{#      <td>Lab remaining</td>#}
-{#      <td>{{ sample_sum_lab_remaining }} </td>#}
-{#      <td>{{ sample_sum_lab_remaining|divide:sample_sum|percentage:1 }}</td>#}
-{#      <td>{{ fish_sum_lab_remaining }} </td>#}
-{#      <td>{{ fish_sum_lab_remaining|divide:fish_sum|percentage:1 }}</td>#}
-{#    </tr>#}
+    <tr>
+      <td>Egg complete</td>
+      <td>{{ sample_sum_egg_complete|nz:0 }} of {{ sample_sum_with_eggs|nz:0 }} </td>
+      <td>{{ sample_sum_egg_complete|divide:sample_sum_with_eggs|percentage:1 }}</td>
+      <td>{{ fish_sum_egg_complete|nz:0 }} of {{ fish_egg_sum|nz:0 }}</td>
+      <td>{{ fish_sum_egg_complete|divide:fish_egg_sum|percentage:1 }}</td>
+      {#      <td>{{ fish_egg_sum }}</td>#}
+    </tr>
 
     <tr>
       <td>Otolith complete</td>
-      <td>{{ sample_sum_oto_complete }} of {{ sample_sum }} </td>
+      <td>{{ sample_sum_oto_complete|nz:0 }} of {{ sample_sum|nz:0 }} </td>
       <td>{{ sample_sum_oto_complete|divide:sample_sum|percentage:1 }}</td>
-      <td>{{ fish_sum_oto_complete }} of {{ sample_sum }}</td>
+      <td>{{ fish_sum_oto_complete|nz:0 }} of {{ fish_sum|nz:0 }}</td>
       <td>{{ fish_sum_oto_complete|divide:fish_sum|percentage:1 }}</td>
     </tr>
-
-{#    <tr>#}
-{#      <td>Otolith remaining</td>#}
-{#      <td>{{ sample_sum_oto_remaining }}</td>#}
-{#      <td>{{ sample_sum_oto_remaining|divide:sample_sum|percentage:1 }}</td>#}
-{#      <td>{{ fish_sum_oto_remaining }} </td>#}
-{#      <td>{{ fish_sum_oto_remaining|divide:fish_sum|percentage:1 }}</td>#}
-{#    </tr>#}
 
 
     </tbody>

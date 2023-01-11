@@ -98,11 +98,19 @@ class ReportSearchForm(forms.Form):
         (2, "CSAS Request batch export (PDF)"),
         (3, "CSAS Request list (Excel)"),
         (4, "State of Our Processes (Excel)"),
+        (5, "Unpublished publication report (Excel)"),
+        (None, ""),
+        (None, "-----------"),
+        (None, ""),
         (999, "Participant List (Excel) --> placeholder"),
         (999, "Process Cost Report (Excel) --> placeholder"),
     )
     report = forms.ChoiceField(required=True, choices=REPORT_CHOICES)
     fiscal_year = forms.ChoiceField(required=False, label=gettext_lazy('Fiscal year'))
+    advice_fys = forms.MultipleChoiceField(required=False, label=gettext_lazy('Advice Fiscal Years'), help_text=gettext("leave blank for all"),
+                                              widget=forms.SelectMultiple(attrs=chosen_js))
+    request_fys = forms.MultipleChoiceField(required=False, label=gettext_lazy('Request Fiscal Years'), help_text=gettext("leave blank for all"),
+                                           widget=forms.SelectMultiple(attrs=chosen_js))
     is_posted = forms.ChoiceField(required=False, label=gettext_lazy('Posted processes?'))
     request_status = forms.ChoiceField(required=False, label=gettext_lazy('Request Status'))
     process_status = forms.ChoiceField(required=False, label=gettext_lazy('Process Status'))
@@ -124,13 +132,16 @@ class ReportSearchForm(forms.Form):
             (1, gettext("Only posted")),
             (0, gettext("Only un-posted")),
         )
-        fy_choices = [(obj.id, str(obj)) for obj in FiscalYear.objects.filter(Q(processes__isnull=False) | Q(csas_requests__isnull=False)).distinct()]
+        fy_choices = [(obj.id, str(obj)) for obj in FiscalYear.objects.filter(Q(processes__isnull=False)).distinct()]
         fy_choices.insert(0, (None, "All"))
 
         request_status_choices = [obj for obj in model_choices.request_status_choices]
         request_status_choices.insert(0, (None, "All"))
 
         request_choices = [(obj.id, f"{obj.id} - {obj.title}") for obj in models.CSASRequest.objects.all()]
+
+        advice_fy_choices = [(fy.id, str(fy)) for fy in FiscalYear.objects.filter(csas_request_advice__isnull=False).distinct()]
+        request_fy_choices = [(fy.id, str(fy)) for fy in FiscalYear.objects.filter(csas_requests__isnull=False).distinct()]
 
         region_choices = utils.get_region_choices(with_requests=True)
         region_choices.insert(0, (None, "All"))
@@ -160,6 +171,8 @@ class ReportSearchForm(forms.Form):
         self.fields["is_posted"].choices = posted_choices
         self.fields["request_status"].choices = request_status_choices
         self.fields["csas_requests"].choices = request_choices
+        self.fields["advice_fys"].choices = advice_fy_choices
+        self.fields["request_fys"].choices = request_fy_choices
 
         self.fields['region'].choices = region_choices
         self.fields['sector'].choices = sector_choices
@@ -489,8 +502,8 @@ class DocumentForm(forms.ModelForm):
             person_choices = [(p.id, f"{p} ({p.email})") for p in Person.objects.all()]
             self.fields["lead_authors"].choices = person_choices
             self.fields["other_authors"].choices = person_choices
-            del self.fields["year"]
-            del self.fields["pages"]
+            del self.fields["pages_en"]
+            del self.fields["pages_fr"]
             del self.fields["url_en"]
             del self.fields["url_fr"]
             del self.fields["file_en"]

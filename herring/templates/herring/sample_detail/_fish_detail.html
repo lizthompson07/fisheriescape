@@ -59,10 +59,8 @@
             <a href="{% url 'herring:otolith_form' d.id %}">
               {% if d.otolith_processed_date %}
                 <img src="{% static "/admin/img/icon-yes.svg" %}" alt="">
-              {% elif d.lab_processed_date %}
-                <img src="{% static "/admin/img/icon-no.svg" %}" alt="">
               {% else %}
-                <img src="{% static "/admin/img/icon-unknown.svg" %}" alt="">
+                <img src="{% static "/admin/img/icon-no.svg" %}" alt="">
               {% endif %}
             </a>
           </td>
