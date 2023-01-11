@@ -9,11 +9,25 @@
 
 {% block subcontent %}
 
+  {% if can_modify.can_modify %}
+    <div class="alert alert-success w-75 p-1 m-1 mb-3" role="alert">
+      <p class="p-0 m-0">
+        <span class="mdi mdi-check text-success mr-1 lead"></span>
+        {{ can_modify.reason }}
+      </p>
+    </div>
+  {% endif %}
+
   <div class="btns mb-3">
-    <a class="btn btn-sm btn-dark float-right" href="{% url 'inventory:dma_clone' object.id %}">{% trans "Clone" %}</a>
-    <a class="btn btn-sm btn-warning" href="{% url 'inventory:dma_edit' object.id %}">{% trans "Edit" %}</a>
-    <a class="btn btn-sm btn-danger " href="{% url 'inventory:dma_delete' object.id %}">{% trans "Delete" %}</a>
+    {% if can_modify.can_modify %}
+      <a class="btn btn-sm btn-warning" href="{% url 'inventory:dma_edit' object.id %}">{% trans "Edit" %}</a>
+      <a class="btn btn-sm btn-danger " href="{% url 'inventory:dma_delete' object.id %}">{% trans "Delete" %}</a>
+    {% endif %}
+    <a class="btn btn-sm btn-dark" href="{% url 'inventory:dma_clone' object.id %}">{% trans "Clone Me" %}</a>
   </div>
+
+
+
   <div class="mb-5">
 
     <div class="card mb-3">
@@ -24,9 +38,9 @@
         <table class="table table-sm">
           {% for field in fields_id %}
             {% if field == "comments" %}
-              {% verbose_td_display object field th_width="35%" format="html" %}
+              {% verbose_td_display object field th_width="25%" format="html" %}
             {% else %}
-              {% verbose_td_display object field th_width="35%" %}
+              {% verbose_td_display object field th_width="25%" %}
             {% endif %}
           {% endfor %}
         </table>
@@ -41,9 +55,9 @@
         <table class="table table-sm">
           {% for field in fields_metadata %}
             {% if "tool" in field or "text" in field %}
-              {% verbose_td_display object field format="html" th_width="35%" %}
+              {% verbose_td_display object field format="html" th_width="25%" %}
             {% else %}
-              {% verbose_td_display object field th_width="35%" %}
+              {% verbose_td_display object field th_width="25%" %}
             {% endif %}
           {% endfor %}
         </table>
@@ -58,9 +72,9 @@
         <table class="table table-sm">
           {% for field in fields_storage %}
             {% if "storage_solutions" in field %}
-              {% verbose_td_display object field th_width="35%" %}
+              {% verbose_td_display object field th_width="25%" %}
             {% else %}
-              {% verbose_td_display object field format="html" th_width="35%" %}
+              {% verbose_td_display object field format="html" th_width="25%" %}
             {% endif %}
           {% endfor %}
         </table>
@@ -74,23 +88,30 @@
       <div class="card-body">
         <table class="table table-sm">
           {% for field in fields_sharing %}
-           {% if "had_sharing_agreements" in field %}
-              {% verbose_td_display object field th_width="35%" %}
+            {% if "had_sharing_agreements" in field %}
+              {% verbose_td_display object field th_width="25%" %}
             {% else %}
-              {% verbose_td_display object field format="html" th_width="35%" %}
+              {% verbose_td_display object field format="html" th_width="25%" %}
             {% endif %}
           {% endfor %}
         </table>
       </div>
     </div>
 
+
+    {# REVIEWS #}
+
+
     <div class="card mb-3">
       <div class="card-header lead">
-        <div class="float-right mb-3">
-          <a href="#" pop-href="{% url 'inventory:dma_review_new' object.id %}" class="btn btn-primary">
-            <span class="mdi mdi-plus text-light"></span>
-          </a>
-        </div>
+        {% if is_admin %}
+          <div class="float-right mb-3">
+            <a href="#" pop-href="{% url 'inventory:dma_review_new' object.id %}" class="btn btn-primary">
+              <span class="mdi mdi-plus text-light"></span>
+            </a>
+          </div>
+        {% endif %}
+
         {% trans "Reviews" %}
       </div>
       <div class="card-body">
@@ -109,13 +130,15 @@
             </thead>
             <tbody>
             {% for review in object.reviews.all %}
-              <tr pop href="{% url 'inventory:dma_review_edit'  review.id %}">
+              <tr {% if is_admin %} pop href="{% url 'inventory:dma_review_edit'  review.id %} {% endif %}">
                 {% for field in dma_review_field_list %}
                   <td>{% get_field_value review field format='html' %}</td>
                 {% endfor %}
-                <td>
-                  <a href="#" pop-href="{% url 'inventory:dma_review_delete' review.id %}" class="btn"><span class="mdi mdi-delete lead"></span></a>
-                </td>
+                {% if is_admin %}
+                  <td>
+                    <a href="#" pop-href="{% url 'inventory:dma_review_delete' review.id %}" class="btn"><span class="mdi mdi-delete lead"></span></a>
+                  </td>
+                {% endif %}
               </tr>
             {% endfor %}
             </tbody>

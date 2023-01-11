@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from django.template.defaultfilters import default_if_none
+from django.template.defaultfilters import default_if_none, slugify
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
@@ -586,21 +586,19 @@ class DMA(MetadataFields):
 
     title = models.CharField(max_length=1000, verbose_name=_("Title"), help_text=_("What is the title of the Data Management Agreement?"))
     data_contact = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="data_contact_for_dmas", blank=True, null=True,
-                                     verbose_name=_("Who is the principal steward of this data?"),
+                                     verbose_name=_("Who is the primary steward of this data?"),
                                      help_text=_("i.e., who is the primary responsible party?"))
-    # delete me
-    data_contact_text = models.CharField(max_length=500, blank=True, null=True, verbose_name=_("Who is the principal steward of this data?"),
-                                         help_text=_("i.e., who is the primary responsible party?"))
+    data_contact_text = models.CharField(max_length=500, blank=True, null=True, verbose_name=_("other data contacts"))
 
     # Metadata
     metadata_contact = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="metadata_contact_for_dmas", blank=True, null=True,
-                                         verbose_name=_("Who is responsible for creating and maintaining the metadata?"),
+                                         verbose_name=_("Who is primary person responsible for creating and maintaining the metadata?"),
                                          help_text=_("i.e., who is responsible for keeping metadata records up-to-date?"))
+    metadata_contact_text = models.CharField(max_length=500, blank=True, null=True, verbose_name=_("other metadata contacts"))
 
-    # delete me
-    metadata_contact_text = models.CharField(max_length=500, blank=True, null=True,
-                                             verbose_name=_("Who is responsible for creating and maintaining the metadata?"),
-                                             help_text=_("i.e., who is responsible for keeping metadata records up-to-date?"))
+    resource = models.OneToOneField(Resource, on_delete=models.DO_NOTHING, blank=True, null=True, related_name='dma',
+                                    verbose_name="DM Apps Data Inventory record", help_text=_("Does this agreement relate to a dmapps data inventory record?"))
+
     metadata_tool = models.TextField(blank=True, null=True, verbose_name=_("Describe the tools or processes that will be used to create metadata"),
                                      help_text=_(
                                          "e.g., Metadata Inventory app in DM Apps, DFO Enterprise Data Hub, Federal Geospatial Portal, stand-alone file, ..."))
@@ -674,9 +672,14 @@ class DMA(MetadataFields):
         return self.title
 
     @property
+    def status_display(self):
+        return mark_safe(f'<span class=" px-1 py-1 {slugify(self.get_status_display())}">{self.get_status_display()}</span>')
+
+    @property
     def region(self):
         if self.section:
             return self.section.division.branch.sector.region
+
 
 class DMAReview(MetadataFields):
     decision_choices = (
@@ -705,3 +708,7 @@ class DMAReview(MetadataFields):
     def comments_html(self):
         if self.comments:
             return mark_safe(markdown(self.comments))
+
+    @property
+    def decision_display(self):
+        return mark_safe(f'<span class=" px-1 py-1 {slugify(self.get_decision_display())}">{self.get_decision_display()}</span>')

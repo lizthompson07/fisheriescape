@@ -31,7 +31,7 @@ from . import models
 from . import reports
 from . import xml_export
 from .mixins import SuperuserOrAdminRequiredMixin, CanModifyRequiredMixin, AdminRequiredMixin, InventoryBasicMixin, InventoryLoginRequiredMixin
-from .utils import can_modify, get_dma_field_list, get_dma_review_field_list
+from .utils import can_modify, get_dma_field_list, get_dma_review_field_list, can_modify_dma
 
 
 # USER PERMISSIONS
@@ -1612,21 +1612,22 @@ def export_dmas(request):
 # DMAs #
 ########
 
-class DMAListView(AdminRequiredMixin, CommonFilterView):
+class DMAListView(InventoryBasicMixin, CommonFilterView):
     template_name = 'inventory/list.html'
     filterset_class = filters.DMAFilter
     home_url_name = "inventory:index"
     new_object_url = reverse_lazy("inventory:dma_new")
     row_object_url_name = row_ = "inventory:dma_detail"
-    container_class = "container"
-    fields = [
-        "region",
-        "section",
-        "title",
-        "data_contact|{}".format(_("data contact")),
-        "metadata_contact|{}".format(_("metadata contact")),
-        "status",
-    ]
+    container_class = "container-fluid"
+    field_list = [
+            {"name": "region", "class": ""},
+            {"name": "section", "class": ""},
+            {"name": "title", "class": "w-35"},
+            {"name": "data_contact|{}".format(_("data contact")), "class": ""},
+            {"name": "metadata_contact|{}".format(_("metadata contact")), "class": ""},
+            {"name": "status_display|{}".format(_("status")), "class": ""},
+        ]
+
 
     def get_queryset(self):
         return models.DMA.objects.all()
@@ -1645,12 +1646,19 @@ class DMACreateView(InventoryBasicMixin, CommonCreateView):
 
     def form_valid(self, form):
         dma = form.save(commit=False)
-        dma.updated_by = self.request.user
+        dma.created_by = self.request.user
         dma.save()
+
+        # if there is a resource associated with the DMA, we know the URL and metadata_tool
+        if hasattr(dma, "resource") and dma.resource:
+            dma.metadata_tool = _("The metadata was created and is maintained in the DM Apps Data Inventory Tool.")
+            dma.metadata_url = my_envr(self.request)["SITE_FULL_URL"] + reverse("inventory:resource_detail_uuid", args=dma.resource.uuid)
+            dma.save()
+
         return super().form_valid(form)
 
 
-class DMADeleteView(InventoryBasicMixin, CommonDeleteView):
+class DMADeleteView(AdminRequiredMixin, CommonDeleteView):
     template_name = "inventory/confirm_delete.html"
     model = models.DMA
     container_class = "container bg-light curvy"
@@ -1674,17 +1682,19 @@ class DMADetailView(InventoryBasicMixin, CommonDetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["dma_review_field_list"] = get_dma_review_field_list()
-
+        context['can_modify'] = can_modify_dma(self.request.user, self.get_object().id, as_dict=True)
         context["fields_id"] = [
             'title',
             'section',
             'data_contact',
-            'status',
+            'data_contact_text',
+            "status_display|{}".format(_("status")),
             'comments',
             'metadata',
         ]
         context["fields_metadata"] = [
             'metadata_contact',
+            'metadata_contact_text',
             'metadata_tool',
             'metadata_url',
             'metadata_update_freq',
@@ -1721,9 +1731,15 @@ class DMAUpdateView(InventoryBasicMixin, CommonUpdateView):
         return {"title": str(self.get_object()), "url": reverse_lazy("inventory:dma_detail", args=[self.get_object().id])}
 
     def form_valid(self, form):
-        obj = form.save(commit=False)
-        obj.updated_by = self.request.user
-        obj.save()
+        dma = form.save(commit=False)
+        dma.updated_by = self.request.user
+        dma.save()
+
+        # if there is a resource associated with the DMA, we know the URL and metadata_tool
+        if hasattr(dma, "resource") and dma.resource:
+            dma.metadata_tool = _("The metadata was created and is maintained in the DM Apps Data Inventory Tool.")
+            dma.metadata_url = my_envr(self.request)["SITE_FULL_URL"] + reverse("inventory:resource_detail_uuid", args=[dma.resource.uuid])
+            dma.save()
         return super().form_valid(form)
 
 
@@ -1731,6 +1747,9 @@ class DMACloneView(DMAUpdateView):
 
     def get_h1(self):
         return _("Cloning: ") + str(self.get_object())
+
+    def get_initial(self):
+        return dict(title=_("Clone of ") + self.get_object().title)
 
     def form_valid(self, form):
         new_obj = form.save(commit=False)

@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.forms import modelformset_factory
 from django.utils.safestring import mark_safe
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext as _, gettext_lazy
 
 from shared_models import models as shared_models
 from . import models
@@ -338,7 +338,6 @@ InventoryUserFormset = modelformset_factory(
 )
 
 
-
 class DMAForm(forms.ModelForm):
     class Meta:
         model = models.DMA
@@ -348,15 +347,23 @@ class DMAForm(forms.ModelForm):
             'data_contact': forms.Select(attrs=chosen_js),
             'metadata_contact': forms.Select(attrs=chosen_js),
             'section': forms.Select(attrs=chosen_js),
+            'resource': forms.Select(attrs=chosen_js),
+        }
+        labels = {
+            "resource": gettext_lazy("Is there an associated record in the DM Apps Science Data Inventory?")
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        SECTION_CHOICES = [(s.id, s.full_name) for s in
+        section_choices = [(s.id, s.full_name) for s in
                            shared_models.Section.objects.all().order_by("division__branch__region", "division__branch", "division", "name")]
-        SECTION_CHOICES.insert(0, tuple((None, "-------")))
+        section_choices.insert(0, tuple((None, "-------")))
+        self.fields['section'].choices = section_choices
 
-        self.fields['section'].choices = SECTION_CHOICES
+        resource_choices = [(r.id, f"{r.t_title} ({r.uuid})") for r in models.Resource.objects.all().order_by(_("title_eng"))]
+        resource_choices.insert(0, tuple((None, "-------")))
+        self.fields['resource'].choices = resource_choices
+
 
 class DMAReviewForm(forms.ModelForm):
     class Meta:

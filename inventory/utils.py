@@ -57,6 +57,32 @@ def can_modify(user, resource_id, as_dict=False):
         return can_modify
 
 
+
+def can_modify_dma(user, dma_id, as_dict=False):
+    dma = get_object_or_404(models.DMA, pk=dma_id)
+
+    can_modify = False
+    reason = _("You are not authorized to make changes to this record.")
+
+    if is_nat_admin(user):
+        can_modify = True
+        reason = _("As an national administrator of this application, you have the necessary permissions to modify this record.")
+    elif is_regional_admin(user) and dma.section and dma.section.division.branch.sector.region == user.inventory_user.region:
+        can_modify = True
+        reason = _("As a {region} region administrator, you have the necessary permissions to modify this record.").format(region=user.inventory_user.region)
+    elif user in [dma.data_contact, dma.metadata_contact, dma.created_by]:
+        can_modify = True
+        reason = _("Your role on this record gives you the necessary permissions to modify this record.")
+
+    if as_dict:
+        payload = dict(can_modify=can_modify, reason=reason)
+        return payload
+    else:
+        return can_modify
+
+
+
+
 def get_dma_field_list():
     my_list = [
         'title',
@@ -87,7 +113,7 @@ def get_dma_field_list():
 def get_dma_review_field_list():
     my_list = [
         'fiscal_year',
-        'decision',
+        'decision_display|{}'.format("decision"),
         'comments',
         'metadata|{}'.format("metadata"),
     ]

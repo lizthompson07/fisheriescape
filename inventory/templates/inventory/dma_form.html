@@ -38,6 +38,7 @@
     <div class="card-body">
       {% bootstrap_field form.metadata_contact placeholder="" %}
       {% bootstrap_field form.metadata_contact_text placeholder="" %}
+      {% bootstrap_field form.resource placeholder="" %}
       {% bootstrap_field form.metadata_tool placeholder="" %}
       {% bootstrap_field form.metadata_url placeholder="" %}
       {% bootstrap_field form.metadata_update_freq placeholder="" %}
@@ -74,5 +75,40 @@
     </div>
   </div>
 
+
+{% endblock %}
+
+
+{% block body_js %}
+
+
+  <script type="application/javascript">
+  var $resource = $("#id_resource");
+  var $metadata_url = $("#id_metadata_url").parent();
+  var $metadata_tool = $("#id_metadata_tool").parent();
+
+  $(document).ready(function () {
+    // Stuff to do as soon as the DOM is ready
+    refreshResource();
+  });
+
+
+  function refreshResource() {
+    if ($resource.val() != '') {
+      $metadata_url.hide()
+      $metadata_tool.hide()
+    } else {
+      $metadata_url.show()
+      $metadata_tool.show()
+    }
+  }
+
+
+  $resource.change(function () {
+    refreshResource();
+  })
+
+
+  </script>
 
 {% endblock %}
