@@ -58,11 +58,13 @@ urlpatterns = [
     path('transaction/<int:pk>/edit/', views.TransactionUpdateView.as_view(), name="transaction_edit"),
     # path('transaction/<int:pk>/edit/pop/<int:pop>/', views.TransactionUpdatePopoutView.as_view(), name="transaction_edit"),
     path('transaction/<int:pk>/receive/order/<int:pop>/', views.OrderReceivedTransactionUpdateView.as_view(), name="transaction_edit"),
+    path('transaction/<int:pk>/transfer/', views.TransactionTransferView.as_view(), name="transaction_transfer"),
+    path('transaction/<int:pk>/transfer/in/', views.TransactionTransferInView.as_view(), name="transaction_transfer_in"),
     path('transaction/<int:pk>/delete/pop/<int:pop>/', views.TransactionDeletePopoutView.as_view(), name="transaction_delete"),
     path('transaction/<int:pk>/delete/', views.TransactionDeleteView.as_view(), name="transaction_delete"),
     path('transaction/return/item/<int:transaction>/', views.lending_return_item, name="lending_return_item"),
     path('transaction/lend/item/<int:pk>/', views.TransactionLendCreateView.as_view(), name="transaction_lend"),
-    path('transaction/transfer/item/<int:pk>/', views.TransactionTransferCreateView.as_view(), name="transaction_transfer"),
+    # path('transaction/transfer/item/<int:pk>/', views.TransactionTransferCreateView.as_view(), name="transaction_transfer"),
 
     # LENDING #
 

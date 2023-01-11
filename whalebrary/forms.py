@@ -99,6 +99,23 @@ class TransactionForm3(forms.ModelForm):
         }
 
 
+class TransactionTransferForm(forms.ModelForm):
+
+    class Meta:
+        model = models.Transaction
+        fields = "__all__"
+        widgets = {
+            'item': forms.HiddenInput(),
+            'category': forms.HiddenInput(),
+            'return_tracker': forms.HiddenInput(),
+            'audits': forms.HiddenInput(),
+            # 'location': forms.HiddenInput(),
+            'tag': forms.SelectMultiple(attrs=chosen_js),
+            'created_by': forms.HiddenInput(),
+
+        }
+
+
 class OrderForm(forms.ModelForm):
     class Meta:
         model = models.Order

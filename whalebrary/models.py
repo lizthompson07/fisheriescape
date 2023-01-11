@@ -107,6 +107,7 @@ class Item(models.Model):
 
     class Meta:
         unique_together = (('item_name', 'size'),)
+        ordering = ["item_name"]
 
     def __str__(self):
         # check to see if a french value is given
@@ -135,13 +136,13 @@ class Item(models.Model):
     def get_oh_quantity(self, location=None):
         """find total quantity for item regardless of location"""
         if not location:
-            purchase_qty = sum([item.quantity for item in self.transactions.filter(category__in=[1, 4])])
-            removed_quantity = sum([item.quantity for item in self.transactions.filter(category__in=[2, 3])])
+            purchase_qty = sum([item.quantity for item in self.transactions.filter(category__in=[1, 4, 6])])
+            removed_quantity = sum([item.quantity for item in self.transactions.filter(category__in=[2, 3, 5])])
             qty = purchase_qty - removed_quantity
         else:
-            purchase_qty = sum([item.quantity for item in self.transactions.filter(category__in=[1, 4], location=location)])
+            purchase_qty = sum([item.quantity for item in self.transactions.filter(category__in=[1, 4, 6], location=location)])
             removed_quantity = sum(
-                [item.quantity for item in self.transactions.filter(category__in=[2, 3], location=location)])
+                [item.quantity for item in self.transactions.filter(category__in=[2, 3, 5], location=location)])
             qty = purchase_qty - removed_quantity
         return qty
 
@@ -544,6 +545,9 @@ class Maintenance(models.Model):
     last_maint_by = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, related_name="maintainers", verbose_name=_("last maintained by"))
     last_maint_date = models.DateTimeField(blank=True, null=True, verbose_name="date last maintained")
 
+    class Meta:
+        ordering = ["last_maint_date"]
+
     def __str__(self):
         # check to see if a french value is given
         if getattr(self, str(_("item"))):
@@ -667,6 +671,9 @@ class Order(models.Model):
     transaction = models.OneToOneField(Transaction, blank=True, null=True, on_delete=models.DO_NOTHING,
                                        related_name="orders",
                                        verbose_name=_("transaction"))
+
+    class Meta:
+        ordering = ["-date_ordered"]
 
     def __str__(self):
         # check to see if a french value is given
