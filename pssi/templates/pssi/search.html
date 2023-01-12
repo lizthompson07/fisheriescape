@@ -1,0 +1,123 @@
+<title>PSSI - Pacific Salmon Data Hub</title>
+
+{% extends "shared_models/generic_base.html" %} <!-- Extention of generic_base.html page -->
+{% load bootstrap4 %}
+{% load i18n %}
+{% load custom_filters %}
+{% load custom_tags %}
+{% load el_pagination_tags %}
+{% load verbose_names %}
+
+<!-- 
+    Purpose: Create a search page for users to search data assets.
+    Input: Pulling other HTML files together.
+    Output: Search page with filtering option and data assets details.
+ -->
+
+{% block subcontent %}
+<style>
+table.sortable > thead > tr > th {
+  color: black;
+  text-decoration: none;
+  font-weight: bold;
+}
+</style>
+
+  {% if filter %}
+    <!-- Display filter block -->
+    {% block filter %}
+      <div class="{% block filter_div_classes %}{% endblock %}">
+        <form class="form {% block extra_filter_classes %}{% endblock %}" action="." method="get" id="filter-form">
+          <div class="row">
+            <!-- Create options for each filter -->
+            {% for field in filter.form %}
+              <div class="col">
+                {% bootstrap_field field placeholder="" size="small" %}
+              </div>
+            {% endfor %}
+            <div class="col">
+              <br>
+              <!-- Submit and Clear Button for filters -->
+              <input type="submit" value='{% trans "Filter" %}' class="btn btn-warning btn-sm">
+              <a href="." class="btn btn-secondary btn-sm">{% trans "Clear" %}</a>
+            </div>
+          </div>
+        </form>
+      </div>
+    {% endblock %}
+    <br>
+
+  {% endif %}
+
+  <!-- If there exists a list of values to display -->
+  {% if object_list.exists %}
+      <!-- If a filter was applied -->
+    {% if filter %}
+      {% if filter_list %}
+        {% echo filter_list as list %}
+      {% else %}
+        {% echo filter.qs as list %}
+      {% endif %}
+    {% else %}
+      {% echo object_list as list %}
+    {% endif %}
+
+    {% block pre_table %}
+    {% endblock %}
+
+    <!-- Table of data assets to be displayed -->
+    {% block table %}
+      <table class="{% block table_class %}table table-sm {% if row_object_url_name %}table-hover{% endif %} {% if sortable and not paginate_by %}sortable{% endif %}{% endblock %}">
+        <thead>
+          <!-- Print the fields of the data asset as headers to display in the table -->
+        {% block head %}
+          {% for field in field_list %}
+            <!-- Fields, with its own styling (width and class) -->
+            <th class="{{ field.class }}" {% if field.width %}style="width: {{ field.width }}"{% endif %}>
+              {% get_verbose_label random_object field.name %}
+            </th>
+          {% endfor %}
+        {% endblock %}
+        </thead>
+
+        <!-- Print the values for those fields in the data asset -->
+        {% block table_body_0 %}
+          <tbody>
+          {% for object in list %}
+            {% block table_tr %}
+              {% url row_object_url_name object.id as details_url %}
+              <!-- Make each row redirect to details page for that specific data asset - Needs to be implemented -->
+              <tr {% if row_object_url_name %}href="."{% endif %} {% if open_row_in_new_tab %}newtab{% endif %}>
+                {% for field in field_list %}
+                  <!-- Display the fields for that data asset in table -->
+                  <td class="{{ field.class }}">
+                    {% block table_td %}
+                      {% get_field_value object field.name safe=True %} 
+                    {% endblock %}
+                  </td>
+                {% endfor %}
+              </tr>
+            {% endblock %}
+          {% endfor %}
+          </tbody>
+        {% endblock %}
+
+      </table>
+
+    {% endblock %}
+
+
+  <!-- If theres no data assets to be displayed -->
+  {% else %}
+    <div>
+      <p class="lead">
+        <em>
+          {% trans "There are no items to display" %} <span class="ml-1 mdi mdi-emoticon-confused-outline"> </span>
+        </em>
+      </p>
+    </div>
+  {% endif %}
+
+{% endblock %}
+
+
