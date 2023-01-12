@@ -1657,6 +1657,7 @@ class DMADetailView(InventoryBasicMixin, CommonDetailView):
             'data_contact_text',
             "status_display|{}".format(_("status")),
             'comments',
+            'ppt',
             'metadata',
         ]
         context["fields_metadata"] = [

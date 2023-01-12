@@ -39,6 +39,24 @@
           {% for field in fields_id %}
             {% if field == "comments" %}
               {% verbose_td_display object field th_width="25%" format="html" %}
+            {% elif field == "ppt" %}
+              <tr>
+                <th>{% trans "Linkage to PPT" %}</th>
+                <td>
+                  {% if object.project_set.exists %}
+                    {% for project in object.project_set.all %}
+                      <div class="">
+                        <a href="{% url 'ppt:project_detail' project.id %}">{{ project }}</a>
+                      </div>
+                    {% endfor %}
+
+                  {% else %}
+                    ---
+                  {% endif %}
+
+                </td>
+              </tr>
+
             {% else %}
               {% verbose_td_display object field th_width="25%" %}
             {% endif %}
