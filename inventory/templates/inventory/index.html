@@ -51,6 +51,33 @@
     </ul>
   </div>
 
+  {#  alerts #}
+  {% if is_admin %}
+    <div class="mb-5">
+
+      {# publications #}
+      {% if flagged_4_publication %}
+        <div class="alert alert-success lead" role="alert">
+          <span class="mdi mdi-flag mr-2"></span>
+          There {{ flagged_4_publication|pluralize:"is,are" }} {{ flagged_4_publication }} publication{{ flagged_4_publication|pluralize }} that {{ flagged_4_publication|pluralize:"has,have" }} been
+          flagged for publication
+          <a href="{% url 'inventory:resource_list' %}?flagged_4_publication=true" class="btn btn-warning btn-sm float-right">View</a>
+        </div>
+      {% endif %}
+
+      {# deletion #}
+      {% if flagged_4_deletion %}
+        <div class="alert alert-danger lead" role="alert">
+          <span class="mdi mdi-flag mr-2"></span>
+          There {{ flagged_4_deletion|pluralize:"is,are" }} {{ flagged_4_deletion }} publication{{ flagged_4_deletion|pluralize }} that {{ flagged_4_deletion|pluralize:"has,have" }} been
+          flagged for deletion
+          <a href="{% url 'inventory:resource_list' %}?flagged_4_deletion=true" class="btn btn-warning btn-sm float-right">View</a>
+        </div>
+      {% endif %}
+
+    </div>
+  {% endif %}
+
 
   <div class=" row justify-content-center">
     <div class=" col">

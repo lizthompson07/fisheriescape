@@ -58,20 +58,6 @@ class Index(InventoryBasicMixin, CommonTemplateView):
     h1 = gettext_lazy("DFO Science Data Inventory")
     active_page_name_crumb = gettext_lazy("Home")
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        published_records = models.Resource.objects.filter(fgp_publication_date__isnull=False).count()
-        context["published_records"] = published_records
-
-        flagged_4_deletion = models.Resource.objects.filter(flagged_4_deletion=True).count()
-        context["flagged_4_deletion"] = flagged_4_deletion
-
-        flagged_4_publication = models.Resource.objects.filter(flagged_4_publication=True).count()
-        context["flagged_4_publication"] = flagged_4_publication
-
-        return context
-
 
 class OpenDataDashboardTemplateView(InventoryBasicMixin, CommonTemplateView):
     template_name = 'inventory/open_data_dashboard.html'
@@ -1215,37 +1201,11 @@ def send_certification_request(request, person):
         html_message=email.message,
         from_email=email.from_email,
         recipient_list=email.to_list,
-        user=self.request.user
+        user=request.user
     )
     my_person.user.correspondences.create(subject="Request for certification")
     messages.success(request, "the email has been sent and the correspondence has been logged!")
     return HttpResponseRedirect(reverse('inventory:dm_custodian_detail', kwargs={'pk': my_person.user_id}))
-
-
-class PublishedResourcesListView(AdminRequiredMixin, ListView):
-    template_name = "inventory/dm_published_resource.html"
-    queryset = models.Resource.objects.filter(fgp_publication_date__isnull=False)
-
-
-class FlaggedListView(AdminRequiredMixin, ListView):
-    template_name = "inventory/dm_flagged_list.html"
-
-    def get_queryset(self):
-        if self.kwargs["flag_type"] == "publication":
-            queryset = models.Resource.objects.filter(flagged_4_publication=True)
-        elif self.kwargs["flag_type"] == "deletion":
-            queryset = models.Resource.objects.filter(flagged_4_deletion=True)
-        return queryset
-
-
-class CertificationListView(AdminRequiredMixin, ListView):
-    template_name = "inventory/dm_certification_list.html"
-    queryset = models.ResourceCertification.objects.all().order_by("-certification_date")[:50]
-
-
-class ModificationListView(AdminRequiredMixin, ListView):
-    template_name = "inventory/dm_modification_list.html"
-    queryset = models.Resource.objects.all().order_by("-date_last_modified")[:50]
 
 
 class CustodianPersonUpdateView(AdminRequiredMixin, FormView):
