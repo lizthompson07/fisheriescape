@@ -8,13 +8,13 @@
 {% block table_td %}
 
   {% if "title" in field.name %}
-    <a href="{% url 'inventory:dma_detail' object.id %}">{{ object.title }}</a>
+    <a href="{% url 'inventory:dma_detail' object.id %}" target="_blank">{{ object.title }}</a>
 
   {% elif "uuid" in field.name %}
     {% if not object.resource %}
       ---
     {% else %}
-      <a href="{% url 'inventory:resource_detail' object.resource.id %}">{{ object.resource.uuid }}</a>
+      <a href="{% url 'inventory:resource_detail' object.resource.id %}" target="_blank">{{ object.resource.uuid }}</a>
     {% endif %}
 
   {% else %}
