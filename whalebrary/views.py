@@ -1329,6 +1329,11 @@ class MaintenanceCreateView(WhalebraryEditRequiredMixin, CommonCreateView):
     def get_form_class(self):
         return forms.MaintenanceForm1 if self.kwargs.get("pk") else forms.MaintenanceForm
 
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class=None)
+        form.fields['assigned_to'].queryset = form.fields['assigned_to'].queryset.filter(groups__name__in=["whalebrary_admin", "whalebrary_edit"])
+        return form
+
     def form_valid(self, form):
         my_object = form.save()
         messages.success(self.request, _(f"Maintenance record successfully created for : Item # {str(my_object)}"))
