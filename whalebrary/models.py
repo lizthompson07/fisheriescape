@@ -589,17 +589,20 @@ class Tag(models.Model):
 
 
 class TransactionCategory(models.Model):
-    type = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("tag"))
+    CATEGORY_CHOICES = (
+        (1, "Purchase"),
+        (2, "Use"),
+        (3, "Lend"),
+        (4, "Return"),
+        (5, "Transfer Out"),
+        (6, "Transfer In"),
+    )
+
+    type = models.IntegerField(choices=CATEGORY_CHOICES, verbose_name=_("type"))
     description = models.CharField(max_length=255, null=True, verbose_name=_("description"))
 
     def __str__(self):
-        # check to see if a french value is given
-        if getattr(self, str(_("type"))):
-
-            return "{}".format(getattr(self, str(_("type"))))
-        # if there is no translated term, just pull from the english field
-        else:
-            return "{}".format(self.type)
+        return "{}".format(self.get_type_display())
 
 
 class Transaction(models.Model):
