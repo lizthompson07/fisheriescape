@@ -1620,15 +1620,15 @@ class DMAListView(InventoryBasicMixin, CommonFilterView):
     # row_object_url_name = row_ = "inventory:dma_detail"
     container_class = "container-fluid"
     field_list = [
-            {"name": "title", "class": "w-35"},
-            {"name": "region", "class": ""},
-            {"name": "section", "class": ""},
-            {"name": "uuid|{}".format(_("Link to DM Apps Metadata Record")), "class": "w-15"},
-            {"name": "data_contact|{}".format(_("data contact")), "class": ""},
-            {"name": "metadata_contact|{}".format(_("metadata contact")), "class": ""},
-            {"name": "status_display|{}".format(_("status")), "class": ""},
-        ]
-    model =  models.DMA
+        {"name": "title", "class": "w-30"},
+        {"name": "region", "class": ""},
+        {"name": "section", "class": ""},
+        {"name": "uuid|{}".format(_("Link to DM Apps Metadata Record")), "class": "w-15"},
+        {"name": "data_contact|{}".format(_("data steward")), "class": ""},
+        {"name": "metadata_contact|{}".format(_("metadata contact")), "class": ""},
+        {"name": "status_display|{}".format(_("status")), "class": ""},
+    ]
+    model = models.DMA
 
 
 class DMACreateView(InventoryBasicMixin, CommonCreateView):
@@ -1639,9 +1639,18 @@ class DMACreateView(InventoryBasicMixin, CommonCreateView):
     container_class = "container bg-light curvy"
     parent_crumb = {"title": _("Data Management Agreements"), "url": reverse_lazy("inventory:dma_list")}
 
-    # def get_initial(self):
-    #     return dict(title=f"Data management agreement for _____")
-
+    def get_initial(self):
+        qp = self.request.GET
+        if qp.get("resource"):
+            resource = get_object_or_404(models.Resource, pk=qp.get("resource"))
+            initial = dict(title=f"Data management agreement for {resource.title_eng}", resource=resource, section=resource.section)
+            custodians = resource.get_custodians()
+            pocs = resource.get_points_of_contact()
+            if pocs.exists():
+                initial["data_contact"] = custodians.first().person.user
+            if custodians.exists():
+                initial["metadata_contact"] = custodians.first().person.user
+            return initial
     def form_valid(self, form):
         dma = form.save(commit=False)
         dma.created_by = self.request.user

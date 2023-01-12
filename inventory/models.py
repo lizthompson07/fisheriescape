@@ -392,6 +392,12 @@ class Resource(models.Model):
                 (self.east_bounding, self.south_bounding),
             ]
 
+    def get_custodians(self):
+        return self.resource_people.filter(role__code__iexact="RI_409")
+
+    def get_points_of_contact(self):
+        return self.resource_people.filter(role__code__iexact="RI_414")
+
 
 class ContentType(models.Model):
     title = models.CharField(max_length=255, verbose_name="Name (English)")

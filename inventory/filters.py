@@ -89,5 +89,5 @@ class DMAFilter(django_filters.FilterSet):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.filters["section__division__branch__sector__region"].label = "Region"
-        self.filters["data_contact"].label = _("Data contact")
+        self.filters["data_contact"].label = _("Data steward")
         self.filters["metadata_contact"].label = _("Metadata contact")
