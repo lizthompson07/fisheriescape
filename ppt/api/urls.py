@@ -19,7 +19,6 @@ router.register(r'activity-updates', views.ActivityUpdateViewSet)
 router.register(r'citations', views.CitationViewSet)
 router.register(r'reviews', views.ReviewViewSet)
 router.register(r'files', views.FileViewSet)
-router.register(r'dmas', views.DMAViewSet)
 
 urlpatterns = [
     path("ppt/", include(router.urls)),  # tested
@@ -48,6 +47,5 @@ urlpatterns = [
     path("ppt/meta/models/project/", views.ProjectModelMetaAPIView.as_view(), name="projects-project-model-meta"),
     path("ppt/meta/models/projectyear/", views.ProjectYearModelMetaAPIView.as_view(), name="projects-projectyear-model-meta"),
     path("ppt/meta/models/review/", views.ReviewModelMetaAPIView.as_view(), name="projects-review-model-meta"),
-    path("ppt/meta/models/dma/", views.DMAModelMetaAPIView.as_view(), name="projects-dma-model-meta"),
 
 ]

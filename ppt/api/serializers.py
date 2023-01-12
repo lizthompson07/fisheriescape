@@ -253,7 +253,7 @@ class ProjectYearSerializer(serializers.ModelSerializer):
 
     def get_om_costs(self, instance):
         return instance.om_costs
-    
+
     def get_capital_allocations(self, instance):
         return instance.capital_allocations
 
@@ -461,6 +461,7 @@ class AllocationSerializer(serializers.ModelSerializer):
 
     def get_distributed_amount(self, instance):
         return instance.distributed_amount
+
 
 class SalaryAllocationSerializer(AllocationSerializer):
     class Meta:
@@ -788,26 +789,3 @@ class PublicationSerializer(serializers.ModelSerializer):
     class Meta:
         model = shared_models.Publication
         fields = "__all__"
-
-
-class DMASerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.DMA
-        fields = "__all__"
-
-    metadata = serializers.SerializerMethodField()
-    status_display = serializers.SerializerMethodField()
-    region_display = serializers.SerializerMethodField()
-    section_display = serializers.SerializerMethodField()
-
-    def get_section_display(self, instance):
-        return str(instance.project.section)
-
-    def get_region_display(self, instance):
-        return str(instance.project.section.division.branch.sector.region)
-
-    def get_status_display(self, instance):
-        return instance.get_status_display()
-
-    def get_metadata(self, instance):
-        return instance.metadata

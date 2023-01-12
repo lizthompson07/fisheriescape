@@ -19,6 +19,8 @@ from shared_models import models as shared_models
 # Choices for language
 from shared_models.models import SimpleLookup, Lookup, HelpTextLookup, MetadataFields, Region
 from shared_models.utils import get_metadata_string
+from inventory import models as inventory_models
+
 
 YES_NO_CHOICES = (
     (True, gettext("Yes")),
@@ -247,6 +249,11 @@ class Project(models.Model):
     # SARA Fields
     reporting_mechanism = models.TextField(blank=True, null=True, verbose_name=_("quarterly reporting mechanisms (SARA)"))  # SARA
     future_funding_needs = models.TextField(blank=True, null=True, verbose_name=_("description of future funding needs, if any (SARA)"))  # SARA
+
+    # DMA - link to inventory app
+    dmas = models.ManyToManyField(inventory_models.DMA, blank=True, verbose_name=_("Data management agreements (linked to Science Data Inventory)"))
+
+
 
     # calculated fields
     start_date = models.DateTimeField(blank=True, null=True, verbose_name=_("Start date of project"), editable=False)

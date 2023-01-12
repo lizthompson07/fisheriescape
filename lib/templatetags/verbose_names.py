@@ -144,7 +144,7 @@ def get_field_value(instance, field_name, format=None, display_time=False, hyper
                         '"', "")
 
                 # check to see if there are choices
-                elif field_instance.choices and len(field_instance.choices) > 0:
+                elif hasattr(field_instance, "choices") and field_instance.choices and len(field_instance.choices) > 0:
                     field_value = getattr(instance, "get_{}_display".format(field_name))()
 
                 # check to see if it is a datefield

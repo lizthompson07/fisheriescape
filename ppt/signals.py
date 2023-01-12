@@ -3,7 +3,7 @@ import os
 from django.db import models
 from django.dispatch import receiver
 
-from .models import ReferenceMaterial, File, Staff, ProjectYear, Review, Project, DMAReview
+from .models import ReferenceMaterial, File, Staff, ProjectYear, Review, Project
 
 
 @receiver(models.signals.post_delete, sender=File)
@@ -186,13 +186,3 @@ def save_project_year_on_review_creation(sender, instance, created, **kwargs):
 @receiver(models.signals.pre_delete, sender=Project)
 def delete_project_years_before_deleting_project(sender, instance, **kwargs):
     Staff.objects.filter(project_year__project=instance).delete()
-
-
-@receiver(models.signals.post_save, sender=DMAReview)
-def save_project_year_on_review_save(sender, instance, created, **kwargs):
-    instance.dma.save()
-
-
-@receiver(models.signals.post_delete, sender=DMAReview)
-def save_dma_on_review_delete(sender, instance, **kwargs):
-    instance.dma.save()

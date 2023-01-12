@@ -55,11 +55,6 @@
                 </a>
               </li>
               <li class="nav-item">
-                <a :class="{ 'nav-link': true, 'active': showTab.DMAs }" href="#" @click="changeTabs('dmas')">
-                  {% trans "Data Management Agreements" %}
-                </a>
-              </li>
-              <li class="nav-item">
                 <a :class="{ 'nav-link': true, 'active': showTab.statusReports }" href="#" @click="changeTabs('statusReports')">
                   {% trans "Status Reports" %}
                 </a>
@@ -90,7 +85,6 @@
                 <a class="dropdown-item clickable" @click="goReport('basic')">{% trans "Projects Export (short form)" %}</a>
                 <a class="dropdown-item clickable" @click="goReport('long')">{% trans "Projects Export (long form)" %}</a>
                 <a class="dropdown-item clickable" @click="goReport('costs')">{% trans "Project Costs Export" %}</a>
-                <a class="dropdown-item clickable" @click="goReport('dmas')">{% trans "Data Management Agreements" %}</a>
                 <a class="dropdown-item clickable" @click="goEmailLeads()">{% trans "Email Primary Project Leads" %}</a>
               </div>
             </div>
@@ -101,7 +95,6 @@
           {% include "ppt/manage_projects/_financials.html" %}
           {% include "ppt/manage_projects/_reviews.html" %}
           {% include "ppt/manage_projects/_approvals.html" %}
-          {% include "ppt/manage_projects/_dmas.html" %}
           {% include "ppt/manage_projects/_status_reports.html" %}
           {% include "ppt/manage_projects/_activities.html" %}
         </div>

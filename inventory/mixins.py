@@ -26,7 +26,9 @@ class InventoryBasicMixin(LoginRequiredMixin, UserPassesTestMixin):
         context["is_admin"] = is_admin(self.request.user)
         context["mapbox_api_key"] = settings.MAPBOX_API_KEY
         context['now'] = timezone.now()
-
+        context["published_records"] = models.Resource.objects.filter(fgp_publication_date__isnull=False).count()
+        context["flagged_4_deletion"] = models.Resource.objects.filter(flagged_4_deletion=True).count()
+        context["flagged_4_publication"] = models.Resource.objects.filter(flagged_4_publication=True).count()
         return context
 
 
