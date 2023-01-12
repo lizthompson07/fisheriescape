@@ -1,12 +1,15 @@
+import inspect
+
 from django import forms
 from django.contrib.auth.models import User
 from django.db.models import Q
 from django.forms import modelformset_factory
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _, gettext, gettext_lazy
-import inspect
 
+from inventory.models import DMA
 from lib.functions.custom_functions import fiscal_year
 from shared_models import models as shared_models
 from . import models, utils
@@ -91,6 +94,7 @@ class ProjectForm(forms.ModelForm):
             'modified_by': forms.HiddenInput(),
             "section": forms.Select(attrs=chosen_js),
             "tags": forms.SelectMultiple(attrs=chosen_js),
+            "dmas": forms.SelectMultiple(attrs=chosen_js),
             "default_funding_source": forms.Select(attrs=chosen_js),
             "client_information": forms.Select(attrs=chosen_js),
             "second_priority": forms.Select(attrs=chosen_js),
@@ -103,11 +107,14 @@ class ProjectForm(forms.ModelForm):
         funding_source_choices = [(f.id, f.display3) for f in models.FundingSource.objects.all()]
         funding_source_choices.insert(0, tuple((None, "---")))
 
+        dma_choices = [(dma.id, dma.display_with_region) for dma in DMA.objects.all()]
+        dma_choices.insert(0, tuple((None, "------")))
+
         super().__init__(*args, **kwargs)
         self.fields['default_funding_source'].choices = funding_source_choices
         self.fields['section'].choices = SECTION_CHOICES
-        # self.fields['programs'].label = "{} ({})".format(_(get_verbose_label(models.Project.objects.first(), "programs")),
-        #                                                  _("mandatory - select multiple, if necessary"))
+        self.fields['dmas'].help_text = _(
+            "Data management agreements can be created here: ") + f'<a href="{reverse("inventory:dma_new")}" target="_blank">{reverse("inventory:dma_new")}</a>'
 
         if kwargs.get("instance").section:
             functional_group_choices = [(tg.id, str(tg)) for tg in kwargs.get("instance").section.functional_groups2.all()]
@@ -722,7 +729,6 @@ TagFormset = modelformset_factory(
 
 
 class HelpTextPopForm(forms.ModelForm):
-
     class Meta:
         model = models.HelpText
         fields = "__all__"
@@ -788,6 +794,7 @@ ActivityTypeFormset = modelformset_factory(
     form=ActivityTypeForm,
     extra=1,
 )
+
 
 class ActivityClassificationForm(forms.ModelForm):
     class Meta:

@@ -649,7 +649,7 @@ class DMA(MetadataFields):
 
     class Meta:
         verbose_name = _("Data Management Agreement")
-        ordering = ["status", "title"]
+        ordering = ["section__division__branch__sector__region", "status", "title"]
 
     def get_absolute_url(self):
         return reverse('inventory:dma_detail', args=[self.id])
@@ -686,6 +686,9 @@ class DMA(MetadataFields):
         if self.section:
             return self.section.division.branch.sector.region
 
+    @property
+    def display_with_region(self):
+        return str(self) + f" ({self.region})"
 
 class DMAReview(MetadataFields):
     decision_choices = (

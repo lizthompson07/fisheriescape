@@ -613,6 +613,7 @@ def get_project_field_list(project):
         'future_funding_needs' if is_sara else None,
 
         'tags',
+        'dmas',
         'references',
         'csas_processes',
         'metadata|{}'.format(_("metadata")),
