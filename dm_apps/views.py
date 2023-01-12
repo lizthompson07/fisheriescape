@@ -229,7 +229,7 @@ def get_app_dict(request):
             "description": _("Query Tool to Search for Departmental Data Assets"),
             "status": "dev",
             "access": "open",
-            "url": reverse('pssi:Index'),
+            "url": reverse('pssi:index'),
             "icon_path": 'img/icons/pssi.svg',
             "region": "all",
 
