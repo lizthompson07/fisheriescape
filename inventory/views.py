@@ -5,7 +5,7 @@ from collections import OrderedDict
 from copy import deepcopy
 
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User
 from django.db.models import Value, TextField, Q, Count
 from django.db.models.functions import Concat
@@ -14,7 +14,7 @@ from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
 from django.utils.translation import gettext as _, gettext_lazy
-from django.views.generic import ListView, UpdateView, DeleteView, CreateView, DetailView, FormView, TemplateView
+from django.views.generic import UpdateView, DeleteView, CreateView, DetailView, FormView, TemplateView
 from django_filters.views import FilterView
 from easy_pdf.views import PDFTemplateView
 
@@ -22,8 +22,8 @@ from dm_apps.context_processor import my_envr
 from dm_apps.utils import custom_send_mail
 from lib.functions.custom_functions import fiscal_year, listrify
 from shared_models import models as shared_models
-from shared_models.views import CommonTemplateView, CommonFormsetView, CommonHardDeleteView, CommonFilterView, CommonDetailView, CommonListView, \
-    CommonUpdateView, CommonCreateView, CommonPopoutCreateView, CommonPopoutDeleteView, CommonPopoutUpdateView, CommonDeleteView
+from shared_models.views import CommonTemplateView, CommonFormsetView, CommonHardDeleteView, CommonFilterView, CommonDetailView, CommonUpdateView, \
+    CommonCreateView, CommonPopoutCreateView, CommonPopoutDeleteView, CommonPopoutUpdateView, CommonDeleteView
 from . import emails
 from . import filters
 from . import forms
@@ -130,13 +130,6 @@ class OpenDataDashboardTemplateView(InventoryBasicMixin, CommonTemplateView):
 class ResourceListView(InventoryBasicMixin, CommonFilterView):
     filterset_class = filters.ResourceFilter
     template_name = 'inventory/resource_list.html'
-    queryset = models.Resource.objects.order_by("-status", "title_eng").annotate(
-        search_term=Concat('title_eng', Value(" "),
-                           'descr_eng', Value(" "),
-                           'purpose_eng', Value(" "),
-                           'uuid', Value(" "),
-                           'odi_id',
-                           output_field=TextField()))
     home_url_name = "inventory:index"
     container_class = "container-fluid"
     # row_object_url_name = "inventory:resource_detail"
@@ -154,33 +147,27 @@ class ResourceListView(InventoryBasicMixin, CommonFilterView):
         {"name": 'translation_needed', "class": "", "width": ""},
     ]
 
-
-class MyResourceListView(InventoryLoginRequiredMixin, CommonListView):
-    model = models.Resource
-    template_name = 'inventory/resource_list.html'
-    home_url_name = "inventory:index"
-    container_class = "container-fluid"
-    row_object_url_name = "inventory:resource_detail"
-    new_object_url = reverse_lazy("inventory:resource_new")
-    field_list = [
-        {"name": 't_title|Title', "class": ""},
-        {"name": 'status', "class": ""},
-        {"name": 'date_last_modified', "class": ""},
-        {"name": 'last_modified_by', "class": ""},
-        {"name": 'roles|Role(s)', "class": ""},
-        {"name": 'Previous time certified', "class": ""},
-        {"name": 'Completeness rating', "class": ""},
-        {"name": 'open_data|Published to Open Data', "class": ""},
-    ]
+    def is_personalized(self):
+        return bool(self.request.GET.get("personalized"))
 
     def get_queryset(self):
-        qs = models.Resource.objects.filter(resource_people__person_id=self.request.user.id).distinct().order_by("-date_last_modified")
+        qs = models.Resource.objects.order_by("-status", "title_eng").annotate(
+            search_term=Concat('title_eng', Value(" "),
+                               'descr_eng', Value(" "),
+                               'purpose_eng', Value(" "),
+                               'uuid', Value(" "),
+                               'odi_id',
+                               output_field=TextField()))
+
+        if self.is_personalized():
+            qs = qs.filter(Q(resource_people__person_id=self.request.user.id) | Q(favourited_by=self.request.user)).distinct().order_by("-date_last_modified")
         return qs
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["personal"] = True
-        return context
+    def get_h1(self):
+        h1 = super().get_h1()
+        if self.is_personalized():
+            h1 = f"Resources Favourited by or Attached to {self.request.user}"
+        return h1
 
 
 class ResourceDetailView(InventoryBasicMixin, CommonDetailView):
@@ -428,6 +415,21 @@ class ResourceDeleteFlagUpdateView(InventoryLoginRequiredMixin, CommonPopoutUpda
                 user=self.request.user
             )
         return super().form_valid(form)
+
+
+@login_required(login_url='/accounts/login/')
+def add_favourites(request, pk):
+    resource = get_object_or_404(models.Resource, pk=pk)
+    resource.favourited_by.add(request.user)
+    messages.info(request, f"This resource has been added to your favourites.")
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+@login_required(login_url='/accounts/login/')
+def remove_favourites(request, pk):
+    resource = get_object_or_404(models.Resource, pk=pk)
+    resource.favourited_by.remove(request.user)
+    messages.info(request, f"This resource has been removed from your favourites.")
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
 class ResourcePublicationFlagUpdateView(InventoryLoginRequiredMixin, CommonPopoutUpdateView):
@@ -1613,6 +1615,7 @@ class DMACreateView(InventoryBasicMixin, CommonCreateView):
             if custodians.exists():
                 initial["metadata_contact"] = custodians.first().person.user
             return initial
+
     def form_valid(self, form):
         dma = form.save(commit=False)
         dma.created_by = self.request.user
