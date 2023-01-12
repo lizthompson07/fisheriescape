@@ -1341,7 +1341,7 @@ class MaintenanceCreateView(WhalebraryEditRequiredMixin, CommonCreateView):
         # if there's a pk argument, this means user is calling from item_detail page and
         if self.kwargs.get("pk"):
             my_item = models.Item.objects.get(pk=self.kwargs.get("pk"))
-            my_item.maintenaces.add(my_object)
+            my_item.maintenances.add(my_object)
             return HttpResponseRedirect(reverse_lazy('shared_models:close_me'))
         else:
             return HttpResponseRedirect(reverse_lazy('whalebrary:maintenance_list'))
