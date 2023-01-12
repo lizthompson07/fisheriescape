@@ -87,7 +87,7 @@ table.sortable > thead > tr > th {
             {% block table_tr %}
               {% url row_object_url_name object.id as details_url %}
               <!-- Make each row redirect to details page for that specific data asset - Needs to be implemented -->
-              <tr {% if row_object_url_name %}href="{{ details_url }}"{% endif %} {% if open_row_in_new_tab %}newtab{% endif %}>
+              <tr {% if row_object_url_name %}href="."{% endif %} {% if open_row_in_new_tab %}newtab{% endif %}>
                 {% for field in field_list %}
                   <!-- Display the fields for that data asset in table -->
                   <td class="{{ field.class }}">
