@@ -138,12 +138,13 @@ class ResourceListView(InventoryBasicMixin, CommonFilterView):
                            output_field=TextField()))
     home_url_name = "inventory:index"
     container_class = "container-fluid"
-    row_object_url_name = "inventory:resource_detail"
+    # row_object_url_name = "inventory:resource_detail"
     new_object_url = reverse_lazy("inventory:resource_new")
     paginate_by = 25
     field_list = [
-        {"name": 'region', "class": "", "width": ""},
         {"name": 't_title|{}'.format(gettext_lazy("title")), "class": "w-30", "width": ""},
+        {"name": 'uuid', "class": "", "width": ""},
+        {"name": 'region', "class": "", "width": ""},
         {"name": 'resource_type', "class": "", "width": ""},
         {"name": 'status', "class": "", "width": ""},
         {"name": 'section', "class": "w-15", "width": ""},
