@@ -23,8 +23,8 @@ def export_fixtures():
         # models.Category,
         # models.GearType,
         # models.Experience,
-        # models.TransactionCategory,
-        models.Species,
+        models.TransactionCategory,
+        # models.Species,
     ]
     for model in models_to_export:
         data = serializers.serialize("json", model.objects.all())
