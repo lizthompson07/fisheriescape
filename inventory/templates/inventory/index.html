@@ -5,6 +5,12 @@
 
 {% block crumbs %}{% endblock %}
 
+{% block title_area %}
+  <div class="text-center">
+    {{ block.super }}
+  </div>
+{% endblock %}
+
 {% block subcontent %}
 
   <style>
@@ -14,7 +20,7 @@
 
   .card, .jumbotron {
       background-color: rgba(255, 255, 255, 1);
-      height: 200px;
+      min-height: 200px;
   }
 
   .card-text {
@@ -34,60 +40,63 @@
   }
   </style>
 
+  <div class="container">
+    <div class="my-5">
+      <ul>
+        <li class="">{% trans "This tool allows users to search, create, maintain and export metadata associated with Science data resources." %}</li>
+        <li class="">
+          {% blocktrans %}
+            A valid metadata record is ISO 19115 HNAP compliant and can export as an XML file which can be subsequently uploaded to the
+            <a href="https://gcgeo.gc.ca/en/index.html">Federal Geospatial Portal (FGP)</a>.
+          {% endblocktrans %}
+        </li>
+        <li>
+          Any questions, comments or feature requests can be sent to <a
+          href="mailto:DFO.DMApps-ApplisGD.MPO@dfo-mpo.gc.ca">DFO.DMApps-ApplisGD.MPO@dfo-mpo.gc.ca</a>
+        </li>
+      </ul>
+    </div>
 
-  <div class="my-5">
-    <ul>
-      <li class="">{% trans "This tool allows users to search, create, maintain and export metadata associated with Science data resources." %}</li>
-      <li class="">
-        {% blocktrans %}
-          A valid metadata record is ISO 19115 HNAP compliant and can export as an XML file which can be subsequently uploaded to the
-          <a href="https://gcgeo.gc.ca/en/index.html">Federal Geospatial Portal (FGP)</a>.
-        {% endblocktrans %}
-      </li>
-      <li>
-        Any questions, comments or feature requests can be sent to <a
-        href="mailto:DFO.DMApps-ApplisGD.MPO@dfo-mpo.gc.ca">DFO.DMApps-ApplisGD.MPO@dfo-mpo.gc.ca</a>
-      </li>
-    </ul>
+    {#  alerts #}
+    {% if is_admin %}
+      <div class="mb-5">
+
+        {# publications #}
+        {% if flagged_4_publication %}
+          <div class="alert alert-success lead" role="alert">
+            <span class="mdi mdi-flag mr-2"></span>
+            There {{ flagged_4_publication|pluralize:"is,are" }} {{ flagged_4_publication }} publication{{ flagged_4_publication|pluralize }}
+            that {{ flagged_4_publication|pluralize:"has,have" }} been
+            flagged for publication
+            <a href="{% url 'inventory:resource_list' %}?flagged_4_publication=true" class="btn btn-warning btn-sm float-right">View</a>
+          </div>
+        {% endif %}
+
+        {# deletion #}
+        {% if flagged_4_deletion %}
+          <div class="alert alert-danger lead" role="alert">
+            <span class="mdi mdi-flag mr-2"></span>
+            There {{ flagged_4_deletion|pluralize:"is,are" }} {{ flagged_4_deletion }} publication{{ flagged_4_deletion|pluralize }}
+            that {{ flagged_4_deletion|pluralize:"has,have" }} been
+            flagged for deletion
+            <a href="{% url 'inventory:resource_list' %}?flagged_4_deletion=true" class="btn btn-warning btn-sm float-right">View</a>
+          </div>
+        {% endif %}
+
+      </div>
+    {% endif %}
   </div>
 
-  {#  alerts #}
-  {% if is_admin %}
-    <div class="mb-5">
 
-      {# publications #}
-      {% if flagged_4_publication %}
-        <div class="alert alert-success lead" role="alert">
-          <span class="mdi mdi-flag mr-2"></span>
-          There {{ flagged_4_publication|pluralize:"is,are" }} {{ flagged_4_publication }} publication{{ flagged_4_publication|pluralize }} that {{ flagged_4_publication|pluralize:"has,have" }} been
-          flagged for publication
-          <a href="{% url 'inventory:resource_list' %}?flagged_4_publication=true" class="btn btn-warning btn-sm float-right">View</a>
-        </div>
-      {% endif %}
-
-      {# deletion #}
-      {% if flagged_4_deletion %}
-        <div class="alert alert-danger lead" role="alert">
-          <span class="mdi mdi-flag mr-2"></span>
-          There {{ flagged_4_deletion|pluralize:"is,are" }} {{ flagged_4_deletion }} publication{{ flagged_4_deletion|pluralize }} that {{ flagged_4_deletion|pluralize:"has,have" }} been
-          flagged for deletion
-          <a href="{% url 'inventory:resource_list' %}?flagged_4_deletion=true" class="btn btn-warning btn-sm float-right">View</a>
-        </div>
-      {% endif %}
-
-    </div>
-  {% endif %}
-
-
-  <div class=" row justify-content-center">
+  <div class=" row justify-content-center mx-5 px-5">
     <div class=" col">
       <div class="card mb-3 ">
         <div class="card-body">
           <h5 class="card-title">{% trans "The Catalogue" %}</h5>
           <p class="card-text">{% trans "View the full DM Apps Data Inventory across all regions" %}.</p>
-          <div class="card-button">
-            <a href="{% url 'inventory:resource_list' %}" class="btn btn-primary">{% trans "Go" %}</a>
-          </div>
+        </div>
+        <div class="card-footer">
+          <a href="{% url 'inventory:resource_list' %}" class="btn btn-primary">{% trans "Go" %}</a>
         </div>
       </div>
     </div>
@@ -96,9 +105,9 @@
         <div class="card-body">
           <h5 class="card-title">{% trans "Your Records" %}</h5>
           <p class="card-text">{% trans "View your personalized list of data resources" %}.</p>
-          <div class="card-button">
-            <a href="{% url 'inventory:my_resource_list' %}" class="btn btn-primary">{% trans "Go" %}</a>
-          </div>
+        </div>
+        <div class="card-footer">
+          <a href="{% url 'inventory:my_resource_list' %}" class="btn btn-primary">{% trans "Go" %}</a>
         </div>
       </div>
     </div>
@@ -112,28 +121,25 @@
             <span class="mr-1"><img src="{% static 'img/icons/canada.png' %}" alt="" width="25px"></span>
           </h5>
           <p class="card-text">{% trans "Checkout the list of data resource that have been published to FGP and Open Data Portal" %}.</p>
-          <div class="card-button">
-            <a href="{% url 'inventory:open_data_dashboard' %}" class="btn btn-primary">{% trans "Go" %}</a>
-          </div>
+        </div>
+        <div class="card-footer">
+          <a href="{% url 'inventory:open_data_dashboard' %}" class="btn btn-primary">{% trans "Go" %}</a>
         </div>
       </div>
     </div>
-  </div>
-
-
-  <div class=" row justify-content-center">
-    <div class=" col-4">
+    <div class=" col">
       <div class="card mb-3 ">
         <div class="card-body">
           <h5 class="card-title">{% trans "Data Management Agreements" %}</h5>
           <p class="card-text">{% trans "View the list of data management agreements established across the regions." %}.</p>
-          <div class="card-button">
-            <a href="{% url 'inventory:dma_list' %}" class="btn btn-primary">{% trans "Go" %}</a>
-          </div>
+        </div>
+        <div class="card-footer">
+          <a href="{% url 'inventory:dma_list' %}" class="btn btn-primary">{% trans "Go" %}</a>
         </div>
       </div>
     </div>
   </div>
+
 
   <br>
   <br>

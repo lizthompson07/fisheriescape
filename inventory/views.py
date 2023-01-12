@@ -57,6 +57,7 @@ class Index(InventoryBasicMixin, CommonTemplateView):
     template_name = 'inventory/index.html'
     h1 = gettext_lazy("DFO Science Data Inventory")
     active_page_name_crumb = gettext_lazy("Home")
+    container_class = "container-fluid"
 
 
 class OpenDataDashboardTemplateView(InventoryBasicMixin, CommonTemplateView):
