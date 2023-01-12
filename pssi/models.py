@@ -46,44 +46,44 @@ class InventoryUser(models.Model):
 #-------------------------------------------------
 
 class DataAsset(models.Model):
-    uuid = models.UUIDField(blank=True, null=True, verbose_name = "UUID", unique=True, default=uuid.uuid4)
+    uuid = models.UUIDField(blank=True, null=True, verbose_name ="UUID", unique=True, default=uuid.uuid4)
     inventory_id = models.IntegerField(null=True, verbose_name="Inventory ID")
-    approved_by = models.CharField(max_length = 50, null = True, verbose_name="Approved By")
-    data_asset_name = models.CharField(max_length = 125, null = True, verbose_name="Data Asset Name")
-    data_asset_steward = models.CharField(max_length = 50, null = True, verbose_name="Data Asset Steward")
-    data_asset_sorting_category = models.IntegerField(null = True, blank = True, verbose_name="Data Asset Sorting Category")
-    operational_or_analytical_data = models.CharField(max_length = 15, null = True, verbose_name="Operational Or Analytical Data")
-    data_asset_acronym = models.CharField(max_length = 15, null = True, verbose_name="Data Asset Acronym")
-    data_asset_description = models.TextField(blank = True, null = True, verbose_name="Data Asset Description")
-    apm_id = models.IntegerField(blank = True, null = True, verbose_name="apm_id")
-    non_salmon_data = models.CharField(max_length = 5, null = True, verbose_name="Non Salmon Data")
-    data_asset_status = models.CharField(max_length = 25, null = True, verbose_name="Data Asset Status")
-    data_asset_format = models.CharField(max_length = 50, null = True, verbose_name="Data Asset Format")
-    data_type = models.CharField(max_length = 15, null = True, verbose_name="Data Type")
-    data_asset_location = models.CharField(max_length = 25, null = True, verbose_name="Data Asset Location")
-    data_asset_trustee = models.CharField(max_length = 50, null = True, verbose_name="Data Asset Trustee")
-    data_asset_custodian = models.CharField(max_length = 50, null = True, verbose_name="Data Asset Custodian")
-    application_data_asset_is_associated_with = models.TextField(blank = True, null = True, verbose_name="Application Data Asset is Associated With")
-    application_description = models.TextField(blank = True, null = True, verbose_name="Application Description")
-    technical_documentation = models.TextField(blank = True, null = True, verbose_name="Technical Documentation")
-    access_point = models.TextField(blank = True, null = True, verbose_name="Access Point")
-    policy_levers_data_asset_supports = models.CharField(max_length = 25, null = True, verbose_name="Policy Levers Data Asset Supports")
-    key_decisions = models.TextField(blank = True, null = True, verbose_name="Key Decisions")
-    impact_to_dfo_data_consumers = models.CharField(max_length = 125, null = True, verbose_name="Impact to DFO Data Consumers")
-    decision_supporting_key_products = models.TextField(null = True, blank = True, verbose_name="Decision Supporting Key Products")
-    impact_on_decision_making = models.CharField(max_length = 10, null = True, verbose_name="Impact on Decision Making")
-    uniqueness = models.CharField(max_length = 5, null = True, verbose_name="Uniqueness")
-    cost = models.TextField(blank = True, null = True, verbose_name="Cost")
-    data_asset_size = models.TextField(blank = True, null = True, verbose_name="Data Asset Size")
-    update_frequency = models.CharField(max_length = 25, null = True, verbose_name="Update Frequency")
-    data_standards = models.CharField(max_length = 50, null = True, verbose_name="Data Standards")
-    metadata_maturity = models.CharField(max_length = 5, null = True, verbose_name="Metadata Maturity")
-    data_quality_rating = models.CharField(max_length = 15, null = True, verbose_name="Data Quality Rating")
-    naming_conventions = models.CharField(max_length = 15, null = True, verbose_name="Naming Conventions")
-    security_classification = models.CharField(max_length = 15, null = True, verbose_name="Security Classification")
-    inbound_data_linkage = models.TextField(blank = True, null = True, verbose_name="Inbound Data Linkage")
-    outbound_data_linkage = models.TextField(blank = True, null = True, verbose_name="Outbound Data Linkage")
-    publication_status = models.TextField(blank = True, null = True, verbose_name="Publication Status")
+    approved_by = models.CharField(max_length=25, null=True, verbose_name="Approved By")
+    data_asset_name = models.CharField(max_length=255, null=True, verbose_name="Data Asset Name")
+    data_asset_steward = models.CharField(max_length=255, null=True, verbose_name="Data Asset Steward")
+    data_asset_sorting_category = models.IntegerField(null=True, blank =True, verbose_name="Data Asset Sorting Category")
+    operational_or_analytical_data = models.CharField(max_length=25, null=True, verbose_name="Operational Or Analytical Data")
+    data_asset_acronym = models.CharField(max_length=50, null=True, verbose_name="Data Asset Acronym")
+    data_asset_description = models.TextField(blank =True, null=True, verbose_name="Data Asset Description")
+    apm_id = models.IntegerField(blank =True, null=True, verbose_name="apm_id")
+    non_salmon_data = models.CharField(max_length=50, null=True, verbose_name="Non Salmon Data")
+    data_asset_status = models.CharField(max_length=25, null=True, verbose_name="Data Asset Status")
+    data_asset_format = models.CharField(max_length=255, null=True, verbose_name="Data Asset Format")
+    data_type = models.CharField(max_length=50, null=True, verbose_name="Data Type")
+    data_asset_location = models.CharField(max_length=50, null=True, verbose_name="Data Asset Location")
+    data_asset_trustee = models.CharField(max_length=255, null=True, verbose_name="Data Asset Trustee")
+    data_asset_custodian = models.CharField(max_length=255, null=True, verbose_name="Data Asset Custodian")
+    application_data_asset_is_associated_with = models.TextField(blank =True, null=True, verbose_name="Application Data Asset is Associated With")
+    application_description = models.TextField(blank =True, null=True, verbose_name="Application Description")
+    technical_documentation = models.TextField(blank =True, null=True, verbose_name="Technical Documentation")
+    access_point = models.TextField(blank =True, null=True, verbose_name="Access Point")
+    policy_levers_data_asset_supports = models.CharField(max_length=50, null=True, verbose_name="Policy Levers Data Asset Supports")
+    key_decisions = models.TextField(blank =True, null=True, verbose_name="Key Decisions")
+    impact_to_dfo_data_consumers = models.CharField(max_length=255, null=True, verbose_name="Impact to DFO Data Consumers")
+    decision_supporting_key_products = models.TextField(null=True, blank =True, verbose_name="Decision Supporting Key Products")
+    impact_on_decision_making = models.CharField(max_length=255, null=True, verbose_name="Impact on Decision Making")
+    uniqueness = models.CharField(max_length=50, null=True, verbose_name="Uniqueness")
+    cost = models.CharField(max_length=50, null=True, verbose_name="Cost")
+    data_asset_size = models.TextField(blank =True, null=True, verbose_name="Data Asset Size")
+    update_frequency = models.CharField(max_length=50, null=True, verbose_name="Update Frequency")
+    data_standards = models.CharField(max_length=50, null=True, verbose_name="Data Standards")
+    metadata_maturity = models.CharField(max_length=50, null=True, verbose_name="Metadata Maturity")
+    data_quality_rating = models.CharField(max_length=50, null=True, verbose_name="Data Quality Rating")
+    naming_conventions = models.CharField(max_length=50, null=True, verbose_name="Naming Conventions")
+    security_classification = models.CharField(max_length=50, null=True, verbose_name="Security Classification")
+    inbound_data_linkage = models.TextField(blank =True, null=True, verbose_name="Inbound Data Linkage")
+    outbound_data_linkage = models.TextField(blank =True, null=True, verbose_name="Outbound Data Linkage")
+    publication_status = models.TextField(blank =True, null=True, verbose_name="Publication Status")
 
     # Defines DataAsset records/instances by their Data Asset Name e.g. record could be saved in Django model as "Fishery Operation System" instead of "DataAsset Object(1)"
     # NOTE: It is the same for other models -> to change the attribute the object is defined with, change the string with the field name
@@ -99,8 +99,8 @@ class DataAsset(models.Model):
 #-------------------------------------------------
 class Tag(models.Model):
     tag_id = models.IntegerField()
-    tag_name = models.CharField(max_length = 25)
-    primary_tag_id = models.IntegerField(blank = True, null = True)
+    tag_name = models.CharField(max_length=255)
+    primary_tag_id = models.IntegerField(blank =True, null=True)
     inventory_id = models.ManyToManyField(DataAsset, related_name="topic", verbose_name="Topic")
 
     # Automatically called when converting object to string
@@ -114,11 +114,11 @@ class Tag(models.Model):
 # Output: Stringify
 #-------------------------------------------------
 class Acronym(models.Model):
-    acronym_id = models.IntegerField(null = True)
-    acronym_letters = models.CharField(max_length = 10, null = True)
-    acronym_full_name = models.CharField(max_length = 100)
-    acronym_topic = models.CharField(max_length = 75, blank=True, null=True)
-    acronym_url = models.URLField(max_length = 120, blank = True, null = True)
+    acronym_id = models.IntegerField(null=True)
+    acronym_letters = models.CharField(max_length=50, null=True, verbose_name="Acronym")
+    acronym_full_name = models.CharField(max_length=255, verbose_name="Meaning of the Acronym")
+    acronym_topic = models.CharField(max_length=255, blank=True, null=True, verbose_name="Categories and Tags")
+    acronym_url = models.URLField(blank=True, null=True, verbose_name="Link to Acronym Source")
 
     def __str__(self):
         return "{}".format(getattr(self, str(_("acronym_letters"))))
@@ -132,7 +132,7 @@ class Acronym(models.Model):
 #-------------------------------------------------      
 class DataGlossary(models.Model):
     data_glossary_id = models.IntegerField()
-    term_name = models.CharField(max_length = 25)
+    term_name = models.CharField(max_length=255)
     term_description = models.TextField()
     inventory_id = models.ManyToManyField(DataAsset)
 
@@ -145,7 +145,7 @@ class DataGlossary(models.Model):
 #----------------------------------------------------
 class BusinessGlossary(models.Model):
     business_glossary_id = models.IntegerField()
-    term_name = models.CharField(max_length = 25)
+    term_name = models.CharField(max_length=255)
     term_description = models.TextField()
     inventory_id = models.ManyToManyField(DataAsset)
 
@@ -156,9 +156,9 @@ class BusinessGlossary(models.Model):
 #----------------------------------------------------
 class Comment(models.Model):
     comment_id = models.IntegerField()
-    comment_creator = models.CharField(max_length = 25, null = True)
-    comment_contact_info = models.CharField(max_length = 50, null = True)
-    comment_subject = models.CharField(max_length = 50)
+    comment_creator = models.CharField(max_length=255, null=True)
+    comment_contact_info = models.CharField(max_length=255, null=True)
+    comment_subject = models.CharField(max_length=255)
     comment_contents = models.TextField()
-    inventory_id = models.ForeignKey(DataAsset, on_delete = models.CASCADE)
+    inventory_id = models.ForeignKey(DataAsset, on_delete=models.CASCADE)
 
