@@ -52,7 +52,7 @@
   {% if field.name == "region" %}
     {{ object.section.division.branch.region }}
   {% elif "title" in field.name %}
-    <a href="{% url 'inventory:resource_detail' object.id %}">{{ object.t_title }}</a>
+    <a href="{% url 'inventory:resource_detail' object.id %}" target="_blank">{{ object.t_title }}</a>
   {% elif "certified" in field.name %}
 
     {% if object.certification_history.count > 0 %}
