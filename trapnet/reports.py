@@ -148,6 +148,7 @@ def generate_sweep_csv(qs):
         "ordinal_day",
         "other_species",
         "site_event_code",
+        "electrofisher",
     ]
 
     pseudo_buffer = Echo()
@@ -176,6 +177,7 @@ def generate_sweep_csv(qs):
             obj.sample.arrival_date.toordinal(),
             obj.specimens.filter(~Q(species__tsn=161996)).order_by("species").values("species").distinct().count(),
             obj.site_event_code,
+            obj.sample.ef_sample.electrofisher.name if obj.sample.ef_sample.electrofisher else "",
         ]
         sorted_data_row = [x for _, x in sorted(zip(header_row, data_row))]
         yield writer.writerow(sorted_data_row)
