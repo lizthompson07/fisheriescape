@@ -1613,24 +1613,22 @@ def export_dmas(request):
 ########
 
 class DMAListView(InventoryBasicMixin, CommonFilterView):
-    template_name = 'inventory/list.html'
+    template_name = 'inventory/dma_list.html'
     filterset_class = filters.DMAFilter
     home_url_name = "inventory:index"
     new_object_url = reverse_lazy("inventory:dma_new")
-    row_object_url_name = row_ = "inventory:dma_detail"
+    # row_object_url_name = row_ = "inventory:dma_detail"
     container_class = "container-fluid"
     field_list = [
+            {"name": "title", "class": "w-35"},
             {"name": "region", "class": ""},
             {"name": "section", "class": ""},
-            {"name": "title", "class": "w-35"},
+            {"name": "uuid|{}".format(_("Link to DM Apps Metadata Record")), "class": "w-15"},
             {"name": "data_contact|{}".format(_("data contact")), "class": ""},
             {"name": "metadata_contact|{}".format(_("metadata contact")), "class": ""},
             {"name": "status_display|{}".format(_("status")), "class": ""},
         ]
-
-
-    def get_queryset(self):
-        return models.DMA.objects.all()
+    model =  models.DMA
 
 
 class DMACreateView(InventoryBasicMixin, CommonCreateView):

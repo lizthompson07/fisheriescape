@@ -643,7 +643,7 @@ class DMA(MetadataFields):
 
     class Meta:
         verbose_name = _("Data Management Agreement")
-        ordering = ["section__division__branch__sector__region", "section__division", "section", "title"]
+        ordering = ["status", "title"]
 
     def get_absolute_url(self):
         return reverse('inventory:dma_detail', args=[self.id])
