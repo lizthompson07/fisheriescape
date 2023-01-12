@@ -88,6 +88,7 @@ class SearchView(PSSIBasicMixin, CommonFilterView):
 # Output: List of acronyms, separated by first letter of the acronyms. Clicking on acronym can lead to information source page.
 #----------------------------------------------------
 class AcronymView(PSSIBasicMixin, CommonTemplateView):
+    model = Acronym
     template_name = "pssi/acronym_list.html"
     h1 = gettext_lazy("PSSI - Pacific Salmon Data Hub - Acronyms")
     active_page_name_crumb = gettext_lazy("Acronyms")
@@ -96,8 +97,17 @@ class AcronymView(PSSIBasicMixin, CommonTemplateView):
     # Define list (variable in acronym_list.html) as all objects in the Acronym table
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        object_list = Acronym.objects.all()
-        context["list"] = object_list
+        context["object_list"] = self.model.objects.all()
+
+        # Define dynamic category list
+        unique_list = []
+        field_name = "acronym_letters"
+        for object in context["object_list"]:
+            category_letter = getattr(object, field_name)[0].upper()
+            if category_letter not in unique_list:
+                unique_list.append(category_letter)
+        context["categories"] = "".join(unique_list)
+        
         return context
 
     # Fields to display in acronym page - values for class are used for styling/formatting data
@@ -113,6 +123,7 @@ class AcronymView(PSSIBasicMixin, CommonTemplateView):
 # Output: Same page structure as acronym view, but displays data glossary information
 #----------------------------------------------------
 class DataGlossaryView(PSSIBasicMixin, CommonTemplateView):
+    model = DataGlossary
     template_name = "pssi/data_glossary_list.html"
     h1 = gettext_lazy("PSSI - Pacific Salmon Data Hub - Data Glossary")
     active_page_name_crumb = gettext_lazy("Data Glossary")
@@ -120,9 +131,20 @@ class DataGlossaryView(PSSIBasicMixin, CommonTemplateView):
     # row_object_url_name = "pssi:data_detail"
     # paginate_by = 25
 
+    # Define list (variable in acronym_list.html) as all objects in the Acronym table
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context["object_list"] = self.model.objects.all()
 
+        # Define dynamic category list
+        unique_list = []
+        field_name = "term_name"
+        for object in context["object_list"]:
+            category_letter = getattr(object, field_name)[0].upper()
+            if category_letter not in unique_list:
+                unique_list.append(category_letter)
+        context["categories"] = "".join(unique_list)
+        
         return context
 
 #----------------Business Glossary View--------------
@@ -132,6 +154,7 @@ class DataGlossaryView(PSSIBasicMixin, CommonTemplateView):
 # Output:Same page structure as acronym view, but displays data glossary information
 #----------------------------------------------------
 class BusinessGlossaryView(PSSIBasicMixin, CommonTemplateView):
+    model = BusinessGlossary
     template_name = "pssi/business_glossary_list.html"
     h1 = gettext_lazy("PSSI - Pacific Salmon Data Hub - Business Glossary")
     active_page_name_crumb = gettext_lazy("Business Glossary")
@@ -139,9 +162,20 @@ class BusinessGlossaryView(PSSIBasicMixin, CommonTemplateView):
     # row_object_url_name = "pssi:data_detail"
     # paginate_by = 25
 
+    # Define list (variable in acronym_list.html) as all objects in the Acronym table
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context["object_list"] = self.model.objects.all()
 
+        # Define dynamic category list
+        unique_list = []
+        field_name = "term_name"
+        for object in context["object_list"]:
+            category_letter = getattr(object, field_name)[0].upper()
+            if category_letter not in unique_list:
+                unique_list.append(category_letter)
+        context["categories"] = "".join(unique_list)
+        
         return context
 
 #------------------Detail View--------------------
