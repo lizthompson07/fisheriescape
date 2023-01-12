@@ -74,7 +74,7 @@ class DataAsset(models.Model):
     impact_on_decision_making = models.CharField(max_length=255, null=True, verbose_name="Impact on Decision Making")
     uniqueness = models.CharField(max_length=50, null=True, verbose_name="Uniqueness")
     # cost = models.CharField(max_length=50, null=True, verbose_name="Cost")
-    Cost = models.TextField(blank = True, null = True, verbose_name="Cost")
+    cost = models.TextField(blank = True, null = True, verbose_name="Cost")
     data_asset_size = models.TextField(blank =True, null=True, verbose_name="Data Asset Size")
     update_frequency = models.CharField(max_length=50, null=True, verbose_name="Update Frequency")
     data_standards = models.CharField(max_length=255, null=True, verbose_name="Data Standards")

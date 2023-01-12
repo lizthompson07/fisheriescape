@@ -16,7 +16,7 @@ class Migration(migrations.Migration):
         ),
         migrations.AddField(
             model_name='dataasset',
-            name='Cost',
+            name='cost',
             field=models.TextField(blank=True, null=True, verbose_name='Cost'),
         ),
         migrations.AlterField(
