@@ -1346,7 +1346,6 @@ class DMACreateView(CanModifyProjectRequiredMixin, CommonCreateViewHelp):
     def form_valid(self, form):
         dma = form.save(commit=False)
         dma.updated_by = self.request.user
-        dma.project = self.get_project()
         dma.save()
         return super().form_valid(form)
 
