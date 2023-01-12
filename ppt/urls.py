@@ -37,20 +37,6 @@ urlpatterns = [
     path('status-reports/<int:pk>/delete/', views.StatusReportDeleteView.as_view(), name="report_delete"),  # tested
     path('status-reports/<int:pk>/print/', views.StatusReportPrintDetailView.as_view(), name="report_pdf"),  # tested
 
-    # DMAs #
-    #################
-    path('projects/<int:project>/new-dma/', views.DMACreateView.as_view(), name="dma_new"),
-    path('dmas/<int:pk>/view/', views.DMADetailView.as_view(), name="dma_detail"),
-    path('dmas/<int:pk>/edit/', views.DMAUpdateView.as_view(), name="dma_edit"),
-    path('dmas/<int:pk>/delete/', views.DMADeleteView.as_view(), name="dma_delete"),
-    path('dmas/<int:pk>/clone/', views.DMACloneView.as_view(), name="dma_clone"),
-
-    # DMA Reviews #
-    #################
-    path('dmas/<int:dma>/new-review/', views.DMAReviewCreateView.as_view(), name="dma_review_new"),
-    path('dma-reviews/<int:pk>/edit/', views.DMAReviewUpdateView.as_view(), name="dma_review_edit"),
-    path('dmas-reviews/<int:pk>/delete/', views.DMAReviewDeleteView.as_view(), name="dma_review_delete"),
-
     # SETTINGS #
     ############
     # formsets

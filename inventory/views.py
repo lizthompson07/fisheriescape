@@ -1621,7 +1621,7 @@ class DMACreateView(InventoryBasicMixin, CommonCreateView):
         # if there is a resource associated with the DMA, we know the URL and metadata_tool
         if hasattr(dma, "resource") and dma.resource:
             dma.metadata_tool = _("The metadata was created and is maintained in the DM Apps Data Inventory Tool.")
-            dma.metadata_url = my_envr(self.request)["SITE_FULL_URL"] + reverse("inventory:resource_detail_uuid", args=dma.resource.uuid)
+            dma.metadata_url = my_envr(self.request)["SITE_FULL_URL"] + reverse("inventory:resource_detail_uuid", args=[dma.resource.uuid])
             dma.save()
 
         return super().form_valid(form)
