@@ -81,7 +81,7 @@ class DMAFilter(django_filters.FilterSet):
         model = models.DMA
         fields = {
             'section__division__branch__sector__region': ['exact'],
-            'title': ['exact'],
+            'title': ['icontains'],
             'data_contact': ['exact'],
             'metadata_contact': ['exact'],
             'status': ['exact'],

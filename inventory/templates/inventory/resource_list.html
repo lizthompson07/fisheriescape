@@ -53,6 +53,21 @@
     {{ object.section.division.branch.region }}
   {% elif "title" in field.name %}
     <a href="{% url 'inventory:resource_detail' object.id %}" target="_blank">{{ object.t_title }}</a>
+    {% if user in object.favourited_by.all %}      <span class="mdi mdi-star" data-toggle="tooltip" title="favourites"></span>    {% endif %}
+
+    {% if object.fgp_url %}
+      <a class="stop-blank mx-1" href="{{ object.fgp_url }}" data-toggle="tooltip"
+         title="Open URL in the Federal Geospatial Platform">
+        <img src="{% static 'img/icons/fgp.png' %}" alt="" width="15px">
+      </a>
+    {% endif %}
+    {% if object.public_url %}
+      <a class="stop-blank mx-1" href="{{ object.public_url }}" data-toggle="tooltip"
+         title="Open URL in the Open Government Portal">
+        <img src="{% static 'img/icons/canada.png' %}" alt="" width="15px">
+      </a>
+    {% endif %}
+
   {% elif "certified" in field.name %}
 
     {% if object.certification_history.count > 0 %}
