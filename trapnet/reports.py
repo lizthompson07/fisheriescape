@@ -16,19 +16,20 @@ def generate_sample_csv(qs):
 
     fields = models.Sample._meta.fields
     field_names = [field.name for field in fields]
+
+    # add any FKs
+    for field in fields:
+        if field.attname not in field_names:
+            field_names.append(field.attname)
+
     field_names.remove("site")
     field_names.remove("id")
-
     try:
         field_names.remove("air_temp_arrival")
         field_names.remove("water_temp_c")
     except:
         pass
 
-    # add any FKs
-    for field in fields:
-        if field.attname not in field_names:
-            field_names.append(field.attname)
 
     header_row = deepcopy(field_names)
     header_row += [
@@ -43,7 +44,6 @@ def generate_sample_csv(qs):
         "fishing_area",
         "river_cgndb",
     ]
-
     # now we need to determine what fields to append from the sample subtype
     is_ef = False
     is_rst = False
@@ -80,6 +80,7 @@ def generate_sample_csv(qs):
     writer = csv.writer(pseudo_buffer)
     sorted_header = sorted(header_row)
     yield writer.writerow(sorted_header)
+    print(sorted_header)
 
     for obj in qs:
         sub_obj = obj.get_sub_obj()
@@ -124,14 +125,15 @@ def generate_sweep_csv(qs):
 
     fields = models.Sweep._meta.fields
     field_names = [field.name for field in fields]
-    field_names.remove("created_by")
-    field_names.remove("updated_by")
-    field_names.remove("id")
 
     # add any FKs
     for field in fields:
-        if field.attname not in field_names:
+        if field.attname not in field_names and field.attname:
             field_names.append(field.attname)
+
+    field_names.remove("id")
+    field_names.remove("created_by")
+    field_names.remove("updated_by")
     field_names.remove("created_by_id")
     field_names.remove("updated_by_id")
 
@@ -194,12 +196,12 @@ def generate_specimen_csv(qs, sample_type):
 
     fields = models.Specimen._meta.fields
     field_names = [field.name for field in fields]
-    field_names.remove("id")
 
     # add any FKs
     for field in fields:
-        if field.attname not in field_names:
+        if field.attname not in field_names and field.attname:
             field_names.append(field.attname)
+
     field_names.remove("id")
     field_names.remove("sweep")
     field_names.remove("sweep_id")
@@ -271,14 +273,15 @@ def generate_river_sites_csv(qs):
 
     fields = models.RiverSite._meta.fields
     field_names = [field.name for field in fields]
-    field_names.remove("river")
-    field_names.remove("name")
-    field_names.remove("id")
 
     # add any FKs
     for field in fields:
-        if field.attname not in field_names:
+        if field.attname not in field_names and field.attname:
             field_names.append(field.attname)
+
+    field_names.remove("river")
+    field_names.remove("name")
+    field_names.remove("id")
 
     header_row = deepcopy(field_names)
     header_row += [
@@ -327,7 +330,7 @@ def generate_biological_detailing_csv(qs):
 
     # add any FKs
     for field in fields:
-        if field.attname not in field_names:
+        if field.attname not in field_names and field.attname:
             field_names.append(field.attname)
 
     header_row = deepcopy(field_names)
