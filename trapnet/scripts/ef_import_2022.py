@@ -673,6 +673,9 @@ def run_process_fish_take2():
 
                     file_type = r["FILE_TYPE"]
                     biological_sample = r["BIOLOGICAL_SAMPLE"]
+
+                    # this is where my previous script was wrong therefore these are the only fish we will be focusing on.
+
                     if file_type == "2" or biological_sample == "1":
 
                         raw_date = r["SITE_EVENT_DATE"]
@@ -824,11 +827,16 @@ def run_process_fish_take2():
                                             if len(notes.strip()):
                                                 fish_kwargs["notes"] = notes
 
-                                            # this is where my script was wrong the first time.
-                                            # if file_type == "2" or biological_sample == "1":
-                                            #     del fish_kwargs["sweep"]
-                                            #     fish_kwargs["sample"] = sample
-                                            #     models.BiologicalDetailing.objects.create(**fish_kwargs)
+                                            if file_type == "2" and sweep == 0:
+                                                print("yip")
+                                                catch_frequency = r["CATCH_FREQUENCY"]
+                                                if catch_frequency and int(catch_frequency):
+                                                    catch_frequency = int(catch_frequency)
+                                                if catch_frequency > 1:
+                                                    print("large catch frequency")
+                                                del fish_kwargs["sweep"]
+                                                fish_kwargs["sample"] = sample
+                                                models.BiologicalDetailing.objects.create(**fish_kwargs)
                                             # else:
                                             #     catch_frequency = r["CATCH_FREQUENCY"]
                                             #     if catch_frequency and int(catch_frequency) > 0:

@@ -19,6 +19,12 @@ def generate_sample_csv(qs):
     field_names.remove("site")
     field_names.remove("id")
 
+    try:
+        field_names.remove("air_temp_arrival")
+        field_names.remove("water_temp_c")
+    except:
+        pass
+
     # add any FKs
     for field in fields:
         if field.attname not in field_names:
