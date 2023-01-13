@@ -592,7 +592,7 @@ class SampleDetailView(TrapNetBasicMixin, CommonDetailView):
         salmon_with_lengths = obj.get_salmon_with_lengths()
         if salmon_with_lengths.exists():
             hist = dict(data=list(), colors=list(), max_count=0)
-            lengths = [item.fork_length for item in salmon_with_lengths]
+            lengths = [item.fork_length for item in salmon_with_lengths.all()]
 
             # get the data for the histogram
             len_range = range(math.floor(min(lengths)), math.ceil(max(lengths)))
