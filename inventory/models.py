@@ -392,6 +392,12 @@ class Resource(models.Model):
                 (self.east_bounding, self.south_bounding),
             ]
 
+    def get_custodians(self):
+        return self.resource_people.filter(role__code__iexact="RI_409")
+
+    def get_points_of_contact(self):
+        return self.resource_people.filter(role__code__iexact="RI_414")
+
 
 class ContentType(models.Model):
     title = models.CharField(max_length=255, verbose_name="Name (English)")
@@ -643,7 +649,7 @@ class DMA(MetadataFields):
 
     class Meta:
         verbose_name = _("Data Management Agreement")
-        ordering = ["section__division__branch__sector__region", "section__division", "section", "title"]
+        ordering = ["section__division__branch__sector__region", "status", "title"]
 
     def get_absolute_url(self):
         return reverse('inventory:dma_detail', args=[self.id])
@@ -680,6 +686,9 @@ class DMA(MetadataFields):
         if self.section:
             return self.section.division.branch.sector.region
 
+    @property
+    def display_with_region(self):
+        return str(self) + f" ({self.region})"
 
 class DMAReview(MetadataFields):
     decision_choices = (

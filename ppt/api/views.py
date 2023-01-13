@@ -17,6 +17,7 @@ from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 
 from dm_apps.utils import custom_send_mail
+from inventory.models import DMA
 from shared_models import models as shared_models
 from shared_models.utils import get_labels
 from . import permissions, pagination
@@ -668,20 +669,6 @@ class ReviewViewSet(ModelViewSet):
             obj.send_approval_email(self.request)
         elif data.get("review_email_update"):
             obj.send_review_email(self.request)
-
-
-class DMAViewSet(ModelViewSet):
-    queryset = models.DMA.objects.all()
-    serializer_class = serializers.DMASerializer
-    permission_classes = [permissions.CanModifyOrReadOnly]
-    filter_backends = (DjangoFilterBackend,)
-    filterset_class = DMAFilter
-
-    def perform_update(self, serializer):
-        obj = serializer.save(updated_by=self.request.user)
-
-    def perform_create(self, serializer):
-        obj = serializer.save(updated_by=self.request.user, created_by=self.request.user)
 
 
 # LOOKUPS

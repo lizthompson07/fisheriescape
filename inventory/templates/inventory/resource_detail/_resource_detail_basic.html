@@ -29,10 +29,22 @@
   {% verbose_td_display object "od_publication_date" %}
   {% verbose_td_display object "last_revision_date" %}
   <tr>
+    <th style="width: 150px">{% trans "Data management agreement" %}</th>
+    <td>
+      {% if object.dma %}
+        <a href="{% url 'inventory:dma_detail' object.dma.id %}" target="_blank">{{ object.dma }}</a>
+      {% else %}
+        ---
+      {% endif %}
+    </td>
+  </tr>
+  <tr>
     <th style="width: 150px">Last modification by</th>
     <td>
       {{ object.last_modified_by }}
     </td>
   </tr>
+
+
 </table>
 

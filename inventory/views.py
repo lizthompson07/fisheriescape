@@ -57,20 +57,7 @@ class Index(InventoryBasicMixin, CommonTemplateView):
     template_name = 'inventory/index.html'
     h1 = gettext_lazy("DFO Science Data Inventory")
     active_page_name_crumb = gettext_lazy("Home")
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        published_records = models.Resource.objects.filter(fgp_publication_date__isnull=False).count()
-        context["published_records"] = published_records
-
-        flagged_4_deletion = models.Resource.objects.filter(flagged_4_deletion=True).count()
-        context["flagged_4_deletion"] = flagged_4_deletion
-
-        flagged_4_publication = models.Resource.objects.filter(flagged_4_publication=True).count()
-        context["flagged_4_publication"] = flagged_4_publication
-
-        return context
+    container_class = "container-fluid"
 
 
 class OpenDataDashboardTemplateView(InventoryBasicMixin, CommonTemplateView):
@@ -152,12 +139,13 @@ class ResourceListView(InventoryBasicMixin, CommonFilterView):
                            output_field=TextField()))
     home_url_name = "inventory:index"
     container_class = "container-fluid"
-    row_object_url_name = "inventory:resource_detail"
+    # row_object_url_name = "inventory:resource_detail"
     new_object_url = reverse_lazy("inventory:resource_new")
     paginate_by = 25
     field_list = [
-        {"name": 'region', "class": "", "width": ""},
         {"name": 't_title|{}'.format(gettext_lazy("title")), "class": "w-30", "width": ""},
+        {"name": 'uuid', "class": "", "width": ""},
+        {"name": 'region', "class": "", "width": ""},
         {"name": 'resource_type', "class": "", "width": ""},
         {"name": 'status', "class": "", "width": ""},
         {"name": 'section', "class": "w-15", "width": ""},
@@ -1215,37 +1203,11 @@ def send_certification_request(request, person):
         html_message=email.message,
         from_email=email.from_email,
         recipient_list=email.to_list,
-        user=self.request.user
+        user=request.user
     )
     my_person.user.correspondences.create(subject="Request for certification")
     messages.success(request, "the email has been sent and the correspondence has been logged!")
     return HttpResponseRedirect(reverse('inventory:dm_custodian_detail', kwargs={'pk': my_person.user_id}))
-
-
-class PublishedResourcesListView(AdminRequiredMixin, ListView):
-    template_name = "inventory/dm_published_resource.html"
-    queryset = models.Resource.objects.filter(fgp_publication_date__isnull=False)
-
-
-class FlaggedListView(AdminRequiredMixin, ListView):
-    template_name = "inventory/dm_flagged_list.html"
-
-    def get_queryset(self):
-        if self.kwargs["flag_type"] == "publication":
-            queryset = models.Resource.objects.filter(flagged_4_publication=True)
-        elif self.kwargs["flag_type"] == "deletion":
-            queryset = models.Resource.objects.filter(flagged_4_deletion=True)
-        return queryset
-
-
-class CertificationListView(AdminRequiredMixin, ListView):
-    template_name = "inventory/dm_certification_list.html"
-    queryset = models.ResourceCertification.objects.all().order_by("-certification_date")[:50]
-
-
-class ModificationListView(AdminRequiredMixin, ListView):
-    template_name = "inventory/dm_modification_list.html"
-    queryset = models.Resource.objects.all().order_by("-date_last_modified")[:50]
 
 
 class CustodianPersonUpdateView(AdminRequiredMixin, FormView):
@@ -1613,24 +1575,22 @@ def export_dmas(request):
 ########
 
 class DMAListView(InventoryBasicMixin, CommonFilterView):
-    template_name = 'inventory/list.html'
+    template_name = 'inventory/dma_list.html'
     filterset_class = filters.DMAFilter
     home_url_name = "inventory:index"
     new_object_url = reverse_lazy("inventory:dma_new")
-    row_object_url_name = row_ = "inventory:dma_detail"
+    # row_object_url_name = row_ = "inventory:dma_detail"
     container_class = "container-fluid"
     field_list = [
-            {"name": "region", "class": ""},
-            {"name": "section", "class": ""},
-            {"name": "title", "class": "w-35"},
-            {"name": "data_contact|{}".format(_("data contact")), "class": ""},
-            {"name": "metadata_contact|{}".format(_("metadata contact")), "class": ""},
-            {"name": "status_display|{}".format(_("status")), "class": ""},
-        ]
-
-
-    def get_queryset(self):
-        return models.DMA.objects.all()
+        {"name": "title", "class": "w-30"},
+        {"name": "region", "class": ""},
+        {"name": "section", "class": ""},
+        {"name": "uuid|{}".format(_("Link to DM Apps Metadata Record")), "class": "w-15"},
+        {"name": "data_contact|{}".format(_("data steward")), "class": ""},
+        {"name": "metadata_contact|{}".format(_("metadata contact")), "class": ""},
+        {"name": "status_display|{}".format(_("status")), "class": ""},
+    ]
+    model = models.DMA
 
 
 class DMACreateView(InventoryBasicMixin, CommonCreateView):
@@ -1641,9 +1601,18 @@ class DMACreateView(InventoryBasicMixin, CommonCreateView):
     container_class = "container bg-light curvy"
     parent_crumb = {"title": _("Data Management Agreements"), "url": reverse_lazy("inventory:dma_list")}
 
-    # def get_initial(self):
-    #     return dict(title=f"Data management agreement for _____")
-
+    def get_initial(self):
+        qp = self.request.GET
+        if qp.get("resource"):
+            resource = get_object_or_404(models.Resource, pk=qp.get("resource"))
+            initial = dict(title=f"Data management agreement for {resource.title_eng}", resource=resource, section=resource.section)
+            custodians = resource.get_custodians()
+            pocs = resource.get_points_of_contact()
+            if pocs.exists():
+                initial["data_contact"] = custodians.first().person.user
+            if custodians.exists():
+                initial["metadata_contact"] = custodians.first().person.user
+            return initial
     def form_valid(self, form):
         dma = form.save(commit=False)
         dma.created_by = self.request.user
@@ -1690,6 +1659,7 @@ class DMADetailView(InventoryBasicMixin, CommonDetailView):
             'data_contact_text',
             "status_display|{}".format(_("status")),
             'comments',
+            'ppt',
             'metadata',
         ]
         context["fields_metadata"] = [

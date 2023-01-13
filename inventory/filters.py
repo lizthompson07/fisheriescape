@@ -32,6 +32,7 @@ class ResourceFilter(django_filters.FilterSet):
                                                        exclude=True,  # this will reverse the logic
                                                        )
     flagged_4_publication = django_filters.BooleanFilter(field_name="flagged_4_publication", lookup_expr='exact')  # placeholder for ordering
+    flagged_4_deletion = django_filters.BooleanFilter(field_name="flagged_4_deletion", lookup_expr='exact')  # placeholder for ordering
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -89,5 +90,5 @@ class DMAFilter(django_filters.FilterSet):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.filters["section__division__branch__sector__region"].label = "Region"
-        self.filters["data_contact"].label = _("Data contact")
+        self.filters["data_contact"].label = _("Data steward")
         self.filters["metadata_contact"].label = _("Metadata contact")

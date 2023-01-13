@@ -2,8 +2,45 @@
 {% load humanize %}
 {% load static %}
 {% load custom_filters %}
-
+{% load bootstrap4 %}
 {% load verbose_names %}
+{% load i18n %}
+
+{% block filter %}
+  <div class="{% block filter_div_classes %}{% endblock %}">
+    <form class="form {% block extra_filter_classes %}{{ block.super }}{% endblock %}" action="." method="get" id="filter-form">
+      <div class="row">
+        <div class="col">
+          {% bootstrap_field filter.form.search_term placeholder="" size="small" %}
+          {% bootstrap_field filter.form.fgp_publication_date placeholder="" size="small" %}
+        </div>
+        <div class="col">
+          {% bootstrap_field filter.form.region placeholder="" size="small" %}
+          {% bootstrap_field filter.form.od_publication_date placeholder="" size="small" %}
+
+        </div>
+        <div class="col">
+          {% bootstrap_field filter.form.section placeholder="" size="small" %}
+          {% bootstrap_field filter.form.flagged_4_publication placeholder="" size="small" %}
+        </div>
+        <div class="col">
+          {% bootstrap_field filter.form.person placeholder="" size="small" %}
+          {% bootstrap_field filter.form.flagged_4_deletion placeholder="" size="small" %}
+        </div>
+        <div class="col">
+          {% bootstrap_field filter.form.resource_type placeholder="" size="small" %}
+        </div>
+        <div class="col text-right">
+          <br>
+          <a href="." class="btn btn-secondary btn-sm">{% trans "Clear" %}</a>
+        </div>
+
+
+      </div>
+
+    </form>
+  </div>
+{% endblock %}
 
 {% block pre_table %}
   {% if personal %}
@@ -14,6 +51,8 @@
 {% block table_td %}
   {% if field.name == "region" %}
     {{ object.section.division.branch.region }}
+  {% elif "title" in field.name %}
+    <a href="{% url 'inventory:resource_detail' object.id %}">{{ object.t_title }}</a>
   {% elif "certified" in field.name %}
 
     {% if object.certification_history.count > 0 %}
