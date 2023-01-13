@@ -684,7 +684,7 @@ class SampleDetailView(TrapNetBasicMixin, CommonDetailView):
                 context['hist_labels'] = hist_labels
                 context['hist_max_count'] = max(counts)
             except:
-                print(math.ceil(len(len_range) * 0.5), len_range)
+                print(math.ceil(len(len_range) * 0.5), len_range, lengths, salmon_with_lengths)
             context['max_weight'] = max(weights)
 
         return context
