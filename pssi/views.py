@@ -11,6 +11,7 @@ from .scripts.import_csv import clear_inventory, run_csv_to_inventory
 from .scripts.import_acronyms import clear as clear_acronyms, run as run_acronyms
 from .scripts.import_business_glossary import clear as clear_business_glossary, run as run_business_glossary
 from .scripts.import_data_glossary import clear as clear_data_glossary, run as run_data_glossary
+from .scripts.import_csv_pandas import clear as clear_inventory_pandas, run as run_csv_to_inventory_pandas
 
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import get_object_or_404
@@ -247,6 +248,15 @@ def load_business_glossary(request):
     # run_business_glossary()
 
     if(BusinessGlossary):
+        return HttpResponse("Success!")
+    else:
+        return HttpResponse("No data found.")
+
+def load_data_pandas(request):
+    # clear_inventory_pandas()
+    run_csv_to_inventory_pandas()
+
+    if(DataAsset):
         return HttpResponse("Success!")
     else:
         return HttpResponse("No data found.")
