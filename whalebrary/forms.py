@@ -175,6 +175,8 @@ class MaintenanceForm1(forms.ModelForm):
         fields = "__all__"
         widgets = {
             'item': forms.HiddenInput(),
+            # 'last_maint_by': forms.HiddenInput(),
+            # 'last_maint_date': forms.HiddenInput(),
             'last_maint_date': forms.DateInput(
                 attrs={"class": "not-a-group-field fp-date", "placeholder": "Click to select a date.."}),
         }

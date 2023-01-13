@@ -63,6 +63,20 @@ class NewResightEmail(Email):
 class MaintenanceReminderEmail(Email):
     email_template_path = 'whalebrary/email_maintenance_reminder.html'
 
+    def get_subject_en(self):
+        if self.instance.item:
+            mystr = f"MAINTENANCE REMINDER for {self.instance.item}"
+        else:
+            mystr = "MAINTENANCE REMINDER"
+        return mystr
+
+    def get_subject_fr(self):
+        if self.instance.item:
+            mystr = f"RAPPEL D'ENTRETIEN pour {self.instance.item}"
+        else:
+            mystr = "RAPPEL D'ENTRETIEN"
+        return mystr
+
     def get_recipient_list(self):
         payload = [glfwhale_generic_email, self.instance.assigned_to.email]
         return payload
