@@ -63,7 +63,7 @@ def run_csv_to_inventory():
 
     # max_field_len = dict(zip(field_list, list([0]*len(field_list))))
 
-    with open(os.path.join(ROOTDIR, DATASET), "r") as csvfile:
+    with open(DATASET, "r") as csvfile:
         reader = csv.reader(csvfile)
         #skip header row
         next(reader)

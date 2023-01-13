@@ -27,7 +27,7 @@ def run():
         "acronym_url"
     ]
 
-    with open(os.path.join(ROOTDIR, DATASET), "r") as csvfile:
+    with open(DATASET, "r") as csvfile:
         reader = csv.reader(csvfile)
         #skip header row
         next(reader)

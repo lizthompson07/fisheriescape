@@ -18,10 +18,5 @@ def clear():
 
 # Use Pandas read_csv() to ingest data into a dataframe, then create DataAsset instances using the values of each row in the dataframe
 def run():
-    df = pd.read_csv(open(os.path.join(ROOTDIR, DATASET))).dropna()
+    df = pd.read_csv(open(DATASET), skiprows=[0])
     print(df)
-    # for idx, row in df.iterrows():
-    #     model = DataAsset(
-    #     )
-    #     model.save()
-
