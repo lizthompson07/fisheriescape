@@ -55,7 +55,7 @@ class DataAsset(models.Model):
     operational_or_analytical_data = models.CharField(max_length=25, null=True, verbose_name="Operational Or Analytical Data")
     data_asset_acronym = models.CharField(max_length=50, null=True, verbose_name="Data Asset Acronym")
     data_asset_description = models.TextField(blank =True, null=True, verbose_name="Data Asset Description")
-    apm_id = models.IntegerField(blank =True, null=True, verbose_name="apm_id")
+    apm_id = models.IntegerField(blank =True, null=True, verbose_name="APM ID")
     non_salmon_data = models.CharField(max_length=50, null=True, verbose_name="Non Salmon Data")
     data_asset_status = models.CharField(max_length=25, null=True, verbose_name="Data Asset Status")
     data_asset_format = models.CharField(max_length=255, null=True, verbose_name="Data Asset Format")
