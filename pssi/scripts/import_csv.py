@@ -9,12 +9,12 @@ from django.db.models import QuerySet
 # @pylance.typecheck(QuerySet)
 
 ROOTDIR = os.path.join(settings.BASE_DIR, "pssi")
-DATASET = os.path.join(ROOTDIR, "csv", "Pacific_Region_Data_Inventory_main.csv")
-DATA_MODEL = DataAsset
+dataset_file = os.path.join(ROOTDIR, "csv", "Pacific_Region_Data_Inventory_main.csv")
+dataset_model = DataAsset
 
 # Delete all objects stored in DataAsset table
 def clear_inventory():
-    to_delete = DATA_MODEL.objects.all()
+    to_delete = dataset_model.objects.all()
     to_delete.delete()
 
 # Goes through the csv row by row and maps the appropriate column to a variable
@@ -63,7 +63,7 @@ def run_csv_to_inventory():
 
     # max_field_len = dict(zip(field_list, list([0]*len(field_list))))
 
-    with open(DATASET, "r") as csvfile:
+    with open(dataset_file, "r") as csvfile:
         reader = csv.reader(csvfile)
         #skip header row
         next(reader)
@@ -95,7 +95,7 @@ def run_csv_to_inventory():
            
             # Initializing a record for DataAsset -> DataAsset(parameter1=value1, parameter2=value2,...)
             # Initialize a DataAsset object using the variables and values assigned above
-            model = DATA_MODEL(
+            model = dataset_model(
                 inventory_id                              = fields["inventory_id"],
                 approved_by                               = fields["approved_by"],
                 data_asset_name                           = fields["data_asset_name"],
