@@ -58,7 +58,11 @@ def run_csv_to_inventory():
         "security_classification",
         "inbound_data_linkage",
         "outbound_data_linkage",
-        "publication_status"
+        "publication_status",
+        "contact_fname",
+        "contact_lname",
+        "contact_email",
+        "topics"
     ]
 
     # max_field_len = dict(zip(field_list, list([0]*len(field_list))))
@@ -132,7 +136,11 @@ def run_csv_to_inventory():
                 security_classification                   = fields["security_classification"],
                 inbound_data_linkage                      = fields["inbound_data_linkage"],
                 outbound_data_linkage                     = fields["outbound_data_linkage"],
-                publication_status                        = fields["publication_status"]
+                publication_status                        = fields["publication_status"],
+                contact_fname                             = fields["contact_fname"],
+                contact_lname                             = fields["contact_lname"],
+                contact_email                             = fields["contact_email"],
+                topics                                    = fields["topics"]
             )
             model.save()
 

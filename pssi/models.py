@@ -85,6 +85,10 @@ class DataAsset(models.Model):
     inbound_data_linkage = models.TextField(blank =True, null=True, verbose_name="Inbound Data Linkage")
     outbound_data_linkage = models.TextField(blank =True, null=True, verbose_name="Outbound Data Linkage")
     publication_status = models.TextField(blank =True, null=True, verbose_name="Publication Status")
+    contact_fname = models.CharField(max_length=50, null=True, verbose_name="Contact First Name")
+    contact_lname = models.CharField(max_length=50, null=True, verbose_name="Contact Last Name")
+    contact_email = models.CharField(max_length=255, null=True, verbose_name="Contact Email")
+    topics = models.TextField(blank =True, null=True, verbose_name="Topics")
 
     # Defines DataAsset records/instances by their Data Asset Name e.g. record could be saved in Django model as "Fishery Operation System" instead of "DataAsset Object(1)"
     # NOTE: It is the same for other models -> to change the attribute the object is defined with, change the string with the field name
