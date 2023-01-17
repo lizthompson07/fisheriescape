@@ -11,6 +11,7 @@ from .scripts.import_csv import clear_inventory, run_csv_to_inventory
 from .scripts.import_acronyms import clear as clear_acronyms, run as run_acronyms
 from .scripts.import_business_glossary import clear as clear_business_glossary, run as run_business_glossary
 from .scripts.import_data_glossary import clear as clear_data_glossary, run as run_data_glossary
+from .scripts.import_csv_pandas import clear as clear_inventory_pandas, run as run_csv_to_inventory_pandas
 
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import get_object_or_404
@@ -88,6 +89,7 @@ class SearchView(PSSIBasicMixin, CommonFilterView):
 # Output: List of acronyms, separated by first letter of the acronyms. Clicking on acronym can lead to information source page.
 #----------------------------------------------------
 class AcronymView(PSSIBasicMixin, CommonTemplateView):
+    model = Acronym
     template_name = "pssi/acronym_list.html"
     h1 = gettext_lazy("PSSI - Pacific Salmon Data Hub - Acronyms")
     active_page_name_crumb = gettext_lazy("Acronyms")
@@ -96,8 +98,17 @@ class AcronymView(PSSIBasicMixin, CommonTemplateView):
     # Define list (variable in acronym_list.html) as all objects in the Acronym table
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        object_list = Acronym.objects.all()
-        context["list"] = object_list
+        context["object_list"] = self.model.objects.all()
+
+        # Define dynamic category list
+        unique_list = []
+        field_name = "acronym_letters"
+        for object in context["object_list"]:
+            category_letter = getattr(object, field_name)[0].upper()
+            if category_letter not in unique_list:
+                unique_list.append(category_letter)
+        context["categories"] = "".join(unique_list)
+        
         return context
 
     # Fields to display in acronym page - values for class are used for styling/formatting data
@@ -113,6 +124,7 @@ class AcronymView(PSSIBasicMixin, CommonTemplateView):
 # Output: Same page structure as acronym view, but displays data glossary information
 #----------------------------------------------------
 class DataGlossaryView(PSSIBasicMixin, CommonTemplateView):
+    model = DataGlossary
     template_name = "pssi/data_glossary_list.html"
     h1 = gettext_lazy("PSSI - Pacific Salmon Data Hub - Data Glossary")
     active_page_name_crumb = gettext_lazy("Data Glossary")
@@ -120,9 +132,20 @@ class DataGlossaryView(PSSIBasicMixin, CommonTemplateView):
     # row_object_url_name = "pssi:data_detail"
     # paginate_by = 25
 
+    # Define list (variable in acronym_list.html) as all objects in the Acronym table
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context["object_list"] = self.model.objects.all()
 
+        # Define dynamic category list
+        unique_list = []
+        field_name = "term_name"
+        for object in context["object_list"]:
+            category_letter = getattr(object, field_name)[0].upper()
+            if category_letter not in unique_list:
+                unique_list.append(category_letter)
+        context["categories"] = "".join(unique_list)
+        
         return context
 
 #----------------Business Glossary View--------------
@@ -132,6 +155,7 @@ class DataGlossaryView(PSSIBasicMixin, CommonTemplateView):
 # Output:Same page structure as acronym view, but displays data glossary information
 #----------------------------------------------------
 class BusinessGlossaryView(PSSIBasicMixin, CommonTemplateView):
+    model = BusinessGlossary
     template_name = "pssi/business_glossary_list.html"
     h1 = gettext_lazy("PSSI - Pacific Salmon Data Hub - Business Glossary")
     active_page_name_crumb = gettext_lazy("Business Glossary")
@@ -139,9 +163,20 @@ class BusinessGlossaryView(PSSIBasicMixin, CommonTemplateView):
     # row_object_url_name = "pssi:data_detail"
     # paginate_by = 25
 
+    # Define list (variable in acronym_list.html) as all objects in the Acronym table
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context["object_list"] = self.model.objects.all()
 
+        # Define dynamic category list
+        unique_list = []
+        field_name = "term_name"
+        for object in context["object_list"]:
+            category_letter = getattr(object, field_name)[0].upper()
+            if category_letter not in unique_list:
+                unique_list.append(category_letter)
+        context["categories"] = "".join(unique_list)
+        
         return context
 
 #------------------Detail View--------------------
@@ -173,6 +208,66 @@ class DetailView(PSSIBasicMixin, CommonDetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        obj = self.get_object()
+        context["topics"] = [obj.topics]
+
+        # Dictionary for data stewards contacts
+        data_stewards_contact_collection = []
+        emails = []
+
+        for item in obj.contact_email.split(";"):
+            item = item.strip()
+            if item != "":
+                emails.append(item)
+
+        for item in obj.data_asset_steward.split(";"):
+            if item == "":
+                continue
+            else:
+                item = item.title()
+                
+            if "," in item:
+                lname, fname = item.split(",", 1)
+                lname = lname.strip()
+                fname = fname.strip()
+            else:
+                lname = item
+                fname = ""
+                
+            email = ""
+            for e in emails:
+                if lname != "":
+                    if lname in e:
+                        email = e
+                        break
+                        
+            data_stewards_contact_collection.append({
+                "lname" : lname,
+                "fname" : fname,
+                "email" : email
+            })
+        # for item in obj.contact_email.split(";"):
+        #     item = item.strip()
+        #     emails.append(item)
+        # for item in obj.data_asset_steward.split(";"):
+        #     item = item.title()
+        #     if "," in item:
+        #         lname, fname = item.split(",", 1)
+        #         lname = lname.strip()
+        #         fname = fname.strip()
+        #     else:
+        #         lname = item
+        #         fname = ""
+        #     for email in emails:
+        #         if lname != "":
+        #             if lname in email:
+        #                 data_stewards_contact_collection.append({
+        #                     "lname" : lname,
+        #                     "fname" : fname,
+        #                     "email" : email
+        #                 })
+        context["data_stewards_contact_collection"] = data_stewards_contact_collection
+        
 
         return context
 
@@ -213,6 +308,15 @@ def load_business_glossary(request):
     # run_business_glossary()
 
     if(BusinessGlossary):
+        return HttpResponse("Success!")
+    else:
+        return HttpResponse("No data found.")
+
+def load_data_pandas(request):
+    # clear_inventory_pandas()
+    run_csv_to_inventory_pandas()
+
+    if(DataAsset):
         return HttpResponse("Success!")
     else:
         return HttpResponse("No data found.")

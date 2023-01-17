@@ -1,6 +1,6 @@
 from django.urls import path
 
-from .views import SearchView, Index, AcronymView, DataGlossaryView,BusinessGlossaryView, DetailView, load_data, load_acronyms, load_business_glossary, load_data_glossary
+from .views import SearchView, Index, AcronymView, DataGlossaryView,BusinessGlossaryView, DetailView, load_data, load_acronyms, load_business_glossary, load_data_glossary, load_data_pandas
 
 
 app_name = "pssi"
@@ -22,6 +22,7 @@ urlpatterns = [
 
     # IMPORTING CSV
     path("importcsv/", load_data, name = "load_pssi_csv"),
+    path("importcsvpandas/", load_data_pandas, name = "load_pssi_csv_pandas"),
     path("importacronyms/", load_acronyms, name = "load_acronyms"),
     path("importdataglossary/", load_data_glossary, name = "load_data_glossary"),
     path("importbusinessglossary/", load_business_glossary, name = "load_business_glossary"),
