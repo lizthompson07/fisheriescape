@@ -1,7 +1,4 @@
-<title>PSSI - Pacific Salmon Data Hub</title>
-
 {% extends "pssi/base.html" %}   <!-- Extention of base.html page -->
-
 <!-- 
     Purpose: Display the details of a particular data asset
     Input: Pulled entry of data asset.
@@ -16,4 +13,12 @@
   {% include "pssi/details/_details_left_all.html" %}
   {% include "pssi/details/_details_right_all.html" %}
 </div>
+
+<script>
+  function jump(letter){
+      var top = document.getElementById(letter).offsetTop;
+      console.log(top);
+      window.scrollTo(0, top);
+  }
+</script>
 {% endblock %}

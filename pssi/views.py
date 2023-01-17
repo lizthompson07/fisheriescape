@@ -208,6 +208,34 @@ class DetailView(PSSIBasicMixin, CommonDetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        obj = self.get_object()
+        context["topics"] = [obj.topics]
+
+        # Dictionary for data stewards contacts
+        data_stewards_contact_collection = []
+        emails = []
+        for item in obj.contact_email.split(";"):
+            item = item.strip()
+            emails.append(item)
+        for item in obj.data_asset_steward.split(";"):
+            item = item.title()
+            if "," in item:
+                lname, fname = item.split(",", 1)
+                lname = lname.strip()
+                fname = fname.strip()
+            else:
+                lname = item
+                fname = ""
+            for email in emails:
+                if lname != "":
+                    if lname in email:
+                        data_stewards_contact_collection.append({
+                            "lname" : lname,
+                            "fname" : fname,
+                            "email" : email
+                        })
+        context["data_stewards_contact_collection"] = data_stewards_contact_collection
+        
 
         return context
 

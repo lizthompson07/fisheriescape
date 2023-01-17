@@ -1,13 +1,6 @@
-<!-- Display data stewards associated with data asset -->
-
-<!-- TASK: create dynamic data stewards -->
 <h4>Data Stewards</h4> 
 <ul>
-    <!-- Need to change their names to hyperlinks to their contacts/email -->
-    <li>
-      MacKenzie, Julia
-    </li>
-    <li>
-      Hamilton, Shelee (SDC)
-    </li>
+    {% for data_stewards_contacts in data_stewards_contact_collection %}
+        <a href="mailto:{{data_stewards_contacts.email}}"><li>{{data_stewards_contacts.lname}}, {{data_stewards_contacts.fname}}</li></a>
+    {% endfor %}
 </ul>
