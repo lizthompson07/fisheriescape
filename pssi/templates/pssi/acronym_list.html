@@ -59,11 +59,6 @@
                     {% block table_td %}
                         <!-- Checks if theres a source/link for acronym -->
                         {% if field.name == "acronym_Letters" and object.acronym_URL != null %}
-
-                        <!-- 
-                            1. NOT EVERY ACRONYM IS IN UPPERCASE. PLEASE VERIFY. 
-                            2. IF NOT EXISTS, DO NOT SHOW EMPTY SECTIONS.
-                        -->
                             <!-- If so, make acronym a hyperlink that contains the link to its source -->
                             <a href="{{object.acronym_URL}}">{% get_field_value object field.name safe=True %}</a>
                         {% else %}
