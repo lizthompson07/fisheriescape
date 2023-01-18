@@ -827,8 +827,7 @@ def run_process_fish_take2():
                                             if len(notes.strip()):
                                                 fish_kwargs["notes"] = notes
 
-                                            if file_type == "2" and sweep == 0:
-                                                print("yip")
+                                            if file_type == "2" and sweep.sweep_number == 0:
                                                 catch_frequency = r["CATCH_FREQUENCY"]
                                                 if catch_frequency and int(catch_frequency):
                                                     catch_frequency = int(catch_frequency)
