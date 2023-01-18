@@ -765,8 +765,6 @@ class PCRBatchListView(eDNAAdminRequiredMixin, CommonFilterView):
         {"name": 'operators', "class": "", "width": ""},
         {"name": 'default_collection', "class": "", "width": ""},
         {"name": 'plate_id', "class": "", "width": ""},
-        {"name": 'machine_number', "class": "", "width": ""},
-        {"name": 'run_program', "class": "", "width": ""},
         {"name": 'control_status', "class": "", "width": ""},
         {"name": 'comments', "class": "", "width": ""},
         {"name": 'pcr_count|{}'.format(gettext_lazy("PCRs")), "class": "", "width": ""},
