@@ -606,7 +606,8 @@ def generate_od_summary_by_site_dict(report_name):
 def generate_od_summary_by_site_report(qs):
     pseudo_buffer = Echo()
     writer = csv.writer(pseudo_buffer)
-
+    # we only want to look at sites that caught fish
+    qs = qs.filter(specimens__isnull=False).distinct()
     # headers are based on csv provided by GD
     species_list = [models.Species.objects.get(pk=obj["specimens__species"]) for obj in
                     qs.order_by("specimens__species").values("specimens__species").distinct()]
