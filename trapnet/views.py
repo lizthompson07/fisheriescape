@@ -1319,7 +1319,7 @@ def od_summary_by_site_report(request):
     if report_name == "restigouche-rst":
         qs = get_restigouche_rst_samples()
 
-    filename = f"open data summary by site ({timezone.now().strftime('%Y-%m-%d')}"
+    filename = f"open data summary by site ({timezone.now().strftime('%Y-%m-%d')}).csv"
     response = StreamingHttpResponse(
         streaming_content=(reports.generate_od_summary_by_site_report(qs)),
         content_type='text/csv',
