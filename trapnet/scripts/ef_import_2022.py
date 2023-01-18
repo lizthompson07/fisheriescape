@@ -836,13 +836,18 @@ def run_process_fish_take2():
                                                 del fish_kwargs["sweep"]
                                                 fish_kwargs["sample"] = sample
                                                 models.BiologicalDetailing.objects.create(**fish_kwargs)
-                                            # else:
-                                            #     catch_frequency = r["CATCH_FREQUENCY"]
-                                            #     if catch_frequency and int(catch_frequency) > 0:
-                                            #         for x in range(0, int(catch_frequency)):
-                                            #             models.Specimen.objects.create(**fish_kwargs)
-                                            #     else:
-                                            #         writer.writerow([r[key] for key in r] + [10, f"Catch frequency null or zero", sample.old_id, 0])
+                                            else:
+                                                # in the previous script this would have been written to the historical table
+                                                # now we want this to go in the specimen table
+                                                # however, if we run this script multiple times, we will be making duplicate entries.
+                                                # therefore, we should only import if there is no corresponding old id in the db.
+                                                if not models.Specimen.objects.filter(old_id=fish_kwargs["old_id"]).exists():
+                                                    catch_frequency = r["CATCH_FREQUENCY"]
+                                                    if catch_frequency and int(catch_frequency) > 0:
+                                                        for x in range(0, int(catch_frequency)):
+                                                            models.Specimen.objects.create(**fish_kwargs)
+                                                    else:
+                                                        writer.writerow([r[key] for key in r] + [10, f"Catch frequency null or zero", sample.old_id, 0])
                         else:
                             writer.writerow([r[key] for key in r] + [0, "Fish specimen has no date/time", "", 0])
                     bar()
