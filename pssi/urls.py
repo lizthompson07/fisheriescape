@@ -10,12 +10,17 @@ app_name = "pssi"
 urlpatterns = [
     path("", Index.as_view(), name = "index"),
 
-    # SEARCH LIST AND DETAILS
+    # SEARCH & DATA HUB DETAILS
     path("search/", SearchView.as_view(), name = "search"),
-    path("search/<int:pk>/view/", DetailView.as_view(), name="details"),
-    path("search/<str:uuid>/", DetailView.as_view(), name="details_uuid"),
-    path("search/details/", DetailView.as_view(), name = "details_static"),
+    path("datahub/view/<int:pk>/", DetailView.as_view(), name="details"),
+    path("datahub/<str:uuid>/", DetailView.as_view(), name="details_uuid"),
 
+    # DATA HUB MANAGEMENT
+    # path('datahub/new/', DataHubCreateView.as_view(), name="datahub_new"),
+    # path('datahub/edit/<int:pk>/', DataHubUpdateView.as_view(), name="datahub_edit"),
+    # path('datahub/delete/<int:pk>', DataHubDeleteView.as_view(), name="datahub_delete"),
+
+    # INFORMATIONS
     path("acronyms/", AcronymView.as_view(), name = "acronym_list"),
     path("dataglossary/", DataGlossaryView.as_view(), name = "data_glossary_list"),
     path("businessglossary/", BusinessGlossaryView.as_view(), name = "business_glossary_list"),

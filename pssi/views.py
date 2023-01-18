@@ -194,17 +194,22 @@ class DetailView(PSSIBasicMixin, CommonDetailView):
     # paginate_by = 25
 
     def get_object(self, queryset=None):
-        if self.kwargs.get("uuid"):
-            return get_object_or_404(self.model, uuid=self.kwargs.get("uuid"))
+        if self.kwargs.get("pk"):
+            return get_object_or_404(self.model, pk=self.kwargs.get("pk"))
         return super().get_object(queryset)
     
-    def dispatch(self, request, *args, **kwargs):
-        obj = self.get_object()
-        if not self.kwargs.get("uuid"):
-            return HttpResponseRedirect(reverse("pssi:details_uuid", kwargs={"uuid": obj.uuid}))
+    # def get_object(self, queryset=None):
+    #     if self.kwargs.get("uuid"):
+    #         return get_object_or_404(self.model, uuid=self.kwargs.get("uuid"))
+    #     return super().get_object(queryset)
+    
+    # def dispatch(self, request, *args, **kwargs):
+        # obj = self.get_object()
+        # if not self.kwargs.get("uuid"):
+        #     return HttpResponseRedirect(reverse("pssi:details_uuid", kwargs={"uuid": obj.uuid}))
 
         # xml_export.verify(obj)
-        return super().dispatch(request, *args, **kwargs)
+        # return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -246,26 +251,6 @@ class DetailView(PSSIBasicMixin, CommonDetailView):
                 "fname" : fname,
                 "email" : email
             })
-        # for item in obj.contact_email.split(";"):
-        #     item = item.strip()
-        #     emails.append(item)
-        # for item in obj.data_asset_steward.split(";"):
-        #     item = item.title()
-        #     if "," in item:
-        #         lname, fname = item.split(",", 1)
-        #         lname = lname.strip()
-        #         fname = fname.strip()
-        #     else:
-        #         lname = item
-        #         fname = ""
-        #     for email in emails:
-        #         if lname != "":
-        #             if lname in email:
-        #                 data_stewards_contact_collection.append({
-        #                     "lname" : lname,
-        #                     "fname" : fname,
-        #                     "email" : email
-        #                 })
         context["data_stewards_contact_collection"] = data_stewards_contact_collection
         
 
