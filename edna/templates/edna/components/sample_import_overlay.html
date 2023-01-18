@@ -31,6 +31,9 @@
                     <input type="number" class="form-control" placeholder="{% trans "Sample Id" %}" v-model="filterSampleId">
                   </div>
                   <div class="col">
+                    <input type="text" class="form-control" placeholder="{% trans "Bottle Id" %}" v-model="filterBottleId">
+                  </div>
+                  <div class="col">
                     <select class="form-control" v-model="filterSampleType">
                       <option :value="null">{% trans "Filter by sample type" %}</option>
                       <option v-for="type in sampleTypes" :key="type.id" :value="type.id">
@@ -111,6 +114,7 @@ Vue.component("sample-import-overlay", {
 
       filterUnfiltered: true,
       filterSampleId: null,
+      filterBottleId: null,
       filterCollection: null,
       filterLocation: null,
       filterDate: null,
@@ -125,6 +129,7 @@ Vue.component("sample-import-overlay", {
       this.overlay = true;
       this.filterUnfiltered = true;
       this.filterSampleId = null;
+      this.filterBottleId = null;
       this.filterDate = null;
       this.filterCollection = this.default_collection_id;
       this.filterSampleType = null;
@@ -144,6 +149,7 @@ Vue.component("sample-import-overlay", {
       this.loadingSamples = true;
       let endpoint = '/api/edna/samples/?'
       if (this.filterSampleId && this.filterSampleId !== "") endpoint += `id=${this.filterSampleId}&`;
+      if (this.filterBottleId && this.filterBottleId !== "") endpoint += `bottle_id=${this.filterBottleId}&`;
       if (this.filterLocation && this.filterLocation !== "") endpoint += `location__icontains=${this.filterLocation}&`;
       if (this.filterCollection && this.filterCollection !== "") endpoint += `collection=${this.filterCollection}&`;
       if (this.filterDate && this.filterDate !== "") endpoint += `datetime=${this.filterDate}&`;

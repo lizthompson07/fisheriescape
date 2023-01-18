@@ -83,15 +83,23 @@
                 </div>
                 <div class="col">
                   <label for="">{% trans "Which main assays to test?" %}</label>
-                  <select name="" id="" multiple="true" class="form-control w-100" style="height: 100px" v-model="selectedMainAssays">
-                    <option v-for="(option, index) in mainAssayChoices" :value="option.value">${option.text}</option>
-                  </select>
+                  <v-select
+                    id=""
+                    v-model="selectedMainAssays"
+                    :options="mainAssayChoices"
+                    label="text"
+                    multiple
+                  ></v-select>
                 </div>
                 <div class="col">
                   <label for="">{% trans "Which IPC assays to test?" %}</label>
-                  <select name="" id="" multiple="true" class="form-control w-100" style="height: 100px" v-model="selectedIPCAssays">
-                    <option v-for="(option, index) in ipcAssayChoices" :value="option.value">${option.text}</option>
-                  </select>
+                  <v-select
+                    id=""
+                    v-model="selectedIPCAssays"
+                    :options="ipcAssayChoices"
+                    label="text"
+                    multiple
+                  ></v-select>
                 </div>
               </div>
             </div>
@@ -110,6 +118,7 @@
 
 <script type="application/javascript">
 
+Vue.component('v-select', VueSelect.VueSelect);
 Vue.component("extract-import-overlay", {
   template: "#extract-import-overlay-template",
   delimiters: ["${", "}"],
@@ -226,7 +235,7 @@ Vue.component("extract-import-overlay", {
   },
   computed: {
     selectedAssays() {
-      return [...this.selectedMainAssays, ...this.selectedIPCAssays]
+      return [...(this.selectedMainAssays.map(element => element.value)), ...(this.selectedIPCAssays.map(element => element.value))]
     },
     canProceed() {
       if (this.numberOfTechReps && this.selectedMasterMix && this.selectedAssays.length) return true;
