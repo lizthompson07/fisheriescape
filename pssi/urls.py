@@ -10,21 +10,23 @@ app_name = "pssi"
 urlpatterns = [
     path("", Index.as_view(), name = "index"),
 
-    # SEARCH & DATA ASSET DETAILS
+    # SEARCH & DATA HUB DETAILS
     path("search/", SearchView.as_view(), name = "search"),
-    path("dataasset/view/<int:pk>/", DetailView.as_view(), name="details"),
-    path("dataasset/<str:uuid>/", DetailView.as_view(), name="details_uuid"),
-    path("dataasset/<int:pk>/<str:data_asset_name>/", DetailView.as_view(), name="details_data_asset_name"),
+    path("datahub/view/<int:pk>/", DetailView.as_view(), name="details"),
+    path("datahub/<str:uuid>/", DetailView.as_view(), name="details_uuid"),
+    path("datahub/<int:pk>/<str:data_asset_name>/", DetailView.as_view(), name="details_data_asset_name"),
 
-    # DATA ASSET MANAGEMENT
-    # path('dataasset/new/', DataAssetCreateView.as_view(), name="dataasset_new"),
-    # path('dataasset/edit/<int:pk>/', DataAssetUpdateView.as_view(), name="dataasset_edit"),
-    # path('dataasset/delete/<int:pk>', DataAssetDeleteView.as_view(), name="dataasset_delete"),
+    # DATA HUB MANAGEMENT
+    # path('datahub/new/', DataHubCreateView.as_view(), name="datahub_new"),
+    # path('datahub/edit/<int:pk>/', DataHubUpdateView.as_view(), name="datahub_edit"),
+    # path('datahub/delete/<int:pk>', DataHubDeleteView.as_view(), name="datahub_delete"),
 
+    # INFORMATIONS
     path("acronyms/", AcronymView.as_view(), name = "acronym_list"),
     path("dataglossary/", DataGlossaryView.as_view(), name = "data_glossary_list"),
     path("businessglossary/", BusinessGlossaryView.as_view(), name = "business_glossary_list"),
 
+    # IMPORTING CSV
     path("importcsv/", load_data, name = "load_pssi_csv"),
     path("importcsvpandas/", load_data_pandas, name = "load_pssi_csv_pandas"),
     path("importacronyms/", load_acronyms, name = "load_acronyms"),
