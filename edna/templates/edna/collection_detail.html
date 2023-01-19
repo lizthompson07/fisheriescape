@@ -40,14 +40,6 @@
       <span class="mdi mdi-delete text-light mr-1"></span> {% trans "Delete" %}
     </a>
 
-    <a href="{% url 'edna:import_samples' object.id %}" class="btn btn-sm btn-dark">
-      <span class="mdi mdi-import text-light mr-1"></span> {% trans "Import Samples from CSV" %}
-    </a>
-    <a href="{% url 'edna:sample_data_entry' object.id %}" class="btn btn-sm btn-warning">
-      <span class="mdi mdi-table"> </span> {% trans "Edit Samples" %}
-    </a>
-
-
   </div>
 
   <div class="mb-3 row">

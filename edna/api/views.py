@@ -71,7 +71,7 @@ class SampleViewSet(viewsets.ModelViewSet):
     permission_classes = [eDNACRUDOrReadOnly]
     filter_backends = (DjangoFilterBackend,)
     filterset_class = SampleFilter
-    queryset = models.Sample.objects.all()
+    queryset = models.Sample.objects.all().select_related("sample_type", "collection").prefetch_related("filters", "extracts")
 
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user, updated_by=self.request.user)

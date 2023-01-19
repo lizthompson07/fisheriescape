@@ -44,7 +44,6 @@ urlpatterns = [
     path('collections/<int:pk>/edit/', views.CollectionUpdateView.as_view(), name="collection_edit"),  # tested
     path('collections/<int:pk>/delete/', views.CollectionDeleteView.as_view(), name="collection_delete"),  # tested
     path('collections/<int:pk>/view/', views.CollectionDetailView.as_view(), name="collection_detail"),  # tested
-    path('collections/<int:pk>/import-samples/', views.ImportSamplesView.as_view(), name="import_samples"),
     path('collections/<int:pk>/data-entry/', views.SampleDataEntryTemplateView.as_view(), name="sample_data_entry"),
 
     # files
@@ -58,6 +57,14 @@ urlpatterns = [
     path('samples/<int:pk>/delete/', views.SampleDeleteView.as_view(), name="sample_delete"),  # tested
     path('samples/<int:pk>/view/', views.SampleDetailView.as_view(), name="sample_detail"),  # tested
     path('samples/', views.SampleListView.as_view(), name="sample_list"),
+
+    # sample batches
+    path('sample-batches/', views.SampleBatchListView.as_view(), name="sample_batch_list"),  # tested
+    path('sample-batches/new/', views.SampleBatchCreateView.as_view(), name="sample_batch_new"),  # tested
+    path('sample-batches/<int:pk>/edit/', views.SampleBatchUpdateView.as_view(), name="sample_batch_edit"),  # tested
+    path('sample-batches/<int:pk>/delete/', views.SampleBatchDeleteView.as_view(), name="sample_batch_delete"),  # tested
+    path('sample-batches/<int:pk>/import-samples/', views.ImportSamplesView.as_view(), name="import_samples"),
+    path('sample-batches/<int:pk>/view/', views.SampleBatchDetailView.as_view(), name="sample_batch_detail"),  # tested
 
     # filtration batches
     path('filtration-batches/', views.FiltrationBatchListView.as_view(), name="filtration_batch_list"),  # tested

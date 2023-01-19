@@ -21,6 +21,7 @@ class SampleFilter(django_filters.FilterSet):
         fields = {
             'id': ['exact'],
             'sample_type': ['exact'],
+            'sample_batch': ['exact'],
             'bottle_id': ['icontains'],
             'collection': ['exact'],
             'location': ['icontains'],
@@ -102,6 +103,14 @@ class CollectionFilter(django_filters.FilterSet):
         self.filters["contact_users"] = django_filters.ChoiceFilter(field_name="contact_users", choices=user_choices, label=labels["contact_users"])
         self.filters["fiscal_year"] = django_filters.ChoiceFilter(field_name="fiscal_year", choices=fy_choices, label=labels["fiscal_year"])
 
+
+class SampleBatchFilter(django_filters.FilterSet):
+    class Meta:
+        model = models.SampleBatch
+        fields = {
+            'datetime': ['exact'],
+            'default_collection': ['exact'],
+        }
 
 class FiltrationBatchFilter(django_filters.FilterSet):
     class Meta:

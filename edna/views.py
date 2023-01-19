@@ -357,16 +357,16 @@ class ImportSamplesView(eDNAAdminRequiredMixin, CommonFormView):
     form_class = forms.FileImportForm
     template_name = 'edna/sample_import_form.html'
     home_url_name = "edna:index"
-    grandparent_crumb = {"title": gettext_lazy("Projects"), "url": reverse_lazy("edna:collection_list")}
+    grandparent_crumb = {"title": gettext_lazy("Sample Collections"), "url": reverse_lazy("edna:sample_batch_list")}
     h1 = ' '
     container_class = "container-fluid"
     active_page_name_crumb = gettext_lazy("Sample CSV Import")
 
     def get_parent_crumb(self):
-        return {"title": self.get_collection(), "url": reverse("edna:collection_detail", args=[self.get_collection().id])}
+        return {"title": self.get_sample_batch(), "url": reverse("edna:sample_batch_detail", args=[self.get_sample_batch().id])}
 
-    def get_collection(self):
-        return get_object_or_404(models.Collection, pk=self.kwargs.get("pk"))
+    def get_sample_batch(self):
+        return get_object_or_404(models.SampleBatch, pk=self.kwargs.get("pk"))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -381,7 +381,7 @@ class ImportSamplesView(eDNAAdminRequiredMixin, CommonFormView):
         return context
 
     def form_valid(self, form):
-        my_object = self.get_collection()
+        my_object = self.get_sample_batch()
         temp_file = form.files['temp_file']
         temp_file.seek(0)
         csv_reader = csv.DictReader(StringIO(temp_file.read().decode('utf-8')))
@@ -397,7 +397,9 @@ class ImportSamplesView(eDNAAdminRequiredMixin, CommonFormView):
             longitude = nz(row["longitude"], None)
             comments = row["comments"]
 
-            sample, create = models.Sample.objects.get_or_create(bottle_id=bottle_id, collection=my_object, sample_type_id=sample_type)
+            sample, create = models.Sample.objects.get_or_create(bottle_id=bottle_id, sample_batch=my_object,
+                                                                 collection=my_object.default_collection,
+                                                                 sample_type_id=sample_type)
             sample.location = location
             sample.site = site
             sample.station = station
@@ -428,13 +430,6 @@ class SampleDataEntryTemplateView(eDNAAdminRequiredMixin, CommonDetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        example_obj = list()
-        url = "http://" + get_current_site(self.request).domain + static("edna/sample_import_template.csv")
-        r = requests.get(url)
-        csv_reader = csv.DictReader(r.text.splitlines())
-        for row in csv_reader:
-            example_obj.append(row)
-        context["example_obj"] = example_obj
         return context
 
 
@@ -568,6 +563,7 @@ class SampleDetailView(eDNAAdminRequiredMixin, CommonDetailView):
     field_list = [
         'display|sample Id',
         "sample_type",
+        "sample_batch",
         'bottle_id',
         "location",
         "site",
@@ -586,6 +582,82 @@ class SampleDetailView(eDNAAdminRequiredMixin, CommonDetailView):
         context = super().get_context_data(**kwargs)
         context["assay_field_list"] = utils.get_assay_field_list()
         return context
+
+
+# SAMPLE BATCHES #
+######################
+
+class SampleBatchListView(eDNAAdminRequiredMixin, CommonFilterView):
+    model = models.SampleBatch
+    template_name = 'edna/list.html'
+    filterset_class = filters.SampleBatchFilter
+    home_url_name = "edna:index"
+    row_object_url_name = "edna:sample_batch_detail"
+    new_object_url = reverse_lazy("edna:sample_batch_new")
+    new_btn_text = gettext_lazy("Add a New Sample Batch")
+    container_class = "container-fluid curvy"
+    field_list = [
+        {"name": 'id', "class": "", "width": ""},
+        {"name": 'datetime', "class": "", "width": ""},
+        {"name": 'operators', "class": "", "width": ""},
+        {"name": 'default_collection', "class": "", "width": ""},
+        {"name": 'sample_count|{}'.format(gettext_lazy("samples")), "class": "", "width": ""},
+    ]
+
+
+class SampleBatchUpdateView(eDNAAdminRequiredMixin, CommonUpdateView):
+    model = models.SampleBatch
+    form_class = forms.SampleBatchForm
+    template_name = 'edna/form.html'
+    home_url_name = "edna:index"
+    grandparent_crumb = {"title": gettext_lazy("Sample Batches"), "url": reverse_lazy("edna:sample_batch_list")}
+    container_class = "container curvy"
+
+    def get_parent_crumb(self):
+        return {"title": self.get_object(), "url": reverse("edna:sample_batch_detail", args=[self.get_object().id])}
+
+
+class SampleBatchCreateView(eDNAAdminRequiredMixin, CommonCreateView):
+    model = models.SampleBatch
+    form_class = forms.SampleBatchForm
+    template_name = 'edna/form.html'
+    home_url_name = "edna:index"
+    parent_crumb = {"title": gettext_lazy("Sample Batches"), "url": reverse_lazy("edna:sample_batch_list")}
+    container_class = "container curvy"
+
+
+class SampleBatchDetailView(eDNAAdminRequiredMixin, CommonDetailView):
+    model = models.SampleBatch
+    template_name = 'edna/sample_batch_detail.html'
+    home_url_name = "edna:index"
+    parent_crumb = {"title": gettext_lazy("Sample Collections"), "url": reverse_lazy("edna:sample_batch_list")}
+    container_class = "container-fluid"
+    field_list = utils.get_batch_field_list()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        sample_field_list = [
+            'bottle_id',
+            'datetime',
+            'site_identifier',
+            'coordinates',
+        ]
+        context["sample_field_list"] = sample_field_list
+        return context
+
+
+class SampleBatchDeleteView(eDNAAdminRequiredMixin, CommonDeleteView):
+    model = models.SampleBatch
+    success_url = reverse_lazy('edna:sample_batch_list')
+    home_url_name = "edna:index"
+    success_message = 'The sample batch was successfully deleted!'
+    template_name = 'edna/confirm_delete.html'
+    container_class = "container curvy"
+    grandparent_crumb = {"title": gettext_lazy("Sample Batches"), "url": reverse_lazy("edna:sample_batch_list")}
+    delete_protection = False
+
+    def get_parent_crumb(self):
+        return {"title": self.get_object(), "url": reverse("edna:sample_batch_detail", args=[self.get_object().id])}
 
 
 # FILTRATION BATCHES #

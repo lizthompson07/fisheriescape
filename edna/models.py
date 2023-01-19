@@ -206,8 +206,41 @@ class File(models.Model):
         return self.caption
 
 
+class Batch(models.Model):
+    datetime = models.DateTimeField(default=timezone.now, verbose_name=_("date/time"))
+    operators = models.ManyToManyField(User, blank=True, verbose_name=_("operator(s)"))
+    default_collection = models.ForeignKey(Collection, on_delete=models.DO_NOTHING, verbose_name=_("project"), blank=False, null=True)
+    comments = models.TextField(null=True, blank=True, verbose_name=_("comments"))
+
+    class Meta:
+        ordering = ["-datetime"]
+        abstract = True
+
+    @property
+    def display_time(self):
+        return get_timezone_time(self.datetime).strftime("%Y-%m-%d %H:%M")
+
+
+class SampleBatch(Batch):
+    class Meta:
+        verbose_name_plural = _("Sample Collection")
+        ordering = ["-datetime"]
+
+    def __str__(self):
+        return "{} {} ({})".format(_("Sample Collection"), self.id, self.datetime.strftime("%Y-%m-%d"))
+
+    def get_absolute_url(self):
+        return reverse('edna:sample_batch_detail', kwargs={'pk': self.id})
+
+    @property
+    def sample_count(self):
+        return self.samples.count()
+
+
 class Sample(MetadataFields):
     collection = models.ForeignKey(Collection, related_name='samples', on_delete=models.CASCADE, verbose_name=_("project"))
+    # NEED TO CREATE SINGLE DEFAULT SAMPLE BATCH IN PROD TO ALLOW FOR ONE-OFF DEFAULT BEFORE MAKING MIGRATION
+    sample_batch = models.ForeignKey(SampleBatch, related_name='samples', default=1, on_delete=models.CASCADE, verbose_name=_("sample batch"))
     sample_type = models.ForeignKey(SampleType, related_name='samples', on_delete=models.DO_NOTHING, verbose_name=_("sample type"))
     is_field_blank = models.BooleanField(default=False, verbose_name=_("is this a field blank?"))
     bottle_id = models.CharField(verbose_name=_("bottle ID"), blank=True, null=True, max_length=50)
@@ -231,7 +264,7 @@ class Sample(MetadataFields):
 
     class Meta:
         ordering = ["datetime", "id"]
-        unique_together = (("bottle_id", "collection"))
+        unique_together = (("bottle_id", "sample_batch"))
 
     def get_absolute_url(self):
         return reverse("edna:sample_detail", args=[self.pk])
@@ -296,21 +329,6 @@ class Sample(MetadataFields):
     @property
     def is_deletable(self):
         return not self.filters.exists() and not self.extracts.exists()
-
-
-class Batch(models.Model):
-    datetime = models.DateTimeField(default=timezone.now, verbose_name=_("date/time"))
-    operators = models.ManyToManyField(User, blank=True, verbose_name=_("operator(s)"))
-    default_collection = models.ForeignKey(Collection, on_delete=models.DO_NOTHING, verbose_name=_("project"), blank=False, null=True)
-    comments = models.TextField(null=True, blank=True, verbose_name=_("comments"))
-
-    class Meta:
-        ordering = ["-datetime"]
-        abstract = True
-
-    @property
-    def display_time(self):
-        return get_timezone_time(self.datetime).strftime("%Y-%m-%d %H:%M")
 
 
 class FiltrationBatch(Batch):
