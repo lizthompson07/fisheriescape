@@ -196,13 +196,12 @@ class SpeciesListView(TrapNetBasicMixin, CommonFilterView):
         search_term=Concat('common_name_eng', Value(" "),
                            'common_name_fre', Value(" "),
                            'scientific_name', Value(" "),
-                           'code', Value(" "),
                            'tsn', Value(" "),
                            output_field=TextField()))
     new_object_url_name = "trapnet:species_new"
     row_object_url_name = "trapnet:species_detail"
     home_url_name = "trapnet:index"
-    paginate_by = 10
+    paginate_by = 100
 
     field_list = [
         {"name": 'code', "class": "", "width": ""},
