@@ -192,24 +192,18 @@ class DetailView(PSSIBasicMixin, CommonDetailView):
     home_url_name = "pssi:index"
     # row_object_url_name = "pssi:data_detail"
     # paginate_by = 25
-
+    
     def get_object(self, queryset=None):
-        if self.kwargs.get("pk"):
-            return get_object_or_404(self.model, pk=self.kwargs.get("pk"))
+        if self.kwargs.get("data_asset_name"):
+            return get_object_or_404(self.model, data_asset_name=self.kwargs.get("data_asset_name"))
         return super().get_object(queryset)
-    
-    # def get_object(self, queryset=None):
-    #     if self.kwargs.get("uuid"):
-    #         return get_object_or_404(self.model, uuid=self.kwargs.get("uuid"))
-    #     return super().get_object(queryset)
-    
-    # def dispatch(self, request, *args, **kwargs):
-        # obj = self.get_object()
-        # if not self.kwargs.get("uuid"):
-        #     return HttpResponseRedirect(reverse("pssi:details_uuid", kwargs={"uuid": obj.uuid}))
 
-        # xml_export.verify(obj)
-        # return super().dispatch(request, *args, **kwargs)
+    def dispatch(self, request, *args, **kwargs):
+        obj = self.get_object()        
+        if not self.kwargs.get("data_asset_name"):
+            return HttpResponseRedirect(reverse("pssi:details_data_asset_name", kwargs={"pk": obj.pk, "data_asset_name": obj.data_asset_name}))
+
+        return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -230,21 +224,17 @@ class DetailView(PSSIBasicMixin, CommonDetailView):
                 continue
             else:
                 item = item.title()
-                
+
             if "," in item:
-                lname, fname = item.split(",", 1)
-                lname = lname.strip()
-                fname = fname.strip()
+                lname, fname = [x.strip() for x in item.split(",", 1)]
             else:
-                lname = item
-                fname = ""
+                lname, fname = item, ""
                 
             email = ""
             for e in emails:
-                if lname != "":
-                    if lname in e:
-                        email = e
-                        break
+                if lname != "" and lname in e:
+                    email = e
+                    break
                         
             data_stewards_contact_collection.append({
                 "lname" : lname,
@@ -253,7 +243,6 @@ class DetailView(PSSIBasicMixin, CommonDetailView):
             })
         context["data_stewards_contact_collection"] = data_stewards_contact_collection
         
-
         return context
 
 

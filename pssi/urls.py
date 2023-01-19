@@ -14,6 +14,7 @@ urlpatterns = [
     path("search/", SearchView.as_view(), name = "search"),
     path("datahub/view/<int:pk>/", DetailView.as_view(), name="details"),
     path("datahub/<str:uuid>/", DetailView.as_view(), name="details_uuid"),
+    path("datahub/<int:pk>/<str:data_asset_name>/", DetailView.as_view(), name="details_data_asset_name"),
 
     # DATA HUB MANAGEMENT
     # path('datahub/new/', DataHubCreateView.as_view(), name="datahub_new"),
