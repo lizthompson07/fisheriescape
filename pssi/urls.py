@@ -12,14 +12,14 @@ urlpatterns = [
 
     # SEARCH & DATA HUB DETAILS
     path("search/", SearchView.as_view(), name = "search"),
-    path("datahub/view/<int:pk>/", DetailView.as_view(), name="details"),
-    path("datahub/<str:uuid>/", DetailView.as_view(), name="details_uuid"),
-    path("datahub/<int:pk>/<str:data_asset_name>/", DetailView.as_view(), name="details_data_asset_name"),
+    path("dataasset/<int:pk>/view/", DetailView.as_view(), name="dataasset_view"),
+    path("dataasset/<str:uuid>/", DetailView.as_view(), name="dataasset_view_uuid"),
+    path("dataasset/<int:pk>/<str:data_asset_name>/", DetailView.as_view(), name="dataasset_view_name"),
 
     # DATA HUB MANAGEMENT
-    # path('datahub/new/', DataHubCreateView.as_view(), name="datahub_new"),
-    # path('datahub/edit/<int:pk>/', DataHubUpdateView.as_view(), name="datahub_edit"),
-    # path('datahub/delete/<int:pk>', DataHubDeleteView.as_view(), name="datahub_delete"),
+    # path('dataasset/new/', DataAssetCreateView.as_view(), name="dataasset_new"),
+    # path('dataasset/<int:pk>/edit/', DataAssetUpdateView.as_view(), name="dataasset_edit"),
+    # path('dataasset/<int:pk>/delete/', DataAssetDeleteView.as_view(), name="dataasset_delete"),
 
     # INFORMATIONS
     path("acronyms/", AcronymView.as_view(), name = "acronym_list"),
