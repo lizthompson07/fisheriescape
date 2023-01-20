@@ -104,43 +104,6 @@ class Person(models.Model):
         super().save(*args, **kwargs)
 
 
-class Status(models.Model):
-    label = models.CharField(max_length=25)
-    code = models.CharField(max_length=25, blank=True, null=True)
-    notes = models.CharField(max_length=255, blank=True, null=True)
-
-    def __str__(self):
-        return self.label
-
-        # return "{}  ({})".format(self.label, self.notes) if self.notes else "{}".format(self.label)
-
-
-class SpatialRepresentationType(models.Model):
-    label = models.CharField(max_length=25)
-    code = models.CharField(max_length=25, blank=True, null=True)
-    notes = models.CharField(max_length=255, blank=True, null=True)
-
-    def __str__(self):
-        return self.label
-
-
-class SpatialReferenceSystem(models.Model):
-    label = models.CharField(max_length=255)
-    code = models.CharField(max_length=25, blank=True, null=True)
-    codespace = models.CharField(max_length=255, blank=True, null=True)
-
-    def __str__(self):
-        return self.label
-
-
-class SecurityClassification(models.Model):
-    label = models.CharField(max_length=25)
-    code = models.CharField(max_length=25, blank=True, null=True)
-
-    def __str__(self):
-        return self.label
-
-
 class ResourceType(models.Model):
     label = models.CharField(max_length=25)
     code = models.CharField(max_length=25, blank=True, null=True)
@@ -151,24 +114,6 @@ class ResourceType(models.Model):
 
     class Meta:
         db_table = 'inventory_resource_type'
-
-
-class Maintenance(models.Model):
-    frequency = models.CharField(max_length=25)
-    code = models.CharField(max_length=25, blank=True, null=True)
-    notes = models.CharField(max_length=255, blank=True, null=True)
-
-    def __str__(self):
-        return self.frequency
-
-
-class CharacterSet(models.Model):
-    label = models.CharField(max_length=25)
-    code = models.CharField(max_length=25, blank=True, null=True)
-    notes = models.CharField(max_length=255, blank=True, null=True)
-
-    def __str__(self):
-        return self.label
 
 
 class KeywordDomain(models.Model):
@@ -231,10 +176,6 @@ class Keyword(models.Model):
             return self.text_value_fre
 
 
-class DistributionFormat(SimpleLookup):
-    pass
-
-
 class Resource(models.Model):
     uuid = models.UUIDField(blank=True, null=True, verbose_name="UUID", unique=True)
     resource_type = models.ForeignKey(ResourceType, on_delete=models.DO_NOTHING, blank=True, null=True)
@@ -243,8 +184,7 @@ class Resource(models.Model):
     title_eng = custom_widgets.OracleTextField(verbose_name="Title (English)")
     title_fre = custom_widgets.OracleTextField(blank=True, null=True, verbose_name="Title (French)")
     status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, blank=True, null=True)
-    maintenance = models.ForeignKey(Maintenance, on_delete=models.DO_NOTHING, blank=True, null=True,
-                                    verbose_name="Maintenance frequency")
+    maintenance = models.ForeignKey(Maintenance, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name="Maintenance frequency")
     purpose_eng = custom_widgets.OracleTextField(blank=True, null=True, verbose_name="Purpose (English)")
     purpose_fre = custom_widgets.OracleTextField(blank=True, null=True, verbose_name="Purpose (French)")
     descr_eng = custom_widgets.OracleTextField(blank=True, null=True, verbose_name="Description (English)")
@@ -269,20 +209,15 @@ class Resource(models.Model):
                                                    verbose_name="Security use limitation (English)")
     security_use_limitation_fre = models.CharField(max_length=255, blank=True, null=True,
                                                    verbose_name="Security use limitation (French)")
-    security_classification = models.ForeignKey(SecurityClassification, on_delete=models.DO_NOTHING, blank=True,
-                                                null=True)
+    security_classification = models.ForeignKey(SecurityClassification, on_delete=models.DO_NOTHING, blank=True, null=True)
     storage_envr_notes = models.TextField(blank=True, null=True, verbose_name="Storage notes (internal)")
     distribution_formats = models.ManyToManyField(DistributionFormat, blank=True)
-    data_char_set = models.ForeignKey(CharacterSet, on_delete=models.DO_NOTHING, blank=True, null=True,
-                                      verbose_name="Data character set")
-    spat_representation = models.ForeignKey(SpatialRepresentationType, on_delete=models.DO_NOTHING, blank=True,
-                                            null=True, verbose_name="Spatial representation type")
-    spat_ref_system = models.ForeignKey(SpatialReferenceSystem, on_delete=models.DO_NOTHING, blank=True, null=True,
-                                        verbose_name="Spatial reference system")
-    geo_descr_eng = models.CharField(max_length=1000, blank=True, null=True,
-                                     verbose_name="Geographic description (English)")
-    geo_descr_fre = models.CharField(max_length=1000, blank=True, null=True,
-                                     verbose_name="Geographic description (French)")
+    data_char_set = models.ForeignKey(CharacterSet, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name="Data character set")
+    spat_representation = models.ForeignKey(SpatialRepresentationType, on_delete=models.DO_NOTHING, blank=True, null=True,
+                                            verbose_name="Spatial representation type")
+    spat_ref_system = models.ForeignKey(SpatialReferenceSystem, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name="Spatial reference system")
+    geo_descr_eng = models.CharField(max_length=1000, blank=True, null=True, verbose_name="Geographic description (English)")
+    geo_descr_fre = models.CharField(max_length=1000, blank=True, null=True, verbose_name="Geographic description (French)")
     west_bounding = models.FloatField(blank=True, null=True, verbose_name="West bounding coordinate")
     south_bounding = models.FloatField(blank=True, null=True, verbose_name="South bounding coordinate")
     east_bounding = models.FloatField(blank=True, null=True, verbose_name="East bounding coordinate")
@@ -323,7 +258,6 @@ class Resource(models.Model):
                                        verbose_name=_("FY of latest publication"))
 
     favourited_by = models.ManyToManyField(User, editable=False, related_name="resource_favourited_by")
-
 
     def get_absolute_url(self):
         return reverse('inventory:resource_detail', kwargs={'pk': self.pk})
@@ -402,16 +336,37 @@ class Resource(models.Model):
         return self.resource_people.filter(role__code__iexact="RI_414")
 
 
-class ContentType(models.Model):
-    title = models.CharField(max_length=255, verbose_name="Name (English)")
-    english_value = models.CharField(max_length=255, verbose_name="Name (French)")
-    french_value = models.CharField(max_length=255)
-
-    def __str__(self):
-        return "{}".format(self.title)
+class DMAReview(MetadataFields):
+    decision_choices = (
+        (0, _("Unevaluated")),
+        (1, _("Compliant")),
+        (2, _("Non-compliant")),
+    )
+    dma = models.ForeignKey(DMA, related_name="reviews", on_delete=models.CASCADE)
+    fiscal_year = models.ForeignKey(shared_models.FiscalYear, related_name="inventory_dma_reviews", on_delete=models.DO_NOTHING,
+                                    default=fiscal_year(timezone.now(), sap_style=True))
+    decision = models.IntegerField(default=0, choices=decision_choices)
+    is_final_review = models.BooleanField(default=False, verbose_name=_("Will this be the final review of this agreement?"),
+                                          help_text=_("If so, please make sure to provide an explanation in the comments field."))
+    comments = models.TextField(blank=True, null=True, verbose_name=_("comments"))
+    # todo remove once the Ppt models are removed
+    created_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, editable=False, related_name='inventorydmareviews_created_by')
+    updated_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, editable=False, related_name='inventorydmareviews_updated_by')
 
     class Meta:
-        ordering = ["title", ]
+        ordering = ["fiscal_year", '-created_at']
+        unique_together = [
+            ('dma', 'fiscal_year'),  # there should only be a single review per year on a given DMA
+        ]
+
+    @property
+    def comments_html(self):
+        if self.comments:
+            return mark_safe(markdown(self.comments))
+
+    @property
+    def decision_display(self):
+        return mark_safe(f'<span class=" px-1 py-1 {slugify(self.get_decision_display())}">{self.get_decision_display()}</span>')
 
 
 class DataResource(models.Model):
@@ -692,6 +647,7 @@ class DMA(MetadataFields):
     @property
     def display_with_region(self):
         return str(self) + f" ({self.region})"
+
 
 class DMAReview(MetadataFields):
     decision_choices = (
