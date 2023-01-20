@@ -19,7 +19,7 @@ class ApplicationFilter(django_filters.FilterSet):
     section = django_filters.ChoiceFilter(field_name="section", label=_("Sector"), lookup_expr='exact')
     # has_process = django_filters.BooleanFilter(field_name='processes', lookup_expr='isnull', label=_("Has process?"), exclude=True)
     status = django_filters.ChoiceFilter(field_name='status', lookup_expr='exact', label=_("Status"),
-                                         widget=forms.SelectMultiple(attrs=chosen_js), choices=application_status_choices)
+                                         widget=forms.Select(attrs=chosen_js), choices=application_status_choices)
     applicant = django_filters.ChoiceFilter(field_name="applicant", label=_("Applicant"), lookup_expr='exact')
 
     def __init__(self, *args, **kwargs):

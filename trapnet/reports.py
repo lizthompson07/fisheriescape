@@ -3,7 +3,7 @@ from copy import deepcopy
 import unicodecsv as csv
 from django.db.models import Sum, Avg, Q
 from django.http import HttpResponse
-from django.template.defaultfilters import floatformat
+from django.template.defaultfilters import floatformat, slugify
 
 from dm_apps.utils import Echo, get_timezone_time
 from lib.functions.custom_functions import listrify
@@ -16,13 +16,19 @@ def generate_sample_csv(qs):
 
     fields = models.Sample._meta.fields
     field_names = [field.name for field in fields]
-    field_names.remove("site")
-    field_names.remove("id")
 
     # add any FKs
     for field in fields:
         if field.attname not in field_names:
             field_names.append(field.attname)
+
+    field_names.remove("site")
+    field_names.remove("id")
+    try:
+        field_names.remove("air_temp_arrival")
+        field_names.remove("water_temp_c")
+    except:
+        pass
 
     header_row = deepcopy(field_names)
     header_row += [
@@ -37,7 +43,6 @@ def generate_sample_csv(qs):
         "fishing_area",
         "river_cgndb",
     ]
-
     # now we need to determine what fields to append from the sample subtype
     is_ef = False
     is_rst = False
@@ -74,6 +79,7 @@ def generate_sample_csv(qs):
     writer = csv.writer(pseudo_buffer)
     sorted_header = sorted(header_row)
     yield writer.writerow(sorted_header)
+    print(sorted_header)
 
     for obj in qs:
         sub_obj = obj.get_sub_obj()
@@ -118,14 +124,15 @@ def generate_sweep_csv(qs):
 
     fields = models.Sweep._meta.fields
     field_names = [field.name for field in fields]
-    field_names.remove("created_by")
-    field_names.remove("updated_by")
-    field_names.remove("id")
 
     # add any FKs
     for field in fields:
-        if field.attname not in field_names:
+        if field.attname not in field_names and field.attname:
             field_names.append(field.attname)
+
+    field_names.remove("id")
+    field_names.remove("created_by")
+    field_names.remove("updated_by")
     field_names.remove("created_by_id")
     field_names.remove("updated_by_id")
 
@@ -148,6 +155,7 @@ def generate_sweep_csv(qs):
         "ordinal_day",
         "other_species",
         "site_event_code",
+        "electrofisher",
     ]
 
     pseudo_buffer = Echo()
@@ -176,6 +184,7 @@ def generate_sweep_csv(qs):
             obj.sample.arrival_date.toordinal(),
             obj.specimens.filter(~Q(species__tsn=161996)).order_by("species").values("species").distinct().count(),
             obj.site_event_code,
+            obj.sample.ef_sample.electrofisher.name if obj.sample.ef_sample.electrofisher else "",
         ]
         sorted_data_row = [x for _, x in sorted(zip(header_row, data_row))]
         yield writer.writerow(sorted_data_row)
@@ -186,12 +195,12 @@ def generate_specimen_csv(qs, sample_type):
 
     fields = models.Specimen._meta.fields
     field_names = [field.name for field in fields]
-    field_names.remove("id")
 
     # add any FKs
     for field in fields:
-        if field.attname not in field_names:
+        if field.attname not in field_names and field.attname:
             field_names.append(field.attname)
+
     field_names.remove("id")
     field_names.remove("sweep")
     field_names.remove("sweep_id")
@@ -263,14 +272,15 @@ def generate_river_sites_csv(qs):
 
     fields = models.RiverSite._meta.fields
     field_names = [field.name for field in fields]
-    field_names.remove("river")
-    field_names.remove("name")
-    field_names.remove("id")
 
     # add any FKs
     for field in fields:
-        if field.attname not in field_names:
+        if field.attname not in field_names and field.attname:
             field_names.append(field.attname)
+
+    field_names.remove("river")
+    field_names.remove("name")
+    field_names.remove("id")
 
     header_row = deepcopy(field_names)
     header_row += [
@@ -319,7 +329,7 @@ def generate_biological_detailing_csv(qs):
 
     # add any FKs
     for field in fields:
-        if field.attname not in field_names:
+        if field.attname not in field_names and field.attname:
             field_names.append(field.attname)
 
     header_row = deepcopy(field_names)
@@ -472,6 +482,8 @@ def generate_electro_juv_salmon_report(qs):
         yield writer.writerow(data_row)
 
 
+# RESTIGOUCH OPEN DATA REPORTS
+
 def generate_od_sp_list(qs):
     """
     Generates the data dictionary for open data report version 1
@@ -563,10 +575,10 @@ def generate_od_summary_by_site_dict(report_name):
         ])
 
     field_names = [
-        "[SP_CODE]_abundance",
-        "[SP_CODE]_avg_fork_length",
-        "[SP_CODE]_avg_total_length",
-        "[SP_CODE]_avg_weight",
+        "[SP]_abundance",
+        "[SP]_avg_fork_length",
+        "[SP]_avg_total_length",
+        "[SP]_avg_weight",
     ]
 
     descr_eng = [
@@ -594,11 +606,11 @@ def generate_od_summary_by_site_dict(report_name):
 def generate_od_summary_by_site_report(qs):
     pseudo_buffer = Echo()
     writer = csv.writer(pseudo_buffer)
-
-    # It is important that we remove any samples taken at MAtapedia River since these data do not belong to us.
-
+    # we only want to look at sites that caught fish
+    qs = qs.filter(specimens__isnull=False).distinct()
     # headers are based on csv provided by GD
-    species_list = [models.Species.objects.get(pk=obj["species"]) for obj in qs.order_by("species").values("species").distinct()]
+    species_list = [models.Species.objects.get(pk=obj["specimens__species"]) for obj in
+                    qs.order_by("specimens__species").values("specimens__species").distinct()]
 
     header_row = [
         'year',
@@ -612,60 +624,51 @@ def generate_od_summary_by_site_report(qs):
     for species in species_list:
         if species.tsn == 161127:  # eel
             addendum = [
-                "{}_abundance".format(species.abbrev),
-                "{}_avg_total_length".format(species.abbrev),
-                "{}_avg_weight".format(species.abbrev),
+                "{}_abundance".format(slugify(species.scientific_name).replace("-", "_")),
+                "{}_avg_total_length".format(slugify(species.scientific_name).replace("-", "_")),
+                "{}_avg_weight".format(slugify(species.scientific_name).replace("-", "_")),
             ]
         else:
             addendum = [
-                "{}_abundance".format(species.abbrev),
-                "{}_avg_fork_length".format(species.abbrev),
-                "{}_avg_weight".format(species.abbrev),
+                "{}_abundance".format(slugify(species.scientific_name).replace("-", "_")),
+                "{}_avg_fork_length".format(slugify(species.scientific_name).replace("-", "_")),
+                "{}_avg_weight".format(slugify(species.scientific_name).replace("-", "_")),
             ]
         header_row.extend(addendum)
 
     yield writer.writerow(header_row)
 
     # let's start by getting a list of samples and years
-    sites = [models.RiverSite.objects.get(pk=obj["sample__site"]) for obj in qs.order_by("sample__site").values("sample__site").distinct()]
-    years = [obj["sample__season"] for obj in qs.order_by("sample__season").values("sample__season").distinct()]
+    sites = [models.RiverSite.objects.get(pk=obj["site"]) for obj in qs.order_by("site").values("site").distinct()]
+    years = [obj["season"] for obj in qs.order_by("season").values("season").distinct()]
 
     for year in years:
         for site in sites:
+            qs_year_site = qs.filter(season=year, site=site)
+
             data_row = [
                 year,
                 site,
-                site.latitude_n,
-                site.longitude_w,
-                floatformat(qs.filter(sample__season=year, sample__site=site, ).values("sample").order_by("sample").distinct().aggregate(
-                    davg=Avg("sample__air_temp_arrival"))["davg"], 3),
-                floatformat(qs.filter(sample__season=year, sample__site=site, ).values("sample").order_by("sample").distinct().aggregate(
-                    davg=Avg("sample__max_air_temp"))["davg"], 3),
-                floatformat(qs.filter(sample__season=year, sample__site=site, ).values("sample").order_by("sample").distinct().aggregate(
-                    davg=Avg("sample__water_temp_shore_c"))["davg"], 3),
+                site.latitude,
+                site.longitude,
+                floatformat(qs_year_site.aggregate(avg=Avg("rst_sample__air_temp_arrival"))["avg"], 3),
+                floatformat(qs_year_site.aggregate(avg=Avg("max_air_temp"))["avg"], 3),
+                floatformat(qs_year_site.aggregate(avg=Avg("rst_sample__water_temp_trap_c"))["avg"], 3),
             ]
 
             for species in species_list:
-                if species.tsn == 161127:
-                    addendum = [
-                        # qs.filter(sample__season=year, sample__site=site, species=species).values("frequency").order_by(
-                        #     "frequency").aggregate(
-                        #     dsum=Sum("frequency"))["dsum"],
-                        floatformat(qs.filter(sample__season=year, sample__site=site, species=species).values("fork_length").order_by(
-                            "fork_length").aggregate(davg=Avg("total_length"))["davg"], 3),
-                        floatformat(qs.filter(sample__season=year, sample__site=site, species=species).values("weight").order_by(
-                            "weight").aggregate(davg=Avg("weight"))["davg"], 3),
-                    ]
+                specimen_qs = qs_year_site.filter(specimens__species=species).distinct()
+
+                sp_count = specimen_qs.count()
+
+                if species.tsn == 161127:  # eel
+                    avg_len = floatformat(specimen_qs.aggregate(avg=Avg("specimens__total_length"))["avg"], 3)
                 else:
-                    addendum = [
-                        # qs.filter(sample__season=year, sample__site=site, species=species).values("frequency").order_by(
-                        #     "frequency").aggregate(
-                        #     dsum=Sum("frequency"))["dsum"],
-                        floatformat(qs.filter(sample__season=year, sample__site=site, species=species).values("fork_length").order_by(
-                            "fork_length").aggregate(davg=Avg("fork_length"))["davg"], 3),
-                        floatformat(qs.filter(sample__season=year, sample__site=site, species=species).values("weight").order_by(
-                            "weight").aggregate(davg=Avg("weight"))["davg"], 3),
-                    ]
+                    avg_len = floatformat(specimen_qs.aggregate(avg=Avg("specimens__fork_length"))["avg"], 3)
+
+                avg_weight = floatformat(specimen_qs.aggregate(avg=Avg("specimens__weight"))["avg"], 3)
+
+                addendum = [sp_count, avg_len, avg_weight]
                 data_row.extend(addendum)
 
             yield writer.writerow(data_row)
@@ -675,7 +678,6 @@ def generate_od_summary_by_site_wms(lang):
     """
     Simple report for web mapping service on FGP
     """
-    # It is important that we remove any samples taken at MAtapedia River since these data do not belong to us.
     qs = models.Entry.objects.all()
     filename = "site_summary_report_eng.csv" if lang == 1 else "site_summary_report_fra.csv"
 

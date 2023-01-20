@@ -1020,7 +1020,7 @@ def verify(resource):
         if "$" not in field and "|" not in field and "." not in field and "__" not in field and "?" not in field:
             if field == "dma":
                 if not hasattr(resource, "dma"):
-                    checklist.append(f"A <a href='{reverse('inventory:dma_new')}' target='_blank'>data management agreement</a> has not been created for this record. This is optional but <b>highly recommended.</b>")
+                    checklist.append(f"A <a href='{reverse('inventory:dma_new')+f'?resource={resource.id}'}' target='_blank'>data management agreement</a> has not been created for this record. This is optional but <b>highly recommended.</b>")
                     rating = rating - 0  # make this optional
             else:
                 field_value = nz(getattr(resource, field), None)

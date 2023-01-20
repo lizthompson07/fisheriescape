@@ -473,6 +473,9 @@
       updateSpecimen(specimen, close) {
         this.errorMsg = null;
         this.successMsg = null;
+        // set close to false if the arg 'true' was not supplied
+        if (close !== true) close = false;
+        console.log(close)
         // set any empty strings to null
         specimen = this.cleanSpecimen(specimen);
         apiService(`/api/trapnet/specimens/${specimen.id}/`, "PUT", specimen)
@@ -483,15 +486,18 @@
                 this.memory.lastSpecies = response.species;
                 this.memory.lastStatus = response.status;
                 this.memory.lastOrigin = response.origin;
-                // because of the delay in the response, there might already be another specimen being edited.
-                // if we loop through and find another specimen with edit === true, set close to false
-                for (const specimen of this.specimens) {
-                  if (specimen.id !== specimen.id && specimen.edit) {
-                    close = true;
-                    break;
+                // because of the timing of the events (@change happens before @keydown), there might already be another specimen being edited.
+                // if we loop through and find another specimen with edit === true, set close to false for this one
+                // BTW using keyup will not work because of a deleterious interaction with the select controls while navigating through the table
+                if (!close) {
+                  for (const specimen of this.specimens) {
+                    if(specimen.id !== response.id && specimen.edit) {
+                      close = true;
+                      break;
+                    }
                   }
                 }
-                response.edit = close !== true;
+                response.edit = !close;
                 this.$set(this.specimens, this.specimens.indexOf(specimen), response);
               }
             })
