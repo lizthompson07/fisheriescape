@@ -117,76 +117,75 @@
 
       <thead>
       <tr>
-        <th rowspan="2" colspan="9" class="lead samples">{% trans "Samples" %}</th>
-        <th rowspan="2" colspan="9" class="lead filters">{% trans "Filters" %}</th>
-        <th rowspan="2" colspan="8" class="lead extracts">{% trans "Extractions" %}</th>
-        <th rowspan="2" colspan="6" class="lead pcrs">{% trans "PCR" %}</th>
-        <th :colspan="assaysTested.length * 6" class="lead assays">{% trans "Results" %}</th>
+        <th v-if="viewSamples" rowspan="2" colspan="9" class="lead samples">{% trans "Samples" %}</th>
+        <th v-if="viewFilters" rowspan="2" colspan="9" class="lead filters">{% trans "Filters" %}</th>
+        <th v-if="viewExtracts" rowspan="2" colspan="8" class="lead extracts">{% trans "Extractions" %}</th>
+        <th v-if="viewPCRs && viewExtracts" rowspan="2" colspan="6" class="lead pcrs">{% trans "PCR" %}</th>
+        <th v-if="viewPCRs && viewExtracts" :colspan="assaysTested.length * 6" class="lead assays">{% trans "Results" %}</th>
       </tr>
       <tr>
-        <th colspan="6" v-for="(a, index) in assaysTested" class="assays text-muted" style="font-size: 12px">${a.name} <br><span
+        <th v-if="viewPCRs && viewExtracts" colspan="6" v-for="(a, index) in assaysTested" class="assays text-muted" style="font-size: 12px">${a.name} <br><span
           v-html="a.species_display"></span></th>
       </tr>
-      <tr>
+      <tr >
         {# Samples #}
-        <th class="samples">${sampleLabels.bottle_id}</th>
-        <th class="samples">${sampleLabels.sample_type}</th>
-        <th class="samples">${sampleLabels.location}</th>
-        <th class="samples">${sampleLabels.site}</th>
-        <th class="samples">${sampleLabels.station}</th>
-        <th class="samples">${sampleLabels.datetime}</th>
-        <th class="samples">${sampleLabels.samplers}</th>
-        <th class="samples">{% trans "Coordinates" %}</th>
-        <th class="samples">${sampleLabels.comments}</th>
+        <th v-if="viewSamples" class="samples">${sampleLabels.bottle_id}</th>
+        <th v-if="viewSamples" class="samples">${sampleLabels.sample_type}</th>
+        <th v-if="viewSamples" class="samples">${sampleLabels.location}</th>
+        <th v-if="viewSamples" class="samples">${sampleLabels.site}</th>
+        <th v-if="viewSamples" class="samples">${sampleLabels.station}</th>
+        <th v-if="viewSamples" class="samples">${sampleLabels.datetime}</th>
+        <th v-if="viewSamples" class="samples">${sampleLabels.samplers}</th>
+        <th v-if="viewSamples" class="samples">{% trans "Coordinates" %}</th>
+        <th v-if="viewSamples" class="samples">${sampleLabels.comments}</th>
 
         {# Filters #}
-        <th class="filters">${filterLabels.tube_id}</th>
-        <th class="filters">${filterLabels.filtration_type}</th>
-        <th class="filters">${filterLabels.start_datetime}</th>
-        <th class="filters">${filterLabels.end_datetime}</th>
-        <th class="filters">${filterLabels.filtration_volume_ml}</th>
-        <th class="filters">${filterLabels.storage_location}</th>
-        <th class="filters">${filterLabels.filtration_ipc}</th>
-        <th class="filters">${filterLabels.duration_min}</th>
-        <th class="filters">${filterLabels.comments}</th>
+        <th v-if="viewFilters" class="filters">${filterLabels.tube_id}</th>
+        <th v-if="viewFilters" class="filters">${filterLabels.filtration_type}</th>
+        <th v-if="viewFilters" class="filters">${filterLabels.start_datetime}</th>
+        <th v-if="viewFilters" class="filters">${filterLabels.end_datetime}</th>
+        <th v-if="viewFilters" class="filters">${filterLabels.filtration_volume_ml}</th>
+        <th v-if="viewFilters" class="filters">${filterLabels.storage_location}</th>
+        <th v-if="viewFilters" class="filters">${filterLabels.filtration_ipc}</th>
+        <th v-if="viewFilters" class="filters">${filterLabels.duration_min}</th>
+        <th v-if="viewFilters" class="filters">${filterLabels.comments}</th>
 
 
         {# Extractions #}
-        <th class="extracts">{% trans "Extract ID" %}</th>
-        <th class="extracts">${extractLabels.extraction_number}</th>
-        <th class="extracts">${extractLabels.start_datetime}</th>
-        <th class="extracts">${extractLabels.dna_extraction_protocol}</th>
-        <th class="extracts">${extractLabels.storage_location}</th>
-        <th class="extracts">${extractLabels.extraction_plate_id}</th>
-        <th class="extracts">${extractLabels.extraction_plate_well}</th>
-        <th class="extracts">${extractLabels.extraction_ipc}</th>
-        <th class="extracts">${extractLabels.comments}</th>
+        <th v-if="viewExtracts" class="extracts">${extractLabels.extraction_number}</th>
+        <th v-if="viewExtracts" class="extracts">${extractLabels.start_datetime}</th>
+        <th v-if="viewExtracts" class="extracts">${extractLabels.dna_extraction_protocol}</th>
+        <th v-if="viewExtracts" class="extracts">${extractLabels.storage_location}</th>
+        <th v-if="viewExtracts" class="extracts">${extractLabels.extraction_plate_id}</th>
+        <th v-if="viewExtracts" class="extracts">${extractLabels.extraction_plate_well}</th>
+        <th v-if="viewExtracts" class="extracts">${extractLabels.extraction_ipc}</th>
+        <th v-if="viewExtracts" class="extracts">${extractLabels.comments}</th>
 
         {# PCR #}
         {# batch / run #}
-        <th class="pcrs">${pcrBatchLabels.plate_id}</th>
-        <th class="pcrs">${pcrBatchLabels.machine_number}</th>
-        <th class="pcrs">${pcrBatchLabels.run_program}</th>
-        <th class="pcrs">${pcrBatchLabels.control_status}</th>
-        <th class="pcrs">${pcrLabels.pcr_plate_well}</th>
-        <th class="pcrs">${pcrLabels.master_mix}</th>
+        <th v-if="viewPCRs && viewExtracts" class="pcrs">${pcrBatchLabels.plate_id}</th>
+        <th v-if="viewPCRs && viewExtracts" class="pcrs">${pcrBatchLabels.machine_number}</th>
+        <th v-if="viewPCRs && viewExtracts" class="pcrs">${pcrBatchLabels.run_program}</th>
+        <th v-if="viewPCRs && viewExtracts" class="pcrs">${pcrBatchLabels.control_status}</th>
+        <th v-if="viewPCRs && viewExtracts" class="pcrs">${pcrLabels.pcr_plate_well}</th>
+        <th v-if="viewPCRs && viewExtracts" class="pcrs">${pcrLabels.master_mix}</th>
 
         {# results #}
         <th v-if="!assaysTested.length" class="assays">...</th>
         <template v-for="assay in assaysTested">
-          <th class="assays">${pcrAssayLabels.threshold}</th>
-          <th class="assays">${pcrAssayLabels.ct}</th>
-          <th class="assays">${pcrAssayLabels.is_undetermined}</th>
-          <th class="assays">${pcrAssayLabels.result}</th>
-          <th class="assays">${pcrAssayLabels.edna_conc}</th>
-          <th class="assays">${pcrAssayLabels.comments}</th>
+          <th v-if="viewPCRs && viewExtracts" class="assays">${pcrAssayLabels.threshold}</th>
+          <th v-if="viewPCRs && viewExtracts" class="assays">${pcrAssayLabels.ct}</th>
+          <th v-if="viewPCRs && viewExtracts" class="assays">${pcrAssayLabels.is_undetermined}</th>
+          <th v-if="viewPCRs && viewExtracts" class="assays">${pcrAssayLabels.result}</th>
+          <th v-if="viewPCRs && viewExtracts" class="assays">${pcrAssayLabels.edna_conc}</th>
+          <th v-if="viewPCRs && viewExtracts" class="assays">${pcrAssayLabels.comments}</th>
         </template>
 
       </tr>
       </thead>
       <tbody>
       <template v-for="(sample, index) in samples">
-        <tr class="samples">
+        <tr v-if="viewSamples" class="samples">
           <td :rowspan="sample.rowspan"><a v-if="sample.id" :href=`/edna/samples/${sample.id}/view/` target="_blank">SB${sample.sample_batch} -${sample.bottle_id}</a> <span
             v-else>SB${sample.sample_batch} - ${sample.bottle_id}</span></td>
           <td :rowspan="sample.rowspan"> ${sample.sample_type_display}</td>
@@ -202,7 +201,7 @@
         {# Filters #}
         <template v-for="(filter, index) in sample.filters">
 
-          <tr class="filters">
+          <tr v-if="viewFilters" class="filters">
             <td :rowspan="filter.rowspan">
               <a v-if="filter.id" :href=`/edna/filters/${filter.id}/view/` target="_blank">${filter.tube_id}</a>
               <span v-else>${filter.tube_id}</span>
@@ -217,7 +216,7 @@
             <td :rowspan="filter.rowspan">${filter.comments}</td>
           </tr>
 
-          <template v-for="(extract, index) in filter.extracts">
+          <template v-if="viewExtracts" v-for="(extract, index) in filter.extracts">
             <tr class="extracts">
               <td :rowspan="extract.rowspan">
                 <a v-if="extract.id" :href=`/edna/extracts/${extract.id}/view/` target="_blank">${extract.extraction_number}</a>
@@ -232,7 +231,7 @@
               <td :rowspan="extract.rowspan" style="height: 100px;">${extract.comments}</td>
             </tr>
 
-            <template v-for="(pcr, index) in extract.pcrs">
+            <template v-if="viewPCRs && viewExtracts" v-for="(pcr, index) in extract.pcrs">
               <tr>
                 <td class="pcrs">${pcr.batch_object.plate_id}</td>
                 <td class="pcrs">${pcr.batch_object.machine_number}</td>
