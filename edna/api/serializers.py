@@ -123,6 +123,12 @@ class FilterSerializer(serializers.ModelSerializer):
         return attrs
 
 
+class FilterLiteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Filter
+        fields = "__all__"
+
+
 class DNAExtractSerializer(serializers.ModelSerializer):
     display = serializers.SerializerMethodField()
     datetime_display = serializers.SerializerMethodField()
@@ -184,6 +190,11 @@ class DNAExtractSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
+class DNAExtractLiteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.DNAExtract
+        fields = "__all__"
+
 # class SpeciesObservationSerializer(serializers.ModelSerializer):
 #     class Meta:
 #         model = models.SpeciesObservation
@@ -226,6 +237,21 @@ class PCRSerializer(serializers.ModelSerializer):
 
     def get_display(self, instance):
         return str(instance)
+
+
+class PCRLiteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.PCR
+        fields = "__all__"
+
+    batch_object = serializers.SerializerMethodField()
+    pcr_assays = serializers.SerializerMethodField()
+
+    def get_pcr_assays(self, instance):
+        return PCRAssaySerializerLITE(instance.assays.all(), many=True).data
+
+    def get_batch_object(self, instance):
+        return PCRBatchSerializer(instance.pcr_batch).data
 
 
 class PCRAssaySerializer(serializers.ModelSerializer):

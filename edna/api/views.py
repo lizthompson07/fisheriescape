@@ -44,8 +44,6 @@ class CollectionViewSet(viewsets.ModelViewSet):
         return super().retrieve(request, *args, **kwargs)
 
 
-
-
 class FiltrationBatchViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.FiltrationBatchSerializer
     permission_classes = [eDNACRUDOrReadOnly]
@@ -154,6 +152,11 @@ class FilterViewSet(viewsets.ModelViewSet):
         serializer.save(updated_by=self.request.user)
 
 
+class FilterLiteViewSet(FilterViewSet):
+    serializer_class = serializers.FilterLiteSerializer
+    queryset = models.Filter.objects.all().select_related("filtration_batch", "sample", "collection", "filtration_type")
+
+
 class FilterModelMetaAPIView(APIView):
     permission_classes = [IsAuthenticated]
     model = models.Filter
@@ -226,6 +229,12 @@ class DNAExtractViewSet(viewsets.ModelViewSet):
         serializer.save(updated_by=self.request.user)
 
 
+class DNAExtractLiteViewSet(DNAExtractViewSet):
+    serializer_class = serializers.DNAExtractLiteSerializer
+    queryset = models.DNAExtract.objects.all().select_related("extraction_batch", "filter", "sample", "collection",
+                                                              "dna_extraction_protocol")
+
+
 class DNAExtractModelMetaAPIView(APIView):
     permission_classes = [IsAuthenticated]
     model = models.DNAExtract
@@ -260,13 +269,11 @@ class PCRViewSet(viewsets.ModelViewSet):
             return Response(serializer.data)
         raise ValidationError(_("You need to specify a batch"))
 
-    def perform_create(self, serializer):
-        obj = serializer.save(created_by=self.request.user, updated_by=self.request.user)
-        obj.start_datetime = obj.pcr_batch.datetime
-        obj.save()
 
-    def perform_update(self, serializer):
-        serializer.save(updated_by=self.request.user)
+class PCRLiteViewSet(PCRViewSet):
+    serializer_class = serializers.PCRLiteSerializer
+    queryset = models.PCR.objects.all().select_related("pcr_batch", "extract", "collection", "master_mix")
+
 
 
 class PCRModelMetaAPIView(APIView):

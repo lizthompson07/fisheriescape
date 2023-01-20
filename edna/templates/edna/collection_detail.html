@@ -117,9 +117,9 @@
 
       <thead>
       <tr>
-        <th rowspan="2" colspan="10" class="lead samples">{% trans "Samples" %}</th>
-        <th rowspan="2" colspan="10" class="lead filters">{% trans "Filters" %}</th>
-        <th rowspan="2" colspan="9" class="lead extracts">{% trans "Extractions" %}</th>
+        <th rowspan="2" colspan="9" class="lead samples">{% trans "Samples" %}</th>
+        <th rowspan="2" colspan="9" class="lead filters">{% trans "Filters" %}</th>
+        <th rowspan="2" colspan="8" class="lead extracts">{% trans "Extractions" %}</th>
         <th rowspan="2" colspan="6" class="lead pcrs">{% trans "PCR" %}</th>
         <th :colspan="assaysTested.length * 6" class="lead assays">{% trans "Results" %}</th>
       </tr>
@@ -129,9 +129,8 @@
       </tr>
       <tr>
         {# Samples #}
-        <th class="samples">{% trans "Sample ID" %}</th>
-        <th class="samples">${sampleLabels.sample_type}</th>
         <th class="samples">${sampleLabels.bottle_id}</th>
+        <th class="samples">${sampleLabels.sample_type}</th>
         <th class="samples">${sampleLabels.location}</th>
         <th class="samples">${sampleLabels.site}</th>
         <th class="samples">${sampleLabels.station}</th>
@@ -141,7 +140,6 @@
         <th class="samples">${sampleLabels.comments}</th>
 
         {# Filters #}
-        <th class="filters">{% trans "Filter ID" %}</th>
         <th class="filters">${filterLabels.tube_id}</th>
         <th class="filters">${filterLabels.filtration_type}</th>
         <th class="filters">${filterLabels.start_datetime}</th>
@@ -189,10 +187,9 @@
       <tbody>
       <template v-for="(sample, index) in samples">
         <tr class="samples">
-          <td :rowspan="sample.rowspan"><a v-if="sample.id" :href=`/edna/samples/${sample.id}/view/` target="_blank">${sample.display}</a> <span
-            v-else>${sample.display}</span></td>
+          <td :rowspan="sample.rowspan"><a v-if="sample.id" :href=`/edna/samples/${sample.id}/view/` target="_blank">SB${sample.sample_batch} -${sample.bottle_id}</a> <span
+            v-else>SB${sample.sample_batch} - ${sample.bottle_id}</span></td>
           <td :rowspan="sample.rowspan"> ${sample.sample_type_display}</td>
-          <td :rowspan="sample.rowspan"> ${sample.bottle_id}</td>
           <td :rowspan="sample.rowspan"> ${sample.location}</td>
           <td :rowspan="sample.rowspan"> ${sample.site}</td>
           <td :rowspan="sample.rowspan"> ${sample.station}</td>
@@ -207,10 +204,9 @@
 
           <tr class="filters">
             <td :rowspan="filter.rowspan">
-              <a v-if="filter.id" :href=`/edna/filters/${filter.id}/view/` target="_blank">${filter.display}</a>
-              <span v-else>${filter.display}</span>
+              <a v-if="filter.id" :href=`/edna/filters/${filter.id}/view/` target="_blank">${filter.tube_id}</a>
+              <span v-else>${filter.tube_id}</span>
             </td>
-            <td :rowspan="filter.rowspan">${filter.tube_id}</td>
             <td :rowspan="filter.rowspan">${filter.filtration_type_display}</td>
             <td :rowspan="filter.rowspan">${filter.start_datetime_display}</td>
             <td :rowspan="filter.rowspan">${filter.end_datetime_display}</td>
@@ -224,10 +220,9 @@
           <template v-for="(extract, index) in filter.extracts">
             <tr class="extracts">
               <td :rowspan="extract.rowspan">
-                <a v-if="extract.id" :href=`/edna/extracts/${extract.id}/view/` target="_blank">${extract.display}</a>
-                <span v-else>${extract.display}</span>
+                <a v-if="extract.id" :href=`/edna/extracts/${extract.id}/view/` target="_blank">${extract.extraction_number}</a>
+                <span v-else>${extract.extraction_number}</span>
               </td>
-              <td :rowspan="extract.rowspan" style="height: 100px;">${extract.extraction_number}</td>
               <td :rowspan="extract.rowspan" style="height: 100px;">${extract.datetime_display}</td>
               <td :rowspan="extract.rowspan" style="height: 100px;">${extract.dna_extraction_protocol_display}</td>
               <td :rowspan="extract.rowspan" style="height: 100px;">${extract.storage_location}</td>
@@ -373,7 +368,7 @@
             sample.filters = [];
             sample.rowspan = 1;
           }
-          apiService(`/api/edna/filters/?collection=${this.projectId}`).then(response => {
+          apiService(`/api/edna/filters-lite/?collection=${this.projectId}`).then(response => {
             for (const filter of response) {
               filter.extracts = [];
               filter.rowspan = 1;
@@ -390,7 +385,7 @@
               }
             }
             this.loadingObject.filters = false;
-            apiService(`/api/edna/extracts/?collection=${this.projectId}`).then(response => {
+            apiService(`/api/edna/extracts-lite/?collection=${this.projectId}`).then(response => {
               for (const extract of response) {
                 extract.pcrs = [];
                 // now we have to nest this extract under each filter under the "extracts" key
