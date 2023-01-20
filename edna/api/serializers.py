@@ -128,6 +128,24 @@ class FilterLiteSerializer(serializers.ModelSerializer):
         model = models.Filter
         fields = "__all__"
 
+    filtration_type_display = serializers.SerializerMethodField()
+    start_datetime_display = serializers.SerializerMethodField()
+    end_datetime_display = serializers.SerializerMethodField()
+
+    def get_filtration_type_display(self, instance):
+        if instance.filtration_type:
+            return str(instance.filtration_type)
+
+    def get_start_datetime_display(self, instance):
+        if instance.start_datetime:
+            dt = get_timezone_time(instance.start_datetime)
+            return dt.strftime("%Y-%m-%d %H:%M")
+
+    def get_end_datetime_display(self, instance):
+        if instance.end_datetime:
+            dt = get_timezone_time(instance.end_datetime)
+            return dt.strftime("%Y-%m-%d %H:%M")
+
 
 class DNAExtractSerializer(serializers.ModelSerializer):
     display = serializers.SerializerMethodField()
@@ -191,6 +209,18 @@ class DNAExtractSerializer(serializers.ModelSerializer):
 
 
 class DNAExtractLiteSerializer(serializers.ModelSerializer):
+    datetime_display = serializers.SerializerMethodField()
+    dna_extraction_protocol_display = serializers.SerializerMethodField()
+
+    def get_dna_extraction_protocol_display(self, instance):
+        if instance.dna_extraction_protocol:
+            return str(instance.dna_extraction_protocol)
+
+    def get_datetime_display(self, instance):
+        if instance.start_datetime:
+            dt = get_timezone_time(instance.start_datetime)
+            return dt.strftime("%Y-%m-%d %H:%M")
+
     class Meta:
         model = models.DNAExtract
         fields = "__all__"

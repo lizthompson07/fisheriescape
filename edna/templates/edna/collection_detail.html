@@ -416,7 +416,7 @@
                 }
               }
               this.loadingObject.extracts = false;
-              apiService(`/api/edna/pcrs/?collection=${this.projectId}`).then(response => {
+              apiService(`/api/edna/pcrs-lite/?collection=${this.projectId}`).then(response => {
                     for (const pcr of response) {
                       // now we have to nest this pcr under each extract under the "pcrs" key
                       if (!pcr.extract) {
