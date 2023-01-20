@@ -25,22 +25,6 @@ class TestIndexTemplateView(CommonTest):
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template)
 
 
-class TestMyResourceListView(CommonTest):
-    def setUp(self):
-        super().setUp()
-        self.test_url = reverse_lazy('inventory:my_resource_list')
-        self.expected_template = 'inventory/resource_list.html'
-
-    @tag("inventory", 'list', "view")
-    def test_view_class(self):
-        self.assert_inheritance(views.MyResourceListView, ListView)
-
-    @tag("inventory", 'list', "access")
-    def test_view(self):
-        self.assert_good_response(self.test_url)
-        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template)
-
-
 class TestOpenDataDashboardTemplateView(CommonTest):
     def setUp(self):
         super().setUp()
