@@ -55,7 +55,7 @@ class DataAsset(models.Model):
     operational_or_analytical_data = models.CharField(max_length=25, null=True, verbose_name="Operational Or Analytical Data")
     data_asset_acronym = models.CharField(max_length=50, null=True, verbose_name="Data Asset Acronym")
     data_asset_description = models.TextField(blank =True, null=True, verbose_name="Data Asset Description")
-    apm_id = models.IntegerField(blank =True, null=True, verbose_name="apm_id")
+    apm_id = models.IntegerField(blank =True, null=True, verbose_name="APM ID")
     non_salmon_data = models.CharField(max_length=50, null=True, verbose_name="Non Salmon Data")
     data_asset_status = models.CharField(max_length=25, null=True, verbose_name="Data Asset Status")
     data_asset_format = models.CharField(max_length=255, null=True, verbose_name="Data Asset Format")
@@ -85,6 +85,10 @@ class DataAsset(models.Model):
     inbound_data_linkage = models.TextField(blank =True, null=True, verbose_name="Inbound Data Linkage")
     outbound_data_linkage = models.TextField(blank =True, null=True, verbose_name="Outbound Data Linkage")
     publication_status = models.TextField(blank =True, null=True, verbose_name="Publication Status")
+    contact_fname = models.CharField(max_length=50, null=True, verbose_name="Contact First Name")
+    contact_lname = models.CharField(max_length=50, null=True, verbose_name="Contact Last Name")
+    contact_email = models.CharField(max_length=255, null=True, verbose_name="Contact Email")
+    topics = models.TextField(blank =True, null=True, verbose_name="Topics")
 
     # Defines DataAsset records/instances by their Data Asset Name e.g. record could be saved in Django model as "Fishery Operation System" instead of "DataAsset Object(1)"
     # NOTE: It is the same for other models -> to change the attribute the object is defined with, change the string with the field name

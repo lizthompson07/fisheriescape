@@ -2,6 +2,7 @@ import os
 
 from django.core import serializers
 from django.core.files import File
+from django.urls import reverse_lazy
 
 from . import models
 
@@ -36,3 +37,15 @@ def pop_herring():
     for s in models.Sample.objects.filter(species__isnull=True):
         s.species = models.Species.objects.get(aphia_id=126417)
         s.save()
+
+
+def resave_empty_fish():
+    for f in models.FishDetail.objects.filter(is_empty=True):
+        f.save()
+
+
+def get_empty_samples():
+    samples = models.Sample.objects.filter(fish_details__isnull=True, total_fish_preserved__gt=0).order_by("id")
+    for s in samples:
+        print(f"sample {s.id} ({s.season}) - supposed to have {s.total_fish_preserved} samples preserved")
+    print(f"There are {samples.count()} problematic samples")

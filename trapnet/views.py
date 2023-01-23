@@ -196,13 +196,12 @@ class SpeciesListView(TrapNetBasicMixin, CommonFilterView):
         search_term=Concat('common_name_eng', Value(" "),
                            'common_name_fre', Value(" "),
                            'scientific_name', Value(" "),
-                           'code', Value(" "),
                            'tsn', Value(" "),
                            output_field=TextField()))
     new_object_url_name = "trapnet:species_new"
     row_object_url_name = "trapnet:species_detail"
     home_url_name = "trapnet:index"
-    paginate_by = 10
+    paginate_by = 100
 
     field_list = [
         {"name": 'code', "class": "", "width": ""},
@@ -592,7 +591,7 @@ class SampleDetailView(TrapNetBasicMixin, CommonDetailView):
         salmon_with_lengths = obj.get_salmon_with_lengths()
         if salmon_with_lengths.exists():
             hist = dict(data=list(), colors=list(), max_count=0)
-            lengths = [item.fork_length for item in salmon_with_lengths]
+            lengths = [item.fork_length for item in salmon_with_lengths.all()]
 
             # get the data for the histogram
             len_range = range(math.floor(min(lengths)), math.ceil(max(lengths)))
@@ -660,28 +659,31 @@ class SampleDetailView(TrapNetBasicMixin, CommonDetailView):
             context['lw'] = json.dumps(lw)
 
             # get the data for the histogram
-            counts, bins = np.histogram(lengths, bins=math.ceil(len(len_range) * 0.5))
-            hist_zip = zip(bins, counts)
-            hist_data = list()
-            hist_colors = list()
-            hist_labels = list()
-            for item in hist_zip:
-                hist_data.append(dict(x=item[0], y=item[1], color="red"))
-                age = get_age_from_length(item[0], obj.age_thresh_0_1, obj.age_thresh_1_2)
-                if age == 0:  # green
-                    hist_colors.append('rgba(75, 192, 192, 0.5)')
-                elif age == 1:  # purple
-                    hist_colors.append('rgba(153, 102, 255, 0.5)')
-                elif age == 2:  # red
-                    hist_colors.append('rgba(255, 99, 132, 0.5)')
-                else:  # grey
-                    hist_colors.append('rgba(16,16,16,0.5)')
-                hist_labels.append('age not assigned')
+            try:
+                counts, bins = np.histogram(lengths, bins=math.ceil(len(len_range) * 0.5))
+                hist_zip = zip(bins, counts)
+                hist_data = list()
+                hist_colors = list()
+                hist_labels = list()
+                for item in hist_zip:
+                    hist_data.append(dict(x=item[0], y=item[1], color="red"))
+                    age = get_age_from_length(item[0], obj.age_thresh_0_1, obj.age_thresh_1_2)
+                    if age == 0:  # green
+                        hist_colors.append('rgba(75, 192, 192, 0.5)')
+                    elif age == 1:  # purple
+                        hist_colors.append('rgba(153, 102, 255, 0.5)')
+                    elif age == 2:  # red
+                        hist_colors.append('rgba(255, 99, 132, 0.5)')
+                    else:  # grey
+                        hist_colors.append('rgba(16,16,16,0.5)')
+                    hist_labels.append('age not assigned')
 
-            context['hist_data'] = hist_data
-            context['hist_colors'] = hist_colors
-            context['hist_labels'] = hist_labels
-            context['hist_max_count'] = max(counts)
+                context['hist_data'] = hist_data
+                context['hist_colors'] = hist_colors
+                context['hist_labels'] = hist_labels
+                context['hist_max_count'] = max(counts)
+            except:
+                pass
             context['max_weight'] = max(weights)
 
         return context
@@ -1316,7 +1318,7 @@ def od_summary_by_site_report(request):
     if report_name == "restigouche-rst":
         qs = get_restigouche_rst_samples()
 
-    filename = f"open data summary by site ({timezone.now().strftime('%Y-%m-%d')}"
+    filename = f"open data summary by site ({timezone.now().strftime('%Y-%m-%d')}).csv"
     response = StreamingHttpResponse(
         streaming_content=(reports.generate_od_summary_by_site_report(qs)),
         content_type='text/csv',

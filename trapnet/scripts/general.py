@@ -145,7 +145,27 @@ def more_samples_to_sub_types():
         sub_fields = [f.name for f in sub._meta.fields]
         sub_fields.remove("id")
         for f in sub_fields:
-            if f in sample_fields and getattr(s, f):
+            if f in sample_fields and getattr(s, f) and not getattr(sub, f):
+                print(f"migrating {f} to {sub}")
+                setattr(sub, f, getattr(s, f))
+        sub.save()
+
+
+def onemore_samples_to_sub_types():
+    sample_fields = ["water_temp_c"]
+
+    for s in models.Sample.objects.all():
+        if s.sample_type == 1:
+            sub = s.rst_sample
+        elif s.sample_type == 2:
+            sub = s.ef_sample
+        else:
+            sub = s.trapnet_sample
+
+        sub_fields = [f.name for f in sub._meta.fields]
+        sub_fields.remove("id")
+        for f in sub_fields:
+            if f in sample_fields and getattr(s, f) and not getattr(sub, f):
                 print(f"migrating {f} to {sub}")
                 setattr(sub, f, getattr(s, f))
         sub.save()

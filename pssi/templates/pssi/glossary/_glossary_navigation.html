@@ -1,0 +1,33 @@
+<div class="container">
+
+  <div style="color:red; font-weight: bold;"><center>This page is under development and the data maybe not complete or accurate.</center></div>
+
+  <!-- Buttons to jump to Page Anchors -->
+  <div class="form btn-group button-list" id="nav_buttons" role="group" aria-label="Basic example"></div>
+
+  {% include "pssi/glossary/_glossary_filter_by_tag.html" %}
+
+  <hr noshade>
+
+  <!-- Area that displays the acronyms within catagories based on its first letter -->
+  <div id="categories"></div>
+
+</div>
+
+
+
+<script>
+  function jump(letter){
+      var top = document.getElementById(letter).offsetTop;
+      console.log(top);
+      window.scrollTo(0, top);
+  }
+
+  let categories = '{{ categories }}';
+  let btns = "";
+  for (let letter of categories) {
+    btns += '<button type="button" onclick="jump(\'' + letter + '\')" class="btn btn-secondary">' + letter + '</button>';
+  }
+
+  document.getElementById("nav_buttons").innerHTML = btns;
+</script>
