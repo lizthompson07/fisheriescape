@@ -915,14 +915,19 @@ def run_process_fish_take4_update_life_stage():
                     if tsn and tsn == "161996":
                         # get the old_id
                         old_id = f'GD_{r["GD_ID"]}'
-                        # get the specimen
-                        specimens = models.Specimen.objects.filter(old_id=old_id)
-                        if specimens.exists():
+                        try:
                             river_age = int(r["RIVER_AGE"])
                             fish_size = r['FISH_SIZE']
+                            # get the specimen
+                            specimens = models.Specimen.objects.filter(old_id=old_id)
+                            b_specimens = models.BiologicalDetailing.objects.filter(old_id=old_id)
                             if river_age and fish_size:
+                                life_stage = models.LifeStage.objects.get(name__iexact=fish_size)
                                 for s in specimens:
-                                    life_stage = models.LifeStage.objects.get(name__iexact=fish_size)
+                                    if s.life_stage != life_stage:
+                                        s.life_stage = life_stage
+                                        s.save()
+                                for s in b_specimens:
                                     if s.life_stage != life_stage:
                                         s.life_stage = life_stage
                                         s.save()
@@ -930,20 +935,10 @@ def run_process_fish_take4_update_life_stage():
                                 for s in specimens:
                                     s.life_stage = fry if river_age == 0 else parr
                                     s.save()
-                        else:
-                            specimens = models.BiologicalDetailing.objects.filter(old_id=old_id)
-                            if specimens.exists():
-                                river_age = int(r["RIVER_AGE"])
-                                fish_size = r['FISH_SIZE']
-                                if river_age and fish_size:
-                                    for s in specimens:
-                                        life_stage = models.LifeStage.objects.get(name__iexact=fish_size)
-                                        if s.life_stage != life_stage:
-                                            s.life_stage = life_stage
-                                            s.save()
-                                elif river_age is not None:
-                                    for s in specimens:
-                                        s.life_stage = fry if river_age == 0 else parr
-                                        s.save()
+                                for s in b_specimens:
+                                    s.life_stage = fry if river_age == 0 else parr
+                                    s.save()
+                        except:
+                            pass
 
                     bar()
