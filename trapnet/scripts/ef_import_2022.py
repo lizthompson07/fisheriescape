@@ -889,10 +889,10 @@ def run_process_fish_take4_update_life_stage():
             - else leave it as is (i.e., use `species_life_stage`)
 
     """
-    from alive_progress import alive_bar
-    life_stage_lookup = get_life_stage_lookup()
-    models.BiologicalDetailing.objects.filter(old_id__istartswith="gd").delete()
+    parr = models.LifeStage.objects.get(name="parr")
+    fry = models.LifeStage.objects.get(name="fry")
 
+    from alive_progress import alive_bar
     with open(os.path.join(rootdir, 'problematic_fish_data_take4.csv'), 'w') as wf:
         writer = csv.writer(wf, delimiter=',', lineterminator='\n')
 
@@ -910,184 +910,40 @@ def run_process_fish_take4_update_life_stage():
                         if r[key] in ['', "NA"]:  # if there is a null value of any kind, replace with NoneObject
                             r[key] = None
 
-                    file_type = r["FILE_TYPE"]
-                    biological_sample = r["BIOLOGICAL_SAMPLE"]
-
-                    # this is where my previous script was wrong therefore these are the only fish we will be focusing on.
-
-                    raw_date = r["SITE_EVENT_DATE"]
-                    # only continue if there is a date
-                    if raw_date:
-                        raw_date = raw_date.split(" ")[0]
-                        start_date = make_aware(datetime.datetime.strptime(f"{raw_date} 12:00", "%d/%m/%Y %H:%M"), get_current_timezone())
-                        catchment_index = r["CATCHMENT_INDEX"]
-
-                        sfa = "SFA15" if catchment_index == "1" else "SFA16"
-
-                        # ok let's see if we can find a sample
-                        qs = models.Sample.objects.filter(
-                            site__name__iexact=r["SITE"],
-                            site__river__fishing_area__name__iexact=sfa,
-                            arrival_date=start_date
-                        )
-
-                        if not qs.exists():
-                            # does the site even exist?
-                            qs = models.RiverSite.objects.filter(
-                                name__iexact=r["SITE"],
-                                river__fishing_area__name__iexact=sfa,
-                            )
-                            if not qs.exists():
-                                writer.writerow([r[key] for key in r] + [1, f"There is no record of site '{r['SITE']}' in {sfa}", "", 0])
-                            else:
-                                writer.writerow([r[key] for key in r] + [2,
-                                                                         f"There is no record of site '{r['SITE']}' in {sfa} being sampled on {start_date.strftime('%Y-%m-%d')}"])
-
-                        elif qs.count() > 1:
-                            writer.writerow(
-                                [r[key] for key in r] + [3, "There is more than one site with same name being sampled on the same date!", "", 0])
-
+                    # get the itis code
+                    tsn = r["SPECIES_ITIS_CODE"]
+                    if tsn and tsn == "161996":
+                        # get the old_id
+                        old_id = f'GD_{r["GD_ID"]}'
+                        # get the specimen
+                        specimens = models.Specimen.objects.filter(old_id=old_id)
+                        if specimens.exists():
+                            river_age = int(r["RIVER_AGE"])
+                            fish_size = r['FISH_SIZE']
+                            if river_age and fish_size:
+                                for s in specimens:
+                                    life_stage = models.LifeStage.objects.get(name__iexact=fish_size)
+                                    if s.life_stage != life_stage:
+                                        s.life_stage = life_stage
+                                        s.save()
+                            elif river_age is not None:
+                                for s in specimens:
+                                    s.life_stage = fry if river_age == 0 else parr
+                                    s.save()
                         else:
-                            sample = qs.first()
-                            # Now to deal with the sweep
-                            sweep_number = r["SWEEP_NUMBER"]
-                            if r["GD_ID"] == "138482":  # there was a simple omission error for this specimen. we number should be 0.5
-                                sweep_number = 0.5
-                            elif r["GD_ID"] in ["217374", "217375", "217394",
-                                                "217446"]:  # there was a simple omission error for this specimen. we number should be 0.5
-                                sweep_number = 3
+                            specimens = models.BiologicalDetailing.objects.filter(old_id=old_id)
+                            if specimens.exists():
+                                river_age = int(r["RIVER_AGE"])
+                                fish_size = r['FISH_SIZE']
+                                if river_age and fish_size:
+                                    for s in specimens:
+                                        life_stage = models.LifeStage.objects.get(name__iexact=fish_size)
+                                        if s.life_stage != life_stage:
+                                            s.life_stage = life_stage
+                                            s.save()
+                                elif river_age is not None:
+                                    for s in specimens:
+                                        s.life_stage = fry if river_age == 0 else parr
+                                        s.save()
 
-                            if not sweep_number:
-                                writer.writerow([r[key] for key in r] + [4, "This specimen has no sweep number", sample.old_id, 0])
-                            else:
-                                sweep_number = float(sweep_number)
-                                sweeps = sample.sweeps.filter(sweep_number=sweep_number)
-                                if not sweeps.exists():
-                                    # here we need to add some complicated logic
-                                    if sweep_number == 0 and sample.old_id == "GD_1857":
-                                        sweep = models.Sweep.objects.create(sample=sample, sweep_number=0, sweep_time=0)
-                                        sample.monitoring_program_id = 2
-                                        sample.save()
-                                    elif sweep_number == 0 and sample.old_id == "GD_1651":  # this should actually be in the sweep 0.5 category
-                                        sweep = sample.sweeps.get(sweep_number=0.5)
-
-                                    else:
-                                        sweep = models.Sweep.objects.create(sample=sample, sweep_number=sweep_number, sweep_time=0)
-                                        writer.writerow([r[key] for key in r] + [6, "no corresponding sweep time in the site data", sample.old_id, 1])
-                                else:
-                                    # cannot be more than one sweep per sample with the same number because of the unique_together constraint
-                                    sweep = sweeps.first()
-
-                                if sweep or file_type == "2" or biological_sample == "1":
-                                    # get the species
-                                    species = None
-                                    try:
-                                        species = models.Species.objects.get(tsn=r["SPECIES_ITIS_CODE"])
-                                    except (models.Species.DoesNotExist, models.Species.MultipleObjectsReturned):
-
-                                        # there are a few wierd ones
-                                        notes = r["BIOLOGICAL_REMARKS"]
-                                        if notes and "frog" in notes.lower():
-                                            species = models.Species.objects.get(tsn=1094181)
-                                        elif notes and "splake" in notes.lower():
-                                            species = models.Species.objects.get(common_name_eng__icontains="splake")
-                                        else:
-                                            writer.writerow(
-                                                [r[key] for key in r] + [7, f"Cannot find species with TSN {r['SPECIES_ITIS_CODE']} in db", sample.old_id,
-                                                                         0])
-
-                                    if species:
-                                        # life stage
-                                        life_stage = life_stage_lookup.get(r['SPECIES_LIFE_STAGE'])
-                                        if life_stage:
-                                            life_stage = models.LifeStage.objects.get(code__iexact=life_stage)
-
-                                        # status
-                                        status = r['FISH_STATUS']
-                                        if status:
-                                            try:
-                                                status = models.Status.objects.get(code__iexact=status)
-                                            except:
-                                                writer.writerow([r[key] for key in r] + [8, f"Cannot find status: {status}", sample.old_id, 1])
-                                                status = None
-
-                                        # adipose_condition
-                                        origin = r['ORIGIN']
-                                        adipose_condition = None
-                                        if origin:
-                                            if origin == "AC":
-                                                adipose_condition = 0
-                                            elif origin == "W":
-                                                adipose_condition = 1
-
-                                        # sex
-                                        sex = r['SEX']
-                                        if sex:
-                                            sex = models.Sex.objects.get(code__iexact=sex)
-
-                                        # maturity
-                                        maturity = r['MATURITY']
-                                        reproductive_status = None
-                                        if maturity:
-                                            maturity = models.Maturity.objects.get(code=int(maturity))
-                                            if maturity.code == 4:
-                                                reproductive_status = models.ReproductiveStatus.objects.get(code__iexact="p")
-
-                                        age_type = r["AGE_TYPE"]
-                                        if age_type:
-                                            if age_type == "SCALE":
-                                                age_type = 1
-                                            elif age_type == "LGTHFREQ":
-                                                age_type = 2
-                                            else:
-                                                writer.writerow([r[key] for key in r] + [9, f"Cannot find age type: {age_type}", sample.old_id, 1])
-                                                age_type = None
-
-                                        fish_kwargs = {
-                                            "old_id": f'GD_{r["GD_ID"]}',
-                                            "sweep": sweep,
-                                            "species": species,
-                                            "life_stage": life_stage,
-                                            "status": status,
-                                            "adipose_condition": adipose_condition,
-                                            "fork_length": r["FORK_LENGTH"],
-                                            "total_length": r["TOTAL_LENGTH"],
-                                            "weight": r["WEIGHT"],
-                                            "sex": sex,
-                                            "maturity": maturity,
-                                            "reproductive_status": reproductive_status,
-                                            "age_type": age_type,
-                                            "river_age": r["RIVER_AGE"],
-                                            "scale_id_number": f'{r["SCALE_SAMPLE_ID"]} {sample.arrival_date.year}' if r["SCALE_SAMPLE_ID"] else None,
-                                            "created_by_id": 50,
-                                            "updated_by_id": 50,
-                                        }
-                                        notes = str()
-                                        notes = add_note(notes, r["BIOLOGICAL_REMARKS"])
-                                        if len(notes.strip()):
-                                            fish_kwargs["notes"] = notes
-
-                                        if file_type == "2" and sweep.sweep_number == 0:
-                                            catch_frequency = r["CATCH_FREQUENCY"]
-                                            if catch_frequency and int(catch_frequency):
-                                                catch_frequency = int(catch_frequency)
-                                            if catch_frequency > 1:
-                                                print("large catch frequency")
-                                            del fish_kwargs["sweep"]
-                                            fish_kwargs["sample"] = sample
-                                            models.BiologicalDetailing.objects.create(**fish_kwargs)
-                                        else:
-                                            # in the previous script this would have been written to the historical table
-                                            # now we want this to go in the specimen table
-                                            # however, if we run this script multiple times, we will be making duplicate entries.
-                                            # therefore, we should only import if there is no corresponding old id in the db.
-                                            if not models.Specimen.objects.filter(old_id=fish_kwargs["old_id"]).exists():
-                                                catch_frequency = r["CATCH_FREQUENCY"]
-                                                if catch_frequency and int(catch_frequency) > 0:
-                                                    for x in range(0, int(catch_frequency)):
-                                                        models.Specimen.objects.create(**fish_kwargs)
-                                                else:
-                                                    writer.writerow([r[key] for key in r] + [10, f"Catch frequency null or zero", sample.old_id, 0])
-                    else:
-                        writer.writerow([r[key] for key in r] + [0, "Fish specimen has no date/time", "", 0])
                     bar()
