@@ -76,6 +76,7 @@ class SpecimenFilter(django_filters.FilterSet):
             'sample__site': ['exact'],
             'sample__sample_type': ['exact'],
             'sample_id': ['exact'],
+            'old_id': ['icontains'],
         }
 
     def __init__(self, *args, **kwargs):

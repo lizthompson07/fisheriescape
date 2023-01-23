@@ -922,6 +922,7 @@ class SpecimenDetailView(TrapNetBasicMixin, CommonDetailView):
         'tag_number',
         'scale_id_number',
         'notes',
+        'old_id',
         'metadata',
     ]
     greatgrandparent_crumb = {"title": _("Samples"), "url": reverse_lazy("trapnet:sample_list")}
