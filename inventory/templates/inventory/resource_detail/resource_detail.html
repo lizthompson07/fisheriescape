@@ -7,21 +7,22 @@
 {% load l10n %}
 
 {% block title_area %}
-  <div class="float-right">
-    {% if object.fgp_url %}
-      <a class="stop-blank mx-1" href="{{ object.fgp_url }}" data-toggle="tooltip"
-         title="Open URL in the Federal Geospatial Platform">
-        <img src="{% static 'img/icons/fgp.png' %}" alt="" width="40px">
+
+  <div class="mb-3">
+
+    {% if user in object.favourited_by.all %}
+      <a href="{% url 'inventory:remove_favourites' object.id %}">
+        <span class="mdi mdi-star neighbours h1"></span>
+      </a>
+    {% else %}
+      <a href="{% url 'inventory:add_favourites' object.id %}">
+        <span class="mdi mdi-star-outline neighbours h1"></span>
       </a>
     {% endif %}
-    {% if object.public_url %}
-      <a class="stop-blank mx-1" href="{{ object.public_url }}" data-toggle="tooltip"
-         title="Open URL in the Open Government Portal">
-        <img src="{% static 'img/icons/canada.png' %}" alt="" width="40px">
-      </a>
-    {% endif %}
+    <div class="neighbours">
+      {{ block.super }}
+    </div>
   </div>
-  {{ block.super }}
 
 {% endblock %}
 
@@ -200,7 +201,25 @@
 
   <div class="row ">
     <div class="col-4">
-      <h4>Basic Detail</h4>
+      <div class="mb-3">
+        <div class="neighbours">
+          <h4>Basic Detail</h4>
+        </div>
+        <div class="neighbours">
+          {% if object.fgp_url %}
+            <a class="stop-blank mx-1" href="{{ object.fgp_url }}" data-toggle="tooltip"
+               title="Open URL in the Federal Geospatial Platform">
+              <img src="{% static 'img/icons/fgp.png' %}" alt="" width="40px">
+            </a>
+          {% endif %}
+          {% if object.public_url %}
+            <a class="stop-blank mx-1" href="{{ object.public_url }}" data-toggle="tooltip"
+               title="Open URL in the Open Government Portal">
+              <img src="{% static 'img/icons/canada.png' %}" alt="" width="40px">
+            </a>
+          {% endif %}
+        </div>
+      </div>
       {% include "inventory/resource_detail/_resource_detail_basic.html" %}
     </div>
 

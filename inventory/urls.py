@@ -15,7 +15,6 @@ urlpatterns = [
     ############
     path('resources/', views.ResourceListView.as_view(), name="resource_list"),
     path('resources/new/', views.ResourceCreateView.as_view(), name="resource_new"),
-    path('my-resources/', views.MyResourceListView.as_view(), name="my_resource_list"),
     path('resources/<int:pk>/view/', views.ResourceDetailView.as_view(), name="resource_detail"),
     path('resources/<str:uuid>/', views.ResourceDetailView.as_view(), name="resource_detail_uuid"),
     path('resources/<int:pk>/pdf/', views.ResourceDetailPDFView.as_view(), name="resource_pdf"),
@@ -24,6 +23,8 @@ urlpatterns = [
     path('resources/<int:pk>/delete/', views.ResourceDeleteView.as_view(), name="resource_delete"),
     path('resources/<int:pk>/flag-for-deletion/', views.ResourceDeleteFlagUpdateView.as_view(), name="resource_flag_delete"),
     path('resources/<int:pk>/flag-for-publication/', views.ResourcePublicationFlagUpdateView.as_view(), name="resource_flag_publication"),
+    path('resources/<int:pk>/add-to-favourites/', views.add_favourites, name="add_favourites"),
+    path('resources/<int:pk>/remove-from-favourites/', views.remove_favourites, name="remove_favourites"),
 
     # Open Data
     path('open-data-dashboard/', views.OpenDataDashboardTemplateView.as_view(), name="open_data_dashboard"),

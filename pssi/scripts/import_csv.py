@@ -8,12 +8,13 @@ from pssi.models import DataAsset
 from django.db.models import QuerySet
 # @pylance.typecheck(QuerySet)
 
-# ROOTDIR = dm_apps/pssi
 ROOTDIR = os.path.join(settings.BASE_DIR, "pssi")
+dataset_file = os.path.join(ROOTDIR, "csv", "Pacific_Region_Data_Inventory_main.csv")
+dataset_model = DataAsset
 
 # Delete all objects stored in DataAsset table
 def clear_inventory():
-    to_delete = DataAsset.objects.all()
+    to_delete = dataset_model.objects.all()
     to_delete.delete()
 
 # Goes through the csv row by row and maps the appropriate column to a variable
@@ -57,12 +58,16 @@ def run_csv_to_inventory():
         "security_classification",
         "inbound_data_linkage",
         "outbound_data_linkage",
-        "publication_status"
+        "publication_status",
+        "contact_fname",
+        "contact_lname",
+        "contact_email",
+        "topics"
     ]
 
     # max_field_len = dict(zip(field_list, list([0]*len(field_list))))
 
-    with open(os.path.join(ROOTDIR, "./csv/Pacific_Region_Data_Inventory_main.csv"), "r") as csvfile:
+    with open(dataset_file, "r") as csvfile:
         reader = csv.reader(csvfile)
         #skip header row
         next(reader)
@@ -94,7 +99,7 @@ def run_csv_to_inventory():
            
             # Initializing a record for DataAsset -> DataAsset(parameter1=value1, parameter2=value2,...)
             # Initialize a DataAsset object using the variables and values assigned above
-            model = DataAsset(
+            model = dataset_model(
                 inventory_id                              = fields["inventory_id"],
                 approved_by                               = fields["approved_by"],
                 data_asset_name                           = fields["data_asset_name"],
@@ -131,7 +136,11 @@ def run_csv_to_inventory():
                 security_classification                   = fields["security_classification"],
                 inbound_data_linkage                      = fields["inbound_data_linkage"],
                 outbound_data_linkage                     = fields["outbound_data_linkage"],
-                publication_status                        = fields["publication_status"]
+                publication_status                        = fields["publication_status"],
+                contact_fname                             = fields["contact_fname"],
+                contact_lname                             = fields["contact_lname"],
+                contact_email                             = fields["contact_email"],
+                topics                                    = fields["topics"]
             )
             model.save()
 

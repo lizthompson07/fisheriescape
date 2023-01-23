@@ -103,6 +103,9 @@ if USE_LOCAL_DB:
     my_default_db = {
         'ENGINE': 'django.contrib.gis.db.backends.spatialite' if GEODJANGO else 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'TEST': {
+            'NAME': os.path.join(BASE_DIR, 'test.sqlite3'),
+        }
     }
     DB_MODE = "LOCAL"
     DB_NAME = "db.sqlite3"

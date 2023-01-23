@@ -322,6 +322,9 @@ class Resource(models.Model):
     publication_fy = models.ForeignKey(shared_models.FiscalYear, on_delete=models.DO_NOTHING, blank=True, null=True, editable=False,
                                        verbose_name=_("FY of latest publication"))
 
+    favourited_by = models.ManyToManyField(User, editable=False, related_name="resource_favourited_by")
+
+
     def get_absolute_url(self):
         return reverse('inventory:resource_detail', kwargs={'pk': self.pk})
 

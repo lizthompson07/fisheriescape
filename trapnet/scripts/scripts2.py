@@ -416,3 +416,5 @@ def delete_tags_removed():
             if specimen.tag_number in removed_tags:
                 print("This specimen is being deleted:", specimen.tag_number, removed_tags)
                 specimen.delete()
+
+
