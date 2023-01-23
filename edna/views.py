@@ -632,7 +632,7 @@ class SampleBatchDetailView(eDNAAdminRequiredMixin, CommonDetailView):
     home_url_name = "edna:index"
     parent_crumb = {"title": gettext_lazy("Sample Collections"), "url": reverse_lazy("edna:sample_batch_list")}
     container_class = "container-fluid"
-    field_list = utils.get_batch_field_list()
+    field_list = utils.get_sample_batch_field_list()
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

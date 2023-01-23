@@ -269,6 +269,14 @@ class PCRViewSet(viewsets.ModelViewSet):
             return Response(serializer.data)
         raise ValidationError(_("You need to specify a batch"))
 
+    def perform_create(self, serializer):
+        obj = serializer.save(created_by=self.request.user, updated_by=self.request.user)
+        obj.start_datetime = obj.pcr_batch.datetime
+        obj.save()
+
+    def perform_update(self, serializer):
+        serializer.save(updated_by=self.request.user)
+
 
 class PCRLiteViewSet(PCRViewSet):
     serializer_class = serializers.PCRLiteSerializer
