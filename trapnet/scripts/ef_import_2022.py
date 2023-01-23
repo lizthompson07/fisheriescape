@@ -4,6 +4,7 @@ import os
 import statistics
 
 from django.conf import settings
+from django.db.models import Q
 from django.utils.timezone import get_current_timezone, make_aware
 
 from lib.functions.custom_functions import listrify
@@ -869,76 +870,104 @@ def run_process_fish_take3_clean_bad_specimens():
     models.Specimen.objects.filter(id__in=specimens_to_delete).delete()
     models.Specimen.objects.filter(sample__id__in=samples_to_clean, species__tsn=161996, smart_river_age__isnull=True).delete()
 
+#
+# def run_process_fish_take4_update_life_stage():
+#     """
+#     from Guillaume:
+#     I corrected 4 samples manually and it made me notice that some of the lifestage (fry,parr) data were not imported correctlye.g.
+#     sample 9343 all fish are entered as parr even tho in the file I gave you there were fry and parr (the ages are correct tho)
+#
+#     from david:
+#     so, in the fish masterfile, there was an inner conflict between the `fish_size` and `species_life_stage` cols.
+#     The latter does not actually have a value for fry! In general, for salmon only, we should be looking only to the 'fish_size' column to
+#     determine the life stage.
+#
+#     Rule to follow:
+#     - this will have to be corrected in both tables
+#     - only look at salmon
+#     - if there is `river_age` and 'life_stage', use `life_stage'
+#         - else if ` river_age`, base life_stage off of that
+#             - else leave it as is (i.e., use `species_life_stage`)
+#
+#     """
+#     parr = models.LifeStage.objects.get(name="parr")
+#     fry = models.LifeStage.objects.get(name="fry")
+#
+#     from alive_progress import alive_bar
+#     with open(os.path.join(rootdir, 'problematic_fish_data_take4.csv'), 'w') as wf:
+#         writer = csv.writer(wf, delimiter=',', lineterminator='\n')
+#
+#         with open(os.path.join(rootdir, 'fish_data.csv'), 'r') as f:
+#             row_count = sum(1 for row in csv.reader(f)) - 1
+#
+#         with open(os.path.join(rootdir, 'fish_data.csv'), 'r') as f:
+#             csv_reader = csv.DictReader(f)
+#             writer.writerow(list(csv_reader.fieldnames) + ["PROBLEM CODE", "DESCRIPTION OF PROBLEM", "GD_SAMPLE_ID", "WAS_IMPORTED"])
+#             with alive_bar(row_count, force_tty=True) as bar:  # declare your expected total
+#                 for r in csv_reader:
+#                     # clean the row
+#                     for key in r:
+#                         r[key] = r[key].strip()  # remove any trailing spaces
+#                         if r[key] in ['', "NA"]:  # if there is a null value of any kind, replace with NoneObject
+#                             r[key] = None
+#
+#                     # get the itis code
+#                     tsn = r["SPECIES_ITIS_CODE"]
+#                     if tsn and tsn == "161996":
+#                         # get the old_id
+#                         old_id = f'GD_{r["GD_ID"]}'
+#                         try:
+#                             river_age = int(r["RIVER_AGE"])
+#                             fish_size = r['FISH_SIZE']
+#                             # get the specimen
+#                             specimens = models.Specimen.objects.filter(old_id=old_id)
+#                             b_specimens = models.BiologicalDetailing.objects.filter(old_id=old_id)
+#                             if river_age and fish_size:
+#                                 life_stage = models.LifeStage.objects.get(name__iexact=fish_size)
+#                                 for s in specimens:
+#                                     if s.life_stage != life_stage:
+#                                         s.life_stage = life_stage
+#                                         s.save()
+#                                 for s in b_specimens:
+#                                     if s.life_stage != life_stage:
+#                                         s.life_stage = life_stage
+#                                         s.save()
+#                             elif river_age is not None:
+#                                 for s in specimens:
+#                                     s.life_stage = fry if river_age == 0 else parr
+#                                     s.save()
+#                                 for s in b_specimens:
+#                                     s.life_stage = fry if river_age == 0 else parr
+#                                     s.save()
+#                         except:
+#                             pass
+#
+#                     bar()
 
-def run_process_fish_take4_update_life_stage():
-    """
-    from Guillaume:
-    I corrected 4 samples manually and it made me notice that some of the lifestage (fry,parr) data were not imported correctlye.g.
-    sample 9343 all fish are entered as parr even tho in the file I gave you there were fry and parr (the ages are correct tho)
 
-    from david:
-    so, in the fish masterfile, there was an inner conflict between the `fish_size` and `species_life_stage` cols.
-    The latter does not actually have a value for fry! In general, for salmon only, we should be looking only to the 'fish_size' column to
-    determine the life stage.
 
-    Rule to follow:
-    - this will have to be corrected in both tables
-    - only look at salmon
-    - if there is `river_age` and 'life_stage', use `life_stage'
-        - else if ` river_age`, base life_stage off of that
-            - else leave it as is (i.e., use `species_life_stage`)
+def fix_corrupted_life_stages():
+    from alive_progress import alive_bar
 
-    """
     parr = models.LifeStage.objects.get(name="parr")
     fry = models.LifeStage.objects.get(name="fry")
+    specimens = models.Specimen.objects.filter(species__tsn=161996, old_id__istartswith="gd").filter(Q(smart_river_age=0, life_stage=parr)
+                                                                           | Q(smart_river_age__gt=0, life_stage=fry)
+                                                                           | Q(smart_river_age__isnull=False, life_stage__isnull=True))
 
-    from alive_progress import alive_bar
-    with open(os.path.join(rootdir, 'problematic_fish_data_take4.csv'), 'w') as wf:
-        writer = csv.writer(wf, delimiter=',', lineterminator='\n')
+    with alive_bar(specimens.count(), force_tty=True) as bar:
+        for s in specimens:
+            s.life_stage = fry if s.smart_river_age == 0 else parr
+            s.save()
+            bar()
 
-        with open(os.path.join(rootdir, 'fish_data.csv'), 'r') as f:
-            row_count = sum(1 for row in csv.reader(f)) - 1
+    b_specimens = models.BiologicalDetailing.objects.filter(species__tsn=161996, old_id__istartswith="gd").filter(Q(smart_river_age=0, life_stage=parr)
+                                                                                                 | Q(smart_river_age__gt=0, life_stage=fry)
+                                                                                                 | Q(smart_river_age__isnull=False, life_stage__isnull=True))
 
-        with open(os.path.join(rootdir, 'fish_data.csv'), 'r') as f:
-            csv_reader = csv.DictReader(f)
-            writer.writerow(list(csv_reader.fieldnames) + ["PROBLEM CODE", "DESCRIPTION OF PROBLEM", "GD_SAMPLE_ID", "WAS_IMPORTED"])
-            with alive_bar(row_count, force_tty=True) as bar:  # declare your expected total
-                for r in csv_reader:
-                    # clean the row
-                    for key in r:
-                        r[key] = r[key].strip()  # remove any trailing spaces
-                        if r[key] in ['', "NA"]:  # if there is a null value of any kind, replace with NoneObject
-                            r[key] = None
+    with alive_bar(b_specimens.count(), force_tty=True) as bar:
+        for s in b_specimens:
+            s.life_stage = fry if s.smart_river_age == 0 else parr
+            s.save()
+            bar()
 
-                    # get the itis code
-                    tsn = r["SPECIES_ITIS_CODE"]
-                    if tsn and tsn == "161996":
-                        # get the old_id
-                        old_id = f'GD_{r["GD_ID"]}'
-                        try:
-                            river_age = int(r["RIVER_AGE"])
-                            fish_size = r['FISH_SIZE']
-                            # get the specimen
-                            specimens = models.Specimen.objects.filter(old_id=old_id)
-                            b_specimens = models.BiologicalDetailing.objects.filter(old_id=old_id)
-                            if river_age and fish_size:
-                                life_stage = models.LifeStage.objects.get(name__iexact=fish_size)
-                                for s in specimens:
-                                    if s.life_stage != life_stage:
-                                        s.life_stage = life_stage
-                                        s.save()
-                                for s in b_specimens:
-                                    if s.life_stage != life_stage:
-                                        s.life_stage = life_stage
-                                        s.save()
-                            elif river_age is not None:
-                                for s in specimens:
-                                    s.life_stage = fry if river_age == 0 else parr
-                                    s.save()
-                                for s in b_specimens:
-                                    s.life_stage = fry if river_age == 0 else parr
-                                    s.save()
-                        except:
-                            pass
-
-                    bar()
