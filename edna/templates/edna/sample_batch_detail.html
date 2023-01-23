@@ -5,8 +5,8 @@
 {% block subcontent %}
 
   <div class="btns mb-3">
-    <a href="{% url 'edna:filtration_batch_edit' object.id %}" class="btn btn-warning btn-sm">{% trans "Edit" %}</a>
-    <a href="{% url 'edna:filtration_batch_delete' object.id %}" class="btn btn-danger btn-sm">{% trans "Delete" %}</a>
+    <a href="{% url 'edna:sample_batch_edit' object.id %}" class="btn btn-warning btn-sm">{% trans "Edit" %}</a>
+    <a href="{% url 'edna:sample_batch_delete' object.id %}" class="btn btn-danger btn-sm">{% trans "Delete" %}</a>
 
   </div>
   {% include 'edna/_table_navigation.html' %}
@@ -28,11 +28,15 @@
 
     <div class="mb-3">
       <p class="h3">{% trans "Samples" %}</p>
-      <a href="{% url 'edna:import_samples' object.id %}" class="btn btn-sm btn-dark">
-        <span class="mdi mdi-import text-light mr-1"></span> {% trans "Import Samples from CSV" %}
-      </a>
-      <add-pcr-overlay v-if="samples.length" @add="addSamples" :example_sample="samples[samples.length-1]"></add-pcr-overlay>
-      <add-pcr-overlay v-else @add="addSamples"></add-pcr-overlay>
+      <div class="neighbours">
+        <a href="{% url 'edna:import_samples' object.id %}" class="btn btn-sm btn-dark">
+          <span class="mdi mdi-import text-light mr-1"></span> {% trans "Import Samples from CSV" %}
+        </a>
+      </div>
+      <div class="neighbours">
+        <add-pcr-overlay v-if="samples.length" @add="addSamples" :example_sample="samples[samples.length-1]"></add-pcr-overlay>
+        <add-pcr-overlay v-else @add="addSamples"></add-pcr-overlay>
+      </div>
     </div>
 
     <div v-if="loading" class="loading mb-3 mt-3 mt-5">
@@ -323,7 +327,7 @@
         } else this.row += 1
       },
       deleteSelected() {
-        userInput = confirm(`{% trans 'Are you certain you want to delete the (${this.selectedItems.length}) selected filters?' %}'`)
+        userInput = confirm(`{% trans 'Are you certain you want to delete the (${this.selectedItems.length}) selected samples?' %}'`)
         for (const sample of this.selectedItems) this.deleteSample(sample, true);
       },
       deleteSample(sample, userInput) {

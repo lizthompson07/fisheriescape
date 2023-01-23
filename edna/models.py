@@ -222,8 +222,13 @@ class Batch(models.Model):
 
 
 class SampleBatch(Batch):
+    datetime = models.DateTimeField(default=timezone.now, verbose_name=_("date received at facility"))
+    operators = models.ManyToManyField(User, blank=True, verbose_name=_("Received by"))
+    sent_by = models.CharField(max_length=100, blank=True, verbose_name=_("Received from"))
+    storage_location = models.CharField(max_length=255, blank=True, verbose_name=_("Storage Location at Reception"))
+
     class Meta:
-        verbose_name_plural = _("Sample Collection")
+        verbose_name_plural = _("Sample Collection / Receipt")
         ordering = ["-datetime"]
 
     def __str__(self):
@@ -240,7 +245,7 @@ class SampleBatch(Batch):
 class Sample(MetadataFields):
     collection = models.ForeignKey(Collection, related_name='samples', on_delete=models.CASCADE, verbose_name=_("project"))
     # NEED TO CREATE SINGLE DEFAULT SAMPLE BATCH IN PROD TO ALLOW FOR ONE-OFF DEFAULT BEFORE MAKING MIGRATION
-    sample_batch = models.ForeignKey(SampleBatch, related_name='samples', default=1, on_delete=models.CASCADE, verbose_name=_("sample batch"))
+    sample_batch = models.ForeignKey(SampleBatch, related_name='samples', on_delete=models.CASCADE, verbose_name=_("sample collection / receipt"))
     sample_type = models.ForeignKey(SampleType, related_name='samples', on_delete=models.DO_NOTHING, verbose_name=_("sample type"))
     is_field_blank = models.BooleanField(default=False, verbose_name=_("is this a field blank?"))
     bottle_id = models.CharField(verbose_name=_("bottle ID"), blank=True, null=True, max_length=50)
