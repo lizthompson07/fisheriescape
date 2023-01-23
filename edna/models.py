@@ -245,7 +245,7 @@ class SampleBatch(Batch):
 class Sample(MetadataFields):
     collection = models.ForeignKey(Collection, related_name='samples', on_delete=models.CASCADE, verbose_name=_("project"))
     # NEED TO CREATE SINGLE DEFAULT SAMPLE BATCH IN PROD TO ALLOW FOR ONE-OFF DEFAULT BEFORE MAKING MIGRATION
-    sample_batch = models.ForeignKey(SampleBatch, related_name='samples', on_delete=models.CASCADE, verbose_name=_("sample collection / receipt"))
+    # sample_batch = models.ForeignKey(SampleBatch, related_name='samples', on_delete=models.CASCADE, verbose_name=_("sample collection / receipt"))
     sample_type = models.ForeignKey(SampleType, related_name='samples', on_delete=models.DO_NOTHING, verbose_name=_("sample type"))
     is_field_blank = models.BooleanField(default=False, verbose_name=_("is this a field blank?"))
     bottle_id = models.CharField(verbose_name=_("bottle ID"), blank=True, null=True, max_length=50)
@@ -269,7 +269,7 @@ class Sample(MetadataFields):
 
     class Meta:
         ordering = ["datetime", "id"]
-        unique_together = (("bottle_id", "sample_batch"))
+        # unique_together = (("bottle_id", "sample_batch"))
 
     def get_absolute_url(self):
         return reverse("edna:sample_detail", args=[self.pk])

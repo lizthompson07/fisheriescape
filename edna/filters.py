@@ -21,7 +21,7 @@ class SampleFilter(django_filters.FilterSet):
         fields = {
             'id': ['exact'],
             'sample_type': ['exact'],
-            'sample_batch': ['exact'],
+            # 'sample_batch': ['exact'],
             'bottle_id': ['icontains'],
             'collection': ['exact'],
             'location': ['icontains'],
