@@ -799,6 +799,60 @@ def cherry_pick_traveller(traveller, request, comments=None):
         approval_seeker(new_obj, False, request)
 
 
+def cherry_pick_deny_traveller(traveller, request, comments=None):
+    """
+    this is a special function that cuts out a traveller from an existing group request and places them into a cloned request so
+    that they can be approved ahead of the rest of the  delegation. This function should never be called without first having checked with the function called:
+    can_cherry_pick.
+    """
+    if not nz(comments, None):
+        comments = "denied / refusé"
+    trip_request = traveller.request
+
+    # scenario 1: this is a single person request (yayy!!)
+    ## note this is needed especially for the ADM when he/she is looking at travellers across multiple requests. It will not be
+    ## obvious in that case who belongs to which request
+    if trip_request.travellers.count() == 1:
+        reviewer = trip_request.current_reviewer
+        reviewer.user = request.user
+        reviewer.comments = comments
+        reviewer.status = 3
+        reviewer.status_date = timezone.now()
+        reviewer.save()
+        approval_seeker(trip_request, False, request)
+    else:
+        # scenario 2: they are being cherry picked out of a group request
+        # make a copy of the original request (include a copy of the reviewers)
+        old_obj = trip_request
+        new_obj = deepcopy(old_obj)
+        new_obj.pk = None
+        new_obj.uuid = None
+        new_obj.add_admin_note(f"{date(timezone.now())} - This request was automatically cloned from request no. {old_obj.id} during the review process.")
+        new_obj.save()
+
+        # copy over the reviewers
+        for old_rel_obj in old_obj.reviewers.all():
+            new_rel_obj = deepcopy(old_rel_obj)
+            new_rel_obj.pk = None
+            new_rel_obj.request = new_obj
+            new_rel_obj.save()
+
+        # move traveller over to the new request
+        traveller.request = new_obj
+        traveller.save()
+        transfer_msg = f"{date(timezone.now())} - {traveller.smart_name} was automatically transferred to a separate request during" \
+                       f" the course of the ADM-level review."
+        old_obj.add_admin_note(transfer_msg)
+        # finally, we approved the new request at the level of the active reviewer
+        reviewer = new_obj.current_reviewer
+        reviewer.user = request.user
+        reviewer.comments = comments
+        reviewer.status = 3
+        reviewer.status_date = timezone.now()
+        reviewer.save()
+        approval_seeker(new_obj, False, request)
+
+
 def get_trip_field_list(trip=None):
     my_list = [
         'tname|{}'.format(_("Name")),
