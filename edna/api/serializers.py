@@ -274,15 +274,6 @@ class PCRSerializerLITE(serializers.ModelSerializer):
         model = models.PCR
         fields = "__all__"
 
-    batch_object = serializers.SerializerMethodField()
-    pcr_assays = serializers.SerializerMethodField()
-
-    def get_pcr_assays(self, instance):
-        return PCRAssaySerializerLITE(instance.assays.all(), many=True).data
-
-    def get_batch_object(self, instance):
-        return PCRBatchSerializer(instance.pcr_batch).data
-
 
 class PCRAssaySerializer(serializers.ModelSerializer):
     pcr_object = serializers.SerializerMethodField()

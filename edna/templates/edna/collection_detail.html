@@ -1,5 +1,7 @@
+<script src="http://localhost:8098"></script>
 {% extends 'edna/base.html' %}
 {% load verbose_names %}
+{% load static %}
 {% load i18n %}
 
 {% block subcontent %}
@@ -233,10 +235,10 @@
 
             <template v-if="viewPCRs && viewExtracts" v-for="(pcr, index) in extract.pcrs">
               <tr>
-                <td class="pcrs">${pcr.batch_object.plate_id}</td>
-                <td class="pcrs">${pcr.batch_object.machine_number}</td>
-                <td class="pcrs">${pcr.batch_object.run_program}</td>
-                <td class="pcrs">${pcr.batch_object.control_status}</td>
+                <td class="pcrs">${pcr.pcr_batch_obj.plate_id}</td>
+                <td class="pcrs">${pcr.pcr_batch_obj.machine_number}</td>
+                <td class="pcrs">${pcr.pcr_batch_obj.run_program}</td>
+                <td class="pcrs">${pcr.pcr_batch_obj.control_status}</td>
                 <td class="pcrs">${pcr.pcr_plate_well}</td>
                 <td class="pcrs">${pcr.master_mix_display}</td>
 
@@ -277,6 +279,7 @@
 
 {% block body_js %}
   {{ block.super }}
+  <script type="text/javascript" src="{% static "js/apiJoins.js" %}"></script>
 
   <script type="application/javascript">
 
@@ -358,7 +361,7 @@
           this.loadingObject.assaysTested = false;
         });
       },
-      getSamples() {
+      getSamplesOLD() {
         this.loading = true;
         apiService(`/api/edna/samples/?collection=${this.projectId}`).then(response => {
           this.samples = response;
@@ -484,7 +487,160 @@
             })
           })
         })
+      },
+
+      getSamples() {
+        this.loading = true;
+        apiService(`/api/edna/samples/?collection=${this.projectId}`).then(response => {
+          this.samples = response;
+          this.loadingObject.samples = false;
+          for (const sample of response) {
+            sample.filters = [];
+            sample.rowspan = 1;
+          }
+          apiService(`/api/edna/filters/?lite=true&collection=${this.projectId}`).then(response => {
+            for (const filter of response) {
+              filter.extracts = [];
+              filter.rowspan = 1;
+              // now we have to nest this filter under each sample under the "filters" key
+              if (!filter.sample) { // means it is an filtration blank
+                this.samples.push({filters: [filter]});
+              } else {
+                for (const sample of this.samples) {
+                  if (sample.id === filter.sample) {
+                    sample.filters.push(filter);
+                    break;
+                  }
+                }
+              }
+            }
+            this.loadingObject.filters = false;
+            apiService(`/api/edna/extracts/?lite=true&collection=${this.projectId}`).then(response => {
+              for (const extract of response) {
+                extract.pcrs = [];
+                // now we have to nest this extract under each filter under the "extracts" key
+                if (!extract.sample && !extract.filter) { // means it is an extraction blank
+                  this.samples.push(
+                      {
+                        filters: [{extracts: [extract]}]
+                      }
+                  );
+                } else {
+                  if (!extract.filter) {
+                    for (const sample of this.samples) {
+                      if (sample.id === extract.sample) {
+                        sample.filters.push({extracts: [extract]});
+                        break;
+                      }
+                    }
+                  } else {
+                    for (const sample of this.samples) {
+                      for (const filter of sample.filters) {
+                        if (filter.id === extract.filter) {
+                          filter.extracts.push(extract);
+                          break;
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+              this.loadingObject.extracts = false;
+              apiService(`/api/edna/pcrs/?lite=true&collection=${this.projectId}`).then(pcrResponse => {
+                // need to add pcr batch and assays:
+                apiService(`/api/edna/pcr-assays/?lite=true&pcr__collection=${this.projectId}`).then(pcrAssayResponse => {
+                  pcrArray = join_api_arrays(pcrResponse, pcrAssayResponse, "id", "pcr", true, "pcr_assays")
+                  apiService(`/api/edna/pcr-batches/`).then(pcrBatchResponse => {
+                    pcrArray = join_api_arrays(pcrArray, pcrBatchResponse, "pcr_batch", "id")
+                    console.log(pcrArray)
+
+                    for (const pcr of pcrArray) {
+                        // now we have to nest this pcr under each extract under the "pcrs" key
+                        if (!pcr.extract) {
+                            this.samples.push({filters: [{extracts: [{pcrs: [pcr]}]}]});
+                        } else {
+                            for (const sample of this.samples) {
+                                for (const filter of sample.filters) {
+                                    for (const extract of filter.extracts) {
+                                        if (extract.id === pcr.extract) {
+                                            extract.pcrs.push(pcr);
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    this.loadingObject.pcrs = false;
+                    // figure out formatting
+                    for (const sample of this.samples) {
+                        sample.rowspan = 1 + sample.filters.length;
+                        for (const filter of sample.filters) {
+                          sample.rowspan += filter.extracts.length;
+                          filter.rowspan = 1 + filter.extracts.length;
+                          for (const extract of filter.extracts) {
+                              sample.rowspan += extract.pcrs.length;
+                              filter.rowspan += extract.pcrs.length;
+                              extract.rowspan = 1 + extract.pcrs.length;
+
+                              // need to make sure that pcr assays are in the correct order
+                              for (const pcr of extract.pcrs) {
+                                  // we only need to do this if there are existing pcr assays.
+                                  if (pcr.pcr_assays.length) {
+                                      let new_pcr_assays = [];
+                                      let tempObj;
+                                      for (const assay of this.assaysTested) {
+                                          // for each assay tested, we will want to have an object in the new array
+                                          tempObj = {};
+                                          for (const pcrAssay of pcr.pcr_assays) {
+                                              console.log(assay, pcrAssay)
+                                              if (assay.id === pcrAssay.assay) {
+                                                  tempObj = pcrAssay;
+                                              }
+                                          }
+                                          new_pcr_assays.push(tempObj);
+                                      }
+                                      pcr.pcr_assays = new_pcr_assays;
+                                  }
+
+
+                              }
+
+
+                              }
+                          }
+                      }
+
+                      // this should be the last thing to do
+                      this.$forceUpdate();
+                      this.loadingObject.formatting = false;
+                  })
+                })
+              })
+            })
+          })
+        })
       }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     },
     computed: {

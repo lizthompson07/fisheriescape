@@ -56,6 +56,12 @@ class ExtractionBatchViewSet(viewsets.ModelViewSet):
     queryset = models.ExtractionBatch.objects.all()
 
 
+class PCRBatchViewSet(viewsets.ModelViewSet):
+    serializer_class = serializers.PCRBatchSerializer
+    permission_classes = [eDNACRUDOrReadOnly]
+    queryset = models.PCRBatch.objects.all()
+
+
 # class SampleFilter(filters.FilterSet):
 #     location = filters.NumberFilter(field_name="price", lookup_expr='gte')
 #     max_price = filters.NumberFilter(field_name="price", lookup_expr='lte')
@@ -328,11 +334,22 @@ class PCRAssayViewSet(viewsets.ModelViewSet):
     permission_classes = [eDNACRUDOrReadOnly]
     queryset = models.PCRAssay.objects.all()
 
+    def get_serializer_class(self):
+        qp = self.request.query_params
+        if qp.get("lite"):
+            return serializers.PCRAssaySerializerLITE
+        return serializers.PCRAssaySerializer
+
     def list(self, request, *args, **kwargs):
         qp = request.query_params
         if qp.get("batch"):
             batch = get_object_or_404(models.PCRBatch, pk=qp.get("batch"))
-            qs = models.PCRAssay.objects.filter(pcr__pcr_batch=batch).select_related("pcr__extract", "pcr__extract__filter", "pcr__extract__sample")
+            qs = models.PCRAssay.objects.filter(pcr__pcr_batch=batch).select_related("assay", "pcr__extract", "pcr__extract__filter", "pcr__extract__sample")
+            serializer = self.get_serializer(qs, many=True)
+            return Response(serializer.data)
+        if qp.get("pcr__collection"):
+            collection = get_object_or_404(models.Collection, pk=qp.get("pcr__collection"))
+            qs = models.PCRAssay.objects.filter(pcr__collection=collection).select_related("assay", "pcr__extract", "pcr__extract__filter", "pcr__extract__sample")
             serializer = self.get_serializer(qs, many=True)
             return Response(serializer.data)
         raise ValidationError(_("You need to specify a batch"))
