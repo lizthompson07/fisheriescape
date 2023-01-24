@@ -288,7 +288,24 @@ class PCRAssaySerializer(serializers.ModelSerializer):
     pcr_object = serializers.SerializerMethodField()
     result_display = serializers.SerializerMethodField()
     assay_display = serializers.SerializerMethodField()
-    extract_number = serializers.SerializerMethodField()
+    extraction_number = serializers.SerializerMethodField()
+    info_display = serializers.SerializerMethodField()
+
+    def get_info_display(self, instance):
+        payload = list()
+        if instance.pcr.extract:
+            extract = instance.pcr.extract
+            if extract.is_extraction_blank:
+                payload.append("extraction blank")
+            if extract.filter and extract.filter.is_filtration_blank:
+                payload.append("filtration blank")
+            if extract.sample and extract.sample.is_field_blank:
+                payload.append("field blank")
+        return listrify(payload)
+
+    def get_extraction_number(self, instance):
+        if instance.pcr.extract:
+            return str(instance.pcr.extract.extraction_number)
 
     def get_assay_display(self, instance):
         if instance.assay:

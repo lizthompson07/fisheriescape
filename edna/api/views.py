@@ -332,7 +332,7 @@ class PCRAssayViewSet(viewsets.ModelViewSet):
         qp = request.query_params
         if qp.get("batch"):
             batch = get_object_or_404(models.PCRBatch, pk=qp.get("batch"))
-            qs = models.PCRAssay.objects.filter(pcr__pcr_batch=batch)
+            qs = models.PCRAssay.objects.filter(pcr__pcr_batch=batch).select_related("pcr__extract", "pcr__extract__filter", "pcr__extract__sample")
             serializer = self.get_serializer(qs, many=True)
             return Response(serializer.data)
         raise ValidationError(_("You need to specify a batch"))
@@ -343,9 +343,6 @@ class PCRAssayViewSet(viewsets.ModelViewSet):
 
     def perform_update(self, serializer):
         serializer.save(updated_by=self.request.user)
-
-    def get_queryset(self):
-        return self.get_serializer_class().setup_eager_loading(self.queryset)
 
 
 # class SpeciesObservationViewSet(viewsets.ModelViewSet):
