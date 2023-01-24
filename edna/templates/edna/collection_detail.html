@@ -367,7 +367,7 @@
             sample.filters = [];
             sample.rowspan = 1;
           }
-          apiService(`/api/edna/filters-lite/?collection=${this.projectId}`).then(response => {
+          apiService(`/api/edna/filters/?lite=true&collection=${this.projectId}`).then(response => {
             for (const filter of response) {
               filter.extracts = [];
               filter.rowspan = 1;
@@ -384,7 +384,7 @@
               }
             }
             this.loadingObject.filters = false;
-            apiService(`/api/edna/extracts-lite/?collection=${this.projectId}`).then(response => {
+            apiService(`/api/edna/extracts/?lite=true&collection=${this.projectId}`).then(response => {
               for (const extract of response) {
                 extract.pcrs = [];
                 // now we have to nest this extract under each filter under the "extracts" key
@@ -415,7 +415,7 @@
                 }
               }
               this.loadingObject.extracts = false;
-              apiService(`/api/edna/pcrs-lite/?collection=${this.projectId}`).then(response => {
+              apiService(`/api/edna/pcrs/?lite=true&collection=${this.projectId}`).then(response => {
                     for (const pcr of response) {
                       // now we have to nest this pcr under each extract under the "pcrs" key
                       if (!pcr.extract) {

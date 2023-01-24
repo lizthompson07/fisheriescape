@@ -123,7 +123,7 @@ class FilterSerializer(serializers.ModelSerializer):
         return attrs
 
 
-class FilterLiteSerializer(serializers.ModelSerializer):
+class FilterSerializerLITE(serializers.ModelSerializer):
     class Meta:
         model = models.Filter
         fields = "__all__"
@@ -208,7 +208,7 @@ class DNAExtractSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-class DNAExtractLiteSerializer(serializers.ModelSerializer):
+class DNAExtractSerializerLITE(serializers.ModelSerializer):
     datetime_display = serializers.SerializerMethodField()
     dna_extraction_protocol_display = serializers.SerializerMethodField()
 
@@ -269,7 +269,7 @@ class PCRSerializer(serializers.ModelSerializer):
         return str(instance)
 
 
-class PCRLiteSerializer(serializers.ModelSerializer):
+class PCRSerializerLITE(serializers.ModelSerializer):
     class Meta:
         model = models.PCR
         fields = "__all__"
@@ -288,6 +288,7 @@ class PCRAssaySerializer(serializers.ModelSerializer):
     pcr_object = serializers.SerializerMethodField()
     result_display = serializers.SerializerMethodField()
     assay_display = serializers.SerializerMethodField()
+    extract_number = serializers.SerializerMethodField()
 
     def get_assay_display(self, instance):
         if instance.assay:
@@ -299,7 +300,7 @@ class PCRAssaySerializer(serializers.ModelSerializer):
     def get_pcr_object(self, instance):
         try:
             if instance.pcr:
-                return PCRSerializer(instance.pcr).data
+                return PCRSerializerLITE(instance.pcr).data
         except:
             pass
 
@@ -332,7 +333,8 @@ class CollectionSerializer(serializers.ModelSerializer):
     date_display = serializers.SerializerMethodField()
 
     def get_date_display(self, instance):
-        return instance.start_date.strftime("%Y-%m-%d")
+        if instance.start_date:
+            return instance.start_date.strftime("%Y-%m-%d")
 
 
 class ExtractionBatchSerializer(serializers.ModelSerializer):

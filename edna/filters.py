@@ -112,6 +112,7 @@ class SampleBatchFilter(django_filters.FilterSet):
             'default_collection': ['exact'],
         }
 
+
 class FiltrationBatchFilter(django_filters.FilterSet):
     class Meta:
         model = models.FiltrationBatch

@@ -94,9 +94,15 @@ class SampleModelMetaAPIView(APIView):
 class FilterViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.FilterSerializer
     permission_classes = [eDNACRUDOrReadOnly]
-    queryset = models.Filter.objects.all()
+    queryset = models.Filter.objects.all().select_related("filtration_batch", "sample", "collection", "filtration_type")
     filter_backends = (DjangoFilterBackend,)
     filterset_class = FilterFilter
+
+    def get_serializer_class(self):
+        qp = self.request.query_params
+        if qp.get("lite"):
+            return serializers.FilterSerializerLITE
+        return serializers.FilterSerializer
 
     def create(self, request, *args, **kwargs):
         qp = request.query_params
@@ -152,11 +158,6 @@ class FilterViewSet(viewsets.ModelViewSet):
         serializer.save(updated_by=self.request.user)
 
 
-class FilterLiteViewSet(FilterViewSet):
-    serializer_class = serializers.FilterLiteSerializer
-    queryset = models.Filter.objects.all().select_related("filtration_batch", "sample", "collection", "filtration_type")
-
-
 class FilterModelMetaAPIView(APIView):
     permission_classes = [IsAuthenticated]
     model = models.Filter
@@ -171,9 +172,16 @@ class FilterModelMetaAPIView(APIView):
 class DNAExtractViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.DNAExtractSerializer
     permission_classes = [eDNACRUDOrReadOnly]
-    queryset = models.DNAExtract.objects.all()
+    queryset = models.DNAExtract.objects.all().select_related("extraction_batch", "filter", "sample", "collection",
+                                                              "dna_extraction_protocol")
     filter_backends = (DjangoFilterBackend,)
     filterset_class = DNAExtractFilter
+
+    def get_serializer_class(self):
+        qp = self.request.query_params
+        if qp.get("lite"):
+            return serializers.DNAExtractSerializerLITE
+        return serializers.DNAExtractSerializer
 
     def create(self, request, *args, **kwargs):
         qp = request.query_params
@@ -229,12 +237,6 @@ class DNAExtractViewSet(viewsets.ModelViewSet):
         serializer.save(updated_by=self.request.user)
 
 
-class DNAExtractLiteViewSet(DNAExtractViewSet):
-    serializer_class = serializers.DNAExtractLiteSerializer
-    queryset = models.DNAExtract.objects.all().select_related("extraction_batch", "filter", "sample", "collection",
-                                                              "dna_extraction_protocol")
-
-
 class DNAExtractModelMetaAPIView(APIView):
     permission_classes = [IsAuthenticated]
     model = models.DNAExtract
@@ -251,9 +253,15 @@ class DNAExtractModelMetaAPIView(APIView):
 class PCRViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.PCRSerializer
     permission_classes = [eDNACRUDOrReadOnly]
-    queryset = models.PCR.objects.all()
+    queryset = models.PCR.objects.all().select_related("pcr_batch", "extract", "collection", "master_mix")
 
     # pagination_class = StandardResultsSetPagination
+
+    def get_serializer_class(self):
+        qp = self.request.query_params
+        if qp.get("lite"):
+            return serializers.PCRSerializerLITE
+        return serializers.PCRSerializer
 
     def list(self, request, *args, **kwargs):
         qp = request.query_params
@@ -276,12 +284,6 @@ class PCRViewSet(viewsets.ModelViewSet):
 
     def perform_update(self, serializer):
         serializer.save(updated_by=self.request.user)
-
-
-class PCRLiteViewSet(PCRViewSet):
-    serializer_class = serializers.PCRLiteSerializer
-    queryset = models.PCR.objects.all().select_related("pcr_batch", "extract", "collection", "master_mix")
-
 
 
 class PCRModelMetaAPIView(APIView):
@@ -341,6 +343,10 @@ class PCRAssayViewSet(viewsets.ModelViewSet):
 
     def perform_update(self, serializer):
         serializer.save(updated_by=self.request.user)
+
+    def get_queryset(self):
+        return self.get_serializer_class().setup_eager_loading(self.queryset)
+
 
 # class SpeciesObservationViewSet(viewsets.ModelViewSet):
 #     serializer_class = serializers.SpeciesObservationSerializer
