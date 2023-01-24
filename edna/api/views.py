@@ -44,8 +44,6 @@ class CollectionViewSet(viewsets.ModelViewSet):
         return super().retrieve(request, *args, **kwargs)
 
 
-
-
 class FiltrationBatchViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.FiltrationBatchSerializer
     permission_classes = [eDNACRUDOrReadOnly]
@@ -71,7 +69,7 @@ class SampleViewSet(viewsets.ModelViewSet):
     permission_classes = [eDNACRUDOrReadOnly]
     filter_backends = (DjangoFilterBackend,)
     filterset_class = SampleFilter
-    queryset = models.Sample.objects.all()
+    queryset = models.Sample.objects.all().select_related("sample_type", "collection").prefetch_related("filters", "extracts")
 
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user, updated_by=self.request.user)
@@ -96,9 +94,15 @@ class SampleModelMetaAPIView(APIView):
 class FilterViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.FilterSerializer
     permission_classes = [eDNACRUDOrReadOnly]
-    queryset = models.Filter.objects.all()
+    queryset = models.Filter.objects.all().select_related("filtration_batch", "sample", "collection", "filtration_type")
     filter_backends = (DjangoFilterBackend,)
     filterset_class = FilterFilter
+
+    def get_serializer_class(self):
+        qp = self.request.query_params
+        if qp.get("lite"):
+            return serializers.FilterSerializerLITE
+        return serializers.FilterSerializer
 
     def create(self, request, *args, **kwargs):
         qp = request.query_params
@@ -168,9 +172,16 @@ class FilterModelMetaAPIView(APIView):
 class DNAExtractViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.DNAExtractSerializer
     permission_classes = [eDNACRUDOrReadOnly]
-    queryset = models.DNAExtract.objects.all()
+    queryset = models.DNAExtract.objects.all().select_related("extraction_batch", "filter", "sample", "collection",
+                                                              "dna_extraction_protocol")
     filter_backends = (DjangoFilterBackend,)
     filterset_class = DNAExtractFilter
+
+    def get_serializer_class(self):
+        qp = self.request.query_params
+        if qp.get("lite"):
+            return serializers.DNAExtractSerializerLITE
+        return serializers.DNAExtractSerializer
 
     def create(self, request, *args, **kwargs):
         qp = request.query_params
@@ -242,9 +253,15 @@ class DNAExtractModelMetaAPIView(APIView):
 class PCRViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.PCRSerializer
     permission_classes = [eDNACRUDOrReadOnly]
-    queryset = models.PCR.objects.all()
+    queryset = models.PCR.objects.all().select_related("pcr_batch", "extract", "collection", "master_mix")
 
     # pagination_class = StandardResultsSetPagination
+
+    def get_serializer_class(self):
+        qp = self.request.query_params
+        if qp.get("lite"):
+            return serializers.PCRSerializerLITE
+        return serializers.PCRSerializer
 
     def list(self, request, *args, **kwargs):
         qp = request.query_params
@@ -315,7 +332,7 @@ class PCRAssayViewSet(viewsets.ModelViewSet):
         qp = request.query_params
         if qp.get("batch"):
             batch = get_object_or_404(models.PCRBatch, pk=qp.get("batch"))
-            qs = models.PCRAssay.objects.filter(pcr__pcr_batch=batch)
+            qs = models.PCRAssay.objects.filter(pcr__pcr_batch=batch).select_related("pcr__extract", "pcr__extract__filter", "pcr__extract__sample")
             serializer = self.get_serializer(qs, many=True)
             return Response(serializer.data)
         raise ValidationError(_("You need to specify a batch"))
@@ -326,6 +343,7 @@ class PCRAssayViewSet(viewsets.ModelViewSet):
 
     def perform_update(self, serializer):
         serializer.save(updated_by=self.request.user)
+
 
 # class SpeciesObservationViewSet(viewsets.ModelViewSet):
 #     serializer_class = serializers.SpeciesObservationSerializer

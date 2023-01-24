@@ -69,6 +69,17 @@ def get_batch_field_list():
     return my_list
 
 
+def get_sample_batch_field_list():
+    my_list = [
+        "default_collection",
+        "datetime",
+        "operators",
+        "sent_by",
+        "storage_location"
+    ]
+    return my_list
+
+
 def get_pcr_batch_field_list():
     my_list = [
         "display_time|{}".format(_("date/time")),

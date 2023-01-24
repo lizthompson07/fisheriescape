@@ -105,11 +105,11 @@
 
 
           <td class="px-1 text-muted">
-            <span v-if="obj.pcr_object.extract">${obj.pcr_object.extract_object.extraction_number|nz("n/a")} (${obj.pcr_object.extract_object.display}) </span>
+            <span v-if="obj.extraction_number">${obj.extraction_number|nz("n/a")}</span>
             <span v-else>-----</span>
           </td>
           <td class="px-1 text-muted">
-            <span v-if="obj.pcr_object.extract">${obj.pcr_object.extract_object.info_display|nz}</span>
+            <span v-if="obj.info_display">${obj.info_display|nz}</span>
             <span v-else>-----</span>
           </td>
 
