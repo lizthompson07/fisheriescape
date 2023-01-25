@@ -1,11 +1,33 @@
 {% load verbose_names %}
 {% load i18n %}
+{% load static %}
 {% get_current_language as LANG %}
 
 
 <table class="table table-striped table-sm" style="font-size: 15px">
+  <tr>
+    <th>{% trans "External Links" %}</th>
+    <td>
+
+      <div>
+        {% if object.fgp_url %}
+          <a class="stop-blank mx-1" href="{{ object.fgp_url }}" data-toggle="tooltip"
+             title="Open URL in the Federal Geospatial Platform">
+            <img src="{% static 'img/icons/fgp.png' %}" alt="" width="40px">
+          </a>
+        {% endif %}
+        {% if object.public_url %}
+          <a class="stop-blank mx-1" href="{{ object.public_url }}" data-toggle="tooltip"
+             title="Open URL in the Open Government Portal">
+            <img src="{% static 'img/icons/canada.png' %}" alt="" width="40px">
+          </a>
+        {% endif %}
+      </div>
+
+
+    </td>
+  </tr>
   {% verbose_td_display object "uuid" %}
-  {% verbose_td_display object "odi_id" %}
   {% if LANG == 'fr' %}
     {% verbose_td_display object "title_fre" %}
     {% verbose_td_display object "descr_fre" to_html=True %}
@@ -23,8 +45,8 @@
   {% verbose_td_display object "time_period|time period" %}
   {% verbose_td_display object "storage_envr_notes" to_html=True %}
   {% verbose_td_display object "notes" to_html=True %}
-  {% verbose_td_display object "fgp_url" url=True %}
-  {% verbose_td_display object "public_url" url=True %}
+  {#  {% verbose_td_display object "fgp_url" url=True %}#}
+  {#  {% verbose_td_display object "public_url" url=True %}#}
   {% verbose_td_display object "fgp_publication_date" %}
   {% verbose_td_display object "od_publication_date" %}
   {% verbose_td_display object "last_revision_date" %}

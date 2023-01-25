@@ -623,7 +623,7 @@ def construct(my_resource, pretty=True):
     try:
         codelist(root, "gmd:hierarchyLevel", "gmd:MD_ScopeCode",
                  "http://nap.geogratis.gc.ca/metadata/register/napMetadataRegister.xml#IC_108",
-                 my_resource.resource_type.code, my_resource.resource_type.label)
+                 my_resource.get_resource_type_instance().code, my_resource.get_resource_type_instance().label)
     except AttributeError:
         print("no resource_type")
 
@@ -661,8 +661,8 @@ def construct(my_resource, pretty=True):
     RS_Identifier = SubElement(referenceSystemIdentifier, 'gmd:RS_Identifier')
 
     try:
-        charstring(RS_Identifier, 'gmd:code', my_resource.spat_ref_system.code)
-        charstring(RS_Identifier, 'gmd:codeSpace', my_resource.spat_ref_system.codespace)
+        charstring(RS_Identifier, 'gmd:code', my_resource.get_spat_ref_system_instance().code)
+        charstring(RS_Identifier, 'gmd:codeSpace', my_resource.get_spat_ref_system_instance().codespace)
     except AttributeError:
         print("no spat_ref_system")
 
@@ -729,8 +729,8 @@ def construct(my_resource, pretty=True):
     # status
     try:
         codelist(MD_DataIdentification, "gmd:status", "gmd:MD_ProgressCode",
-                 "http://nap.geogratis.gc.ca/metadata/register/napMetadataRegister.xml#IC_106", my_resource.status.code,
-                 my_resource.status.label)
+                 "http://nap.geogratis.gc.ca/metadata/register/napMetadataRegister.xml#IC_106", my_resource.get_status_instance().code,
+                 my_resource.get_status_instance().label)
     except AttributeError:
         print("no 'status'")
 
@@ -740,7 +740,7 @@ def construct(my_resource, pretty=True):
     try:
         codelist(MD_MaintenanceInformation, "gmd:maintenanceAndUpdateFrequency", "gmd:MD_MaintenanceFrequencyCode",
                  "http://nap.geogratis.gc.ca/metadata/register/napMetadataRegister.xml#IC_102",
-                 my_resource.maintenance.code, my_resource.maintenance.code)
+                 my_resource.get_maintenance_instance().code, my_resource.get_maintenance_instance().code)
     except AttributeError:
         print("no 'maintenance'")
 
@@ -815,7 +815,7 @@ def construct(my_resource, pretty=True):
     try:
         codelist(MD_DataIdentification, "gmd:spatialRepresentationType", "gmd:MD_SpatialRepresentationTypeCode",
                  "http://nap.geogratis.gc.ca/metadata/register/napMetadataRegister.xml#IC_109",
-                 my_resource.spat_representation.code, my_resource.spat_representation.label)
+                 my_resource.get_spat_representation_instance().code, my_resource.get_spat_representation_instance().label)
     except AttributeError:
         print("No 'spat_representation'")
 
@@ -826,7 +826,7 @@ def construct(my_resource, pretty=True):
     try:
         codelist(MD_DataIdentification, "gmd:characterSet", "gmd:MD_CharacterSetCode",
                  "http://nap.geogratis.gc.ca/metadata/register/napMetadataRegister.xml#IC_195",
-                 my_resource.data_char_set.code, my_resource.data_char_set.label)
+                 my_resource.get_data_char_set_instance().code, my_resource.get_data_char_set_instance().label)
     except AttributeError:
         print("No 'data_char_set")
 
@@ -900,7 +900,7 @@ def construct(my_resource, pretty=True):
         URL = SubElement(linkage, 'gmd:URL').text = data_resource.url
         charstring(CI_OnlineResource, 'gmd:protocol', data_resource.protocol)
         charstring(CI_OnlineResource, 'gmd:name', data_resource.name_eng, data_resource.name_fre)
-        charstring(CI_OnlineResource, 'gmd:description', data_resource.content_type.english_value, data_resource.content_type.french_value)
+        charstring(CI_OnlineResource, 'gmd:description', data_resource.get_content_type_instance().english_value, data_resource.get_content_type_instance().french_value)
 
     # for each web service
     for web_service in my_resource.web_services.all():
@@ -914,8 +914,8 @@ def construct(my_resource, pretty=True):
         URL = SubElement(linkage, 'gmd:URL').text = web_service.url
         charstring(CI_OnlineResource, 'gmd:protocol', web_service.protocol)
         charstring(CI_OnlineResource, 'gmd:name', web_service.name_eng, web_service.name_fre)
-        charstring(CI_OnlineResource, 'gmd:description', web_service.content_type.english_value,
-                   web_service.content_type.french_value)
+        charstring(CI_OnlineResource, 'gmd:description', web_service.get_content_type_instance().english_value,
+                   web_service.get_content_type_instance().french_value)
     if pretty:
         return prettify(root) if not None else None  # DJF: this is being added here because of a periodic failure in unit testing. Not a solution :(
     else:
@@ -1084,7 +1084,7 @@ def verify(resource):
                 checklist.append("A selection for {} is missing.".format(resource._meta.get_field(fk_field).verbose_name))
                 rating = rating - 1
             #   otherwise check for attr value
-            elif nz(getattr(getattr(resource, fk_field), attr_field), None) is None:
+            elif nz(getattr(getattr(resource, f"get_{fk_field}_instance")(), attr_field), None) is None:
                 verbose_name_fk = resource._meta.get_field(fk_field).verbose_name
                 verbose_name_attr = getattr(resource, fk_field)._meta.get_field(attr_field).verbose_name
                 checklist.append(

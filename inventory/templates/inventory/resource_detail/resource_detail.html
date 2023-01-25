@@ -203,22 +203,9 @@
     <div class="col-4">
       <div class="mb-3">
         <div class="neighbours">
-          <h4>Basic Detail</h4>
+          <h4>Detail</h4>
         </div>
-        <div class="neighbours">
-          {% if object.fgp_url %}
-            <a class="stop-blank mx-1" href="{{ object.fgp_url }}" data-toggle="tooltip"
-               title="Open URL in the Federal Geospatial Platform">
-              <img src="{% static 'img/icons/fgp.png' %}" alt="" width="40px">
-            </a>
-          {% endif %}
-          {% if object.public_url %}
-            <a class="stop-blank mx-1" href="{{ object.public_url }}" data-toggle="tooltip"
-               title="Open URL in the Open Government Portal">
-              <img src="{% static 'img/icons/canada.png' %}" alt="" width="40px">
-            </a>
-          {% endif %}
-        </div>
+
       </div>
       {% include "inventory/resource_detail/_resource_detail_basic.html" %}
     </div>

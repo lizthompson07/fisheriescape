@@ -10,7 +10,7 @@ chosen_js = {"class": "chosen-select-contains"}
 
 
 class ResourceFilter(django_filters.FilterSet):
-    search_term = django_filters.CharFilter(field_name='search_term', label=_("Search term"), lookup_expr='icontains',
+    search_term = django_filters.CharFilter(field_name='search_term', label=_("Search term (title, uuid, ...)"), lookup_expr='icontains',
                                             widget=forms.TextInput())
     region = django_filters.ModelChoiceFilter(field_name="section__division__branch__region", label=_("Region"), lookup_expr='exact',
                                               queryset=shared_models.Region.objects.all())
@@ -20,8 +20,6 @@ class ResourceFilter(django_filters.FilterSet):
     person = django_filters.ModelChoiceFilter(field_name="people", label=_("Person"), lookup_expr='exact',
                                               queryset=models.Person.objects.all(),
                                               widget=forms.Select(attrs=chosen_js), )
-    resource_type = django_filters.ModelChoiceFilter(field_name="resource_type", label=_("Resource type"), lookup_expr='exact',
-                                                     queryset=models.ResourceType.objects.all())
 
     fgp_publication_date = django_filters.BooleanFilter(field_name="fgp_publication_date",
                                                         lookup_expr='isnull', label=_("Published to FGP?"),

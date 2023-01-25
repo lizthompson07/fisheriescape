@@ -8,7 +8,7 @@
         {% for item in object.web_services.all %}
             <li>
                 <a href="#" pop-href="{% url 'inventory:web_service_edit' item.id %}">
-                    {{ item.content_type }} ({{ item.get_service_language_display }})
+                    {{ item.get_content_type_instance.title }} ({{ item.get_service_language_display }})
                 </a>
                 <br>
                 (<a href="{{ item.url }}" target="_blank">visit URL</a>)

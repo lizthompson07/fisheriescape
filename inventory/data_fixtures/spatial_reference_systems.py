@@ -1,3 +1,5 @@
+from shared_models.utils import dotdict
+
 object_list = [
     {
         "id": 1,
@@ -51,8 +53,16 @@ def get_choices():
 def get_dict():
     my_dict = dict()
     for item in object_list:
-        my_dict[item["id"]] = dict()
-        my_dict[item["id"]]["label"] = item["label"]
-        my_dict[item["id"]]["code"] = item["code"]
-        my_dict[item["id"]]["codespace"] = item["codespace"]
+        id = item["id"]
+        my_dict[id] = dict()
+        for key in item:
+            if not key == "id":
+                my_dict[id][key] = item[key]
     return my_dict
+
+
+def get_instance(id):
+    instance = get_dict().get(id)
+    if instance:
+        return dotdict(instance)
+    return instance

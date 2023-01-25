@@ -5,7 +5,7 @@ from collections import OrderedDict
 from copy import deepcopy
 
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.db.models import Value, TextField, Q, Count
 from django.db.models.functions import Concat
@@ -136,15 +136,15 @@ class ResourceListView(InventoryBasicMixin, CommonFilterView):
     new_object_url = reverse_lazy("inventory:resource_new")
     paginate_by = 25
     field_list = [
+        {"name": ' '},
         {"name": 't_title|{}'.format(gettext_lazy("title")), "class": "w-30", "width": ""},
-        {"name": 'uuid', "class": "", "width": ""},
-        {"name": 'region', "class": "", "width": ""},
+        {"name": 'external_links|{}'.format(gettext_lazy("external links"))},
         {"name": 'resource_type', "class": "", "width": ""},
-        {"name": 'status', "class": "", "width": ""},
+        {"name": 'region'},
         {"name": 'section', "class": "w-15", "width": ""},
         {"name": 'Previous time certified', "class": "", "width": ""},
         {"name": 'completeness rating', "class": "", "width": ""},
-        {"name": 'translation_needed', "class": "", "width": ""},
+        {"name": 'review_status|{}'.format(gettext_lazy("review status"))}
     ]
 
     def is_personalized(self):
@@ -422,14 +422,15 @@ def add_favourites(request, pk):
     resource = get_object_or_404(models.Resource, pk=pk)
     resource.favourited_by.add(request.user)
     messages.info(request, f"This resource has been added to your favourites.")
-    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER') + f"#id_{resource.id}")
+
 
 @login_required(login_url='/accounts/login/')
 def remove_favourites(request, pk):
     resource = get_object_or_404(models.Resource, pk=pk)
     resource.favourited_by.remove(request.user)
     messages.info(request, f"This resource has been removed from your favourites.")
-    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER') + f"#id_{resource.id}")
 
 
 class ResourcePublicationFlagUpdateView(InventoryLoginRequiredMixin, CommonPopoutUpdateView):

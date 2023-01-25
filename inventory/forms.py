@@ -6,6 +6,7 @@ from django.utils.translation import gettext as _, gettext_lazy
 
 from shared_models import models as shared_models
 from . import models
+from .data_fixtures import resource_types, statuses
 
 chosen_js = {"class": "chosen-select-contains"}
 attr_fp_date_time = {"class": "fp-date-time", "placeholder": "Select Date and Time.."}
@@ -84,11 +85,11 @@ class ResourceForm(forms.ModelForm):
         self.fields['section'].widget.attrs = chosen_js
 
         resource_type_choices = [(obj.id, "{}  ({})".format(obj.label, obj.notes) if obj.notes else "{}".format(obj.label)) for obj in
-                                 models.ResourceType.objects.all()]
+                                 resource_types.get_instances()]
         resource_type_choices.insert(0, tuple((None, "---")))
 
         status_choices = [(obj.id, "{}  ({})".format(obj.label, obj.notes) if obj.notes else "{}".format(obj.label)) for obj in
-                          models.Status.objects.all()]
+                          statuses.get_instances()]
         status_choices.insert(0, tuple((None, "---")))
         self.fields['resource_type'].choices = resource_type_choices
         self.fields['status'].choices = status_choices
