@@ -377,8 +377,7 @@ class Filter(MetadataFields):
         return not self.sample
 
     def __str__(self):
-        mystr = f"f{self.id}"
-        return mystr
+        return self.tube_id
 
     def save(self, *args, **kwargs):
         # if there is a sample, the collection is known
@@ -468,18 +467,19 @@ class DNAExtract(MetadataFields):
         super().save(*args, **kwargs)
 
     class Meta:
-        ordering = ["extraction_batch", "order", "id"]
+        ordering = ["extraction_batch", "order", "filter__tube_id", "id"]
 
     @property
     def is_extraction_blank(self):
         return not self.sample and not self.filter
 
     def __str__(self):
-        mystr = f"x{self.id}"
+        if self.extraction_number:
+            return self.extraction_number
         # if there is no sample or filter associated with this extract, it is an extraction blank
         # if not self.sample and not self.filter:
         #     mystr += " (extraction blank)"
-        return mystr
+        return "N/A"
 
     @property
     def display(self):
@@ -560,7 +560,9 @@ class PCR(MetadataFields):
         ordering = ["pcr_plate_well_prefix", "pcr_plate_well_suffix", "pcr_batch", "extract__id", "id"]
 
     def __str__(self):
-        return f"q{self.id}"
+        if self.pcr_plate_well:
+            return self.pcr_plate_well
+        return "N/A"
 
     @property
     def display(self):

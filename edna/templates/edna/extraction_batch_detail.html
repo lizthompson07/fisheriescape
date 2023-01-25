@@ -1,3 +1,4 @@
+<script src="http://localhost:8098"></script>
 {% extends 'edna/base.html' %}
 {% load verbose_names %}
 {% load i18n %}
@@ -68,10 +69,9 @@
               @move-down="updateOrder('down')"
             ></select-tools>
           </th>
-          <th class="px-1 py-1 w75px">{% trans "Extraction ID" %}</th>
-          <th class="px-1 py-1 w75px">{% trans "Sample ID" %}</th>
-          <th class="px-1 py-1 w75px">${labels.filter}</th>
-          <th class="px-1 py-1 w75px">{% trans "Tube ID" %}</th>
+          <th class="px-1 py-1 w75px">{% trans "Extraction" %}</th>
+          <th class="px-1 py-1 w75px">{% trans "Sample" %}</th>
+          <th class="px-1 py-1 w75px">{% trans "Filter" %}</th>
           <th class="px-1 py-1 w100px">{% trans "Type" %}</th>
           <th class="px-1 py-1 w150px">
             ${labels.extraction_number}<br>
@@ -112,10 +112,6 @@
           </td>
           <td class="px-1 text-muted">
             <span v-if="obj.filter_object">${obj.filter_object.display}</span>
-            <span v-else>-----</span>
-          </td>
-          <td class="px-1  py-0 text-muted" tabindex="-1">
-            <span v-if="obj.filter_object">${obj.filter_object.tube_id}</span>
             <span v-else>-----</span>
           </td>
           <td class="px-1  py-0 text-muted" tabindex="-1">
