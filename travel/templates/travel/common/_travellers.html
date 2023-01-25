@@ -54,13 +54,13 @@
                       data-toggle="tooltip"
                       title="{% trans "Clone" %}"></span></button>
 
-                    <button
-                      class="btn btn-sm btn-outline-dark"
-                      v-if="canModify && !t.show_me"
-                      @click="deleteTraveller(t)"
-                    >
-                      <span class="mdi mdi-delete h4" data-toggle="tooltip" title="{% trans "Remove" %}"></span>
-                    </button>
+{#                    <button#}
+{#                      class="btn btn-sm btn-outline-dark"#}
+{#                      v-if="canModify && !t.show_me"#}
+{#                      @click="deleteTraveller(t)"#}
+{#                    >#}
+{#                      <span class="mdi mdi-delete h4" data-toggle="tooltip" title="{% trans "Remove" %}"></span>#}
+{#                    </button>#}
 
                     <button
                       class="btn btn-sm btn-outline-dark"
@@ -69,7 +69,18 @@
                         <span
                           class="mdi mdi-check-circle text-success h4"
                           data-toggle="tooltip"
-                          title="{% trans "Cherry Pick" %}"
+                          title="{% trans "Cherry Pick Approve" %}"
+                        ></span>
+                    </button>
+
+                    <button
+                      class="btn btn-sm btn-outline-dark"
+                      v-if="isReview && t.request_obj.can_cherry_pick && !t.show_me && (!request || request.travellers.length > 1)"
+                      @click="cherryPickDenyTraveller(t)">
+                        <span
+                          class="mdi mdi-close-circle text-danger h4"
+                          data-toggle="tooltip"
+                          title="{% trans "Cherry Pick Deny" %}"
                         ></span>
                     </button>
 
@@ -114,12 +125,19 @@
                       </a>
                       <button v-if="canModify" @click="editTraveller(t)" class="btn btn-sm btn-warning">{% trans "Edit" %}</button>
                       <button v-if="!isReview && canModify && !trip" @click="addTraveller(t)" class="btn btn-sm btn-dark">{% trans "Clone" %}</button>
-                      <button v-if="canModify" @click="deleteTraveller(t)" class="btn btn-sm btn-danger">{% trans "Remove" %}</button>
+                      <button v-if="canModify" @click="deleteTraveller(t)" class="btn btn-sm btn-secondary">{% trans "Remove Traveller" %}</button>
                       <button
                         v-if="isReview && t.request_obj.can_cherry_pick && (!request || request.travellers.length > 1)"
                         @click="cherryPickTraveller(t)"
-                        class="btn btn-sm btn-success"
+                        class="btn btn-sm btn-success ml-5"
                       >{% trans "Cherry Pick Approval" %}</button>
+                      <button
+                        v-if="isReview && t.request_obj.can_cherry_pick && (!request || request.travellers.length > 1)"
+                        @click="cherryPickDenyTraveller(t)"
+                        class="btn btn-sm btn-danger"
+                      >{% trans "Cherry Pick Deny" %}</button>
+
+
                     </div>
                   </div>
                 </div>

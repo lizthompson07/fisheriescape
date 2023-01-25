@@ -110,6 +110,16 @@ class FileForm(forms.ModelForm):
         fields = "__all__"
 
 
+class SampleBatchForm(forms.ModelForm):
+    class Meta:
+        model = models.SampleBatch
+        fields = "__all__"
+        widgets = {
+            "datetime": forms.DateInput(attrs=dict(type="date")),
+            "operators": forms.SelectMultiple(attrs=chosen_js),
+        }
+
+
 class FiltrationBatchForm(forms.ModelForm):
     class Meta:
         model = models.FiltrationBatch

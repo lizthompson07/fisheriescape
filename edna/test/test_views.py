@@ -374,6 +374,144 @@ class TestFileUpdateView(CommonTest):
         self.assert_correct_url("edna:file_edit", f"/en/edna/files/{self.instance.pk}/edit/", [self.instance.pk])
 
 
+class TestSampleBatchCreateView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.test_url = reverse_lazy('edna:sample_batch_new')
+        self.expected_template = 'edna/form.html'
+        self.user = self.get_and_login_user(is_admin=True)
+
+    @tag("SampleBatch", "sample_batch_new", "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.SampleBatchCreateView, CommonCreateView)
+
+    @tag("SampleBatch", "sample_batch_new", "access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("SampleBatch", "sample_batch_new", "submit")
+    def test_submit(self):
+        data = FactoryFloor.SampleBatchFactory.get_valid_data()
+        self.assert_success_url(self.test_url, data=data, user=self.user)
+
+    @tag("SampleBatch", "sample_batch_new", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("edna:sample_batch_new", f"/en/edna/sample-batches/new/")
+
+
+class TestSampleBatchDeleteView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.SampleBatchFactory()
+        self.test_url = reverse_lazy('edna:sample_batch_delete', args=[self.instance.pk, ])
+        self.expected_template = 'edna/confirm_delete.html'
+        self.user = self.get_and_login_user(is_admin=True)
+
+    @tag("SampleBatch", "sample_batch_delete", "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.SampleBatchDeleteView, CommonDeleteView)
+
+    @tag("SampleBatch", "sample_batch_delete", "access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("SampleBatch", "sample_batch_delete", "submit")
+    def test_submit(self):
+        data = FactoryFloor.SampleBatchFactory.get_valid_data()
+        self.assert_success_url(self.test_url, data=data, user=self.user)
+
+        # for delete views...
+        self.assertEqual(models.SampleBatch.objects.filter(pk=self.instance.pk).count(), 0)
+
+    @tag("SampleBatch", "sample_batch_delete", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("edna:sample_batch_delete", f"/en/edna/sample-batches/{self.instance.pk}/delete/", [self.instance.pk])
+
+
+class TestSampleBatchDetailView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.SampleBatchFactory()
+        self.test_url = reverse_lazy('edna:sample_batch_detail', args=[self.instance.pk, ])
+        self.expected_template = 'edna/sample_batch_detail.html'
+        self.user = self.get_and_login_user(is_admin=True)
+
+    @tag("SampleBatch", "sample_batch_detail", "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.SampleBatchDetailView, CommonDetailView)
+
+    @tag("SampleBatch", "sample_batch_detail", "access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("SampleBatch", "sample_batch_detail", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("edna:sample_batch_detail", f"/en/edna/sample-batches/{self.instance.pk}/view/", [self.instance.pk])
+
+
+class TestSampleBatchListView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.test_url = reverse_lazy('edna:sample_batch_list')
+        self.expected_template = 'edna/list.html'
+        self.user = self.get_and_login_user(is_admin=True)
+
+    @tag("SampleBatch", "sample_batch_list", "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.SampleBatchListView, CommonFilterView)
+
+    @tag("SampleBatch", "sample_batch_list", "access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("SampleBatch", "sample_batch_list", "context")
+    def test_context(self):
+        context_vars = [
+            "field_list",
+        ]
+        self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.user)
+
+    @tag("SampleBatch", "sample_batch_list", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("edna:sample_batch_list", f"/en/edna/sample-batches/")
+
+
+class TestSampleBatchUpdateView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.SampleBatchFactory()
+        self.test_url = reverse_lazy('edna:sample_batch_edit', args=[self.instance.pk, ])
+        self.expected_template = 'edna/form.html'
+        self.user = self.get_and_login_user(is_admin=True)
+
+    @tag("SampleBatch", "sample_batch_edit", "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.SampleBatchUpdateView, CommonUpdateView)
+
+    @tag("SampleBatch", "sample_batch_edit", "access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+
+    @tag("SampleBatch", "sample_batch_edit", "submit")
+    def test_submit(self):
+        data = FactoryFloor.SampleBatchFactory.get_valid_data()
+        self.assert_success_url(self.test_url, data=data, user=self.user)
+
+    @tag("SampleBatch", "sample_batch_edit", "correct_url")
+    def test_correct_url(self):
+        # use the 'en' locale prefix to url
+        self.assert_correct_url("edna:sample_batch_edit", f"/en/edna/sample-batches/{self.instance.pk}/edit/", [self.instance.pk])
+
+
 class TestFiltrationBatchCreateView(CommonTest):
     def setUp(self):
         super().setUp()

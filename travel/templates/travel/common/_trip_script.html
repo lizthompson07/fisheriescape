@@ -6,7 +6,8 @@
   var tripId = {{ trip.id }};
   let travellerDeleteMsg = "{% trans "You are about to remove this traveller from the request? This action is irreversible!! \n\nIf you proceed with this action, an administrative note will automatically be added to this request in order to record this transaction and an email notification will be sent to the traveller. \n\nPlease type 'yes' to confirm:" %}";
   let travellerCherryPickMsg = "{% trans "You are about to approve this traveller as a one-off from the entire delegation. Are you certain you wish to proceed? \n\nPlease type 'yes' to confirm:" %}";
-  let travellerCherryPickCommentMsg = "{% trans "Please provide your approval comments here:" %}";
+  let travellerCherryPickDenyMsg = "{% trans "You are about to deny this traveller as a one-off from the entire delegation. Are you certain you wish to proceed? \n\nPlease type 'yes' to confirm:" %}";
+  let travellerCherryPickCommentMsg = "{% trans "Please provide your review comments here:" %}";
   let approveAllTravellersMsg = "{% trans "You are about to APPROVE all ELIGIBLE travellers on this trip. Are you certain you wish to proceed? \n\nPlease type 'yes' to confirm:" %}";
   let denyAllTravellersMsg = "{% trans "You are about to DENY all ELIGIBLE travellers on this trip. Are you certain you wish to proceed? \n\nPlease type 'yes' to confirm:" %}";
   let tripReviewerResetMsg = "{% trans 'Are you sure you want to reset the reviewers? This will undo any changes that you have made to the reviewer list and process order.' %}";
@@ -177,6 +178,20 @@ var app = new Vue({
         }
       }
     },
+    cherryPickDenyTraveller(traveller) {
+      var userInput = false;
+      userInput = prompt(travellerCherryPickDenyMsg);
+      if (userInput === true || userInput.toLowerCase() === "yes" || userInput.toLowerCase() === "oui") {
+        let comments = prompt(travellerCherryPickCommentMsg, _default = "denied / refusé");
+        if (comments.trim()) {
+          apiService(`/api/travel/travellers/${traveller.id}/?cherry_pick_deny=true`, "POST", {comments: comments})
+              .then(response => {
+                this.getTrip();
+              })
+        }
+      }
+    },
+
     enablePopovers() {
       $('[data-toggle="popover"]').popover({html: true});
     },

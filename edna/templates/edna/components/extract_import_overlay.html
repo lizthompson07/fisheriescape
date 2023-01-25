@@ -136,7 +136,7 @@ Vue.component("extract-import-overlay", {
       batches: [],
       selectedExtracts: [],
 
-      filterUnprocessed: true,
+      filterUnprocessed: false,
       filterCollection: null,
       filterExtractIdFrom: null,
       filterExtractIdTo: null,
@@ -160,7 +160,7 @@ Vue.component("extract-import-overlay", {
     openDialog() {
       this.error = null;
       this.overlay = true;
-      this.filterUnprocessed = true;
+      this.filterUnprocessed = false;
       this.filterExtractIdFrom = null;
       this.filterExtractIdTo = null;
       this.filterExtractionNumber = null;

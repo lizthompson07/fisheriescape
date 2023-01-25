@@ -58,11 +58,11 @@ class SearchView(PSSIBasicMixin, CommonFilterView):
                            output_field=TextField()))
     home_url_name = "pssi:index"
     container_class = "container-fluid"
-    row_object_url_name = "pssi:details"
+    row_object_url_name = "pssi:dataasset_view"
 
     # Uncomment this line when detail page has been set up. When clicking on record in Search Page, this URL will redirect to details page
     # NOTE: pssi:<name_of_page> accesses the url with name = "<name_of_page>" in the arguments of path()
-    new_object_url = reverse_lazy("pssi:details")
+    new_object_url = reverse_lazy("pssi:dataasset_view")
 
     # If implementing pagination, this defines how many results per page
     #paginate_by = 25
@@ -129,7 +129,7 @@ class DataGlossaryView(PSSIBasicMixin, CommonTemplateView):
     h1 = gettext_lazy("PSSI - Pacific Salmon Data Hub - Data Glossary")
     active_page_name_crumb = gettext_lazy("Data Glossary")
     home_url_name = "pssi:index"
-    # row_object_url_name = "pssi:data_detail"
+    # row_object_url_name = ""
     # paginate_by = 25
 
     # Define list (variable in acronym_list.html) as all objects in the Acronym table
@@ -160,7 +160,7 @@ class BusinessGlossaryView(PSSIBasicMixin, CommonTemplateView):
     h1 = gettext_lazy("PSSI - Pacific Salmon Data Hub - Business Glossary")
     active_page_name_crumb = gettext_lazy("Business Glossary")
     home_url_name = "pssi:index"
-    # row_object_url_name = "pssi:data_detail"
+    # row_object_url_name = ""
     # paginate_by = 25
 
     # Define list (variable in acronym_list.html) as all objects in the Acronym table
@@ -190,20 +190,19 @@ class DetailView(PSSIBasicMixin, CommonDetailView):
     h1 = gettext_lazy("PSSI - Pacific Salmon Data Hub - Details")
     active_page_name_crumb = gettext_lazy("Details")
     home_url_name = "pssi:index"
-    # row_object_url_name = "pssi:data_detail"
+    # row_object_url_name = ""
     # paginate_by = 25
-
-    def get_object(self, queryset=None):
-        if self.kwargs.get("uuid"):
-            return get_object_or_404(self.model, uuid=self.kwargs.get("uuid"))
-        return super().get_object(queryset)
     
-    def dispatch(self, request, *args, **kwargs):
-        obj = self.get_object()
-        if not self.kwargs.get("uuid"):
-            return HttpResponseRedirect(reverse("pssi:details_uuid", kwargs={"uuid": obj.uuid}))
+    def get_object(self, queryset=None):
+        if self.kwargs.get("data_asset_name"):
+            return get_object_or_404(self.model, data_asset_name=self.kwargs.get("data_asset_name"))
+        return super().get_object(queryset)
 
-        # xml_export.verify(obj)
+    def dispatch(self, request, *args, **kwargs):
+        obj = self.get_object()        
+        if not self.kwargs.get("data_asset_name"):
+            return HttpResponseRedirect(reverse("pssi:dataasset_view_name", kwargs={"pk": obj.pk, "data_asset_name": obj.data_asset_name}))
+
         return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -215,60 +214,37 @@ class DetailView(PSSIBasicMixin, CommonDetailView):
         data_stewards_contact_collection = []
         emails = []
 
-        for item in obj.contact_email.split(";"):
-            item = item.strip()
-            if item != "":
-                emails.append(item)
+        if obj.contact_email != None:
+            for item in obj.contact_email.split(";"):
+                item = item.strip()
+                if item != "":
+                    emails.append(item)
+        
+        if obj.data_asset_steward != None:
+            for item in obj.data_asset_steward.split(";"):
+                if item == "":
+                    continue
+                else:
+                    item = item.title()
 
-        for item in obj.data_asset_steward.split(";"):
-            if item == "":
-                continue
-            else:
-                item = item.title()
-                
-            if "," in item:
-                lname, fname = item.split(",", 1)
-                lname = lname.strip()
-                fname = fname.strip()
-            else:
-                lname = item
-                fname = ""
-                
-            email = ""
-            for e in emails:
-                if lname != "":
-                    if lname in e:
+                if "," in item:
+                    lname, fname = [x.strip() for x in item.split(",", 1)]
+                else:
+                    lname, fname = item, ""
+                    
+                email = ""
+                for e in emails:
+                    if lname != "" and lname in e:
                         email = e
                         break
-                        
-            data_stewards_contact_collection.append({
-                "lname" : lname,
-                "fname" : fname,
-                "email" : email
-            })
-        # for item in obj.contact_email.split(";"):
-        #     item = item.strip()
-        #     emails.append(item)
-        # for item in obj.data_asset_steward.split(";"):
-        #     item = item.title()
-        #     if "," in item:
-        #         lname, fname = item.split(",", 1)
-        #         lname = lname.strip()
-        #         fname = fname.strip()
-        #     else:
-        #         lname = item
-        #         fname = ""
-        #     for email in emails:
-        #         if lname != "":
-        #             if lname in email:
-        #                 data_stewards_contact_collection.append({
-        #                     "lname" : lname,
-        #                     "fname" : fname,
-        #                     "email" : email
-        #                 })
+                            
+                data_stewards_contact_collection.append({
+                    "lname" : lname,
+                    "fname" : fname,
+                    "email" : email
+                })
         context["data_stewards_contact_collection"] = data_stewards_contact_collection
         
-
         return context
 
 

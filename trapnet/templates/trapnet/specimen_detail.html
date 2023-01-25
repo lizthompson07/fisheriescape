@@ -30,7 +30,23 @@
         <div class="card-body">
           <table class="table table-sm table-bordered">
             {% for field in field_list %}
+
+              {#        'sample__site__river',#}
+              {#        'sample__site__river__fishing_area'#}
+
+              {% if field == 'sample__site' %}
+                <tr>
+                  <th>{% trans "Site" %}</th>
+                  <td><a target="_blank" href="{% url 'trapnet:site_detail' object.sample.site.id %}">{{ object.sample.site }}</a></td>
+                </tr>
+              {% elif field == 'sample__site__river' %}
+                <tr>
+                  <th>{% trans "Site" %}</th>
+                  <td><a target="_blank" href="{% url 'trapnet:river_detail' object.sample.site.river.id %}">{{ object.sample.site.river }}</a></td>
+                </tr>
+              {% else %}
                 {% verbose_td_display object field display_time=True %}
+              {% endif %}
             {% endfor %}
           </table>
         </div>

@@ -1,5 +1,7 @@
 {% extends 'edna/base.html' %}
 {% load verbose_names %}
+{% load static %}
+
 {% load i18n %}
 
 {% block subcontent %}
@@ -105,18 +107,18 @@
 
 
           <td class="px-1 text-muted">
-            <span v-if="obj.pcr_object.extract">${obj.pcr_object.extract_object.extraction_number|nz("n/a")} (${obj.pcr_object.extract_object.display}) </span>
+            <span v-if="obj.pcr_obj.extract_obj">${obj.pcr_obj.extract_obj.extraction_number|nz("n/a")}</span>
             <span v-else>-----</span>
           </td>
           <td class="px-1 text-muted">
-            <span v-if="obj.pcr_object.extract">${obj.pcr_object.extract_object.info_display|nz}</span>
+            <span v-if="obj.pcr_obj.extract_obj">${obj.pcr_obj.extract_obj.info_display|nz}</span>
             <span v-else>-----</span>
           </td>
 
           <td class="px-0 py-0">
             <text-input-cell
               type="text"
-              :sample.sync="obj.pcr_object" :row="index"
+              :sample.sync="obj.pcr_obj" :row="index"
               @keypress="unsavedChanges=true" @change="updatePCR" @setposition="setPosition" @copy-down="copyDown" @copy-double-down="copyDoubleDown"
               field="pcr_plate_well"
               :col="1"
@@ -124,7 +126,7 @@
             ></text-input-cell>
           </td>
           <td class="px-0 py-0 text-muted">
-            ${obj.pcr_object.master_mix_display}
+            ${obj.pcr_obj.master_mix_display}
           </td>
 
           {# asssays #}
@@ -198,6 +200,8 @@
   {% include "edna/components/text-input-cell.html" %}
   {% include "edna/components/extract_import_overlay.html" %}
   {% include "edna/components/select_tools.html" %}
+  <script type="text/javascript" src="{% static "js/apiJoins.js" %}"></script>
+
   <script type="application/javascript">
   let batchId = {{ object.id }};
   let projectId = {{ object.default_collection_id }};
@@ -321,8 +325,8 @@
         this.unsavedChanges = true;
         // copy the value for the field into the next row
         let index = this.pcrAssays.indexOf(obj) + 1;
-        if (this.pcrAssays[index]) this.pcrAssays[index].pcr_object[field] = input;
-        this.updatePCR(this.pcrAssays[index].pcr_object)
+        if (this.pcrAssays[index]) this.pcrAssays[index].pcr_obj[field] = input;
+        this.updatePCR(this.pcrAssays[index].pcr_obj)
       },
       copyDoubleDown(pcr, field, input) {
         console.log(pcr)
@@ -396,19 +400,22 @@
       getPCRAssays(selectedItems) {
         this.loading = true;
         if (!selectedItems) selectedItems = [];
-        endpoint = `/api/edna/pcr-assays/?batch=${batchId}`;
+        endpoint = `/api/edna/pcr-assays/?lite=true&batch=${batchId}`;
         apiService(endpoint)
-            .then(response => {
-              this.loading = false;
-              this.loading0 = false;
-              if (response.length && response[0].id) {
-                for (var i = 0; i < response.length; i++) {
-                  response[i].selected = !!selectedItems.includes(response[i].id);
-                  if (!response[i].pcr_object) response[i].pcr_object = {};
-                  if (!response[i].pcr_object.extract) response[i].pcr_object.extract = "";
-                }
-                this.pcrAssays = response;
-              }
+            .then(pcrAssayResponse => {
+              pcrEndpoint = `/api/edna/pcrs/?lite=true&batch=${batchId}`;
+              apiService(pcrEndpoint)
+                .then(pcrResponse => {
+                  extractEndpoint = `/api/edna/extracts/?lite=true`;
+                  apiService(extractEndpoint)
+                    .then(extractResponse => {
+                      pcrArray = join_api_arrays(pcrResponse, extractResponse, "extract", "id");
+                      this.pcrAssays = join_api_arrays(pcrAssayResponse, pcrResponse, "pcr", "id");
+                      console.log(this.pcrAssays)
+                      this.loading = false;
+                      this.loading0 = false;
+                  })
+                })
             })
       },
       addExtracts(extractArray, reps, assays, mm) {
@@ -496,7 +503,7 @@
         for (const item of this.selectedItems) this.deletePCRAssay(item, true);
       },
       reorder() {
-        this.pcrAssays.sort((a, b) => (a.pcr_object.extract > b.pcr_object.extract) ? 1 : ((b.pcr_object.extract > a.pcr_object.extract) ? -1 : 0))
+        this.pcrAssays.sort((a, b) => (a.pcr_obj.extract > b.pcr_obj.extract) ? 1 : ((b.pcr_obj.extract > a.pcr_obj.extract) ? -1 : 0))
       },
 
     },
@@ -512,15 +519,15 @@
           let modifier = 1;
           if (this.currentSortDir === 'desc') modifier = -1;
           if (this.currentSort === "pcr_plate_well") {
-            if (a.pcr_object["pcr_plate_well_prefix"] < b.pcr_object["pcr_plate_well_prefix"]) return -1 * modifier;
-            if (a.pcr_object["pcr_plate_well_prefix"] > b.pcr_object["pcr_plate_well_prefix"]) return 1 * modifier;
+            if (a.pcr_obj["pcr_plate_well_prefix"] < b.pcr_obj["pcr_plate_well_prefix"]) return -1 * modifier;
+            if (a.pcr_obj["pcr_plate_well_prefix"] > b.pcr_obj["pcr_plate_well_prefix"]) return 1 * modifier;
 
-            if (a.pcr_object["pcr_plate_well_suffix"] < b.pcr_object["pcr_plate_well_suffix"]) return -1 * modifier;
-            if (a.pcr_object["pcr_plate_well_suffix"] > b.pcr_object["pcr_plate_well_suffix"]) return 1 * modifier;
+            if (a.pcr_obj["pcr_plate_well_suffix"] < b.pcr_obj["pcr_plate_well_suffix"]) return -1 * modifier;
+            if (a.pcr_obj["pcr_plate_well_suffix"] > b.pcr_obj["pcr_plate_well_suffix"]) return 1 * modifier;
 
           } else if (this.currentSort === "extraction_number") {
-            if (a.pcr_object.extract_object["extraction_number"] < b.pcr_object.extract_object["extraction_number"]) return -1 * modifier;
-            if (a.pcr_object.extract_object["extraction_number"] > b.pcr_object.extract_object["extraction_number"]) return 1 * modifier;
+            if (a.pcr_obj.extract_object["extraction_number"] < b.pcr_obj.extract_object["extraction_number"]) return -1 * modifier;
+            if (a.pcr_obj.extract_object["extraction_number"] > b.pcr_obj.extract_object["extraction_number"]) return 1 * modifier;
           }
           return 0;
         });
@@ -529,7 +536,7 @@
       pcrs() {
         let payload = [];
         for (const pcrAssay of this.pcrAssays) {
-          payload.push(pcrAssay.pcr_object);
+          payload.push(pcrAssay.pcr_obj);
         }
         var flags = [], output = [], l = payload.length, i;
         for (i = 0; i < l; i++) {
