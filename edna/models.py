@@ -510,6 +510,7 @@ class PCRBatch(Batch):
         (1, _("OK")),
         (0, _("Bad")),
     )
+    default_collection = models.ManyToManyField(Collection, verbose_name=_("project(s)"))
     plate_id = models.CharField(max_length=25, blank=True, null=True, verbose_name=_(" qPCR plate ID"))
     machine_number = models.CharField(max_length=25, blank=True, null=True, verbose_name=_(" qPCR machine number"))
     run_program = models.CharField(max_length=255, blank=True, null=True, verbose_name=_(" qPCR run program"))
@@ -529,6 +530,9 @@ class PCRBatch(Batch):
     def pcr_count(self):
         return self.pcrs.count()
 
+    @property
+    def default_collection_list(self):
+        return [{'id':obj.id, 'name':obj.name } for obj in self.default_collection.all()]
 
 class PCR(MetadataFields):
     """ the filter id of this table is effectively the tube id"""

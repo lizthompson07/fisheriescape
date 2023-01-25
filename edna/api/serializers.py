@@ -211,6 +211,7 @@ class DNAExtractSerializer(serializers.ModelSerializer):
 class DNAExtractSerializerLITE(serializers.ModelSerializer):
     datetime_display = serializers.SerializerMethodField()
     dna_extraction_protocol_display = serializers.SerializerMethodField()
+    collection_display = serializers.SerializerMethodField()
 
     def get_dna_extraction_protocol_display(self, instance):
         if instance.dna_extraction_protocol:
@@ -220,6 +221,10 @@ class DNAExtractSerializerLITE(serializers.ModelSerializer):
         if instance.start_datetime:
             dt = get_timezone_time(instance.start_datetime)
             return dt.strftime("%Y-%m-%d %H:%M")
+
+    def get_collection_display(self, instance):
+        if instance.collection:
+            return instance.collection.__str__()
 
     class Meta:
         model = models.DNAExtract

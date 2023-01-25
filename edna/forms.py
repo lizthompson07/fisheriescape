@@ -158,6 +158,7 @@ class PCRBatchForm(forms.ModelForm):
         widgets = {
             "datetime": forms.DateTimeInput(attrs=attr_fp_date_time),
             "operators": forms.SelectMultiple(attrs=chosen_js),
+            "default_collection": forms.SelectMultiple(attrs=chosen_js),
         }
 
 
