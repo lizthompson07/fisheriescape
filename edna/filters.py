@@ -60,7 +60,7 @@ class DNAExtractFilter(django_filters.FilterSet):
             'id': ['exact', 'gte', 'lte'],
             'filter': ['exact'],
             'filter__sample': ['exact'],
-            'extraction_number': ['exact'],
+            'extraction_number': ['exact', 'gte', 'lte' ],
             'extraction_plate_id': ['exact'],
             'extraction_batch': ['exact'],
             'pcrs': ['isnull'],

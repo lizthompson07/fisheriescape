@@ -28,13 +28,10 @@
               <form class="mb-3" @change="getExtracts">
                 <div class="row">
                   <div class="col">
-                    <input type="number" class="form-control" placeholder="{% trans "Extract Id (from)" %}" v-model="filterExtractIdFrom">
+                    <input type="text" class="form-control" placeholder="{% trans "Extract Number (from)" %}" v-model="filterExtractionNumberFrom">
                   </div>
                   <div class="col">
-                    <input type="number" class="form-control" placeholder="{% trans "Extract Id (to)" %}" v-model="filterExtractIdTo">
-                  </div>
-                  <div class="col">
-                    <input type="text" class="form-control" placeholder="{% trans "Extraction Number" %}" v-model="filterExtractionNumber">
+                    <input type="text" class="form-control" placeholder="{% trans "Extract Number (to)" %}" v-model="filterExtractionNumberTo">
                   </div>
                   <div class="col">
                     <input type="text" class="form-control" placeholder="{% trans "Extraction Plate ID" %}" v-model="filterExtractionPlateId">
@@ -61,7 +58,7 @@
                 <label for="">{% trans "Extractions" %}</label>
                 <select name="" id="" multiple="true" class="form-control w-100" style="height: 200px" v-model="selectedExtracts" ref="extract_box">
                   <option v-for="extract in extracts" :key="extract.id" :value="extract.id">
-                    ${extract.display} &emsp;||&emsp;{% trans "Extraction number" %} &rarr; ${extract.extraction_number | nz("n/a")}
+                     ${extract.extraction_number | nz("n/a")}
                   </option>
                 </select>
               </div>
@@ -138,9 +135,8 @@ Vue.component("extract-import-overlay", {
 
       filterUnprocessed: false,
       filterCollection: null,
-      filterExtractIdFrom: null,
-      filterExtractIdTo: null,
-      filterExtractionNumber: null,
+      filterExtractionNumberFrom: null,
+      filterExtractionNumberTo: null,
       filterExtractionPlateId: null,
       filterBatch: null,
       loadingExtracts: true,
@@ -161,9 +157,8 @@ Vue.component("extract-import-overlay", {
       this.error = null;
       this.overlay = true;
       this.filterUnprocessed = false;
-      this.filterExtractIdFrom = null;
-      this.filterExtractIdTo = null;
-      this.filterExtractionNumber = null;
+      this.filterExtractionNumberFrom = null;
+      this.filterExtractionNumberTo = null;
       this.filterExtractionPlateId = null;
       this.filterBatch = null;
       this.filterCollection = this.default_collection_id;
@@ -182,10 +177,9 @@ Vue.component("extract-import-overlay", {
     getExtracts() {
       this.selectedExtracts = [];
       this.loadingExtracts = true;
-      let endpoint = '/api/edna/extracts/?'
-      if (this.filterExtractIdFrom && this.filterExtractIdFrom !== "") endpoint += `id__gte=${this.filterExtractIdFrom}&`;
-      if (this.filterExtractIdTo && this.filterExtractIdTo !== "") endpoint += `id__lte=${this.filterExtractIdTo}&`;
-      if (this.filterExtractionNumber && this.filterExtractionNumber !== "") endpoint += `extraction_number=${this.filterExtractionNumber}&`;
+      let endpoint = '/api/edna/extracts/?lite=true&'
+      if (this.filterExtractionNumberFrom && this.filterExtractionNumberFrom !== "") endpoint += `extraction_number__gte=${this.filterExtractionNumberFrom}&`;
+      if (this.filterExtractionNumberTo && this.filterExtractionNumberTo !== "") endpoint += `extraction_number__lte=${this.filterExtractionNumberTo}&`;
       if (this.filterExtractionPlateId && this.filterExtractionPlateId !== "") endpoint += `extraction_plate_id=${this.filterExtractionPlateId}&`;
       if (this.filterCollection && this.filterCollection !== "") endpoint += `collection=${this.filterCollection}&`;
       if (this.filterBatch && this.filterBatch !== "") endpoint += `extraction_batch=${this.filterBatch}&`;
