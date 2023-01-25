@@ -65,6 +65,7 @@ def get_batch_field_list():
         "datetime",
         "operators",
         "default_collection",
+        "comments",
     ]
     return my_list
 
