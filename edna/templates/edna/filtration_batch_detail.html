@@ -110,15 +110,15 @@
             ${obj.display}
           </td>
           <td class="px-1  py-0 text-muted" tabindex="-1">
-            <span v-if="obj.sample_object">${obj.sample_object.display}</span>
+            <span v-if="obj.sample_obj">${obj.sample_obj.display}</span>
             <span v-else>------</span>
           </td>
           <td class="px-1  py-0 text-muted" tabindex="-1">
-            <span v-if="obj.sample_object">${obj.sample_object.bottle_id}</span>
+            <span v-if="obj.sample_obj">${obj.sample_obj.bottle_id}</span>
             <span v-else>-----</span>
           </td>
           <td class="px-1  py-0 text-muted" tabindex="-1">
-            <span v-if="obj.sample_object" v-html="obj.sample_object.collection_time_display"></span>
+            <span v-if="obj.sample_obj" v-html="obj.sample_obj.collection_time_display"></span>
             <span v-else>-----</span>
           </td>
           <td class="px-1  py-0 text-muted" tabindex="-1">
@@ -379,7 +379,7 @@
           sample: sample,
           order: order,
           filtration_type: this.default_filtration_type,
-          start_datetime: `${now.getFullYear()}-${now.getMonth()}-${now.getDay()} ${now.getHours()}:${now.getMinutes()}`,
+          start_datetime: `${now.getFullYear()}-${now.getMonth() +1}-${now.getDay()} ${now.getHours()}:${now.getMinutes()}`,
           duration_min: null,
           filtration_volume_ml: this.default_filtration_volume_ml,
           storage_location: null,

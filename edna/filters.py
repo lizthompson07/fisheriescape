@@ -25,6 +25,7 @@ class SampleFilter(django_filters.FilterSet):
             'bottle_id': ['icontains'],
             'collection': ['exact'],
             'location': ['icontains'],
+            'site': ['icontains'],
             'filters': ['isnull'],
         }
 
@@ -60,11 +61,11 @@ class DNAExtractFilter(django_filters.FilterSet):
             'id': ['exact', 'gte', 'lte'],
             'filter': ['exact'],
             'filter__sample': ['exact'],
-            'extraction_number': ['exact'],
+            'extraction_number': ['exact', 'gte', 'lte' ],
             'extraction_plate_id': ['exact'],
             'extraction_batch': ['exact'],
             'pcrs': ['isnull'],
-            'collection': ['exact'],
+            'collection': ['exact', 'in'],
         }
 
     def __init__(self, *args, **kwargs):
