@@ -489,7 +489,7 @@
                 // need to add pcr batch and assays:
                 apiService(`/api/edna/pcr-assays/?lite=true&pcr__collection=${this.projectId}`).then(pcrAssayResponse => {
                   pcrArray = join_api_arrays(pcrResponse, pcrAssayResponse, "id", "pcr", true, "pcr_assays")
-                  apiService(`/api/edna/pcr-batches/`).then(pcrBatchResponse => {
+                    apiService(`/api/edna/pcr-batches/`).then(pcrBatchResponse => {
                     pcrArray = join_api_arrays(pcrArray, pcrBatchResponse, "pcr_batch", "id")
 
                     for (const pcr of pcrArray) {
@@ -531,7 +531,6 @@
                                           // for each assay tested, we will want to have an object in the new array
                                           tempObj = {};
                                           for (const pcrAssay of pcr.pcr_assays) {
-                                              console.log(assay, pcrAssay)
                                               if (assay.id === pcrAssay.assay) {
                                                   tempObj = pcrAssay;
                                               }
