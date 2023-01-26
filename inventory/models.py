@@ -282,7 +282,7 @@ class Resource(models.Model):
 
     # non editable etc
     uuid = models.UUIDField(blank=True, null=True, verbose_name="UUID", unique=True, editable=False)
-    review_status = models.IntegerField(default=0, editable=False, choices=model_choices.review_decision_choices)
+    review_status = models.IntegerField(default=0, editable=False, choices=model_choices.dma_status_choices)
     date_last_modified = models.DateTimeField(auto_now=True, editable=False)
     last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, editable=False, blank=True, null=True,
                                          related_name="resource_last_modified_by_users")
