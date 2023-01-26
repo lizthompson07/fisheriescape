@@ -91,18 +91,10 @@ def import_new_species():
 
 def populate_resource_people2():
     for rp in models.ResourcePerson.objects.all():
-        try:
-            rp2, created = models.ResourcePerson2.objects.get_or_create(
-                resource=rp.resource,
-                person=rp.person.user.contact
-            )
-        except shared_models.Person.DoesNotExist:
-            print("no contact found for", rp.person.user)
-            rp.person.user.save()
-            rp2, created = models.ResourcePerson2.objects.get_or_create(
-                resource=rp.resource,
-                person=rp.person.user.contact
-            )
+        rp2, created = models.ResourcePerson2.objects.get_or_create(
+            resource=rp.resource,
+            user=rp.person.user
+        )
 
         # transfer notes if this is being created for the first time
         if created:
@@ -111,24 +103,25 @@ def populate_resource_people2():
                     rp2.notes += "; " + rp.notes
                 else:
                     rp2.notes = rp.notes
-                rp2.save()
+
+        # add the org
+        rp2.organization = rp.person.organization
+        rp2.save()
 
         # add the roles
         rp2.roles.add(rp.role)
 
         # now lets compare the persons
         person1 = rp.person
-        person2 = rp2.person
+        person2 = rp2.user.profile
+
 
         if not person2.phone and person1.phone:
             person2.phone = person1.phone
-        if not person2.job_title_en and person1.position_eng:
-            person2.job_title_en = person1.position_eng
-        if not person2.job_title_fr and person1.position_fre:
-            person2.job_title_fr = person1.position_fre
-        if not person2.org_from_inventory and person1.organization:
-            person2.org_from_inventory = rp.person.organization.id
-
+        if not person2.position_eng and person1.position_eng:
+            person2.position_eng = person1.position_eng
+        if not person2.position_fre and person1.position_fre:
+            person2.position_fre = person1.position_fre
         person2.save()
 
 

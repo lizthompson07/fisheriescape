@@ -164,23 +164,26 @@ class ResourceKeywordForm(forms.ModelForm):
 
 class ResourcePersonForm(forms.ModelForm):
     class Meta:
-        model = models.ResourcePerson
+        model = models.ResourcePerson2
         fields = "__all__"
         labels = {
-            'notes': "Notes (optional)",
+            'notes': "Additional description of role (optional)",
+            'roles': "Please select all roles for this person",
         }
         widgets = {
-            'resource': forms.HiddenInput(),
-            'person': forms.HiddenInput(),
             'notes': forms.Textarea(attrs={'rows': "5"}),
+            'roles': forms.SelectMultiple(attrs=chosen_js),
+            'user': forms.Select(attrs=chosen_js),
+            'organization': forms.Select(attrs=chosen_js),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         role_choices = [(r.id, "{} - {}".format(r.role, r.notes)) for r in models.PersonRole.objects.all()]
         role_choices.insert(0, (None, "-----"))
-        self.fields['role'].choices = role_choices
-        self.fields['role'].choices = role_choices
+        self.fields['roles'].choices = role_choices
+        if kwargs.get("instance"):
+            del self.fields["user"]
 
 
 class PersonForm(forms.Form):

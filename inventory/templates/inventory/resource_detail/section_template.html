@@ -5,7 +5,10 @@
 <div class="mb-5 {% block wd %}{% endblock %}">
 
   <div class="mb-3">
-    <h4 class="neighbours">{% block section_title %}{% endblock %}</h4>
+    <h4 class="neighbours">
+    <span class="mdi {% block mdi_class %}{% endblock %}"></span>
+      {% block section_title %}{% endblock %}
+    </h4>
     {% block optional_btn %}
       <a class=" mb-2 btn btn-xs btn-outline-primary" href="{% block optional_btn_url %}{% endblock %}">
         <span class="mdi mdi-plus text-primary"></span>

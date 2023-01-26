@@ -3,7 +3,7 @@
 {% load static %}
 {% load i18n %}
 {% load custom_filters %}
-
+{% block mdi_class %}mdi-database{% endblock %}
 {% block wd %} w-75 {% endblock %}
 
 {% block section_title %}
@@ -18,6 +18,7 @@
   <th class="w-40">{% trans "File name" %}</th>
   <th class="w-20">{% trans "Uploaded on" %}</th>
   <th class="">{% trans "URL" %}</th>
+  <th class=""></th>
 {% endblock %}
 
 {% block section_table %}
@@ -39,16 +40,16 @@
           <span class="mdi mdi-download "></span>
         </a>
       </td>
-      {% if can_modify.can_modify %}
-        <td>
+      <td class="text-right">
+        {% if can_modify.can_modify %}
           <a href="#" pop-href="{% url "inventory:file_edit" item.id %}" data-toggle="tooltip" title="edit" class="btn btn-sm btn-warning">
             <span class="mdi mdi-pencil text-dark"></span>
           </a>
           <a href="#" pop-href="{% url 'inventory:file_delete' item.id %}" data-toggle="tooltip" title="delete" class="btn btn-sm btn-danger">
             <span class="mdi mdi-trash-can text-light"></span>
           </a>
-        </td>
-      {% endif %}
+        {% endif %}
+      </td>
     </tr>
   {% endfor %}
 {% endblock %}

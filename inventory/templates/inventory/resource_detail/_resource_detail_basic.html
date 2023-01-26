@@ -59,7 +59,7 @@
       <td>
         {% if object.parent.id %}
           <a href="{% url 'inventory:resource_detail' object.parent.id %}">
-            {{ object.parent }}
+            {{ object.parent.t_title }} ({{ object.parent.uuid }})
           </a>&nbsp;
         {% else %}
           <em>n/a</em>
@@ -70,13 +70,18 @@
     <tr>
       <th>{% trans "Child records" %}</th>
       <td>
-        {% for item in object.children.all %}
-          <a href="{% url 'inventory:resource_detail' item.id %}">
-            {{ item }}
-          </a><br>
-        {% empty %}
-          <em>n/a</em>
-        {% endfor %}
+        <ul>
+
+          {% for item in object.children.all %}
+            <li class="mb-1">
+              <a href="{% url 'inventory:resource_detail' item.id %}">
+                {{ item.t_title }} ({{ item.uuid }})
+              </a>
+            </li>
+          {% empty %}
+            <em>n/a</em>
+          {% endfor %}
+        </ul>
       </td>
     </tr>
     <tr>

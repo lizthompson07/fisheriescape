@@ -75,7 +75,7 @@ def ci_responsible_party(resource_person):
                attr_error_2_none(resource_person.person.get_org_instance(), "name_fre"))
 
     # positionName
-    charstring(root, 'gmd:positionName', resource_person.person.job_title_en, resource_person.person.job_title_fr)
+    charstring(root, 'gmd:positionName', resource_person.person.position_eng, resource_person.person.position_fre)
 
     contact_info = SubElement(root, "gmd:contactInfo")
     ci_contact = SubElement(contact_info, "gmd:CI_Contact")
@@ -1006,7 +1006,7 @@ def verify(resource):
 
     max_rating = len(fields_to_check) - \
                  (special_keyword_fields + special_person_fields + bilinugal_fields + fk_fields) + \
-                 (resource.people.count() * true_count_of_special_person_fields) + \
+                 (resource.users.count() * true_count_of_special_person_fields) + \
                  (resource.keywords.filter(~Q(keyword_domain_id=8)).count() * true_count_of_special_keyword_fields) + \
                  true_count_of_bilinugal_fields + \
                  true_count_of_fk_fields + 1  # the +1 at the end is for the eng and fre web-service
@@ -1158,10 +1158,10 @@ def verify(resource):
                         rating = rating - 1
                         translation_needed = True
             elif field_split[0] == "person":
-                for person in resource.people.all():
+                for person in resource.resource_people2.all():
                     if field_split[1] == "organization":
                         if len(field_split) == 2:  # means we are looking at the fk
-                            if person.org_from_inventory is None:
+                            if person.organization is None:
                                 checklist.append("An organization for {} is missing.".format(person))
                                 rating = rating - 1
                         elif field_split[2].startswith("name"):  # means we are looking at the org name
@@ -1180,9 +1180,9 @@ def verify(resource):
                                 rating = rating - 2
                         elif field_split[2].startswith("loc") and len(field_split) == 3:  # means we are looking at the fk
                             try:
-                                if person.get_org_instance().location is None:
+                                if person.organization.location is None:
                                     checklist.append("A location is needed for '{}' which is the organization belonging to {}".format(
-                                        person.get_org_from_inventory_display(), person))
+                                        person.organization, person))
                                     rating = rating - 1
                             except AttributeError:
                                 # one point is lost
@@ -1205,16 +1205,16 @@ def verify(resource):
                                 rating = rating - 2
 
                     elif field_split[1].startswith("job_title"):
-                        if person.job_title_en is None or person.job_title_en == "":
+                        if person.position_eng is None or person.position_eng == "":
                             checklist.append("An English job title is needed for {}".format(person))
                             rating = rating - 1
-                        if person.job_title_fr is None or person.job_title_fr == "":
+                        if person.position_fre is None or person.position_fre == "":
                             checklist.append("A French job title is needed for {}".format(person))
                             rating = rating - 1
 
                         # now do a special bilingual field check to see if translation is needed
-                        if (person.job_title_en is not None and person.job_title_fr is None) or (
-                                person.job_title_en is None and person.job_title_fr is not None):
+                        if (person.position_eng is not None and person.position_fre is None) or (
+                                person.position_eng is None and person.position_fre is not None):
                             translation_needed = True
 
                     elif field_split[1].startswith("user"):

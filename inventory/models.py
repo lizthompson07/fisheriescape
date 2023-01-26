@@ -89,12 +89,12 @@ class Person(models.Model):
     TODO This field should be removed and replaced by the Shared Models.
     """
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True, related_name="person")
+    organization = models.ForeignKey(Organization, on_delete=models.DO_NOTHING, blank=True, null=True)
     full_name = models.CharField(max_length=255, blank=True, null=True)
     position_eng = models.CharField(max_length=255, blank=True, null=True)
     position_fre = models.CharField(max_length=255, blank=True, null=True)
     phone = models.CharField(max_length=25, blank=True, null=True)
     language = models.IntegerField(choices=LANGUAGE_CHOICES, blank=True, null=True, verbose_name=_("language preference"))
-    organization = models.ForeignKey(Organization, on_delete=models.DO_NOTHING, blank=True, null=True)
 
     def __str__(self):
         return "{}, {}".format(self.user.last_name, self.user.first_name)
@@ -224,7 +224,7 @@ class Resource(models.Model):
     distribution_formats = models.ManyToManyField(DistributionFormat, blank=True)
     citations2 = models.ManyToManyField(shared_models.Citation, related_name='resources', blank=True)
     keywords = models.ManyToManyField(Keyword, related_name='resources', blank=True)
-    people = models.ManyToManyField(shared_models.Person, through='ResourcePerson2')
+    users = models.ManyToManyField(User, through='ResourcePerson2')
     parent = models.ForeignKey("self", on_delete=models.DO_NOTHING, blank=True, null=True, related_name='children',
                                verbose_name="Parent resource")
 
@@ -279,7 +279,7 @@ class Resource(models.Model):
     # non editable etc
     review_status = models.IntegerField(default=3, editable=False, choices=model_choices.dma_status_choices)
     date_last_modified = models.DateTimeField(auto_now=True, editable=False)
-    last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, editable=False, blank=True, null=True)
+    last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, editable=False, blank=True, null=True, related_name="resource_last_modified_by_users")
     flagged_4_deletion = models.BooleanField(default=False)
     flagged_4_publication = models.BooleanField(default=False, verbose_name=_("Flagged for Publication"))
     completedness_report = models.TextField(blank=True, null=True, verbose_name=_("completedness report"))
@@ -422,6 +422,36 @@ class Resource(models.Model):
             return resource_types.get_instance(self.resource_type)
 
 
+class ResourcePerson2(models.Model):
+    resource = models.ForeignKey(Resource, on_delete=models.CASCADE, related_name="resource_people2", editable=False)
+    user = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="resource_people")
+    roles = models.ManyToManyField(PersonRole, verbose_name=_("roles"), blank=True)
+    notes = models.TextField(blank=True, null=True, verbose_name=_("notes"))
+    organization = models.ForeignKey(Organization, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("affiliated organization"))
+
+    @property
+    def is_custodian(self):
+        return self.roles.filter(code__iexact="RI_409").exists()
+
+    class Meta:
+        unique_together = (('resource', 'user'),)
+        ordering = ['user']
+        verbose_name = "Resource Person"
+        verbose_name_plural = "Resource People"
+
+    def get_absolute_url(self):
+        return reverse('inventory:resource_detail', kwargs={'pk': self.resource.id})
+
+    @property
+    def roles_display(self):
+        if self.roles.exists():
+            return listrify(self.roles.all())
+
+    def __str__(self):
+        payload = f"{self.user}"
+        return payload
+
+
 class Review(MetadataFields):
     resource = models.ForeignKey(Resource, related_name="reviews", on_delete=models.CASCADE)
     fiscal_year = models.ForeignKey(shared_models.FiscalYear, related_name="inventory_reviews", on_delete=models.DO_NOTHING,
@@ -496,35 +526,6 @@ class ResourcePerson(models.Model):
 
     def __str__(self):
         return f"{self.person} ({self.role})"
-
-
-class ResourcePerson2(models.Model):
-    resource = models.ForeignKey(Resource, on_delete=models.CASCADE, related_name="resource_people2")
-    person = models.ForeignKey(shared_models.Person, on_delete=models.DO_NOTHING, related_name="resource_people2")
-    notes = models.TextField(blank=True, null=True, verbose_name=_("notes"))
-    roles = models.ManyToManyField(PersonRole, verbose_name=_("role"), blank=True)
-
-    @property
-    def is_custodian(self):
-        return self.roles.filter(code__iexact="RI_409").exists()
-
-    class Meta:
-        unique_together = (('resource', 'person'),)
-        ordering = ['person']
-
-    def get_absolute_url(self):
-        return reverse('inventory:resource_detail', kwargs={'pk': self.resource.id})
-
-    @property
-    def roles_display(self):
-        if self.roles.exists():
-            return listrify(self.roles.all())
-
-    def __str__(self):
-        payload = f"{self.person}"
-        if not self.person.dmapps_user:
-            payload += " (external)"
-        return payload
 
 
 class BoundingBox(models.Model):

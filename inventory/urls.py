@@ -8,6 +8,10 @@ urlpatterns = [
     # user permissions
     path('settings/users/', views.InventoryUserFormsetView.as_view(), name="manage_inventory_users"),
     path('settings/users/<int:pk>/delete/', views.InventoryUserHardDeleteView.as_view(), name="delete_inventory_user"),
+    # role
+    # org
+    # storage solution
+    # distribution format
 
     path('', views.Index.as_view(), name="index"),
 
@@ -31,20 +35,10 @@ urlpatterns = [
 
     # RESOURCE PERSON #
     ###################
-    path('<int:resource>/insert-person/', views.ResourcePersonFilterView.as_view(), name="resource_person_filter"),
-    path('<int:resource>/person/<int:person>/add/', views.ResourcePersonCreateView.as_view(), name="resource_person_add"),
+    path('resources/<int:resource>/new-resource-person/', views.ResourcePersonCreateView.as_view(), name="resource_person_add"),
     path('resource-person/<int:pk>/delete/', views.ResourcePersonDeleteView.as_view(), name="resource_person_delete"),
     path('resource-person/<int:pk>/edit/', views.ResourcePersonUpdateView.as_view(), name="resource_person_edit"),
 
-    # PEOPLE #
-    ##########
-
-    # **** DJF: I think these urls, views and templates can be deleted.
-
-    path('<int:resource>/insert-person/new/', views.PersonCreateView.as_view(), name="person_add"),
-    path('insert-person/new/', views.PersonCreateViewPopout.as_view(), name="person_add_popout"),
-    path('<int:resource>/person/<int:person>/edit/', views.PersonUpdateView.as_view(), name="person_edit"),
-    path('person/<int:person>/edit/', views.PersonUpdateView.as_view(), name="person_edit"),
 
     # RESOURCE KEYWORD #
     ####################

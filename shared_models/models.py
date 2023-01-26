@@ -8,7 +8,6 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _, gettext_lazy
 from shapely.geometry import Point
 
-from shared_models.data_fixtures import organizations
 from shared_models.utils import get_metadata_string, format_coordinates, get_last_modified_string
 
 
@@ -990,10 +989,6 @@ class Person(MetadataFields):
     old_id = models.IntegerField(blank=True, null=True, editable=False)
     expertise = models.ManyToManyField(SubjectMatter, blank=True, verbose_name=_("expertise"))
 
-    # for compatibility purposed with inventory app
-    org_from_inventory = models.IntegerField(blank=True, null=True, verbose_name=_("Organization (for use with Data Inventory app)"), choices=organizations.get_choices())
-
-
     def __str__(self):
         return self.full_name
 
@@ -1028,10 +1023,6 @@ class Person(MetadataFields):
     @property
     def has_linked_user(self):
         return bool(self.dmapps_user)
-
-    def get_org_instance(self):
-        if self.org_from_inventory:
-            return organizations.get_instance(self.org_from_inventory)
 
 
 class Publication(SimpleLookup):
