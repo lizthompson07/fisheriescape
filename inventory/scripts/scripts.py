@@ -125,3 +125,10 @@ def populate_resource_people2():
         person2.save()
 
 
+def clear_nullstrings():
+    for r in models.Resource.objects.all():
+        for field in r._meta.fields:
+            if "string" in field.description.lower() or "text" in field.description.lower():
+                if getattr(r, field.name)is not None and getattr(r, field.name).strip() == "":
+                    setattr(r, field.name, None)
+                    r.save()

@@ -169,39 +169,55 @@ class Keyword(models.Model):
 
 
 class Resource(models.Model):
+    # IDENTIFICATION
+
     uuid = models.UUIDField(blank=True, null=True, verbose_name="UUID", unique=True)
-    resource_type = models.IntegerField(choices=model_choices.resource_type_choices, blank=True, null=True)
-    # section = models.ForeignKey(Section, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="resources")
     section = models.ForeignKey(shared_models.Section, on_delete=models.DO_NOTHING, null=True, blank=True, related_name="resources")
+
     title_eng = custom_widgets.OracleTextField(verbose_name="Title (English)")
     title_fre = custom_widgets.OracleTextField(blank=True, null=True, verbose_name="Title (French)")
+
     purpose_eng = custom_widgets.OracleTextField(blank=True, null=True, verbose_name="Purpose (English)")
     purpose_fre = custom_widgets.OracleTextField(blank=True, null=True, verbose_name="Purpose (French)")
+
     descr_eng = custom_widgets.OracleTextField(blank=True, null=True, verbose_name="Description (English)")
     descr_fre = custom_widgets.OracleTextField(blank=True, null=True, verbose_name="Description (French)")
+
+    resource_type = models.IntegerField(choices=model_choices.resource_type_choices, blank=True, null=True)
+
     time_start_day = models.IntegerField(blank=True, null=True, verbose_name="Start day")
     time_start_month = models.IntegerField(blank=True, null=True, verbose_name="Start month")
     time_start_year = models.IntegerField(blank=True, null=True, verbose_name="Start year")
     time_end_day = models.IntegerField(blank=True, null=True, verbose_name="End day")
     time_end_month = models.IntegerField(blank=True, null=True, verbose_name="End month")
     time_end_year = models.IntegerField(blank=True, null=True, verbose_name="End year")
-    sampling_method_eng = models.TextField(blank=True, null=True, verbose_name="Sampling method (English)")
-    sampling_method_fre = models.TextField(blank=True, null=True, verbose_name="Sampling method (French)")
-    physical_sample_descr_eng = models.TextField(blank=True, null=True, verbose_name="Description of physical samples (English)")
-    physical_sample_descr_fre = models.TextField(blank=True, null=True, verbose_name="Description of physical samples (French)")
-    resource_constraint_eng = models.TextField(blank=True, null=True, verbose_name="Resource constraint (English)")
-    resource_constraint_fre = models.TextField(blank=True, null=True, verbose_name="Resource constraint (French)")
-    qc_process_descr_eng = models.TextField(blank=True, null=True, verbose_name="QC process description (English)")
-    qc_process_descr_fre = models.TextField(blank=True, null=True, verbose_name="QC process description (French)")
-    security_use_limitation_eng = models.CharField(max_length=255, blank=True, null=True, verbose_name="Security use limitation (English)")
-    security_use_limitation_fre = models.CharField(max_length=255, blank=True, null=True, verbose_name="Security use limitation (French)")
-    storage_envr_notes = models.TextField(blank=True, null=True, verbose_name="Storage notes (internal)")
+
     geo_descr_eng = models.CharField(max_length=1000, blank=True, null=True, verbose_name="Geographic description (English)")
     geo_descr_fre = models.CharField(max_length=1000, blank=True, null=True, verbose_name="Geographic description (French)")
     west_bounding = models.FloatField(blank=True, null=True, verbose_name="West bounding coordinate")
     south_bounding = models.FloatField(blank=True, null=True, verbose_name="South bounding coordinate")
     east_bounding = models.FloatField(blank=True, null=True, verbose_name="East bounding coordinate")
     north_bounding = models.FloatField(blank=True, null=True, verbose_name="North bounding coordinate")
+
+    # OPTIONAL
+
+    sampling_method_eng = models.TextField(blank=True, null=True, verbose_name="Sampling method (English)")
+    sampling_method_fre = models.TextField(blank=True, null=True, verbose_name="Sampling method (French)")
+    physical_sample_descr_eng = models.TextField(blank=True, null=True, verbose_name="Description of physical samples (English)")
+    physical_sample_descr_fre = models.TextField(blank=True, null=True, verbose_name="Description of physical samples (French)")
+    qc_process_descr_eng = models.TextField(blank=True, null=True, verbose_name="QC process description (English)")
+    qc_process_descr_fre = models.TextField(blank=True, null=True, verbose_name="QC process description (French)")
+    resource_constraint_eng = models.TextField(blank=True, null=True, verbose_name="Resource constraint (English)")
+    resource_constraint_fre = models.TextField(blank=True, null=True, verbose_name="Resource constraint (French)")
+
+
+
+
+
+    security_use_limitation_eng = models.CharField(max_length=255, blank=True, null=True, verbose_name="Security use limitation (English)")
+    security_use_limitation_fre = models.CharField(max_length=255, blank=True, null=True, verbose_name="Security use limitation (French)")
+    storage_envr_notes = models.TextField(blank=True, null=True, verbose_name="Storage notes (internal)")
+
     parameters_collected_eng = models.TextField(blank=True, null=True, verbose_name="Parameters collected (English)")
     parameters_collected_fre = models.TextField(blank=True, null=True, verbose_name="Parameters collected (French)")
     additional_credit = models.TextField(blank=True, null=True)
@@ -214,7 +230,6 @@ class Resource(models.Model):
     fgp_publication_date = models.DateTimeField(blank=True, null=True, verbose_name="Date published to FGP")
     od_publication_date = models.DateTimeField(blank=True, null=True, verbose_name="Date published to Open Gov't Portal")
     od_release_date = models.DateTimeField(blank=True, null=True, verbose_name="Date released to Open Gov't Portal")
-    odi_id = models.CharField(max_length=20, blank=True, null=True, verbose_name=_("ODIP Identifier"), unique=True)
 
     last_revision_date = models.DateTimeField(blank=True, null=True, verbose_name="Date of last published revision")
     open_data_notes = models.TextField(blank=True, null=True,
@@ -279,7 +294,8 @@ class Resource(models.Model):
     # non editable etc
     review_status = models.IntegerField(default=3, editable=False, choices=model_choices.dma_status_choices)
     date_last_modified = models.DateTimeField(auto_now=True, editable=False)
-    last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, editable=False, blank=True, null=True, related_name="resource_last_modified_by_users")
+    last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, editable=False, blank=True, null=True,
+                                         related_name="resource_last_modified_by_users")
     flagged_4_deletion = models.BooleanField(default=False)
     flagged_4_publication = models.BooleanField(default=False, verbose_name=_("Flagged for Publication"))
     completedness_report = models.TextField(blank=True, null=True, verbose_name=_("completedness report"))
@@ -289,6 +305,11 @@ class Resource(models.Model):
                                        verbose_name=_("FY of latest publication"))
 
     favourited_by = models.ManyToManyField(User, editable=False, related_name="resource_favourited_by")
+
+    # TO BE DELETED
+    odi_id = models.CharField(max_length=20, blank=True, null=True, verbose_name=_("ODIP Identifier"), unique=True, editable=False)
+
+
 
     def get_absolute_url(self):
         return reverse('inventory:resource_detail', kwargs={'pk': self.pk})
