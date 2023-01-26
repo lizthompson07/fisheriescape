@@ -377,7 +377,10 @@ class Filter(MetadataFields):
         return not self.sample
 
     def __str__(self):
-        return self.tube_id
+        if self.tube_id:
+            return self.tube_id
+        else:
+            return "N/A"
 
     def save(self, *args, **kwargs):
         # if there is a sample, the collection is known

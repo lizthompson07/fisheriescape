@@ -61,7 +61,7 @@ class FilterSerializer(serializers.ModelSerializer):
     end_datetime_display = serializers.SerializerMethodField()
     batch_display = serializers.SerializerMethodField()
     collection_display = serializers.SerializerMethodField()
-    sample_object = serializers.SerializerMethodField()
+    sample_obj = serializers.SerializerMethodField()
     has_extracts = serializers.SerializerMethodField()
     filtration_type_display = serializers.SerializerMethodField()
     info_display = serializers.SerializerMethodField()
@@ -78,7 +78,7 @@ class FilterSerializer(serializers.ModelSerializer):
         if instance.filtration_type:
             return str(instance.filtration_type)
 
-    def get_sample_object(self, instance):
+    def get_sample_obj(self, instance):
         if instance.sample:
             return SampleSerializer(instance.sample).data
 
@@ -153,8 +153,8 @@ class DNAExtractSerializer(serializers.ModelSerializer):
     batch_display = serializers.SerializerMethodField()
     filter_display = serializers.SerializerMethodField()
     sample_display = serializers.SerializerMethodField()
-    filter_object = serializers.SerializerMethodField()
-    sample_object = serializers.SerializerMethodField()
+    filter_obj = serializers.SerializerMethodField()
+    sample_obj = serializers.SerializerMethodField()
     has_pcrs = serializers.SerializerMethodField()
     dna_extraction_protocol_display = serializers.SerializerMethodField()
     info_display = serializers.SerializerMethodField()
@@ -176,11 +176,11 @@ class DNAExtractSerializer(serializers.ModelSerializer):
     def get_has_pcrs(self, instance):
         return instance.pcrs.exists()
 
-    def get_sample_object(self, instance):
+    def get_sample_obj(self, instance):
         if instance.sample:
             return SampleSerializer(instance.sample).data
 
-    def get_filter_object(self, instance):
+    def get_filter_obj(self, instance):
         if instance.filter:
             return FilterSerializer(instance.filter).data
 
@@ -248,7 +248,7 @@ class PCRSerializer(serializers.ModelSerializer):
 
     display = serializers.SerializerMethodField()
     assay_count = serializers.SerializerMethodField()
-    extract_object = serializers.SerializerMethodField()
+    extract_obj = serializers.SerializerMethodField()
     master_mix_display = serializers.SerializerMethodField()
     batch_object = serializers.SerializerMethodField()
     pcr_assays = serializers.SerializerMethodField()
@@ -263,9 +263,9 @@ class PCRSerializer(serializers.ModelSerializer):
         if instance.master_mix:
             return str(instance.master_mix)
 
-    def get_extract_object(self, instance):
+    def get_extract_obj(self, instance):
         if instance.extract:
-            return DNAExtractSerializer(instance.extract).data
+            return DNAExtractSerializerLITE(instance.extract).data
 
     def get_assay_count(self, instance):
         return instance.assay_count
@@ -281,7 +281,7 @@ class PCRSerializerLITE(serializers.ModelSerializer):
 
 
 class PCRAssaySerializer(serializers.ModelSerializer):
-    pcr_object = serializers.SerializerMethodField()
+    pcr_obj = serializers.SerializerMethodField()
     result_display = serializers.SerializerMethodField()
     assay_display = serializers.SerializerMethodField()
     extraction_number = serializers.SerializerMethodField()
@@ -310,10 +310,10 @@ class PCRAssaySerializer(serializers.ModelSerializer):
     def get_result_display(self, instance):
         return instance.get_result_display()
 
-    def get_pcr_object(self, instance):
+    def get_pcr_obj(self, instance):
         try:
             if instance.pcr:
-                return PCRSerializerLITE(instance.pcr).data
+                return PCRSerializer(instance.pcr).data
         except:
             pass
 
