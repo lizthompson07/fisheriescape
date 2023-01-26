@@ -20,17 +20,8 @@ class ResourceForm(forms.ModelForm):
         model = models.Resource
         exclude = [
             'file_identifier',
-            'uuid',
-            'date_verified',
             'citations2',
             'keywords',
-            'people',
-            'flagged_4_publication',
-            'flagged_4_deletion',
-            'completedness_rating',
-            'completedness_report',
-            'translation_needed',
-            'paa_items'
         ]
         widgets = {
             'title_eng': forms.Textarea(attrs={"rows": 5}),
@@ -49,16 +40,22 @@ class ResourceForm(forms.ModelForm):
             "qc_process_descr_fre": forms.Textarea(attrs={"rows": 5}),
             "storage_envr_notes": forms.Textarea(attrs={"rows": 5}),
             "parameters_collected_eng": forms.Textarea(attrs={"rows": 5}),
-            "distribution_formats": forms.SelectMultiple(attrs=chosen_js),
             "parameters_collected_fre": forms.Textarea(attrs={"rows": 5}),
             "additional_credit": forms.Textarea(attrs={"rows": 5}),
             "analytic_software": forms.Textarea(attrs={"rows": 5}),
             "notes": forms.Textarea(attrs={"rows": 5}),
+            "maintenance_text": forms.Textarea(attrs={"rows": 2}),
+
             "fgp_publication_date": forms.DateInput(attrs=attr_fp_date),
             "od_publication_date": forms.DateInput(attrs=attr_fp_date),
             "od_release_date": forms.DateInput(attrs=attr_fp_date),
             "last_revision_date": forms.DateInput(attrs=attr_fp_date),
+
+            "distribution_formats": forms.SelectMultiple(attrs=chosen_js),
+            "storage_solutions": forms.SelectMultiple(attrs=chosen_js),
             "parent": forms.Select(attrs=chosen_js),
+            'section': forms.Select(attrs=chosen_js),
+
         }
         labels = {
             "section": "DFO Section",
@@ -74,13 +71,10 @@ class ResourceForm(forms.ModelForm):
         self.fields["time_end_month"].label += _(" (optional)")
         self.fields["time_end_day"].label += _(" (optional)")
 
-        SECTION_CHOICES = [(s.id, s.full_name) for s in
-                           shared_models.Section.objects.all().order_by("division__branch__region", "division__branch", "division",
-                                                                        "name")]
-        SECTION_CHOICES.insert(0, tuple((None, "---")))
-
-        self.fields['section'].choices = SECTION_CHOICES
-        self.fields['section'].widget.attrs = chosen_js
+        section_choices = [(s.id, s.full_name) for s in
+                           shared_models.Section.objects.all().order_by("division__branch__region", "division__branch", "division", "name")]
+        section_choices.insert(0, tuple((None, "---")))
+        self.fields['section'].choices = section_choices
 
         resource_type_choices = [(obj.id, f"{obj.label}  ({obj.notes})" if obj.notes else obj.label) for obj in resource_types.get_instances()]
         resource_type_choices.insert(0, tuple((None, "---")))
@@ -262,11 +256,9 @@ class WebServiceForm(forms.ModelForm):
 class ResourceFlagging(forms.ModelForm):
     class Meta:
         model = models.Resource
-        fields = ["flagged_4_deletion", "flagged_4_publication"]
-
+        fields = ["notes"]
         widgets = {
-            'flagged_4_deletion': forms.HiddenInput(),
-            'flagged_4_publication': forms.HiddenInput(),
+            'notes': forms.HiddenInput(),
         }
 
 
