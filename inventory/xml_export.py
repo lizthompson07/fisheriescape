@@ -631,7 +631,7 @@ def construct(my_resource, pretty=True):
     gmd_contact = SubElement(root, 'gmd:contact')
 
     # for each point of contact
-    for person in my_resource.resource_people.filter(role__id=4):
+    for person in my_resource.resource_people2.filter(roles__code__iexact="RI_414"):
         gmd_contact.append(ci_responsible_party(person))
 
     # timestamp
@@ -715,7 +715,7 @@ def construct(my_resource, pretty=True):
 
     # Custodians and other roles (not point of contact)
     # for each point of contact
-    for person in my_resource.resource_people.filter(~Q(role__id=4)).filter(role__code__isnull=False):
+    for person in my_resource.resource_people2.filter(~Q(roles__code__iexact="RI_414")).filter(roles__code__isnull=False).distinct():
         # if person.role.id == 1:
         citedResponsibleParty = SubElement(CI_Citation, 'gmd:citedResponsibleParty')
         citedResponsibleParty.append(ci_responsible_party(person))
@@ -886,9 +886,8 @@ def construct(my_resource, pretty=True):
     distributorContact = SubElement(MD_Distributor, 'gmd:distributorContact')
 
     # for each point of contact
-    for person in my_resource.resource_people.all():
-        if person.role.id == 4:
-            distributorContact.append(ci_responsible_party(person))
+    for person in my_resource.get_points_of_contact():
+        distributorContact.append(ci_responsible_party(person))
 
     # for each data resource
     for data_resource in my_resource.data_resources.all():
@@ -1006,7 +1005,7 @@ def verify(resource):
 
     max_rating = len(fields_to_check) - \
                  (special_keyword_fields + special_person_fields + bilinugal_fields + fk_fields) + \
-                 (resource.users.count() * true_count_of_special_person_fields) + \
+                 (resource.resource_people2.count() * true_count_of_special_person_fields) + \
                  (resource.keywords.filter(~Q(keyword_domain_id=8)).count() * true_count_of_special_keyword_fields) + \
                  true_count_of_bilinugal_fields + \
                  true_count_of_fk_fields + 1  # the +1 at the end is for the eng and fre web-service
@@ -1115,7 +1114,7 @@ def verify(resource):
                     rating = rating - 1
             elif field == 'resource_people':
                 role = models.PersonRole.objects.get(pk=my_filter)
-                if not resource.resource_people.filter(role=role).exists():
+                if not resource.resource_people2.filter(roles=role).exists():
                     checklist.append("At least one {} is needed.".format(role))
                     rating = rating - 1
             elif field == 'data_resources':

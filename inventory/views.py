@@ -299,9 +299,6 @@ class ResourceCloneUpdateView(ResourceUpdateView):
         new_obj.date_verified = None
         new_obj.save()
 
-        for item in old_obj.paa_items.all():
-            new_obj.paa_items.add(item)
-
         for item in old_obj.keywords.all():
             new_obj.keywords.add(item)
 
@@ -313,11 +310,13 @@ class ResourceCloneUpdateView(ResourceUpdateView):
 
         # Now we need to replicate all the related records:
         # 1) resource people
-        for old_rel_obj in old_obj.resource_people.all():
+        for old_rel_obj in old_obj.resource_people2.all():
             new_rel_obj = deepcopy(old_rel_obj)
             new_rel_obj.pk = None
             new_rel_obj.resource = new_obj
             new_rel_obj.save()
+            for role in old_rel_obj.roles.all():
+                new_rel_obj.roles.add(role)
 
         # 2) data resources
         for old_rel_obj in old_obj.data_resources.all():

@@ -224,7 +224,7 @@ class Resource(models.Model):
     distribution_formats = models.ManyToManyField(DistributionFormat, blank=True)
     citations2 = models.ManyToManyField(shared_models.Citation, related_name='resources', blank=True)
     keywords = models.ManyToManyField(Keyword, related_name='resources', blank=True)
-    users = models.ManyToManyField(User, through='ResourcePerson2')
+    # users = models.ManyToManyField(User, through='ResourcePerson2')
     parent = models.ForeignKey("self", on_delete=models.DO_NOTHING, blank=True, null=True, related_name='children',
                                verbose_name="Parent resource")
 
@@ -388,10 +388,10 @@ class Resource(models.Model):
             ]
 
     def get_custodians(self):
-        return self.resource_people.filter(role__code__iexact="RI_409")
+        return self.resource_people2.filter(roles__code__iexact="RI_409").distinct()
 
     def get_points_of_contact(self):
-        return self.resource_people.filter(role__code__iexact="RI_414")
+        return self.resource_people2.filter(roles__code__iexact="RI_414").distinct()
 
     def get_status_instance(self):
         if self.status:

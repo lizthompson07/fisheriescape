@@ -82,12 +82,9 @@ class ResourceForm(forms.ModelForm):
         self.fields['section'].choices = SECTION_CHOICES
         self.fields['section'].widget.attrs = chosen_js
 
-        resource_type_choices = [(obj.id, "{}  ({})".format(obj.label, obj.notes) if obj.notes else "{}".format(obj.label)) for obj in
-                                 resource_types.get_instances()]
+        resource_type_choices = [(obj.id, f"{obj.label}  ({obj.notes})" if obj.notes else obj.label) for obj in resource_types.get_instances()]
         resource_type_choices.insert(0, tuple((None, "---")))
-
-        status_choices = [(obj.id, "{}  ({})".format(obj.label, obj.notes) if obj.notes else "{}".format(obj.label)) for obj in
-                          statuses.get_instances()]
+        status_choices = [(obj.id, f"{obj.label}  ({obj.notes})" if obj.notes else obj.label) for obj in statuses.get_instances()]
         status_choices.insert(0, tuple((None, "---")))
         self.fields['resource_type'].choices = resource_type_choices
         self.fields['status'].choices = status_choices

@@ -56,8 +56,7 @@ def get_dict():
         id = item["id"]
         my_dict[id] = dict()
         for key in item:
-            if not key == "id":
-                my_dict[id][key] = item[key]
+            my_dict[id][key] = item[key]
     return my_dict
 
 
