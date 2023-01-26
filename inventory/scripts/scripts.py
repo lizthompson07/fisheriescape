@@ -132,3 +132,15 @@ def clear_nullstrings():
                 if getattr(r, field.name)is not None and getattr(r, field.name).strip() == "":
                     setattr(r, field.name, None)
                     r.save()
+
+
+
+def migrate_DMAs():
+    for dma in models.DMA.objects.filter(resource__isnull=False):
+        pass
+
+        # step 1, copy over any fields that should be copied over.
+
+
+
+

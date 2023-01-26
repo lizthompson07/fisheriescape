@@ -10,6 +10,12 @@ chosen_js = {"class": "chosen-select-contains"}
 
 
 class ResourceFilter(django_filters.FilterSet):
+    class Meta:
+        model = models.Resource
+        fields = {
+            'review_status': ['exact'],
+        }
+
     search_term = django_filters.CharFilter(field_name='search_term', label=_("Search term (title, uuid, ...)"), lookup_expr='icontains',
                                             widget=forms.TextInput())
     region = django_filters.ModelChoiceFilter(field_name="section__division__branch__region", label=_("Region"), lookup_expr='exact',
