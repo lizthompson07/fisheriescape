@@ -1,7 +1,7 @@
 # from accounts import models as account_models
 import django_filters
 from django import forms
-from django.utils.translation import gettext as _, gettext_lazy
+from django.utils.translation import gettext as _
 
 from shared_models import models as shared_models
 from . import models
@@ -90,3 +90,7 @@ class DMAFilter(django_filters.FilterSet):
         self.filters["section__division__branch__sector__region"].label = "Region"
         self.filters["data_contact"].label = _("Data steward")
         self.filters["metadata_contact"].label = _("Metadata contact")
+
+
+class UserFilter(django_filters.FilterSet):
+    search_term = django_filters.CharFilter(label="Search any part of name", lookup_expr='icontains')

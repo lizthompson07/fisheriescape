@@ -10,6 +10,8 @@ from .utils import is_nat_admin, is_regional_admin, is_admin, can_modify
 
 
 class InventoryBasicMixin(LoginRequiredMixin, UserPassesTestMixin):
+    home_url_name = "inventory:index"
+
     def test_func(self):
         return True
 

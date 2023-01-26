@@ -297,7 +297,7 @@ class Resource(models.Model):
         ordering = ['id', ]
 
     def __str__(self):
-        return "({}) {}".format(self.id, getattr(self, str(_("title_eng"))))
+        return self.t_title
 
     @property
     def t_title(self):
@@ -553,7 +553,7 @@ class ResourceCertification(models.Model):
 class Correspondence(models.Model):
     custodian = models.ForeignKey(User, on_delete=models.CASCADE, related_name="correspondences")
     subject = models.CharField(max_length=255)
-    date = models.DateTimeField(blank=True, null=True, default=timezone.now)
+    date = models.DateTimeField(blank=True, null=True, auto_now=True, editable=False)
 
     class Meta:
         ordering = ['-date']

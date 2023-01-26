@@ -25,8 +25,7 @@ urlpatterns = [
     path('resources/<int:pk>/edit/', views.ResourceUpdateView.as_view(), name="resource_edit"),
     path('resources/<int:pk>/clone/', views.ResourceCloneUpdateView.as_view(), name="resource_clone"),
     path('resources/<int:pk>/delete/', views.ResourceDeleteView.as_view(), name="resource_delete"),
-    path('resources/<int:pk>/flag-for-deletion/', views.ResourceDeleteFlagUpdateView.as_view(), name="resource_flag_delete"),
-    path('resources/<int:pk>/flag-for-publication/', views.ResourcePublicationFlagUpdateView.as_view(), name="resource_flag_publication"),
+    path('resources/<int:pk>/flag/', views.ResourceFlagUpdateView.as_view(), name="resource_flag"),
     path('resources/<int:pk>/add-to-favourites/', views.add_favourites, name="add_favourites"),
     path('resources/<int:pk>/remove-from-favourites/', views.remove_favourites, name="remove_favourites"),
 
@@ -84,9 +83,8 @@ urlpatterns = [
     #########################
     path('dm-admin/custodian-list/', views.DataManagementCustodianListView.as_view(), name="dm_custodian_list"),
     path('dm-admin/custodian/<int:pk>/detail/', views.DataManagementCustodianDetailView.as_view(), name="dm_custodian_detail"),
-    path('dm-admin/custodian/<int:person>/send-request-for-certification/', views.send_certification_request,
+    path('dm-admin/custodian/<int:user>/send-request-for-certification/', views.send_certification_request,
          name="send_certification_email"),
-    path('dm-admin/custodian/<int:person>/', views.CustodianPersonUpdateView.as_view(), name="dm_person_edit"),
 
     # RESOURCE CERTIFICATION #
     ##########################
@@ -140,16 +138,5 @@ urlpatterns = [
     path('reports/custodians/', views.export_custodians, name="export_custodians"),
     path('reports/dmas/', views.export_dmas, name="export_dmas"),
 
-    # TEMP #
-    ########
-
-    #  this was used to walk over program to programs
-    # path('metadata-formset/section/<int:section>/', views.temp_formset, name="formset"),
-    # path('project-program-list/', views.MyTempListView.as_view(), name="my_list"),
-    # path('reports/capacity-report/fy/<str:fy>/orgs/<str:orgs>/', views.capacity_export_spreadsheet, name="capacity_xlsx"),
-    # path('reports/capacity-report/', views.capacity_export_spreadsheet, name="capacity_xlsx"),
-    # path('reports/capacity-report/fy/<str:fy>/', views.capacity_export_spreadsheet, name="capacity_xlsx"),
-    # path('reports/capacity-report/orgs/<str:orgs>/', views.capacity_export_spreadsheet, name="capacity_xlsx"),
-    # path('reports/cue-card/org/<int:org>/', views.OrganizationCueCard.as_view(), name="report_q"),
 
 ]

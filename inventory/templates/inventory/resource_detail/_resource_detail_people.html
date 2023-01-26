@@ -21,7 +21,7 @@
   <th class="w-20">{% trans "Role(s)" %}</th>
   <th>{% trans "Notes" %}</th>
 {% endblock %}
-
+{% block btn_href_arg %}href{% endblock %}
 {% block section_table %}
   {% if not object.resource_people2.exists %}
     <em>{% trans "There are no people associated with this record." %}</em>

@@ -14,10 +14,12 @@ from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
 from django.utils.translation import gettext as _, gettext_lazy
-from django.views.generic import UpdateView, CreateView, DetailView, FormView, TemplateView
+from django.views.generic import UpdateView, CreateView, DetailView, FormView
 from django_filters.views import FilterView
 from easy_pdf.views import PDFTemplateView
 
+from accounts.forms import ProfileForm
+from accounts.models import Profile
 from dm_apps.context_processor import my_envr
 from dm_apps.utils import custom_send_mail
 from lib.functions.custom_functions import fiscal_year, listrify
@@ -197,7 +199,7 @@ class ResourceDetailView(InventoryBasicMixin, CommonDetailView):
         context['kcount_cst'] = self.object.keywords.filter(keyword_domain_id__exact=6).count()
         context['kcount_tax'] = self.object.keywords.filter(is_taxonomic__exact=True).count()
         context['kcount_loc'] = self.object.keywords.filter(keyword_domain_id__exact=7).count()
-        context['custodian_count'] = self.object.resource_people.filter(role__code__iexact="RI_409").count()
+        context['custodian_count'] = self.object.resource_people2.filter(roles__code__iexact="RI_409").count()
 
         if self.object.completedness_rating == 1:
             context['verified'] = True
@@ -385,10 +387,13 @@ class ResourceDeleteView(CanModifyRequiredMixin, CommonDeleteView):
         return reverse("inventory:index")
 
 
-class ResourceDeleteFlagUpdateView(InventoryLoginRequiredMixin, CommonPopoutUpdateView):
+class ResourceFlagUpdateView(InventoryLoginRequiredMixin, CommonPopoutUpdateView):
     model = models.Resource
     form_class = forms.ResourceFlagging
     cancel_text = gettext_lazy("No, Forget it.")
+
+    def get_flag_type(self):
+        return self.request.GET.get("flag")
 
     def get_submit_text(self):
         obj = self.get_object()
@@ -398,30 +403,55 @@ class ResourceDeleteFlagUpdateView(InventoryLoginRequiredMixin, CommonPopoutUpda
 
     def get_h1(self):
         obj = self.get_object()
-        if obj.flagged_4_deletion:
-            return _("Are you sure you want to unflag this data resource?")
-        return _("Are you sure you want to flag this data resource for deletion?")
+        if self.get_flag_type() == "delete":
+            if obj.flagged_4_deletion:
+                return _("Are you sure you want to unflag this data resource for deletion?")
+            return _("Are you sure you want to flag this data resource for deletion?")
+        elif self.get_flag_type() == "publish":
+            if obj.flagged_4_publication:
+                return _("Are you sure you want to unflag this data resource for publication?")
+            return _("Are you sure you want to flag this data resource for publication?")
 
     def get_h3(self):
         obj = self.get_object()
-        if not obj.flagged_4_deletion:
-            return _("By clicking yes below you will notify the regional data manager that this record should be deleted from the inventory.")
+        if self.get_flag_type() == "delete":
+            if not obj.flagged_4_deletion:
+                return _("By clicking yes below you will notify the regional data manager that this record should be deleted from the inventory.")
+        elif self.get_flag_type() == "publish":
+            if not obj.flagged_4_publication:
+                return _("By clicking yes below your regional data manager will be notified and will "
+                         "contact you shortly in order to coordinate the next steps in the process")
 
     def form_valid(self, form):
         obj = form.save(commit=False)
-        obj.flagged_4_deletion = not obj.flagged_4_deletion
-        obj.save()
+        if self.get_flag_type() == "delete":
+            obj.flagged_4_deletion = not obj.flagged_4_deletion
+            obj.save()
 
-        if obj.flagged_4_deletion:
-            email = emails.FlagForDeletionEmail(obj, self.request.user, self.request)
-            # send the email object
-            custom_send_mail(
-                subject=email.subject,
-                html_message=email.message,
-                from_email=email.from_email,
-                recipient_list=email.to_list,
-                user=self.request.user
-            )
+            if obj.flagged_4_deletion:
+                email = emails.FlagForDeletionEmail(obj, self.request.user, self.request)
+                # send the email object
+                custom_send_mail(
+                    subject=email.subject,
+                    html_message=email.message,
+                    from_email=email.from_email,
+                    recipient_list=email.to_list,
+                    user=self.request.user
+                )
+        elif self.get_flag_type() == "publish":
+            obj.flagged_4_publication = not obj.flagged_4_publication
+            obj.save()
+
+            if obj.flagged_4_publication:
+                email = emails.FlagForPublicationEmail(obj, self.request.user, self.request)
+                # send the email object
+                custom_send_mail(
+                    subject=email.subject,
+                    html_message=email.message,
+                    from_email=email.from_email,
+                    recipient_list=email.to_list,
+                    user=self.request.user
+                )
         return super().form_valid(form)
 
 
@@ -441,48 +471,6 @@ def remove_favourites(request, pk):
     return HttpResponseRedirect(request.META.get('HTTP_REFERER') + f"#id_{resource.id}")
 
 
-class ResourcePublicationFlagUpdateView(InventoryLoginRequiredMixin, CommonPopoutUpdateView):
-    model = models.Resource
-    form_class = forms.ResourceFlagging
-    cancel_text = gettext_lazy("No, Forget it.")
-
-    def get_submit_text(self):
-        obj = self.get_object()
-        if obj.flagged_4_deletion:
-            return _("Yes, Unflag It!")
-        return _("Yes, Flag It!")
-
-    def get_h1(self):
-        obj = self.get_object()
-        if obj.flagged_4_publication:
-            return _("Are you sure you want to unflag this data resource?")
-        action = "re-publication" if obj.fgp_publication_date else "publication"
-        return _(f"Are you sure you want to flag this data resource for {action}?")
-
-    def get_h3(self):
-        obj = self.get_object()
-        if not obj.flagged_4_publication:
-            return _("By clicking yes below your regional data manager will be notified and will "
-                     "contact you shortly in order to coordinate the next steps in the process")
-
-    def form_valid(self, form):
-        obj = form.save(commit=False)
-        obj.flagged_4_publication = not obj.flagged_4_publication
-        obj.save()
-
-        if obj.flagged_4_publication:
-            email = emails.FlagForPublicationEmail(obj, self.request.user, self.request)
-            # send the email object
-            custom_send_mail(
-                subject=email.subject,
-                html_message=email.message,
-                from_email=email.from_email,
-                recipient_list=email.to_list,
-                user=self.request.user
-            )
-        return super().form_valid(form)
-
-
 # RESOURCE PERSON #
 ###################
 
@@ -493,12 +481,15 @@ class ResourcePersonCreateView(CanModifyRequiredMixin, CommonCreateView):
     form_class = forms.ResourcePersonForm
     home_url_name = "inventory:index"
 
+    def get_resource(self):
+        return get_object_or_404(models.Resource, pk=self.kwargs.get("resource"))
+
     def get_parent_crumb(self):
-        return {"title": self.get_object().resource, "url": reverse("inventory:resource_detail", args=[self.get_object().resource.id])}
+        return {"title": self.get_resource(), "url": reverse("inventory:resource_detail", args=[self.get_resource().id])}
 
     def form_valid(self, form):
         obj = form.save(commit=False)
-        obj.resource_id = self.kwargs.get("resource")
+        obj.resource = self.get_resource()
         obj.save()
         super().form_valid(form)
 
@@ -518,7 +509,7 @@ class ResourcePersonCreateView(CanModifyRequiredMixin, CommonCreateView):
 
 class ResourcePersonUpdateView(CanModifyRequiredMixin, CommonUpdateView):
     model = models.ResourcePerson2
-    template_name = 'inventory/form.html'
+    template_name = 'inventory/resource_person_form.html'
     form_class = forms.ResourcePersonForm
     home_url_name = "inventory:index"
 
@@ -527,6 +518,25 @@ class ResourcePersonUpdateView(CanModifyRequiredMixin, CommonUpdateView):
 
     def get_parent_crumb(self):
         return {"title": self.get_object().resource, "url": reverse("inventory:resource_detail", args=[self.get_object().resource.id])}
+
+
+class ProfileUpdateView(CanModifyRequiredMixin, CommonUpdateView):
+    model = Profile
+    template_name = 'inventory/form.html'
+    form_class = ProfileForm
+    home_url_name = "inventory:index"
+
+    def get_resource_person(self):
+        return get_object_or_404(models.ResourcePerson2, pk=self.kwargs.get("resource_person"))
+
+    def get_h1(self):
+        return f"Updating {self.get_object().user}'s Profile"
+
+    def get_grandparent_crumb(self):
+        return {"title": self.get_resource_person().resource, "url": reverse("inventory:resource_detail", args=[self.get_resource_person().resource.id])}
+
+    def get_parent_crumb(self):
+        return {"title": self.get_resource_person(), "url": reverse("inventory:resource_detail", args=[self.get_resource_person().id])}
 
 
 class ResourcePersonDeleteView(CanModifyRequiredMixin, CommonDeleteView):
@@ -895,127 +905,57 @@ def export_resource_xml(request, resource, publish):
 # DATA MANAGEMENT ADMIN #
 #########################
 
-class DataManagementCustodianListView(AdminRequiredMixin, TemplateView):
-    template_name = 'inventory/dm_custodian_list.html'
+class DataManagementCustodianListView(AdminRequiredMixin, CommonFilterView):
+    template_name = 'inventory/list.html'
+    filterset_class = filters.UserFilter
+    fields = ["profile|Full name", "email"]
+    h1 = "DM Apps Custodian List"
+    row_object_url_name = "inventory:dm_custodian_detail"
+
+    def get_queryset(self):
+        return User.objects.filter(resource_people__roles__code__iexact="RI_409").distinct().order_by("first_name", "last_name").annotate(
+            search_term=Concat('first_name', Value(" "),
+                               'last_name', Value(" "),
+                               output_field=TextField()))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        queryset = models.ResourcePerson2.objects.filter(role=1).order_by("person__user__last_name",
-                                                                          "person__user__first_name")
-
-        # retain only the unique items, and keep them in order according to keys (cannot use a set for this reason)
-        custodian_dict = OrderedDict()
-        for item in queryset:
-            custodian_dict[item.person.user_id] = item
-
-        # convert the dict back into a list
-        custodian_list = []
-        for item in custodian_dict:
-            custodian_list.append(custodian_dict[item])
-
-        context['custodian_list'] = custodian_list
-        context['custodian_count'] = len(custodian_list)
-
-        context['now'] = timezone.now()
-
         return context
 
 
-class DataManagementCustodianDetailView(AdminRequiredMixin, DetailView):
+class DataManagementCustodianDetailView(AdminRequiredMixin, CommonDetailView):
     template_name = 'inventory/dm_custodian_detail.html'
-    model = models.Person
+    model = models.User
+    field_list = [
+        "profile|full name",
+        "email",
+        "last_login",
+        "profile.position_eng|position (en)",
+        "profile.position_fre|position (fr)",
+    ]
+    parent_crumb = {"title":_("Custodian List"), "url": reverse_lazy("inventory:dm_custodian_list")}
+
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        queryset = self.object.resource_people.filter(role=1)
-        me = models.Person.objects.get(user=User.objects.get(pk=self.request.user.id))
-        email = emails.CertificationRequestEmail(me, self.object, self.request)
-        context['queryset'] = queryset
+        email = emails.CertificationRequestEmail(self.request, self.get_object())
+        context['queryset'] = models.Resource.objects.filter(resource_people2__user=self.get_object(),
+                                                             resource_people2__roles__code__iexact="RI_409").distinct()
         context['email'] = email
         context['now'] = timezone.now()
         # context['custodian_count'] = len(custodian_list)
         return context
 
 
-def send_certification_request(request, person):
+def send_certification_request(request, user):
     # grab a copy of the resource
-    my_person = models.Person.objects.get(pk=person)
-    # create a new email object
-    me = models.Person.objects.get(user=User.objects.get(pk=request.user.id))
-    email = emails.CertificationRequestEmail(me, my_person, request)
-    # send the email object
-    custom_send_mail(
-        subject=email.subject,
-        html_message=email.message,
-        from_email=email.from_email,
-        recipient_list=email.to_list,
-        user=request.user
-    )
-    my_person.user.correspondences.create(subject="Request for certification")
+    my_user = get_object_or_404(User, pk=user)
+    email = emails.CertificationRequestEmail(request, my_user)
+    email.send()
+
+    my_user.correspondences.create(subject="Request for certification")
     messages.success(request, "the email has been sent and the correspondence has been logged!")
-    return HttpResponseRedirect(reverse('inventory:dm_custodian_detail', kwargs={'pk': my_person.user_id}))
-
-
-class CustodianPersonUpdateView(AdminRequiredMixin, FormView):
-    template_name = 'inventory/dm_custodian_form.html'
-    form_class = forms.PersonCreateForm
-
-    def get_success_url(self):
-        return reverse_lazy('inventory:dm_custodian_detail', kwargs={
-            'pk': self.kwargs['person'],
-        })
-
-    def get_initial(self):
-        person = models.Person.objects.get(pk=self.kwargs['person'])
-        return {
-            'first_name': person.user.first_name,
-            'last_name': person.user.last_name,
-            'email': person.user.email,
-            'position_eng': person.position_eng,
-            'position_fre': person.position_fre,
-            'phone': person.phone,
-            'language': person.language,
-            'organization': person.organization.id,
-        }
-
-    def form_valid(self, form):
-        old_person = models.Person.objects.get(pk=self.kwargs['person'])
-
-        # step 0: retreive data from form
-        first_name = form.cleaned_data['first_name']
-        last_name = form.cleaned_data['last_name']
-        email = form.cleaned_data['email']
-        position_eng = form.cleaned_data['position_eng']
-        position_fre = form.cleaned_data['position_fre']
-        phone = form.cleaned_data['phone']
-        language = form.cleaned_data['language']
-        organization = form.cleaned_data['organization']
-
-        # step 2: Retrieve the Person model
-        old_person.user.first_name = first_name
-        old_person.user.last_name = last_name
-        old_person.user.email = email
-        old_person.user.username = email
-
-        old_person.position_eng = position_eng
-        old_person.position_fre = position_fre
-        old_person.phone = phone
-
-        if language != "":
-            old_person.language = int(language)
-
-        if organization != "":
-            old_person.organization_id = int(organization)
-
-        old_person.user.save()
-        old_person.save()
-        return super().form_valid(form)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        person = models.Person.objects.get(user_id=self.kwargs['person'])
-        context['person'] = person
-        return context
+    return HttpResponseRedirect(reverse('inventory:dm_custodian_detail', args=[user]))
 
 
 # RESOURCE CERTIFICATION #

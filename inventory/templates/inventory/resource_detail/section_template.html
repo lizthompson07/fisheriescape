@@ -10,7 +10,7 @@
       {% block section_title %}{% endblock %}
     </h4>
     {% block optional_btn %}
-      <a class=" mb-2 btn btn-xs btn-outline-primary" href="{% block optional_btn_url %}{% endblock %}">
+      <a class=" mb-2 btn btn-xs btn-outline-primary" {% block btn_href_arg %}href="#" pop-href{% endblock %}="{% block optional_btn_url %}{% endblock %}">
         <span class="mdi mdi-plus text-primary"></span>
       </a>
     {% endblock %}

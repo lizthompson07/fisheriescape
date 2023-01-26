@@ -1,81 +1,10 @@
-{% extends "inventory/base.html" %}
+{% extends "inventory/form.html" %}
 {% load static %}
 {% load bootstrap4 %}
-{% load verbose_names %}
+{% load i18n %}
 
-{% block content %}
-    {% if temp_msg %}
-        {% bootstrap_alert temp_msg alert_type='success' %}
-    {% endif %}
-
-    {% url 'inventory:index' as home_url %}
-
-
-    <div class="container">
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="{{ home_url }}">Home</a></li>
-                {% if object %}
-                    <li class="breadcrumb-item"><a
-                            href="{% url 'inventory:resource_detail' object.resource.id %}">{{ object.resource.truncated_title }}</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">Edit Resource Person</li>
-                {% else %}
-                    <li class="breadcrumb-item"><a
-                            href="{% url 'inventory:resource_detail' resource.id %}">{{ resource.truncated_title }}</a>
-                    </li>
-                    <li class="breadcrumb-item active" aria-current="page">Insert {{ person.full_name }}</li>
-                {% endif %}
-            </ol>
-        </nav>
-        {% if object.id %}
-            <h1>{{ object.person.full_name }} the {{ object.role }}</h1>
-        {% else %}
-            <h1>Assign a role to <em>{{ person.full_name }}</em></h1>
-        {% endif %}
-
-
-        <form method="post" class="form">
-            {% csrf_token %}
-
-            {% bootstrap_form form %}
-
-            {% buttons %}
-                {% if object.id %}
-                    <button type="submit" class="btn btn-success" onclick="refreshParent()">Submit</button>
-                    <a class="btn btn-secondary"
-                       href="{% url 'inventory:resource_detail' object.resource.id %}">Back</a>
-                {% else %}
-                    <button type="submit" class="btn btn-success" onclick="refreshParent()">Add</button>
-                    <a class="btn btn-secondary"
-                       href="{% url 'inventory:resource_person_filter' resource.id %}">Back</a>
-
-                {% endif %}
-
-
-            {% endbuttons %}
-        </form>
-        {% if object %}
-            <hr>
-            <p>
-                <a href="{% url "inventory:person_edit" object.resource.id object.person.dmapps_user_id %}"
-                   class="btn btn-sm btn-warning">Edit User Details</a>
-            </p>
-
-            {% verbose_field_display object.person.user "email" %}
-
-            {% verbose_field_display object.person "phone" %}
-
-            <p><b>
-                Title (English | French)
-            </b><br>
-                {{ object.person.position_eng }} | {{ object.person.position_fre }}
-            </p>
-
-            {% verbose_field_display object.person "language" %}
-
-            {% verbose_field_display object.person "organization" %}
-
-        {% endif %}
-    </div>
-
-{% endblock content %}
+{% block post_form_div %}
+  <div class="mt-5">
+    <a href="#" class="btn btn-primary">Edit {{ object.user }}'s Profile</a>
+  </div>
+{% endblock %}

@@ -3,18 +3,22 @@
 {% load static %}
 {% load i18n %}
 {% load custom_filters %}
-
+{% load humanize %}
 {% block wd %} w-75 {% endblock %}
 {% block mdi_class %}mdi-fountain-pen-tip{% endblock %}
+
 {% block section_title %}
   {% trans "Certification History" %}
 {% endblock %}
 
+{% block optional_btn_url %}
+{% url 'inventory:resource_certify' object.id %}
+{% endblock %}
 
 {% block section_table_header_rows %}
   <th class="w-20">{% trans "User" %}</th>
   <th class="">{% trans "Certification Message" %}</th>
-  <th class="w-15">{% trans "Date" %}</th>
+  <th class="">{% trans "Date" %}</th>
   <th class="w-10"></th>
 {% endblock %}
 
@@ -32,7 +36,7 @@
     <tr>
       <td>{{ item.certifying_user }}</td>
       <td>{{ item.notes|nz:"n/a" }}</td>
-      <td>{{ item.certification_date|date:"F d, Y" }}</td>
+      <td>{{ item.certification_date|date:"F d, Y" }} ({{ item.certification_date|naturaltime }})</td>
       <td class="text-right">
         {% if can_modify.can_modify %}
           <a href="#" pop-href="{% url 'inventory:resource_certification_delete' item.id %}" data-toggle="tooltip" title="delete" class="btn btn-sm btn-danger">
