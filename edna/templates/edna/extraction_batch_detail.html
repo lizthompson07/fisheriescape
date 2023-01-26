@@ -68,10 +68,9 @@
               @move-down="updateOrder('down')"
             ></select-tools>
           </th>
-          <th class="px-1 py-1 w75px">{% trans "Extraction ID" %}</th>
-          <th class="px-1 py-1 w75px">{% trans "Sample ID" %}</th>
-          <th class="px-1 py-1 w75px">${labels.filter}</th>
-          <th class="px-1 py-1 w75px">{% trans "Tube ID" %}</th>
+          <th class="px-1 py-1 w75px">{% trans "Extraction" %}</th>
+          <th class="px-1 py-1 w75px">{% trans "Sample" %}</th>
+          <th class="px-1 py-1 w75px">{% trans "Filter" %}</th>
           <th class="px-1 py-1 w100px">{% trans "Type" %}</th>
           <th class="px-1 py-1 w150px">
             ${labels.extraction_number}<br>
@@ -107,15 +106,11 @@
           </td>
           <td class="px-1 text-muted" tabindex="-1">${obj.display}</td>
           <td class="px-1  py-0 text-muted" tabindex="-1">
-            <span v-if="obj.sample_object">${obj.sample_object.display}</span>
+            <span v-if="obj.sample_obj">${obj.sample_obj.display}</span>
             <span v-else>-----</span>
           </td>
           <td class="px-1 text-muted">
-            <span v-if="obj.filter_object">${obj.filter_object.display}</span>
-            <span v-else>-----</span>
-          </td>
-          <td class="px-1  py-0 text-muted" tabindex="-1">
-            <span v-if="obj.filter_object">${obj.filter_object.tube_id}</span>
+            <span v-if="obj.filter_obj">${obj.filter_obj.display}</span>
             <span v-else>-----</span>
           </td>
           <td class="px-1  py-0 text-muted" tabindex="-1">
@@ -425,7 +420,7 @@
               filter: filter,
               sample: sample,
               dna_extraction_protocol: this.default_dna_extraction_protocol,
-              start_datetime: `${now.getFullYear()}-${now.getMonth()}-${now.getDay()} ${now.getHours()}:${now.getMinutes()}`,
+              start_datetime: `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDay()} ${now.getHours()}:${now.getMinutes()}`,
               storage_location: null,
               comments: null,
               order: order,

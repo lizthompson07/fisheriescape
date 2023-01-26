@@ -1,11 +1,11 @@
 import csv
-import datetime as dt
 import random
 from io import StringIO
 
 import requests
 from django.contrib import messages
 from django.contrib.sites.shortcuts import get_current_site
+from django.forms import ValidationError
 from django.db.models import Value, TextField
 from django.db.models.functions import Concat
 from django.http import HttpResponseRedirect
@@ -385,31 +385,10 @@ class ImportSamplesView(eDNAAdminRequiredMixin, CommonFormView):
         temp_file = form.files['temp_file']
         temp_file.seek(0)
         csv_reader = csv.DictReader(StringIO(temp_file.read().decode('utf-8')))
-        for row in csv_reader:
-            bottle_id = row["bottle_id"]
-            sample_type = row["sample_type"]
-            location = row["location"]
-            site = row["site"]
-            station = row["station"]
-            samplers = row["samplers"]
-            datetime = make_aware(dt.datetime.strptime(row["datetime"], "%m/%d/%Y %H:%M"), timezone=timezone.get_current_timezone())
-            latitude = nz(row["latitude"], None)
-            longitude = nz(row["longitude"], None)
-            comments = row["comments"]
-
-            sample, create = models.Sample.objects.get_or_create(bottle_id=bottle_id, sample_batch=my_object,
-                                                                 collection=my_object.default_collection,
-                                                                 sample_type_id=sample_type)
-            sample.location = location
-            sample.site = site
-            sample.station = station
-            sample.samplers = samplers
-            sample.datetime = datetime
-            sample.latitude = latitude
-            sample.longitude = longitude
-            sample.comments = comments
-            sample.save()
-
+        try:
+            utils.sample_csv_parser(csv_reader, my_object, self.request)
+        except Exception as e:
+            return HttpResponseRedirect(self.request.get_full_path())
         return HttpResponseRedirect(self.get_parent_crumb()["url"])
 
 

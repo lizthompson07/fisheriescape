@@ -40,6 +40,8 @@ class CollectionViewSet(viewsets.ModelViewSet):
         qp = request.query_params
         if qp.get("assays_tested"):
             qs = models.Assay.objects.filter(pcrs__pcr__collection=self.get_object()).distinct()
+            if qp.get("speciesList"):
+                qs = qs.filter(species__in=qp.get("speciesList").split(',')).distinct()
             return Response(serializers.AssaySerializer(qs, many=True).data, status=status.HTTP_200_OK)
         return super().retrieve(request, *args, **kwargs)
 
@@ -75,7 +77,7 @@ class SampleViewSet(viewsets.ModelViewSet):
     permission_classes = [eDNACRUDOrReadOnly]
     filter_backends = (DjangoFilterBackend,)
     filterset_class = SampleFilter
-    queryset = models.Sample.objects.all().select_related("sample_type", "collection").prefetch_related("filters", "extracts")
+    queryset = models.Sample.objects.all().select_related("sample_type", "collection")
 
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user, updated_by=self.request.user)
@@ -274,14 +276,16 @@ class PCRViewSet(viewsets.ModelViewSet):
         if qp.get("batch"):
             batch = get_object_or_404(models.PCRBatch, pk=qp.get("batch"))
             qs = batch.pcrs.all()
-            serializer = self.get_serializer(qs, many=True)
-            return Response(serializer.data)
-        if qp.get("collection"):
+        elif qp.get("collection"):
             collection = get_object_or_404(models.Collection, pk=qp.get("collection"))
             qs = collection.pcrs.all()
-            serializer = self.get_serializer(qs, many=True)
-            return Response(serializer.data)
-        raise ValidationError(_("You need to specify a batch"))
+        else:
+            raise ValidationError(_("You need to specify a batch"))
+
+        if qp.get("speciesList"):
+            qs = qs.filter(assays__assay__species__in=qp.get("speciesList").split(',')).distinct()
+        serializer = self.get_serializer(qs, many=True)
+        return Response(serializer.data)
 
     def perform_create(self, serializer):
         obj = serializer.save(created_by=self.request.user, updated_by=self.request.user)
