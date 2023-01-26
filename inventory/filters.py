@@ -35,6 +35,11 @@ class ResourceFilter(django_filters.FilterSet):
                                                        lookup_expr='isnull', label=_("Published to Open Portal?"),
                                                        exclude=True,  # this will reverse the logic
                                                        )
+    has_review = django_filters.BooleanFilter(field_name="reviews",
+                                                       lookup_expr='isnull', label=_("Has review?"),
+                                                       exclude=True,  # this will reverse the logic
+                                                       )
+
     flagged_4_publication = django_filters.BooleanFilter(field_name="flagged_4_publication", lookup_expr='exact')  # placeholder for ordering
     flagged_4_deletion = django_filters.BooleanFilter(field_name="flagged_4_deletion", lookup_expr='exact')  # placeholder for ordering
 
