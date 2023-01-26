@@ -178,7 +178,6 @@
     <form method="post" class="form" enctype="multipart/form-data">
       {% csrf_token %}
       {% for field in form %}
-
         <h2 class="red-font">
           WARNING: samples from <u>within this sample collection</u> that have matching bottle IDs will be overwritten with the data from this CSV.
         </h2>
