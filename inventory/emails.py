@@ -1,13 +1,10 @@
 from django.conf import settings
-from django.contrib.auth.models import User
-from django.template import loader
 
-from dm_apps.context_processor import my_envr
 from dm_apps.emails import Email
 from . import models
 
 app_name = settings.WEB_APP_NAME  # should be a single word with one space
-from_email = settings.SITE_FROM_EMAIL
+admin_email = 'DFO.DMApps-ApplisGD.MPO@dfo-mpo.gc.ca'
 
 
 class CertificationRequestEmail(Email):
@@ -28,17 +25,11 @@ class FlagForDeletionEmail(Email):
     subject_en = 'A data resource has been flagged for deletion'
 
     def get_recipient_list(self):
-        return [user.email for user in User.objects.filter(inventory_user__isnull=False).distinct()]
-
-    def __init__(self, request, instance=None, user=None):
-        super().__init__(request)
-        self.request = request
-        self.instance = instance
-        self.user = user
+        return [admin_email]
 
     def get_context_data(self):
         context = super().get_context_data()
-        context["user"] = self.user
+        context["user"] = self.request.user
         return context
 
 
@@ -47,7 +38,7 @@ class FlagForPublicationEmail(Email):
     subject_en = 'A data resource has been flagged for publication'
 
     def get_recipient_list(self):
-        return [user.email for user in User.objects.filter(inventory_user__isnull=False).distinct()]
+        return [admin_email]
 
     def __init__(self, request, instance=None, user=None):
         super().__init__(request)
@@ -66,17 +57,12 @@ class AddedAsCustodianEmail(Email):
     subject_en = 'You have been added as a custodian'
 
     def get_recipient_list(self):
-        return [self.user.email]
-
-    def __init__(self, request, instance=None, user=None):
-        super().__init__(request)
-        self.request = request
-        self.instance = instance
-        self.user = user
+        return [self.instance.user.email]
 
     def get_context_data(self):
         context = super().get_context_data()
-        context["user"] = self.user
+        context["user"] = self.instance.user
+        context["object"] = self.instance.resource
         return context
 
 
@@ -85,16 +71,10 @@ class RemovedAsCustodianEmail(Email):
     subject_en = 'You have been removed as a custodian'
 
     def get_recipient_list(self):
-        return [self.user.email]
-
-    def __init__(self, request, instance=None, user=None):
-        super().__init__(request)
-        self.request = request
-        self.instance = instance
-        self.user = user
+        return [self.instance.user.email]
 
     def get_context_data(self):
         context = super().get_context_data()
-        context["user"] = self.user
+        context["user"] = self.instance.user
+        context["object"] = self.instance.resource
         return context
-

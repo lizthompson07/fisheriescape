@@ -1,7 +1,6 @@
 import json
 import os
 ###
-from collections import OrderedDict
 from copy import deepcopy
 
 from django.contrib import messages
@@ -21,7 +20,6 @@ from easy_pdf.views import PDFTemplateView
 from accounts.forms import ProfileForm
 from accounts.models import Profile
 from dm_apps.context_processor import my_envr
-from dm_apps.utils import custom_send_mail
 from lib.functions.custom_functions import fiscal_year, listrify
 from shared_models import models as shared_models
 from shared_models.views import CommonTemplateView, CommonFormsetView, CommonHardDeleteView, CommonFilterView, CommonDetailView, CommonUpdateView, \
@@ -429,29 +427,17 @@ class ResourceFlagUpdateView(InventoryLoginRequiredMixin, CommonPopoutUpdateView
             obj.save()
 
             if obj.flagged_4_deletion:
-                email = emails.FlagForDeletionEmail(obj, self.request.user, self.request)
-                # send the email object
-                custom_send_mail(
-                    subject=email.subject,
-                    html_message=email.message,
-                    from_email=email.from_email,
-                    recipient_list=email.to_list,
-                    user=self.request.user
-                )
+                email = emails.FlagForDeletionEmail(self.request, obj)
+                email.send()
+
         elif self.get_flag_type() == "publish":
             obj.flagged_4_publication = not obj.flagged_4_publication
             obj.save()
 
             if obj.flagged_4_publication:
-                email = emails.FlagForPublicationEmail(obj, self.request.user, self.request)
-                # send the email object
-                custom_send_mail(
-                    subject=email.subject,
-                    html_message=email.message,
-                    from_email=email.from_email,
-                    recipient_list=email.to_list,
-                    user=self.request.user
-                )
+                email = emails.FlagForPublicationEmail(self.request, obj)
+                email.send()
+
         return super().form_valid(form)
 
 
@@ -495,15 +481,8 @@ class ResourcePersonCreateView(CanModifyRequiredMixin, CommonCreateView):
 
         # if the person is being added as a custodian
         if obj.roles.filter(id=1).exists():
-            email = emails.AddedAsCustodianEmail(obj.resource, obj.user, self.request)
-            # send the email object
-            custom_send_mail(
-                subject=email.subject,
-                html_message=email.message,
-                from_email=email.from_email,
-                recipient_list=email.to_list,
-                user=self.request.user
-            )
+            email = emails.AddedAsCustodianEmail(self.request, obj)
+            email.send()
         return super().form_valid(form)
 
 
@@ -518,6 +497,41 @@ class ResourcePersonUpdateView(CanModifyRequiredMixin, CommonUpdateView):
 
     def get_parent_crumb(self):
         return {"title": self.get_object().resource, "url": reverse("inventory:resource_detail", args=[self.get_object().resource.id])}
+
+    def form_valid(self, form):
+        was_custodian = self.get_object().roles.filter(code__iexact="RI_409").exists()
+        is_custodian = form.cleaned_data.get("roles").filter(code__iexact="RI_409").exists()
+
+        # if they were not a custodian, but now are, send an email
+        if not was_custodian and is_custodian:
+            email = emails.AddedAsCustodianEmail(self.request, self.get_object())
+            email.send()
+
+        # if they were a custodian, but now are not, send an email
+        if was_custodian and not is_custodian:
+            email = emails.RemovedAsCustodianEmail(self.request, self.get_object())
+            email.send()
+
+        return super().form_valid(form)
+        
+
+class ResourcePersonDeleteView(CanModifyRequiredMixin, CommonDeleteView):
+    model = models.ResourcePerson2
+    template_name = 'inventory/confirm_delete.html'
+
+    def delete(self, request, *args, **kwargs):
+        obj = models.ResourcePerson2.objects.get(pk=self.kwargs["pk"])
+
+        # if the person is being removed as a custodian
+        if obj.roles.filter(id=1).exists():
+            email = emails.RemovedAsCustodianEmail(self.request, obj)
+            email.send()
+
+        # messages.success(self.request, self.success_message)
+        return super().delete(request, *args, **kwargs)
+
+    def get_success_url(self):
+        return reverse_lazy('inventory:resource_detail', kwargs={'pk': self.object.resource.id})
 
 
 class ProfileUpdateView(CanModifyRequiredMixin, CommonUpdateView):
@@ -537,32 +551,6 @@ class ProfileUpdateView(CanModifyRequiredMixin, CommonUpdateView):
 
     def get_parent_crumb(self):
         return {"title": self.get_resource_person(), "url": reverse("inventory:resource_detail", args=[self.get_resource_person().id])}
-
-
-class ResourcePersonDeleteView(CanModifyRequiredMixin, CommonDeleteView):
-    model = models.ResourcePerson2
-    template_name = 'inventory/confirm_delete.html'
-
-    def delete(self, request, *args, **kwargs):
-        obj = models.ResourcePerson2.objects.get(pk=self.kwargs["pk"])
-
-        # if the person is being added as a custodian
-        if obj.roles.filter(id=1).exists():
-            email = emails.RemovedAsCustodianEmail(obj.resource, obj.user, self.request)
-            # send the email object
-            custom_send_mail(
-                subject=email.subject,
-                html_message=email.message,
-                from_email=email.from_email,
-                recipient_list=email.to_list,
-                user=self.request.user
-            )
-
-        # messages.success(self.request, self.success_message)
-        return super().delete(request, *args, **kwargs)
-
-    def get_success_url(self):
-        return reverse_lazy('inventory:resource_detail', kwargs={'pk': self.object.resource.id})
 
 
 # RESOURCE KEYWORD #
@@ -933,8 +921,7 @@ class DataManagementCustodianDetailView(AdminRequiredMixin, CommonDetailView):
         "profile.position_eng|position (en)",
         "profile.position_fre|position (fr)",
     ]
-    parent_crumb = {"title":_("Custodian List"), "url": reverse_lazy("inventory:dm_custodian_list")}
-
+    parent_crumb = {"title": _("Custodian List"), "url": reverse_lazy("inventory:dm_custodian_list")}
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
