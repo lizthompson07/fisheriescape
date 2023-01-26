@@ -89,16 +89,16 @@
 
   <div class="mb-3">
     <div class="form-group">
-      <input id="samples" type="checkbox" v-model="viewSamples"> <label for="samples">{% trans "View Samples" %}</label>
+      <input id="samples" type="checkbox" @change="updateRowspans" v-model="viewSamples"> <label for="samples">{% trans "View Samples" %}</label>
     </div>
     <div class="form-group">
-      <input id="filters" type="checkbox" v-model="viewFilters"> <label for="filters">{% trans "View Filters" %}</label>
+      <input id="filters" type="checkbox" @change="updateRowspans" v-model="viewFilters"> <label for="filters">{% trans "View Filters" %}</label>
     </div>
     <div class="form-group">
-      <input id="extracts" type="checkbox" v-model="viewExtracts"> <label for="extracts">{% trans "View Extractions" %}</label>
+      <input id="extracts" type="checkbox" @change="updateRowspans" v-model="viewExtracts"> <label for="extracts">{% trans "View Extractions" %}</label>
     </div>
     <div class="form-group">
-      <input id="pcrs" type="checkbox" v-model="viewPCRs"> <label for="pcrs">{% trans "View PCRs" %}</label>
+      <input id="pcrs" type="checkbox" @change="updateRowspans" v-model="viewPCRs"> <label for="pcrs">{% trans "View PCRs" %}</label>
     </div>
   </div>
 
@@ -550,6 +550,30 @@
             })
           })
         })
+      },
+      updateRowspans(){
+        for (const sample of this.samples) {
+          sample.rowspan = 1
+          if (this.viewFilters){
+            sample.rowspan += sample.filters.length;
+          }
+          for (const filter of sample.filters) {
+            filter.rowspan = 1
+            if (this.viewExtracts){
+              sample.rowspan += filter.extracts.length;
+              filter.rowspan += filter.extracts.length;
+            }
+            for (const extract of filter.extracts) {
+              extract.rowspan = 1
+              if (this.viewPCRs & this.viewExtracts){
+                sample.rowspan += extract.pcrs.length;
+                filter.rowspan += extract.pcrs.length;
+                extract.rowspan += extract.pcrs.length;
+              }
+
+            }
+          }
+        }
       },
       updateAll() {
         this.getMetadata();
