@@ -513,7 +513,7 @@ class ResourcePersonUpdateView(CanModifyRequiredMixin, CommonUpdateView):
             email.send()
 
         return super().form_valid(form)
-        
+
 
 class ResourcePersonDeleteView(CanModifyRequiredMixin, CommonDeleteView):
     model = models.ResourcePerson2
@@ -534,23 +534,36 @@ class ResourcePersonDeleteView(CanModifyRequiredMixin, CommonDeleteView):
         return reverse_lazy('inventory:resource_detail', kwargs={'pk': self.object.resource.id})
 
 
-class ProfileUpdateView(CanModifyRequiredMixin, CommonUpdateView):
+class ResourcePersonProfileUpdateView(CanModifyRequiredMixin, CommonUpdateView):
     model = Profile
     template_name = 'inventory/form.html'
     form_class = ProfileForm
     home_url_name = "inventory:index"
 
+    def get_initial(self):
+        profile = self.get_object()
+        return dict(
+            first_name=profile.user.first_name,
+            last_name=profile.user.last_name,
+        )
+
+    def get_object(self, queryset=None):
+        return self.get_resource_person().user.profile
+
     def get_resource_person(self):
-        return get_object_or_404(models.ResourcePerson2, pk=self.kwargs.get("resource_person"))
+        return get_object_or_404(models.ResourcePerson2, pk=self.kwargs.get("pk"))
 
     def get_h1(self):
-        return f"Updating {self.get_object().user}'s Profile"
+        return f"{self.get_object().user}'s Profile"
+
+    def get_parent_crumb(self):
+        return {"title": self.get_resource_person(), "url": reverse("inventory:resource_person_edit", args=[self.get_resource_person().id])}
 
     def get_grandparent_crumb(self):
         return {"title": self.get_resource_person().resource, "url": reverse("inventory:resource_detail", args=[self.get_resource_person().resource.id])}
 
-    def get_parent_crumb(self):
-        return {"title": self.get_resource_person(), "url": reverse("inventory:resource_detail", args=[self.get_resource_person().id])}
+    def get_success_url(self):
+        return self.get_parent_crumb().get("url")
 
 
 # RESOURCE KEYWORD #

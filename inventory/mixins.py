@@ -1,10 +1,12 @@
 from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.http import HttpResponseRedirect
+from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext as _
 
+from accounts.models import Profile
 from . import models
 from .utils import is_nat_admin, is_regional_admin, is_admin, can_modify
 
@@ -71,6 +73,8 @@ class CanModifyRequiredMixin(InventoryBasicMixin):
                 resource_id = obj.id
             elif hasattr(obj, "resource"):
                 resource_id = obj.resource_id
+            elif isinstance(obj, Profile):
+                resource_id = get_object_or_404(models.ResourcePerson2, pk=self.kwargs.get("pk")).resource_id
 
         if resource_id:
             return can_modify(self.request.user, resource_id)

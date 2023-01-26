@@ -25,7 +25,6 @@ except (ModuleNotFoundError, ImportError):
 class ProfileForm(forms.ModelForm):
     first_name = forms.CharField(label=_("First name"))
     last_name = forms.CharField(label=_("Last name"))
-    email = forms.EmailField(label=_("Email"))
     field_order = ("first_name", "last_name", "email",)
 
     class Meta:

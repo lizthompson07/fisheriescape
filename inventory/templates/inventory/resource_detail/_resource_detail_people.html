@@ -40,7 +40,7 @@
         </b><br>
         {{ rp.organization }}<br>
         {{ rp.user.profile.position_eng|nz:missing_txt }} | {{ rp.user.profile.position_fre|nz:missing_txt }} <br>
-        E-mail: {{ rp.user.profile.email|nz:missing_txt }} / Phone: {{ rp.user.profile.phone|nz:missing_txt }}
+        <u>E-mail:</u> {{ rp.user.email|nz:missing_txt }} / <u>Phone:</u> {{ rp.user.profile.phone|nz:missing_txt }}
       </td>
       <td>
         {% for role in rp.roles.all %}

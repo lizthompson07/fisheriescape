@@ -37,6 +37,7 @@ urlpatterns = [
     path('resources/<int:resource>/new-resource-person/', views.ResourcePersonCreateView.as_view(), name="resource_person_add"),
     path('resource-person/<int:pk>/delete/', views.ResourcePersonDeleteView.as_view(), name="resource_person_delete"),
     path('resource-person/<int:pk>/edit/', views.ResourcePersonUpdateView.as_view(), name="resource_person_edit"),
+    path('resource-person/<int:pk>/edit-profile/', views.ResourcePersonProfileUpdateView.as_view(), name="profile_edit"),
 
 
     # RESOURCE KEYWORD #
