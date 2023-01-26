@@ -144,7 +144,7 @@ class ResourceListView(InventoryBasicMixin, CommonFilterView):
         {"name": 'section', "class": "w-15", "width": ""},
         {"name": 'Previous time certified', "class": "", "width": ""},
         {"name": 'completeness rating', "class": "", "width": ""},
-        {"name": 'review_status|{}'.format(gettext_lazy("review status"))}
+        {"name": 'review_status_display|{}'.format(gettext_lazy("review status"))}
     ]
 
     def is_personalized(self):
@@ -173,7 +173,7 @@ class ResourceListView(InventoryBasicMixin, CommonFilterView):
 class ResourceDetailView(InventoryBasicMixin, CommonDetailView):
     model = models.Resource
     template_name = "inventory/resource_detail/resource_detail.html"
-    container_class = "container-fluid"
+    container_class = "container"
     home_url_name = "inventory:index"
 
     def get_object(self, queryset=None):
@@ -197,7 +197,7 @@ class ResourceDetailView(InventoryBasicMixin, CommonDetailView):
         context['kcount_cst'] = self.object.keywords.filter(keyword_domain_id__exact=6).count()
         context['kcount_tax'] = self.object.keywords.filter(is_taxonomic__exact=True).count()
         context['kcount_loc'] = self.object.keywords.filter(keyword_domain_id__exact=7).count()
-        context['custodian_count'] = self.object.resource_people.filter(role=1).count()
+        context['custodian_count'] = self.object.resource_people.filter(role__code__iexact="RI_409").count()
 
         if self.object.completedness_rating == 1:
             context['verified'] = True
@@ -258,6 +258,10 @@ class ResourceUpdateView(CanModifyRequiredMixin, CommonUpdateView):
             'date_last_modified': timezone.now(),
         }
 
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+        obj.last_modified_by = self.request.user
+        return super().form_valid(form)
 
 class ResourceCloneUpdateView(ResourceUpdateView):
     h1 = gettext_lazy("Cloning Record")
@@ -345,7 +349,10 @@ class ResourceCreateView(InventoryLoginRequiredMixin, CommonCreateView):
         }
 
     def form_valid(self, form):
-        my_object = form.save()
+        my_object = form.save(commit=False)
+        my_object.last_modified_by = self.request.user
+        my_object.save()
+
         if form.cleaned_data['add_custodian'] == True:
             models.ResourcePerson.objects.create(resource_id=my_object.id, person_id=self.request.user.id, role_id=1)
 

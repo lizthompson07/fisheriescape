@@ -1,13 +1,22 @@
-<ul>
+<div class="mb-5">
+  <div class="mb-3">
+    <h4 class="neighbours">Citations</h4>
+    <a class="mb-2 btn btn-xs btn-outline-primary"
+       href="{% url 'inventory:resource_citation_filter' object.id %}">
+      <span class="mdi mdi-plus text-primary"></span>
+    </a>
+  </div>
+  <ul>
     {% if object.citations2.count == 0 %}
-        <em>No citations</em>
+      <em>No citations</em>
     {% else %}
-        {% for item in object.citations2.all %}
-            <li style="font-size: small;">
-                {{ item.short_citation_html|safe }}
-                (<a href="{% url 'inventory:citation_detail' object.id item.id %}">view details</a>)&nbsp;
-                <a href="{% url 'inventory:resource_citation_delete' object.id item.id %}" class="red-font">&times;</a>
-            </li>
-        {% endfor %}
+      {% for item in object.citations2.all %}
+        <li style="font-size: small;">
+          {{ item.short_citation_html|safe }}
+          (<a href="{% url 'inventory:citation_detail' object.id item.id %}">view details</a>)&nbsp;
+          <a href="{% url 'inventory:resource_citation_delete' object.id item.id %}" class="red-font">&times;</a>
+        </li>
+      {% endfor %}
     {% endif %}
-</ul>
+  </ul>
+</div>

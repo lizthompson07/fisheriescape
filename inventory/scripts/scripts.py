@@ -1,4 +1,3 @@
-import csv
 import os
 
 from django.core import serializers
@@ -7,7 +6,6 @@ from django.core.files import File
 from inventory import models
 from inventory import xml_export
 from shared_models import models as shared_models
-
 
 
 def export_fixtures():
@@ -37,13 +35,11 @@ def export_fixtures():
         myfile.close()
 
 
-
 def transfer_dist_formats():
     for resource in models.Resource.objects.filter(distribution_format__isnull=False):
         # look for match in other table
         df = models.DistributionFormat.objects.get(name__iexact=resource.distribution_format)
         resource.distribution_formats.add(df)
-
 
 
 def resave_all(resources=models.Resource.objects.all()):
@@ -91,3 +87,48 @@ def import_new_species():
     #                 keyword_domain_id=4,
     #             )
     #             print("'{}' does not have a TSN therefore is being added under the 'uncontrolled vocabulary' keyword domain".format(common_names))
+
+
+def populate_resource_people2():
+    for rp in models.ResourcePerson.objects.all():
+        try:
+            rp2, created = models.ResourcePerson2.objects.get_or_create(
+                resource=rp.resource,
+                person=rp.person.user.contact
+            )
+        except shared_models.Person.DoesNotExist:
+            print("no contact found for", rp.person.user)
+            rp.person.user.save()
+            rp2, created = models.ResourcePerson2.objects.get_or_create(
+                resource=rp.resource,
+                person=rp.person.user.contact
+            )
+
+        # transfer notes if this is being created for the first time
+        if created:
+            if rp.notes and len(rp.notes):
+                if rp2.notes and len(rp2.notes):
+                    rp2.notes += "; " + rp.notes
+                else:
+                    rp2.notes = rp.notes
+                rp2.save()
+
+        # add the roles
+        rp2.roles.add(rp.role)
+
+        # now lets compare the persons
+        person1 = rp.person
+        person2 = rp2.person
+
+        if not person2.phone and person1.phone:
+            person2.phone = person1.phone
+        if not person2.job_title_en and person1.position_eng:
+            person2.job_title_en = person1.position_eng
+        if not person2.job_title_fr and person1.position_fre:
+            person2.job_title_fr = person1.position_fre
+        if not person2.org_from_inventory and person1.organization:
+            person2.org_from_inventory = rp.person.organization.id
+
+        person2.save()
+
+

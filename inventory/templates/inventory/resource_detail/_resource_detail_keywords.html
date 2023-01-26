@@ -1,64 +1,75 @@
-<ul>
+<div class="mb-5">
+  <div class="mb-3">
+    <h4 class="neighbours">Keywords etc.</h4>
+    <div class="neighbours">
+      <a class="mb-2 btn btn-xs btn-outline-primary"
+         href="{% url 'inventory:resource_keyword_edit' object.id %}">
+        <span class="mdi mdi-plus text-primary"></span>
+      </a>
+    </div>
+  </div>
+  <ul>
     {% if object.keywords.count == 0 %}
-        <em>No keywords</em>
+      <em>No keywords</em>
     {% else %}
-        <li>
-            ISO Topic Categories:
-            {% for item in object.keywords.all %}
-                {% if item.keyword_domain.id == 8 %}
-                    <a href="{% url 'inventory:keyword_detail' object.id item.id %}">
-                        {{ item }}
-                    </a>
-                    <a href="{% url 'inventory:resource_keyword_delete' resource.id item.id %}" class="red-font">&times;</a>, &nbsp;
-                {% endif %}
-            {% endfor %}
-        </li>
-        <li>
-            GC Core Subjects:
-            {% for item in object.keywords.all %}
-                {% if item.keyword_domain.id == 6 %}
-                    <a href="{% url 'inventory:keyword_detail' object.id item.id %}">
-                        {{ item }}
-                    </a>
-                    <a href="{% url 'inventory:resource_keyword_delete' resource.id item.id %}" class="red-font">&times;</a>, &nbsp;
-                {% endif %}
-            {% endfor %}
-        </li>
-        <li>
-            Taxonomic:
-            {% for item in object.keywords.all %}
-                {% if item.is_taxonomic %}
-                    <a href="{% url 'inventory:keyword_detail' object.id item.id %}">
-                        <em>{{ item }} ({{ item.keyword_domain.abbrev }})</em>
-                    </a>
-                    <a href="{% url 'inventory:resource_keyword_delete' resource.id item.id %}" class="red-font">&times;</a>, &nbsp;
-                {% endif %}
-            {% endfor %}
-        </li>
-        <li>
-            DFO Area:
-            {% for item in object.keywords.all %}
-                {% if item.keyword_domain.id == 7 %}
-                    <a href="{% url 'inventory:keyword_detail' object.id item.id %}">
-                        {{ item }}
-                    </a>
-                    <a href="{% url 'inventory:resource_keyword_delete' resource.id item.id %}" class="red-font">&times;</a>, &nbsp;
-                {% endif %}
-            {% endfor %}
-        </li>
-        <li>
-            Other:
-            {% for item in object.keywords.all %}
-                {% if item.is_taxonomic == False and item.keyword_domain.id != 6 and item.keyword_domain.id != 8 and item.keyword_domain.id != 7 %}
-                    <a href="{% url 'inventory:keyword_detail' object.id item.id %}">
-                        {{ item }} ({{ item.keyword_domain.abbrev }})
-                    </a>
-                    <a href="{% url 'inventory:resource_keyword_delete' resource.id item.id %}" class="red-font">&times;</a>, &nbsp;
-                {% endif %}
-            {% endfor %}
-        </li>
+      <li>
+        ISO Topic Categories:
+        {% for item in object.keywords.all %}
+          {% if item.keyword_domain.id == 8 %}
+            <a href="{% url 'inventory:keyword_detail' object.id item.id %}">
+              {{ item }}
+            </a>
+            <a href="{% url 'inventory:resource_keyword_delete' resource.id item.id %}" class="red-font">&times;</a>, &nbsp;
+          {% endif %}
+        {% endfor %}
+      </li>
+      <li>
+        GC Core Subjects:
+        {% for item in object.keywords.all %}
+          {% if item.keyword_domain.id == 6 %}
+            <a href="{% url 'inventory:keyword_detail' object.id item.id %}">
+              {{ item }}
+            </a>
+            <a href="{% url 'inventory:resource_keyword_delete' resource.id item.id %}" class="red-font">&times;</a>, &nbsp;
+          {% endif %}
+        {% endfor %}
+      </li>
+      <li>
+        Taxonomic:
+        {% for item in object.keywords.all %}
+          {% if item.is_taxonomic %}
+            <a href="{% url 'inventory:keyword_detail' object.id item.id %}">
+              <em>{{ item }} ({{ item.keyword_domain.abbrev }})</em>
+            </a>
+            <a href="{% url 'inventory:resource_keyword_delete' resource.id item.id %}" class="red-font">&times;</a>, &nbsp;
+          {% endif %}
+        {% endfor %}
+      </li>
+      <li>
+        DFO Area:
+        {% for item in object.keywords.all %}
+          {% if item.keyword_domain.id == 7 %}
+            <a href="{% url 'inventory:keyword_detail' object.id item.id %}">
+              {{ item }}
+            </a>
+            <a href="{% url 'inventory:resource_keyword_delete' resource.id item.id %}" class="red-font">&times;</a>, &nbsp;
+          {% endif %}
+        {% endfor %}
+      </li>
+      <li>
+        Other:
+        {% for item in object.keywords.all %}
+          {% if item.is_taxonomic == False and item.keyword_domain.id != 6 and item.keyword_domain.id != 8 and item.keyword_domain.id != 7 %}
+            <a href="{% url 'inventory:keyword_detail' object.id item.id %}">
+              {{ item }} ({{ item.keyword_domain.abbrev }})
+            </a>
+            <a href="{% url 'inventory:resource_keyword_delete' resource.id item.id %}" class="red-font">&times;</a>, &nbsp;
+          {% endif %}
+        {% endfor %}
+      </li>
 
     {% endif %}
-</ul>
+  </ul>
 
 
+</div>

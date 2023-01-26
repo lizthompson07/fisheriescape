@@ -71,11 +71,11 @@ def ci_responsible_party(resource_person):
     charstring(root, 'gmd:individualName', resource_person.person.full_name)
 
     # organisationName
-    charstring(root, 'gmd:organisationName', attr_error_2_none(resource_person.person.organization, "name_eng"),
-               attr_error_2_none(resource_person.person.organization, "name_fre"))
+    charstring(root, 'gmd:organisationName', attr_error_2_none(resource_person.person.get_org_instance(), "name_eng"),
+               attr_error_2_none(resource_person.person.get_org_instance(), "name_fre"))
 
     # positionName
-    charstring(root, 'gmd:positionName', resource_person.person.position_eng, resource_person.person.position_fre)
+    charstring(root, 'gmd:positionName', resource_person.person.job_title_en, resource_person.person.job_title_fr)
 
     contact_info = SubElement(root, "gmd:contactInfo")
     ci_contact = SubElement(contact_info, "gmd:CI_Contact")
@@ -87,28 +87,28 @@ def ci_responsible_party(resource_person):
     address = SubElement(ci_contact, "gmd:address")
     ci_address = SubElement(address, "gmd:CI_Address")
     # civic
-    charstring(ci_address, 'gmd:deliveryPoint', attr_error_2_none(resource_person.person.organization, "address"),
-               attr_error_2_none(resource_person.person.organization, "address"))
+    charstring(ci_address, 'gmd:deliveryPoint', attr_error_2_none(resource_person.person.get_org_instance(), "address"),
+               attr_error_2_none(resource_person.person.get_org_instance(), "address"))
     # city
-    charstring(ci_address, 'gmd:city', attr_error_2_none(resource_person.person.organization, "city"),
-               attr_error_2_none(resource_person.person.organization, "city"))
+    charstring(ci_address, 'gmd:city', attr_error_2_none(resource_person.person.get_org_instance(), "city"),
+               attr_error_2_none(resource_person.person.get_org_instance(), "city"))
     # province
-    my_loc = attr_error_2_none(resource_person.person.organization, "location")
+    my_loc = attr_error_2_none(resource_person.person.get_org_instance(), "location")
     charstring(ci_address, 'gmd:administrativeArea',
                attr_error_2_none(my_loc, "location_eng"),
                attr_error_2_none(my_loc, "location_fre"),
                )
     # postalcode
-    charstring(ci_address, 'gmd:postalCode', attr_error_2_none(resource_person.person.organization, "postal_code"))
+    charstring(ci_address, 'gmd:postalCode', attr_error_2_none(resource_person.person.get_org_instance(), "postal_code"))
     # country
-    my_loc = attr_error_2_none(resource_person.person.organization, "location")
+    my_loc = attr_error_2_none(resource_person.person.get_org_instance(), "location")
     charstring(ci_address, 'gmd:country',
                attr_error_2_none(my_loc, "country"),
                attr_error_2_none(my_loc, "country_fr"),
                )
     # email
-    charstring(ci_address, 'gmd:electronicMailAddress', resource_person.person.user.email,
-               resource_person.person.user.email)
+    charstring(ci_address, 'gmd:electronicMailAddress', resource_person.person.dmapps_user.email,
+               resource_person.person.dmapps_user.email)
     # role
     codelist(root, "gmd:role", "gmd:CI_RoleCode",
              "http://nap.geogratis.gc.ca/metadata/register/napMetadataRegister.xml#IC_90", resource_person.role.code,
@@ -971,7 +971,7 @@ def verify(resource):
         '*person.organization.location',
         '*person.organization.location.location_',
         '*person.position_',
-        '*person.user.email',
+        '*person.dmapps_user.email',
 
         # optional fields; denoted by dollar sign $
         # these fields are optional but must be bilingual
@@ -1161,17 +1161,17 @@ def verify(resource):
                 for person in resource.people.all():
                     if field_split[1] == "organization":
                         if len(field_split) == 2:  # means we are looking at the fk
-                            if person.organization is None:
+                            if person.org_from_inventory is None:
                                 checklist.append("An organization for {} is missing.".format(person))
                                 rating = rating - 1
                         elif field_split[2].startswith("name"):  # means we are looking at the org name
                             # if there is no organization, this will produce an error
                             try:
-                                if person.organization.name_eng is None or person.organization.name_eng == "":
+                                if person.get_org_instance().name_eng is None or person.get_org_instance().name_eng == "":
                                     checklist.append("An English organization name is needed for {}".format(person))
                                     rating = rating - 1
                                     translation_needed = True
-                                if person.organization.name_fre is None or person.organization.name_fre == "":
+                                if person.get_org_instance().name_fre is None or person.get_org_instance().name_fre == "":
                                     checklist.append("A French organization name is needed for {}".format(person))
                                     rating = rating - 1
                                     translation_needed = True
@@ -1180,9 +1180,9 @@ def verify(resource):
                                 rating = rating - 2
                         elif field_split[2].startswith("loc") and len(field_split) == 3:  # means we are looking at the fk
                             try:
-                                if person.organization.location is None:
+                                if person.get_org_instance().location is None:
                                     checklist.append("A location is needed for '{}' which is the organization belonging to {}".format(
-                                        person.organization, person))
+                                        person.get_org_from_inventory_display(), person))
                                     rating = rating - 1
                             except AttributeError:
                                 # one point is lost
@@ -1192,11 +1192,11 @@ def verify(resource):
                                 "loc"):  # means we are looking at the location name
                             # if there is no organization location, this will produce an error
                             try:
-                                if person.organization.location.location_eng is None:
+                                if person.get_org_instance().location.location_eng is None:
                                     checklist.append("An English organization location is needed for {}".format(person))
                                     rating = rating - 1
                                     translation_needed = True
-                                if person.organization.location.location_fre is None:
+                                if person.get_org_instance().location.location_fre is None:
                                     checklist.append("A French organization location is needed for {}".format(person))
                                     rating = rating - 1
                                     translation_needed = True
@@ -1204,21 +1204,21 @@ def verify(resource):
                                 # two points are lost
                                 rating = rating - 2
 
-                    elif field_split[1].startswith("position"):
-                        if person.position_eng is None or person.position_eng == "":
-                            checklist.append("An English position name is needed for {}".format(person))
+                    elif field_split[1].startswith("job_title"):
+                        if person.job_title_en is None or person.job_title_en == "":
+                            checklist.append("An English job title is needed for {}".format(person))
                             rating = rating - 1
-                        if person.position_fre is None or person.position_fre == "":
-                            checklist.append("A French position name is needed for {}".format(person))
+                        if person.job_title_fr is None or person.job_title_fr == "":
+                            checklist.append("A French job title is needed for {}".format(person))
                             rating = rating - 1
 
                         # now do a special bilingual field check to see if translation is needed
-                        if (person.position_eng is not None and person.position_fre is None) or (
-                                person.position_eng is None and person.position_fre is not None):
+                        if (person.job_title_en is not None and person.job_title_fr is None) or (
+                                person.job_title_en is None and person.job_title_fr is not None):
                             translation_needed = True
 
                     elif field_split[1].startswith("user"):
-                        if person.user.email is None:
+                        if person.dmapps_user.email is None:
                             checklist.append("An email address is needed for {}".format(person))
                             rating = rating - 1
 

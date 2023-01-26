@@ -1,21 +1,39 @@
 {% load static %}
+<div class="mb-5">
+  <div class="mb-3">
+    <h4 class="neighbours">Data Resources</h4>
+    <a class="mb-2 btn btn-xs btn-outline-primary" href="#" pop-href="{% url 'inventory:data_resource_create' object.id %}">
+      <span class="mdi mdi-plus text-primary"></span>
+    </a>
+  </div>
 
-<ul>
+  <ul>
     {% if object.data_resources.count == 0 %}
-        <em>Nothing added.</em>
+      <em>Nothing added.</em>
     {% else %}
-        {% for item in object.data_resources.all %}
-            <li>
-                <a href="#" pop-href="{% url 'inventory:data_resource_edit' item.id %}">
-                    {{ item }}
-                </a>
-                <br>
-                (<a href="{{ item.url }}" target="_blank">visit URL</a>)
-                <a href="{% url 'inventory:data_resource_clone' item.id %}"><span class="mdi mdi-content-copy"></span></a>
-                <a href="#" pop-href="{% url 'inventory:data_resource_delete' item.id %}"class="red-font">&times;</a>
-            </li>
-        {% endfor %}
+      {% for item in object.data_resources.all %}
+        <li class="h6 my-1">
+
+          {{ item }}
+
+          <div class="ml-3 neighbours">
+            <a href="#" pop-href="{% url "inventory:data_resource_edit" item.id %}" data-toggle="tooltip" title="edit" class="btn btn-sm btn-warning">
+              <span class="mdi mdi-pencil text-dark"></span>
+            </a>
+
+            <a href="{{ item.url }}" data-toggle="tooltip" title="visit URL" class="btn btn-sm btn-primary" target="_blank">
+              <span class="mdi mdi-web  text-light"></span>
+            </a>
+            <a href="{% url 'inventory:data_resource_clone' item.id %}" data-toggle="tooltip" title="clone" class="btn btn-sm btn-dark">
+              <span class="mdi mdi-content-copy  text-light"></span>
+            </a>
+
+            <a href="#" pop-href="{% url 'inventory:data_resource_delete' item.id %}" data-toggle="tooltip" title="delete" class="btn btn-sm btn-danger">
+              <span class="mdi mdi-trash-can text-light"></span>
+            </a>
+          </div>
+        </li>
+      {% endfor %}
     {% endif %}
-
-
-</ul>
+  </ul>
+</div>

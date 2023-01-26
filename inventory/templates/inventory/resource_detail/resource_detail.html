@@ -6,21 +6,37 @@
 {% load i18n %}
 {% load l10n %}
 
+
+{% block header %}
+  {{ block.super }}
+
+
+  <style>
+  #map {
+      height: 200px; /* The height is 400 pixels */
+      width: 100%; /* The width is the width of the web page */
+  }
+  </style>
+
+{% endblock %}
+
 {% block title_area %}
 
   <div class="mb-3">
-
-    {% if user in object.favourited_by.all %}
-      <a href="{% url 'inventory:remove_favourites' object.id %}">
-        <span class="mdi mdi-star neighbours h1"></span>
-      </a>
-    {% else %}
-      <a href="{% url 'inventory:add_favourites' object.id %}">
-        <span class="mdi mdi-star-outline neighbours h1"></span>
-      </a>
-    {% endif %}
-    <div class="neighbours">
-      {{ block.super }}
+    <div class="float-right">
+      {% if user in object.favourited_by.all %}
+        <a href="{% url 'inventory:remove_favourites' object.id %}">
+          <span class="mdi mdi-star neighbours h1"></span>
+        </a>
+      {% else %}
+        <a href="{% url 'inventory:add_favourites' object.id %}">
+          <span class="mdi mdi-star-outline neighbours h1"></span>
+        </a>
+      {% endif %}
+    </div>
+    <div class="">
+      <h1>{{ object.t_title }}</h1>
+      <p class="text-muted">UUID: {{ object.uuid }}</p>
     </div>
   </div>
 
@@ -28,105 +44,41 @@
 
 {% block subcontent %}
 
-  <div class="mb-3">
-    {% with "btn btn-sm btn-outline-dark" as my_btn %}
+  {# TOOLBAR #}
+  {% include "inventory/resource_detail/_toolbar.html" %}
 
-      <a class="{{ my_btn }}" href="{% url 'inventory:resource_edit' object.id %}">
-        Modify
-        <span class="mdi mdi-pencil ml-1"></span>
-      </a>
-      <a class="{{ my_btn }}" href="#" pop-href="{% url 'inventory:resource_certify' object.id %}" data-toggle="tooltip"
-         title="Click here to add a certification event to this record.">
-        Certify
-        <span class="mdi mdi-trophy-award ml-1"></span>
-      </a>
-      <a class="{{ my_btn }}" href="#" data-toggle="modal" data-target="#completedness">
-        {% trans "Validate" %}
-        <span class="mdi mdi-eye-check ml-1"></span>
-      </a>
+  {# ALERTS #}
+  {% include "inventory/resource_detail/_alerts.html" %}
 
-      {% if object.flagged_4_deletion %}
-        <a class="{{ my_btn }}" href="#" pop-href="{% url 'inventory:resource_flag_delete' object.id %}" data-toggle="tooltip"
-           title="Unflag this metadata record for deletion. A data manager will follow up with you after submitting this request.">
-          Unflag for Deletion
-          <span class="mdi mdi-flag ml-1"></span>
-        </a>
-      {% else %}
-        <a class="{{ my_btn }}" href="#" pop-href="{% url 'inventory:resource_flag_delete' object.id %}" data-toggle="tooltip"
-           title="Flag this metadata record for deletion. A data manager will follow up with you after submitting this request.">
-          Flag for Deletion
-          <span class="mdi mdi-flag ml-1"></span>
-        </a>
-      {% endif %}
+  {# THUMBNAIL AND MAP #}
+  {% include "inventory/resource_detail/_thumb_and_map.html" %}
 
-      {% if object.flagged_4_publication %}
-        <a class="{{ my_btn }}" href="#" pop-href="{% url 'inventory:resource_flag_publication' object.id %}" data-toggle="tooltip"
-           title="Unflag this metadata record for open data publication. A data manager will follow up with you after submitting this request.">
-          Unflag for Publication
-          <span class="mdi mdi-flag ml-1"></span>
-        </a>
-      {% else %}
-        <a class="{{ my_btn }}" href="#" pop-href="{% url 'inventory:resource_flag_publication' object.id %}" data-toggle="tooltip"
-           title="Flag this metadata record for open data publication. A data manager will follow up with you after submitting this request.">
-          Flag for {% if object.fgp_publication_date %}Re-publication{% else %}Publication{% endif %}
-          <span class="mdi mdi-flag ml-1"></span>
-        </a>
-      {% endif %}
-      <a class="{{ my_btn }}" href="{% url 'inventory:resource_clone' object.id %}" data-toggle="tooltip"
-         title="{% trans "Start a new resource, using this one as a template." %}">
-        {% trans "Clone" %}
-        <span class="mdi mdi-content-copy ml-1"></span>
-      </a>
-      <a class="{{ my_btn }}" href="#" data-toggle="modal" data-target="#hnap" title="export as HNAP xml">
-        <img src="{% static 'img/icons/xml.svg' %}" alt="" width="20px">
-      </a>
-      <a class="{{ my_btn }}" href="{% url 'inventory:resource_pdf' object.id %}">
-        <img src="{% static 'img/icons/pdf.svg' %}" alt="" width="20px">
-      </a>
-      {% for group in user.groups.all %}
-        {% if group.id == 13 %}
-          <a class="btn btn-sm btn-outline-danger" href="{% url 'inventory:resource_delete' object.id %}">
-            Delete
-          </a>
-        {% endif %}
+  {# DETAIL PAGE #}
+  {% include "inventory/resource_detail/_resource_detail_basic.html" %}
 
-      {% endfor %}
-    {% endwith %}
+  {#  PEOPLE #}
+  {% include "inventory/resource_detail/_resource_detail_people.html" %}
 
-  </div>
+  {#  FILES #}
+  {% include "inventory/resource_detail/_resource_detail_files.html" %}
 
-  {% if can_modify.can_modify %}
+  {#  DATA RESOURCES #}
+  {% include "inventory/resource_detail/_resource_detail_data_resources.html" %}
+
+  {#  WEB RESOURCES #}
+  {% include "inventory/resource_detail/_resource_detail_web_services.html" %}
+
+  {#  KEYWORDS #}
+  {% include "inventory/resource_detail/_resource_detail_keywords.html" %}
+
+  {#  CITATIONS #}
+  {% include "inventory/resource_detail/_resource_detail_citations.html" %}
+
+  {#  CERTIFICATIONS #}
+  {% include "inventory/resource_detail/_resource_detail_certification_history.html" %}
 
 
-    <div class="alert alert-success w-75 p-1 m-1" role="alert">
-      <p class="p-0 m-0">
-        <span class="mdi mdi-check text-success mr-1 lead"></span>
-        {{ can_modify.reason }}
-      </p>
-    </div>
-  {% endif %}
 
-  {% if object.flagged_4_deletion %}
-    <div class="alert alert-danger w-75 p-1 m-1" role="alert">
-      <p class="p-0 m-0 text-danger">
-        <span class="mdi mdi-flag text-danger mr-1 lead"></span>
-        {% trans "Flagged for Deletion" %}
-      </p>
-    </div>
-  {% endif %}
-
-  {% if object.flagged_4_publication %}
-    <div class="alert alert-primary w-75 p-1 m-1" role="alert">
-      <p class="p-0 m-0 text-primary">
-        <span class="mdi mdi-flag text-primary mr-1 lead"></span>
-        {% if object.fgp_publication_date %}
-          {% trans "Flagged for Re-publication" %}
-        {% else %}
-          {% trans "Flagged for Publication" %}
-        {% endif %}
-      </p>
-    </div>
-  {% endif %}
 
 
   {#<!-- HNAP MODAL -->#}
@@ -196,109 +148,6 @@
     </div>
   </div>
 
-
-  <br>
-
-  <div class="row ">
-    <div class="col-4">
-      <div class="mb-3">
-        <div class="neighbours">
-          <h4>Detail</h4>
-        </div>
-
-      </div>
-      {% include "inventory/resource_detail/_resource_detail_basic.html" %}
-    </div>
-
-    <div class="col-3">
-
-      <h4 class="neighbours">People</h4>
-      <a class=" mb-2 btn btn-xs btn-outline-primary" href="{% url 'inventory:resource_person_filter' object.id %}">
-        <span class="mdi mdi-plus text-primary"></span>
-      </a>
-
-      {% include "inventory/resource_detail/_resource_detail_people.html" %}
-      <br>
-
-      <h4 class="neighbours">Storage Files</h4>
-      <a class="mb-2 btn btn-xs btn-outline-primary" href="#" pop-href="{% url 'inventory:file_create' object.id %}">
-        <span class="mdi mdi-plus text-primary"></span>
-      </a>
-      {% include "inventory/resource_detail/_resource_detail_files.html" %}
-
-      <h4 class="neighbours">Data Resources</h4>
-      <a class="mb-2 btn btn-xs btn-outline-primary" href="#" pop-href="{% url 'inventory:data_resource_create' object.id %}">
-        <span class="mdi mdi-plus text-primary"></span>
-      </a>
-      {% include "inventory/resource_detail/_resource_detail_data_resources.html" %}
-      <br>
-
-      <h4 class="neighbours">Web Services</h4>
-      <a class="mb-2 btn btn-xs btn-outline-primary" href="#" pop-href="{% url 'inventory:web_service_create' object.id %}">
-        <span class="mdi mdi-plus text-primary"></span>
-      </a>
-      {% include "inventory/resource_detail/_resource_detail_web_services.html" %}
-      <br>
-
-    </div>
-
-    <div class="col-5">
-
-
-      <style>
-      #map {
-          height: 200px; /* The height is 400 pixels */
-          width: 100%; /* The width is the width of the web page */
-      }
-      </style>
-
-      {#  thumbnail #}
-      <div class="row mb-3">
-        <div class="col">
-          {% if object.thumbnail %}
-            {% echo object.thumbnail|safe as img_url %}
-          {% else %}
-            {% static 'inventory/no_image.svg' as img_url %}
-          {% endif %}
-
-          <a href="{{ img_url }}" data-toggle="tooltip"
-             title="{% trans "to add/change a thumbnail to this resource, add a new file with the word 'thumbnail' included in the caption" %}">
-            <img src="{{ img_url }}" alt="{% trans "missing thumbnail" %}" height="200px">
-          </a>
-
-        </div>
-        {% if object.bounds %}
-          <div class="col">
-            <div id="map"></div>
-          </div>
-        {% endif %}
-      </div>
-
-
-      <h4 class="neighbours">Keywords etc.</h4>
-      <div class="neighbours">
-        <a class="mb-2 btn btn-xs btn-outline-primary"
-           href="{% url 'inventory:resource_keyword_edit' object.id %}">
-          <span class="mdi mdi-plus text-primary"></span>
-        </a>
-      </div>
-      {% include "inventory/resource_detail/_resource_detail_keywords.html" %}
-
-      <h4 class="neighbours">Citations</h4>
-      <a class="mb-2 btn btn-xs btn-outline-primary"
-         href="{% url 'inventory:resource_citation_filter' object.id %}">
-        <span class="mdi mdi-plus text-primary"></span>
-      </a>
-      {% include "inventory/resource_detail/_resource_detail_citations.html" %}
-
-      <h4>Related Records</h4>
-      {% include "inventory/resource_detail/_resource_detail_related.html" %}
-
-      <h4>Certification History</h4>
-      {% include "inventory/resource_detail/_resource_detail_certification_history.html" %}
-
-    </div>
-  </div>
 
 
 

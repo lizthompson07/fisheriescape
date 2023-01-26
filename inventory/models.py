@@ -2,8 +2,6 @@ import uuid
 
 from django.contrib.auth.models import User
 from django.db import models
-from django.db.models.signals import post_save
-from django.dispatch import receiver
 from django.template.defaultfilters import default_if_none, slugify
 from django.urls import reverse
 from django.utils import timezone
@@ -12,7 +10,7 @@ from django.utils.translation import gettext as _
 from markdown import markdown
 
 from dm_apps import custom_widgets
-from lib.functions.custom_functions import truncate, fiscal_year
+from lib.functions.custom_functions import truncate, fiscal_year, listrify
 from shared_models import models as shared_models
 # Choices for language
 from shared_models.models import SimpleLookup, Region, MetadataFields
@@ -38,6 +36,10 @@ class InventoryUser(models.Model):
 
 
 class DistributionFormat(SimpleLookup):
+    pass
+
+
+class StorageSolution(SimpleLookup):
     pass
 
 
@@ -83,6 +85,9 @@ class PersonRole(models.Model):
 
 
 class Person(models.Model):
+    """
+    TODO This field should be removed and replaced by the Shared Models.
+    """
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True, related_name="person")
     full_name = models.CharField(max_length=255, blank=True, null=True)
     position_eng = models.CharField(max_length=255, blank=True, null=True)
@@ -219,8 +224,7 @@ class Resource(models.Model):
     distribution_formats = models.ManyToManyField(DistributionFormat, blank=True)
     citations2 = models.ManyToManyField(shared_models.Citation, related_name='resources', blank=True)
     keywords = models.ManyToManyField(Keyword, related_name='resources', blank=True)
-    people = models.ManyToManyField(Person, through='ResourcePerson')
-    paa_items = models.ManyToManyField(shared_models.PAAItem, blank=True, verbose_name=_("Program Alignment Architecture (PAA) references"))
+    people = models.ManyToManyField(shared_models.Person, through='ResourcePerson2')
     parent = models.ForeignKey("self", on_delete=models.DO_NOTHING, blank=True, null=True, related_name='children',
                                verbose_name="Parent resource")
 
@@ -233,9 +237,49 @@ class Resource(models.Model):
                                               choices=model_choices.spat_representation_choices)
     spat_ref_system = models.IntegerField(blank=True, null=True, verbose_name="Spatial reference system", choices=model_choices.spat_ref_system_choices)
 
+    #############
+    # DMA stuff #
+    #############
+
+    metadata_update_freq = models.IntegerField(blank=True, null=True, verbose_name=_("At what frequency should the metadata be updated? "),
+                                               help_text=_("What should be the expectation for how often the metadata is updated?"),
+                                               choices=model_choices.dma_frequency_choices)
+    metadata_freq_text = models.TextField(blank=True, null=True, verbose_name=_("Justification for frequency:"),
+                                          help_text=_("What justification can be provided for the above selection?"))
+
+    # Archiving / Storage
+    storage_solutions = models.ManyToManyField(StorageSolution, blank=True, verbose_name=_(
+        "Which storage solution(s) will be used to house the raw field data, processed data, and all other data products?"))
+    storage_solution_text = models.TextField(blank=True, null=True, verbose_name=_("Justification for selection of storage solution(s)"),
+                                             help_text=_("Provide your rational for the selection(s) made above."))
+    storage_needed = models.TextField(blank=True, null=True, verbose_name=_("What is the estimated storage space needed for the above?"),
+                                      help_text=_("This includes raw field data, processed data, and all other data products etc.)"))
+    raw_data_retention = models.TextField(blank=True, null=True, verbose_name=_("What is the retention policy for the raw field data?"), help_text=_(
+        "This would include instrument data, field sheets, physical samples etc. Please refer to the DFO EOS Retention Policy for clarification)"))
+    data_retention = models.TextField(blank=True, null=True, verbose_name=_("What is the retention policy for the data?"),
+                                      help_text=_("Please refer to the DFO EOS Retention Policy for clarification."))
+    backup_plan = models.TextField(blank=True, null=True, verbose_name=_("What procedures will be taken to back-up/secure the data?"))
+    cloud_costs = models.TextField(blank=True, null=True,
+                                   verbose_name=_("If using cloud storage, what is the estimated annual cost and who will be covering the cost? "),
+                                   help_text=_(
+                                       "e.g., cloud storage is estimated at $1000/yr and will be paid for under the the division manager's budget"))
+
+    # Sharing
+    had_sharing_agreements = models.BooleanField(default=False, verbose_name=_("Is the dataset subject to a data sharing agreement, MOU, etc.?"),
+                                                 choices=YES_NO_CHOICES)
+    sharing_agreements_text = models.TextField(blank=True, null=True, verbose_name=_("If yes, who are the counterparts for the agreement(s)?"),
+                                               help_text=_("please provide the name of the organization and the primary contact for each agreement."))
+    publication_timeframe = models.TextField(blank=True, null=True, verbose_name=_("How soon after data collection will data be made available?"),
+                                             help_text=_("The answer provided will set the expectation for the open data publication frequency"))
+    publishing_platforms = models.TextField(blank=True, null=True, verbose_name=_("Which open data publishing mechanism(s) will be used?"), help_text=_(
+        "The best option is the Government of Canada's Open Data Platform however other platforms / publications are acceptable provided they are"
+        " freely available to the general public."))
+    comments = models.TextField(blank=True, null=True, verbose_name=_("Additional comments to take into consideration (if applicable):"))
+
     # non editable etc
+    review_status = models.IntegerField(default=3, editable=False, choices=model_choices.dma_status_choices)
     date_last_modified = models.DateTimeField(auto_now=True, editable=False)
-    last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True)
+    last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, editable=False, blank=True, null=True)
     flagged_4_deletion = models.BooleanField(default=False)
     flagged_4_publication = models.BooleanField(default=False, verbose_name=_("Flagged for Publication"))
     completedness_report = models.TextField(blank=True, null=True, verbose_name=_("completedness report"))
@@ -295,7 +339,34 @@ class Resource(models.Model):
 
         # will handle this through the resource form. If not, each time the record is verified, this field will be updated
         # self.date_last_modified = timezone.now()
+
+        # set the review status...
+        if not self.reviews.exists():
+            self.review_status = 0  # unevaluated
+        else:
+            last_review = self.reviews.last()
+            if last_review.is_final_review:
+                self.review_status = 2  # complete
+            elif last_review.decision == 1:  # compliant
+                self.review_status = 1  # on-track
+                # but wait, what if this is an old evaluation?
+                # if the review was more than six months old, set the status to 5
+                if (timezone.now() - last_review.created_at).days > (28 * 6):
+                    self.review_status = 5  # pending evaluation
+
+            elif last_review.decision == 2:  # non-compliant
+                self.review_status = 3  # encountering issues
+
         super().save(*args, **kwargs)
+
+    @property
+    def review_status_display(self):
+        return mark_safe(f'<span class=" px-1 py-1 {slugify(self.get_review_status_display())}">{self.get_review_status_display()}</span>')
+
+    @property
+    def region(self):
+        if self.section:
+            return self.section.division.branch.sector.region
 
     @property
     def thumbnail(self):
@@ -412,8 +483,8 @@ class WebService(models.Model):
 class ResourcePerson(models.Model):
     resource = models.ForeignKey(Resource, on_delete=models.CASCADE, related_name="resource_people")
     person = models.ForeignKey(Person, on_delete=models.DO_NOTHING, related_name="resource_people")
-    role = models.ForeignKey(PersonRole, on_delete=models.DO_NOTHING)
-    notes = models.TextField(blank=True, null=True)
+    role = models.ForeignKey(PersonRole, on_delete=models.DO_NOTHING, verbose_name=_("role"))
+    notes = models.TextField(blank=True, null=True, verbose_name=_("notes"))
 
     class Meta:
         unique_together = (('resource', 'person', 'role'),)
@@ -425,6 +496,35 @@ class ResourcePerson(models.Model):
 
     def __str__(self):
         return f"{self.person} ({self.role})"
+
+
+class ResourcePerson2(models.Model):
+    resource = models.ForeignKey(Resource, on_delete=models.CASCADE, related_name="resource_people2")
+    person = models.ForeignKey(shared_models.Person, on_delete=models.DO_NOTHING, related_name="resource_people2")
+    notes = models.TextField(blank=True, null=True, verbose_name=_("notes"))
+    roles = models.ManyToManyField(PersonRole, verbose_name=_("role"), blank=True)
+
+    @property
+    def is_custodian(self):
+        return self.roles.filter(code__iexact="RI_409").exists()
+
+    class Meta:
+        unique_together = (('resource', 'person'),)
+        ordering = ['person']
+
+    def get_absolute_url(self):
+        return reverse('inventory:resource_detail', kwargs={'pk': self.resource.id})
+
+    @property
+    def roles_display(self):
+        if self.roles.exists():
+            return listrify(self.roles.all())
+
+    def __str__(self):
+        payload = f"{self.person}"
+        if not self.person.dmapps_user:
+            payload += " (external)"
+        return payload
 
 
 class BoundingBox(models.Model):
@@ -458,12 +558,6 @@ class Correspondence(models.Model):
         ordering = ['-date']
 
 
-@receiver(post_save, sender=User)
-def create_user_profile(sender, instance, created, **kwargs):
-    if created:
-        Person.objects.create(user=instance)
-
-
 def file_directory_path(instance, filename):
     # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
     return 'inventory/resource_{0}/{1}'.format(instance.resource.id, filename)
@@ -480,10 +574,6 @@ class File(models.Model):
 
     def __str__(self):
         return self.caption
-
-
-class StorageSolution(SimpleLookup):
-    pass
 
 
 class DMA(MetadataFields):
@@ -581,10 +671,6 @@ class DMA(MetadataFields):
 
     def __str__(self):
         return self.title
-
-    @property
-    def status_display(self):
-        return mark_safe(f'<span class=" px-1 py-1 {slugify(self.get_status_display())}">{self.get_status_display()}</span>')
 
     @property
     def region(self):

@@ -33,8 +33,6 @@ class ResourceForm(forms.ModelForm):
             'paa_items'
         ]
         widgets = {
-            'last_modified_by': forms.HiddenInput(),
-            'date_last_modified': forms.HiddenInput(),
             'title_eng': forms.Textarea(attrs={"rows": 5}),
             'title_fre': forms.Textarea(attrs={"rows": 5}),
             "purpose_eng": forms.Textarea(attrs={"rows": 5}),
@@ -175,7 +173,6 @@ class ResourcePersonForm(forms.ModelForm):
             'resource': forms.HiddenInput(),
             'person': forms.HiddenInput(),
             'notes': forms.Textarea(attrs={'rows': "5"}),
-            # 'last_modified_by':forms.HiddenInput(),
         }
 
     def __init__(self, *args, **kwargs):
