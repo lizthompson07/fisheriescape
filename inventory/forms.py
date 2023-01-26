@@ -6,6 +6,7 @@ from django.utils.translation import gettext as _, gettext_lazy
 
 from shared_models import models as shared_models
 from . import models
+from .data_fixtures import resource_types, statuses
 
 chosen_js = {"class": "chosen-select-contains"}
 attr_fp_date_time = {"class": "fp-date-time", "placeholder": "Select Date and Time.."}
@@ -32,8 +33,6 @@ class ResourceForm(forms.ModelForm):
             'paa_items'
         ]
         widgets = {
-            'last_modified_by': forms.HiddenInput(),
-            'date_last_modified': forms.HiddenInput(),
             'title_eng': forms.Textarea(attrs={"rows": 5}),
             'title_fre': forms.Textarea(attrs={"rows": 5}),
             "purpose_eng": forms.Textarea(attrs={"rows": 5}),
@@ -83,12 +82,9 @@ class ResourceForm(forms.ModelForm):
         self.fields['section'].choices = SECTION_CHOICES
         self.fields['section'].widget.attrs = chosen_js
 
-        resource_type_choices = [(obj.id, "{}  ({})".format(obj.label, obj.notes) if obj.notes else "{}".format(obj.label)) for obj in
-                                 models.ResourceType.objects.all()]
+        resource_type_choices = [(obj.id, f"{obj.label}  ({obj.notes})" if obj.notes else obj.label) for obj in resource_types.get_instances()]
         resource_type_choices.insert(0, tuple((None, "---")))
-
-        status_choices = [(obj.id, "{}  ({})".format(obj.label, obj.notes) if obj.notes else "{}".format(obj.label)) for obj in
-                          models.Status.objects.all()]
+        status_choices = [(obj.id, f"{obj.label}  ({obj.notes})" if obj.notes else obj.label) for obj in statuses.get_instances()]
         status_choices.insert(0, tuple((None, "---")))
         self.fields['resource_type'].choices = resource_type_choices
         self.fields['status'].choices = status_choices
@@ -165,24 +161,26 @@ class ResourceKeywordForm(forms.ModelForm):
 
 class ResourcePersonForm(forms.ModelForm):
     class Meta:
-        model = models.ResourcePerson
+        model = models.ResourcePerson2
         fields = "__all__"
         labels = {
-            'notes': "Notes (optional)",
+            'notes': "Additional description of role (optional)",
+            'roles': "Please select all roles for this person",
         }
         widgets = {
-            'resource': forms.HiddenInput(),
-            'person': forms.HiddenInput(),
             'notes': forms.Textarea(attrs={'rows': "5"}),
-            # 'last_modified_by':forms.HiddenInput(),
+            'roles': forms.SelectMultiple(attrs=chosen_js),
+            'user': forms.Select(attrs=chosen_js),
+            'organization': forms.Select(attrs=chosen_js),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         role_choices = [(r.id, "{} - {}".format(r.role, r.notes)) for r in models.PersonRole.objects.all()]
         role_choices.insert(0, (None, "-----"))
-        self.fields['role'].choices = role_choices
-        self.fields['role'].choices = role_choices
+        self.fields['roles'].choices = role_choices
+        if kwargs.get("instance"):
+            del self.fields["user"]
 
 
 class PersonForm(forms.Form):

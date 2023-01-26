@@ -721,7 +721,8 @@ def get_cost_comparison(travellers):
 
 def can_cherry_pick(user, request=None):
     """
-    Stores the business rule for whom is allow to cherry pick approve travellers. If there is no request provided, we will simply provide only the authorization portion.
+    Stores the business rule for whom is allowed to cherry-pick approve/deny travellers.
+    If there is no request provided, we will simply provide only the authorization portion.
     """
     # the user has to have the correct authorization (e.g., ADM, RDG, DG) --> basically the head of a branch, sector or region, EOS travel coordinator
     response = user.shared_models_branches.exists() or user.shared_models_sectors.exists() or user.shared_models_regions.exists() or is_adm(

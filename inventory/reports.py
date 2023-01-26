@@ -250,7 +250,7 @@ def generate_physical_samples_report():
 
     # get the resource list
     # anything with resource type as "physical collection"
-    ids = [r.id for r in models.Resource.objects.filter(resource_type_id=4)]
+    ids = [r.id for r in models.Resource.objects.filter(resource_type=4)]
     # anything where this is a meaningful description of physical samples
     ids.extend(
         [r.id for r in models.Resource.objects.filter(physical_sample_descr_eng__isnull=False) if len(r.physical_sample_descr_eng) > 10])
@@ -447,7 +447,7 @@ def generate_resources_report(sections):
                 my_val = f'http://dmapps{reverse("inventory:resource_detail", args=[r.id])}'
                 my_ws.write_url(i, j, url=my_val, string=my_val)
             elif "people" in field:
-                my_val = listrify([obj for obj in r.resource_people.all()])
+                my_val = listrify([obj for obj in r.resource_people2.all()])
                 my_ws.write(i, j, str(my_val), normal_format)
             elif "keywords" in field:
                 my_val = listrify([obj.non_hierarchical_name_en for obj in r.keywords.all()])
@@ -538,7 +538,7 @@ def generate_open_data_resources_report(regions):
                 my_val = f'http://dmapps{reverse("inventory:resource_detail", args=[r.id])}'
                 my_ws.write_url(i, j, url=my_val, string=my_val)
             elif "people" in field:
-                my_val = listrify([obj for obj in r.resource_people.all()])
+                my_val = listrify([obj for obj in r.resource_people2.all()])
                 my_ws.write(i, j, str(my_val), normal_format)
             elif "public_url" in field:
                 my_val = r.public_url
@@ -630,10 +630,10 @@ def generate_custodian_report(qs):
                 my_ws.write_url(i, j, url=my_link, string=my_val)
 
             elif "custodians" in field:
-                my_val = listrify([obj.person.user.email for obj in r.resource_people.filter(role__code__iexact="RI_409")], separator="; ")
+                my_val = listrify([obj.person.user.email for obj in r.resource_people2.filter(roles__code__iexact="RI_409").distinct()], separator="; ")
                 my_ws.write(i, j, str(my_val), normal_format)
             elif "points_of_contact" in field:
-                my_val = nz(listrify([obj.person.user.email for obj in r.resource_people.filter(role__code__iexact="RI_414")], separator="; "), "")
+                my_val = nz(listrify([obj.person.user.email for obj in r.resource_people2.filter(roles__code__iexact="RI_414").distinct()], separator="; "), "")
                 my_ws.write(i, j, str(my_val), normal_format)
             elif "region" in field:
                 my_val = str(r.section.division.branch.sector.region)

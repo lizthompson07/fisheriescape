@@ -8,6 +8,10 @@ urlpatterns = [
     # user permissions
     path('settings/users/', views.InventoryUserFormsetView.as_view(), name="manage_inventory_users"),
     path('settings/users/<int:pk>/delete/', views.InventoryUserHardDeleteView.as_view(), name="delete_inventory_user"),
+    # role
+    # org
+    # storage solution
+    # distribution format
 
     path('', views.Index.as_view(), name="index"),
 
@@ -21,8 +25,7 @@ urlpatterns = [
     path('resources/<int:pk>/edit/', views.ResourceUpdateView.as_view(), name="resource_edit"),
     path('resources/<int:pk>/clone/', views.ResourceCloneUpdateView.as_view(), name="resource_clone"),
     path('resources/<int:pk>/delete/', views.ResourceDeleteView.as_view(), name="resource_delete"),
-    path('resources/<int:pk>/flag-for-deletion/', views.ResourceDeleteFlagUpdateView.as_view(), name="resource_flag_delete"),
-    path('resources/<int:pk>/flag-for-publication/', views.ResourcePublicationFlagUpdateView.as_view(), name="resource_flag_publication"),
+    path('resources/<int:pk>/flag/', views.ResourceFlagUpdateView.as_view(), name="resource_flag"),
     path('resources/<int:pk>/add-to-favourites/', views.add_favourites, name="add_favourites"),
     path('resources/<int:pk>/remove-from-favourites/', views.remove_favourites, name="remove_favourites"),
 
@@ -31,20 +34,11 @@ urlpatterns = [
 
     # RESOURCE PERSON #
     ###################
-    path('<int:resource>/insert-person/', views.ResourcePersonFilterView.as_view(), name="resource_person_filter"),
-    path('<int:resource>/person/<int:person>/add/', views.ResourcePersonCreateView.as_view(), name="resource_person_add"),
+    path('resources/<int:resource>/new-resource-person/', views.ResourcePersonCreateView.as_view(), name="resource_person_add"),
     path('resource-person/<int:pk>/delete/', views.ResourcePersonDeleteView.as_view(), name="resource_person_delete"),
     path('resource-person/<int:pk>/edit/', views.ResourcePersonUpdateView.as_view(), name="resource_person_edit"),
+    path('resource-person/<int:pk>/edit-profile/', views.ResourcePersonProfileUpdateView.as_view(), name="profile_edit"),
 
-    # PEOPLE #
-    ##########
-
-    # **** DJF: I think these urls, views and templates can be deleted.
-
-    path('<int:resource>/insert-person/new/', views.PersonCreateView.as_view(), name="person_add"),
-    path('insert-person/new/', views.PersonCreateViewPopout.as_view(), name="person_add_popout"),
-    path('<int:resource>/person/<int:person>/edit/', views.PersonUpdateView.as_view(), name="person_edit"),
-    path('person/<int:person>/edit/', views.PersonUpdateView.as_view(), name="person_edit"),
 
     # RESOURCE KEYWORD #
     ####################
@@ -90,9 +84,8 @@ urlpatterns = [
     #########################
     path('dm-admin/custodian-list/', views.DataManagementCustodianListView.as_view(), name="dm_custodian_list"),
     path('dm-admin/custodian/<int:pk>/detail/', views.DataManagementCustodianDetailView.as_view(), name="dm_custodian_detail"),
-    path('dm-admin/custodian/<int:person>/send-request-for-certification/', views.send_certification_request,
+    path('dm-admin/custodian/<int:user>/send-request-for-certification/', views.send_certification_request,
          name="send_certification_email"),
-    path('dm-admin/custodian/<int:person>/', views.CustodianPersonUpdateView.as_view(), name="dm_person_edit"),
 
     # RESOURCE CERTIFICATION #
     ##########################
@@ -146,16 +139,5 @@ urlpatterns = [
     path('reports/custodians/', views.export_custodians, name="export_custodians"),
     path('reports/dmas/', views.export_dmas, name="export_dmas"),
 
-    # TEMP #
-    ########
-
-    #  this was used to walk over program to programs
-    # path('metadata-formset/section/<int:section>/', views.temp_formset, name="formset"),
-    # path('project-program-list/', views.MyTempListView.as_view(), name="my_list"),
-    # path('reports/capacity-report/fy/<str:fy>/orgs/<str:orgs>/', views.capacity_export_spreadsheet, name="capacity_xlsx"),
-    # path('reports/capacity-report/', views.capacity_export_spreadsheet, name="capacity_xlsx"),
-    # path('reports/capacity-report/fy/<str:fy>/', views.capacity_export_spreadsheet, name="capacity_xlsx"),
-    # path('reports/capacity-report/orgs/<str:orgs>/', views.capacity_export_spreadsheet, name="capacity_xlsx"),
-    # path('reports/cue-card/org/<int:org>/', views.OrganizationCueCard.as_view(), name="report_q"),
 
 ]

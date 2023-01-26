@@ -109,7 +109,7 @@
             {% for object in list %}
               {% block table_tr %}
                 {% url row_object_url_name object.id as my_url %}
-                <tr {% if row_object_url_name %}href="{{ my_url }}"{% endif %} {% if open_row_in_new_tab %}newtab{% endif %}>
+                <tr {% if row_object_url_name %}href="{{ my_url }}"{% endif %} {% if open_row_in_new_tab %}newtab{% endif %} id="{% block table_row_id %}{% endblock %}">
                   {% for field in field_list %}
                     <td class="{{ field.class }}">
                       {% block table_td %}

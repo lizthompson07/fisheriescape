@@ -1,22 +1,55 @@
-<br>
-{% if object.files.count == 0 %}
-<ul>
-  <em>No files have been added to this data resource.</em>
+{% extends "inventory/resource_detail/section_template.html" %}
 
-</ul>
-<br>
+{% load static %}
+{% load i18n %}
+{% load custom_filters %}
+{% block mdi_class %}mdi-database{% endblock %}
+{% block wd %} w-75 {% endblock %}
 
-{% else %}
-  <ul>
-    {% for item in object.files.all %}
+{% block section_title %}
+  {% trans "Storage Files" %}
+{% endblock %}
 
-      <li>
+{% block optional_btn_url %}
+  {% url 'inventory:file_create' object.id %}
+{% endblock %}
 
-        <a href="#" pop-href="{% url "inventory:file_edit" item.id %}">{{item.caption}}</a> <a href="{{ item.file.url }}"><span class="mdi mdi-content-save mx-1"></span></a> (uploaded on: {{item.date_created|date:"F d Y"}})
-        <span class="d-inline-block" tabindex="0" data-toggle="tooltip" title="delete file">
-          <a href="#" pop-href="{% url 'inventory:file_delete' item.id %}" class="red-font">&times;</a>
-        </span>
-      </li>
-    {% endfor %}
-  </ul>
-{% endif %}
+{% block section_table_header_rows %}
+  <th class="w-40">{% trans "File name" %}</th>
+  <th class="w-20">{% trans "Uploaded on" %}</th>
+  <th class="">{% trans "URL" %}</th>
+  <th class=""></th>
+{% endblock %}
+
+{% block section_table %}
+  {% if not object.files.exists %}
+    <em>{% trans "No files have been added to this data resource." %}</em>
+  {% else %}
+    {{ block.super }}
+  {% endif %}
+{% endblock %}
+
+{% block section_table_body_rows %}
+
+  {% for item in object.files.all %}
+    <tr>
+      <td>{{ item.caption }}</td>
+      <td>{{ item.date_created|date:"F d Y" }}</td>
+      <td>
+        <a href="{{ item.file.url }}" data-toggle="tooltip" title="download" class="">
+          <span class="mdi mdi-download "></span>
+        </a>
+      </td>
+      <td class="text-right">
+        {% if can_modify.can_modify %}
+          <a href="#" pop-href="{% url "inventory:file_edit" item.id %}" data-toggle="tooltip" title="edit" class="btn btn-sm btn-warning">
+            <span class="mdi mdi-pencil text-dark"></span>
+          </a>
+          <a href="#" pop-href="{% url 'inventory:file_delete' item.id %}" data-toggle="tooltip" title="delete" class="btn btn-sm btn-danger">
+            <span class="mdi mdi-trash-can text-light"></span>
+          </a>
+        {% endif %}
+      </td>
+    </tr>
+  {% endfor %}
+{% endblock %}

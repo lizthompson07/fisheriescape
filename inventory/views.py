@@ -1,11 +1,10 @@
 import json
 import os
 ###
-from collections import OrderedDict
 from copy import deepcopy
 
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.db.models import Value, TextField, Q, Count
 from django.db.models.functions import Concat
@@ -14,12 +13,13 @@ from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
 from django.utils.translation import gettext as _, gettext_lazy
-from django.views.generic import UpdateView, DeleteView, CreateView, DetailView, FormView, TemplateView
+from django.views.generic import UpdateView, CreateView, DetailView, FormView
 from django_filters.views import FilterView
 from easy_pdf.views import PDFTemplateView
 
+from accounts.forms import ProfileForm
+from accounts.models import Profile
 from dm_apps.context_processor import my_envr
-from dm_apps.utils import custom_send_mail
 from lib.functions.custom_functions import fiscal_year, listrify
 from shared_models import models as shared_models
 from shared_models.views import CommonTemplateView, CommonFormsetView, CommonHardDeleteView, CommonFilterView, CommonDetailView, CommonUpdateView, \
@@ -136,15 +136,15 @@ class ResourceListView(InventoryBasicMixin, CommonFilterView):
     new_object_url = reverse_lazy("inventory:resource_new")
     paginate_by = 25
     field_list = [
+        {"name": ' '},
         {"name": 't_title|{}'.format(gettext_lazy("title")), "class": "w-30", "width": ""},
-        {"name": 'uuid', "class": "", "width": ""},
-        {"name": 'region', "class": "", "width": ""},
+        {"name": 'external_links|{}'.format(gettext_lazy("external links"))},
         {"name": 'resource_type', "class": "", "width": ""},
-        {"name": 'status', "class": "", "width": ""},
+        {"name": 'region'},
         {"name": 'section', "class": "w-15", "width": ""},
         {"name": 'Previous time certified', "class": "", "width": ""},
         {"name": 'completeness rating', "class": "", "width": ""},
-        {"name": 'translation_needed', "class": "", "width": ""},
+        {"name": 'review_status_display|{}'.format(gettext_lazy("review status"))}
     ]
 
     def is_personalized(self):
@@ -173,7 +173,7 @@ class ResourceListView(InventoryBasicMixin, CommonFilterView):
 class ResourceDetailView(InventoryBasicMixin, CommonDetailView):
     model = models.Resource
     template_name = "inventory/resource_detail/resource_detail.html"
-    container_class = "container-fluid"
+    container_class = "container"
     home_url_name = "inventory:index"
 
     def get_object(self, queryset=None):
@@ -197,7 +197,7 @@ class ResourceDetailView(InventoryBasicMixin, CommonDetailView):
         context['kcount_cst'] = self.object.keywords.filter(keyword_domain_id__exact=6).count()
         context['kcount_tax'] = self.object.keywords.filter(is_taxonomic__exact=True).count()
         context['kcount_loc'] = self.object.keywords.filter(keyword_domain_id__exact=7).count()
-        context['custodian_count'] = self.object.resource_people.filter(role=1).count()
+        context['custodian_count'] = self.object.resource_people2.filter(roles__code__iexact="RI_409").count()
 
         if self.object.completedness_rating == 1:
             context['verified'] = True
@@ -258,6 +258,11 @@ class ResourceUpdateView(CanModifyRequiredMixin, CommonUpdateView):
             'date_last_modified': timezone.now(),
         }
 
+    def form_valid(self, form):
+        obj = form.save(commit=False)
+        obj.last_modified_by = self.request.user
+        return super().form_valid(form)
+
 
 class ResourceCloneUpdateView(ResourceUpdateView):
     h1 = gettext_lazy("Cloning Record")
@@ -294,9 +299,6 @@ class ResourceCloneUpdateView(ResourceUpdateView):
         new_obj.date_verified = None
         new_obj.save()
 
-        for item in old_obj.paa_items.all():
-            new_obj.paa_items.add(item)
-
         for item in old_obj.keywords.all():
             new_obj.keywords.add(item)
 
@@ -308,11 +310,13 @@ class ResourceCloneUpdateView(ResourceUpdateView):
 
         # Now we need to replicate all the related records:
         # 1) resource people
-        for old_rel_obj in old_obj.resource_people.all():
+        for old_rel_obj in old_obj.resource_people2.all():
             new_rel_obj = deepcopy(old_rel_obj)
             new_rel_obj.pk = None
             new_rel_obj.resource = new_obj
             new_rel_obj.save()
+            for role in old_rel_obj.roles.all():
+                new_rel_obj.roles.add(role)
 
         # 2) data resources
         for old_rel_obj in old_obj.data_resources.all():
@@ -345,12 +349,15 @@ class ResourceCreateView(InventoryLoginRequiredMixin, CommonCreateView):
         }
 
     def form_valid(self, form):
-        my_object = form.save()
+        my_object = form.save(commit=False)
+        my_object.last_modified_by = self.request.user
+        my_object.save()
+
         if form.cleaned_data['add_custodian'] == True:
-            models.ResourcePerson.objects.create(resource_id=my_object.id, person_id=self.request.user.id, role_id=1)
+            models.ResourcePerson2.objects.create(resource_id=my_object.id, person_id=self.request.user.id, role_id=1)
 
         # if form.cleaned_data['add_point_of_contact'] == True:
-        #     models.ResourcePerson.objects.create(resource_id=object.id, person_id=50, role_id=4)
+        #     models.ResourcePerson2.objects.create(resource_id=object.id, person_id=50, role_id=4)
 
         return super().form_valid(form)
 
@@ -377,10 +384,13 @@ class ResourceDeleteView(CanModifyRequiredMixin, CommonDeleteView):
         return reverse("inventory:index")
 
 
-class ResourceDeleteFlagUpdateView(InventoryLoginRequiredMixin, CommonPopoutUpdateView):
+class ResourceFlagUpdateView(InventoryLoginRequiredMixin, CommonPopoutUpdateView):
     model = models.Resource
     form_class = forms.ResourceFlagging
     cancel_text = gettext_lazy("No, Forget it.")
+
+    def get_flag_type(self):
+        return self.request.GET.get("flag")
 
     def get_submit_text(self):
         obj = self.get_object()
@@ -390,30 +400,43 @@ class ResourceDeleteFlagUpdateView(InventoryLoginRequiredMixin, CommonPopoutUpda
 
     def get_h1(self):
         obj = self.get_object()
-        if obj.flagged_4_deletion:
-            return _("Are you sure you want to unflag this data resource?")
-        return _("Are you sure you want to flag this data resource for deletion?")
+        if self.get_flag_type() == "delete":
+            if obj.flagged_4_deletion:
+                return _("Are you sure you want to unflag this data resource for deletion?")
+            return _("Are you sure you want to flag this data resource for deletion?")
+        elif self.get_flag_type() == "publish":
+            if obj.flagged_4_publication:
+                return _("Are you sure you want to unflag this data resource for publication?")
+            return _("Are you sure you want to flag this data resource for publication?")
 
     def get_h3(self):
         obj = self.get_object()
-        if not obj.flagged_4_deletion:
-            return _("By clicking yes below you will notify the regional data manager that this record should be deleted from the inventory.")
+        if self.get_flag_type() == "delete":
+            if not obj.flagged_4_deletion:
+                return _("By clicking yes below you will notify the regional data manager that this record should be deleted from the inventory.")
+        elif self.get_flag_type() == "publish":
+            if not obj.flagged_4_publication:
+                return _("By clicking yes below your regional data manager will be notified and will "
+                         "contact you shortly in order to coordinate the next steps in the process")
 
     def form_valid(self, form):
         obj = form.save(commit=False)
-        obj.flagged_4_deletion = not obj.flagged_4_deletion
-        obj.save()
+        if self.get_flag_type() == "delete":
+            obj.flagged_4_deletion = not obj.flagged_4_deletion
+            obj.save()
 
-        if obj.flagged_4_deletion:
-            email = emails.FlagForDeletionEmail(obj, self.request.user, self.request)
-            # send the email object
-            custom_send_mail(
-                subject=email.subject,
-                html_message=email.message,
-                from_email=email.from_email,
-                recipient_list=email.to_list,
-                user=self.request.user
-            )
+            if obj.flagged_4_deletion:
+                email = emails.FlagForDeletionEmail(self.request, obj)
+                email.send()
+
+        elif self.get_flag_type() == "publish":
+            obj.flagged_4_publication = not obj.flagged_4_publication
+            obj.save()
+
+            if obj.flagged_4_publication:
+                email = emails.FlagForPublicationEmail(self.request, obj)
+                email.send()
+
         return super().form_valid(form)
 
 
@@ -422,183 +445,86 @@ def add_favourites(request, pk):
     resource = get_object_or_404(models.Resource, pk=pk)
     resource.favourited_by.add(request.user)
     messages.info(request, f"This resource has been added to your favourites.")
-    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER') + f"#id_{resource.id}")
+
 
 @login_required(login_url='/accounts/login/')
 def remove_favourites(request, pk):
     resource = get_object_or_404(models.Resource, pk=pk)
     resource.favourited_by.remove(request.user)
     messages.info(request, f"This resource has been removed from your favourites.")
-    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
-
-
-class ResourcePublicationFlagUpdateView(InventoryLoginRequiredMixin, CommonPopoutUpdateView):
-    model = models.Resource
-    form_class = forms.ResourceFlagging
-    cancel_text = gettext_lazy("No, Forget it.")
-
-    def get_submit_text(self):
-        obj = self.get_object()
-        if obj.flagged_4_deletion:
-            return _("Yes, Unflag It!")
-        return _("Yes, Flag It!")
-
-    def get_h1(self):
-        obj = self.get_object()
-        if obj.flagged_4_publication:
-            return _("Are you sure you want to unflag this data resource?")
-        action = "re-publication" if obj.fgp_publication_date else "publication"
-        return _(f"Are you sure you want to flag this data resource for {action}?")
-
-    def get_h3(self):
-        obj = self.get_object()
-        if not obj.flagged_4_publication:
-            return _("By clicking yes below your regional data manager will be notified and will "
-                     "contact you shortly in order to coordinate the next steps in the process")
-
-    def form_valid(self, form):
-        obj = form.save(commit=False)
-        obj.flagged_4_publication = not obj.flagged_4_publication
-        obj.save()
-
-        if obj.flagged_4_publication:
-            email = emails.FlagForPublicationEmail(obj, self.request.user, self.request)
-            # send the email object
-            custom_send_mail(
-                subject=email.subject,
-                html_message=email.message,
-                from_email=email.from_email,
-                recipient_list=email.to_list,
-                user=self.request.user
-            )
-        return super().form_valid(form)
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER') + f"#id_{resource.id}")
 
 
 # RESOURCE PERSON #
 ###################
 
-class ResourcePersonFilterView(CanModifyRequiredMixin, FilterView):
-    filterset_class = filters.PersonFilter
-    template_name = "inventory/resource_person_filter.html"
 
-    def get_queryset(self):
-        return models.Person.objects.annotate(search_term=Concat(
-            'user__first_name',
-            Value(" "),
-            'user__last_name',
-            Value(" "),
-            'user__email',
-            output_field=TextField()
-        ))
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        resource = self.kwargs['resource']
-        my_resource = models.Resource.objects.get(id=resource)
-        context['resource'] = my_resource
-
-        return context
-
-
-class ResourcePersonCreateView(CanModifyRequiredMixin, CreateView):
-    model = models.ResourcePerson
-    template_name = 'inventory/resource_person_form.html'
+class ResourcePersonCreateView(CanModifyRequiredMixin, CommonCreateView):
+    model = models.ResourcePerson2
+    template_name = 'inventory/form.html'
     form_class = forms.ResourcePersonForm
+    home_url_name = "inventory:index"
 
-    def get_initial(self):
-        resource = models.Resource.objects.get(pk=self.kwargs['resource'])
-        person = models.Person.objects.get(user_id=self.kwargs['person'])
-        return {
-            'resource': resource,
-            'person': person,
-            # 'last_modified_by': self.request.user,
-        }
+    def get_resource(self):
+        return get_object_or_404(models.Resource, pk=self.kwargs.get("resource"))
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        resource = models.Resource.objects.get(id=self.kwargs['resource'])
-        context['resource'] = resource
-        person = models.Person.objects.get(user_id=self.kwargs['person'])
-        context['person'] = person
-        return context
+    def get_parent_crumb(self):
+        return {"title": self.get_resource(), "url": reverse("inventory:resource_detail", args=[self.get_resource().id])}
 
     def form_valid(self, form):
-        object = form.save()
+        obj = form.save(commit=False)
+        obj.resource = self.get_resource()
+        obj.save()
+        super().form_valid(form)
 
         # if the person is being added as a custodian
-        if object.role.id == 1:
-            email = emails.AddedAsCustodianEmail(object.resource, object.person.user, self.request)
-            # send the email object
-            custom_send_mail(
-                subject=email.subject,
-                html_message=email.message,
-                from_email=email.from_email,
-                recipient_list=email.to_list,
-                user=self.request.user
-            )
-            messages.success(self.request,
-                             '{} has been added as {} and a notification email has been sent to them!'.format(
-                                 object.person.full_name, object.role))
-        else:
-            messages.success(self.request, '{} has been added as {}!'.format(object.person.full_name, object.role))
+        if obj.roles.filter(id=1).exists():
+            email = emails.AddedAsCustodianEmail(self.request, obj)
+            email.send()
+        return super().form_valid(form)
+
+
+class ResourcePersonUpdateView(CanModifyRequiredMixin, CommonUpdateView):
+    model = models.ResourcePerson2
+    template_name = 'inventory/resource_person_form.html'
+    form_class = forms.ResourcePersonForm
+    home_url_name = "inventory:index"
+
+    def get_h1(self):
+        return f"Editing {self.get_object().user}"
+
+    def get_parent_crumb(self):
+        return {"title": self.get_object().resource, "url": reverse("inventory:resource_detail", args=[self.get_object().resource.id])}
+
+    def form_valid(self, form):
+        was_custodian = self.get_object().roles.filter(code__iexact="RI_409").exists()
+        is_custodian = form.cleaned_data.get("roles").filter(code__iexact="RI_409").exists()
+
+        # if they were not a custodian, but now are, send an email
+        if not was_custodian and is_custodian:
+            email = emails.AddedAsCustodianEmail(self.request, self.get_object())
+            email.send()
+
+        # if they were a custodian, but now are not, send an email
+        if was_custodian and not is_custodian:
+            email = emails.RemovedAsCustodianEmail(self.request, self.get_object())
+            email.send()
 
         return super().form_valid(form)
 
 
-class ResourcePersonUpdateView(CanModifyRequiredMixin, UpdateView):
-    model = models.ResourcePerson
-    template_name = 'inventory/resource_person_form.html'
-    form_class = forms.ResourcePersonForm
-
-    def form_valid(self, form):
-        object = form.save()
-
-        # if the person is being added as a custodian
-        if object.role.id == 1:
-            email = emails.AddedAsCustodianEmail(object.resource, object.person.user, self.request)
-            # send the email object
-            custom_send_mail(
-                subject=email.subject,
-                html_message=email.message,
-                from_email=email.from_email,
-                recipient_list=email.to_list,
-                user=self.request.user
-            )
-            messages.success(self.request,
-                             '{} has been added as {} and a notification email has been sent to them!'.format(
-                                 object.person.full_name, object.role))
-        else:
-            messages.success(self.request, '{} has been added as {}!'.format(object.person.full_name, object.role))
-
-        return super().form_valid(form)
-
-
-class ResourcePersonDeleteView(CanModifyRequiredMixin, DeleteView):
-    model = models.ResourcePerson
-    template_name = 'inventory/resource_person_confirm_delete.html'
-    success_url = reverse_lazy('inventory:resource_person')
-    success_message = 'The person has been removed from the data resource!'
+class ResourcePersonDeleteView(CanModifyRequiredMixin, CommonDeleteView):
+    model = models.ResourcePerson2
+    template_name = 'inventory/confirm_delete.html'
 
     def delete(self, request, *args, **kwargs):
-        object = models.ResourcePerson.objects.get(pk=self.kwargs["pk"])
+        obj = models.ResourcePerson2.objects.get(pk=self.kwargs["pk"])
 
-        # if the person is being added as a custodian
-        if object.role.id == 1:
-
-            email = emails.RemovedAsCustodianEmail(object.resource, object.person.user, self.request)
-            # send the email object
-            custom_send_mail(
-                subject=email.subject,
-                html_message=email.message,
-                from_email=email.from_email,
-                recipient_list=email.to_list,
-                user=self.request.user
-            )
-            messages.success(self.request,
-                             '{} has been removed as {} and a notification email has been sent to them!'.format(
-                                 object.person.full_name, object.role))
-        else:
-            messages.success(self.request, '{} has been removed as {}!'.format(object.person.full_name, object.role))
+        # if the person is being removed as a custodian
+        if obj.roles.filter(id=1).exists():
+            email = emails.RemovedAsCustodianEmail(self.request, obj)
+            email.send()
 
         # messages.success(self.request, self.success_message)
         return super().delete(request, *args, **kwargs)
@@ -607,208 +533,36 @@ class ResourcePersonDeleteView(CanModifyRequiredMixin, DeleteView):
         return reverse_lazy('inventory:resource_detail', kwargs={'pk': self.object.resource.id})
 
 
-# PERSON #
-##########
-
-# this is a complicated cookie. Therefore we will not use a model view or model form and handle the clean data manually.
-class PersonCreateView(InventoryLoginRequiredMixin, FormView):
-    template_name = 'inventory/person_form.html'
-    form_class = forms.PersonCreateForm
+class ResourcePersonProfileUpdateView(CanModifyRequiredMixin, CommonUpdateView):
+    model = Profile
+    template_name = 'inventory/form.html'
+    form_class = ProfileForm
+    home_url_name = "inventory:index"
 
     def get_initial(self):
-        return {
-            "organization": 6,
-        }
-
-    def form_valid(self, form):
-        # This method is called when valid form data has been POSTed.
-        # It should return an HttpResponse.
-
-        # form.send_email() cool to know you can call methods off of the form like this...
-
-        # step 0: retrieve data from form
-        first_name = form.cleaned_data['first_name']
-        last_name = form.cleaned_data['last_name']
-        email = form.cleaned_data['email']
-        position_eng = form.cleaned_data['position_eng']
-        position_fre = form.cleaned_data['position_fre']
-        phone = form.cleaned_data['phone']
-        language = form.cleaned_data['language']
-        organization = form.cleaned_data['organization']
-
-        # # step 1: create a new user - since we added the receiver decorator to models.py, we do not have to create a person. It will be handled automatically.
-        user = User.objects.create(
-            username=email,
-            first_name=first_name,
-            last_name=last_name,
-            password="pbkdf2_sha256$120000$ctoBiOUIJMD1$DWVtEKBlDXXHKfy/0wKCpcIDYjRrKfV/wpYMHKVrasw=",
-            is_active=1,
-            email=email,
+        profile = self.get_object()
+        return dict(
+            first_name=profile.user.first_name,
+            last_name=profile.user.last_name,
         )
 
-        # step 2: fetch the Person
-        new_person = models.Person.objects.get(user_id=user.id)
-        new_person.position_eng = position_eng
-        new_person.position_fre = position_fre
-        new_person.phone = phone
+    def get_object(self, queryset=None):
+        return self.get_resource_person().user.profile
 
-        if language != "":
-            new_person.language = int(language)
+    def get_resource_person(self):
+        return get_object_or_404(models.ResourcePerson2, pk=self.kwargs.get("pk"))
 
-        if organization != "":
-            new_person.organization_id = organization.id
+    def get_h1(self):
+        return f"{self.get_object().user}'s Profile"
 
-        new_person.save()
+    def get_parent_crumb(self):
+        return {"title": self.get_resource_person(), "url": reverse("inventory:resource_person_edit", args=[self.get_resource_person().id])}
 
-        # finally go to the create new resource person page
-        return HttpResponseRedirect(reverse_lazy('inventory:resource_person_add', kwargs={
-            'resource': self.kwargs['resource'],
-            'person': new_person.user.id,
-        }))
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        resource = models.Resource.objects.get(id=self.kwargs['resource'])
-        context['resource'] = resource
-        return context
-
-
-class PersonCreateViewPopout(InventoryLoginRequiredMixin, FormView):
-    template_name = 'inventory/person_form_popout.html'
-    form_class = forms.PersonCreateForm
-
-    def get_initial(self):
-        return {
-            "organization": 6,
-        }
-
-    def form_valid(self, form):
-        # This method is called when valid form data has been POSTed.
-        # It should return an HttpResponse.
-
-        # form.send_email() cool to know you can call methods off of the form like this...
-
-        # step 0: retrieve data from form
-        first_name = form.cleaned_data['first_name']
-        last_name = form.cleaned_data['last_name']
-        email = form.cleaned_data['email']
-        position_eng = form.cleaned_data['position_eng']
-        position_fre = form.cleaned_data['position_fre']
-        phone = form.cleaned_data['phone']
-        language = form.cleaned_data['language']
-        organization = form.cleaned_data['organization']
-
-        # # step 1: create a new user - since we added the receiver decorator to models.py, we do not have to create a person. It will be handled automatically.
-        user = User.objects.create(
-            username=email,
-            first_name=first_name,
-            last_name=last_name,
-            password="pbkdf2_sha256$120000$ctoBiOUIJMD1$DWVtEKBlDXXHKfy/0wKCpcIDYjRrKfV/wpYMHKVrasw=",
-            is_active=1,
-            email=email,
-        )
-
-        # step 2: fetch the Person
-        new_person = models.Person.objects.get(user_id=user.id)
-        new_person.position_eng = position_eng
-        new_person.position_fre = position_fre
-        new_person.phone = phone
-
-        if language != "":
-            new_person.language = int(language)
-
-        if organization != "":
-            new_person.organization = organization
-
-        new_person.save()
-
-        # finally close the form
-        return HttpResponseRedirect(reverse_lazy('shared_models:close_me'))
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        return context
-
-
-class PersonUpdateView(InventoryLoginRequiredMixin, FormView):
-    template_name = 'inventory/person_form.html'
-    form_class = forms.PersonForm
+    def get_grandparent_crumb(self):
+        return {"title": self.get_resource_person().resource, "url": reverse("inventory:resource_detail", args=[self.get_resource_person().resource.id])}
 
     def get_success_url(self):
-        try:
-            self.kwargs['resource']
-        except KeyError:
-            print("no resource id")
-            return reverse_lazy('inventory:my_resource_list')
-        else:
-            return reverse_lazy('inventory:resource_detail', kwargs={
-                'pk': self.kwargs['resource'],
-            })
-
-    def get_initial(self):
-        person = models.Person.objects.get(pk=self.kwargs['person'])
-        return {
-            'first_name': person.user.first_name,
-            'last_name': person.user.last_name,
-            'email': person.user.email,
-            'position_eng': person.position_eng,
-            'position_fre': person.position_fre,
-            'phone': person.phone,
-            'language': person.language,
-            'organization': person.organization_id,
-        }
-
-    def form_valid(self, form):
-        # This method is called when valid form data has been POSTed.
-        # It should return an HttpResponse.
-
-        old_person = models.Person.objects.get(pk=self.kwargs['person'])
-
-        # step 0: retreive data from form
-        first_name = form.cleaned_data['first_name']
-        last_name = form.cleaned_data['last_name']
-        email = form.cleaned_data['email']
-        position_eng = form.cleaned_data['position_eng']
-        position_fre = form.cleaned_data['position_fre']
-        phone = form.cleaned_data['phone']
-        language = form.cleaned_data['language']
-        organization = form.cleaned_data['organization']
-
-        # step 2: Retrieve the Person model
-        old_person.user.first_name = first_name
-        old_person.user.last_name = last_name
-        old_person.user.email = email
-        old_person.user.username = email
-
-        old_person.position_eng = position_eng
-        old_person.position_fre = position_fre
-        old_person.phone = phone
-
-        if language == "" or language is None:
-            old_person.language = None
-        else:
-            old_person.language = int(language)
-
-        if organization == "" or organization is None:
-            old_person.organization_id = None
-        else:
-            old_person.organization = organization
-
-        old_person.user.save()
-        old_person.save()
-        return super().form_valid(form)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        try:
-            resource = models.Resource.objects.get(id=self.kwargs['resource'])
-            context['resource'] = resource
-        except KeyError:
-            print("no resource id")
-
-        person = models.Person.objects.get(user_id=self.kwargs['person'])
-        context['person'] = person
-        return context
+        return self.get_parent_crumb().get("url")
 
 
 # RESOURCE KEYWORD #
@@ -1151,127 +905,56 @@ def export_resource_xml(request, resource, publish):
 # DATA MANAGEMENT ADMIN #
 #########################
 
-class DataManagementCustodianListView(AdminRequiredMixin, TemplateView):
-    template_name = 'inventory/dm_custodian_list.html'
+class DataManagementCustodianListView(AdminRequiredMixin, CommonFilterView):
+    template_name = 'inventory/list.html'
+    filterset_class = filters.UserFilter
+    fields = ["profile|Full name", "email"]
+    h1 = "DM Apps Custodian List"
+    row_object_url_name = "inventory:dm_custodian_detail"
+
+    def get_queryset(self):
+        return User.objects.filter(resource_people__roles__code__iexact="RI_409").distinct().order_by("first_name", "last_name").annotate(
+            search_term=Concat('first_name', Value(" "),
+                               'last_name', Value(" "),
+                               output_field=TextField()))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        queryset = models.ResourcePerson.objects.filter(role=1).order_by("person__user__last_name",
-                                                                         "person__user__first_name")
-
-        # retain only the unique items, and keep them in order according to keys (cannot use a set for this reason)
-        custodian_dict = OrderedDict()
-        for item in queryset:
-            custodian_dict[item.person.user_id] = item
-
-        # convert the dict back into a list
-        custodian_list = []
-        for item in custodian_dict:
-            custodian_list.append(custodian_dict[item])
-
-        context['custodian_list'] = custodian_list
-        context['custodian_count'] = len(custodian_list)
-
-        context['now'] = timezone.now()
-
         return context
 
 
-class DataManagementCustodianDetailView(AdminRequiredMixin, DetailView):
+class DataManagementCustodianDetailView(AdminRequiredMixin, CommonDetailView):
     template_name = 'inventory/dm_custodian_detail.html'
-    model = models.Person
+    model = models.User
+    field_list = [
+        "profile|full name",
+        "email",
+        "last_login",
+        "profile.position_eng|position (en)",
+        "profile.position_fre|position (fr)",
+    ]
+    parent_crumb = {"title": _("Custodian List"), "url": reverse_lazy("inventory:dm_custodian_list")}
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        queryset = self.object.resource_people.filter(role=1)
-        me = models.Person.objects.get(user=User.objects.get(pk=self.request.user.id))
-        email = emails.CertificationRequestEmail(me, self.object, self.request)
-        context['queryset'] = queryset
+        email = emails.CertificationRequestEmail(self.request, self.get_object())
+        context['queryset'] = models.Resource.objects.filter(resource_people2__user=self.get_object(),
+                                                             resource_people2__roles__code__iexact="RI_409").distinct()
         context['email'] = email
         context['now'] = timezone.now()
         # context['custodian_count'] = len(custodian_list)
         return context
 
 
-def send_certification_request(request, person):
+def send_certification_request(request, user):
     # grab a copy of the resource
-    my_person = models.Person.objects.get(pk=person)
-    # create a new email object
-    me = models.Person.objects.get(user=User.objects.get(pk=request.user.id))
-    email = emails.CertificationRequestEmail(me, my_person, request)
-    # send the email object
-    custom_send_mail(
-        subject=email.subject,
-        html_message=email.message,
-        from_email=email.from_email,
-        recipient_list=email.to_list,
-        user=request.user
-    )
-    my_person.user.correspondences.create(subject="Request for certification")
+    my_user = get_object_or_404(User, pk=user)
+    email = emails.CertificationRequestEmail(request, my_user)
+    email.send()
+
+    my_user.correspondences.create(subject="Request for certification")
     messages.success(request, "the email has been sent and the correspondence has been logged!")
-    return HttpResponseRedirect(reverse('inventory:dm_custodian_detail', kwargs={'pk': my_person.user_id}))
-
-
-class CustodianPersonUpdateView(AdminRequiredMixin, FormView):
-    template_name = 'inventory/dm_custodian_form.html'
-    form_class = forms.PersonCreateForm
-
-    def get_success_url(self):
-        return reverse_lazy('inventory:dm_custodian_detail', kwargs={
-            'pk': self.kwargs['person'],
-        })
-
-    def get_initial(self):
-        person = models.Person.objects.get(pk=self.kwargs['person'])
-        return {
-            'first_name': person.user.first_name,
-            'last_name': person.user.last_name,
-            'email': person.user.email,
-            'position_eng': person.position_eng,
-            'position_fre': person.position_fre,
-            'phone': person.phone,
-            'language': person.language,
-            'organization': person.organization.id,
-        }
-
-    def form_valid(self, form):
-        old_person = models.Person.objects.get(pk=self.kwargs['person'])
-
-        # step 0: retreive data from form
-        first_name = form.cleaned_data['first_name']
-        last_name = form.cleaned_data['last_name']
-        email = form.cleaned_data['email']
-        position_eng = form.cleaned_data['position_eng']
-        position_fre = form.cleaned_data['position_fre']
-        phone = form.cleaned_data['phone']
-        language = form.cleaned_data['language']
-        organization = form.cleaned_data['organization']
-
-        # step 2: Retrieve the Person model
-        old_person.user.first_name = first_name
-        old_person.user.last_name = last_name
-        old_person.user.email = email
-        old_person.user.username = email
-
-        old_person.position_eng = position_eng
-        old_person.position_fre = position_fre
-        old_person.phone = phone
-
-        if language != "":
-            old_person.language = int(language)
-
-        if organization != "":
-            old_person.organization_id = int(organization)
-
-        old_person.user.save()
-        old_person.save()
-        return super().form_valid(form)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        person = models.Person.objects.get(user_id=self.kwargs['person'])
-        context['person'] = person
-        return context
+    return HttpResponseRedirect(reverse('inventory:dm_custodian_detail', args=[user]))
 
 
 # RESOURCE CERTIFICATION #
