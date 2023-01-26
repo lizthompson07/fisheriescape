@@ -25,6 +25,7 @@ class SampleFilter(django_filters.FilterSet):
             'bottle_id': ['icontains'],
             'collection': ['exact'],
             'location': ['icontains'],
+            'site': ['icontains'],
             'filters': ['isnull'],
         }
 
