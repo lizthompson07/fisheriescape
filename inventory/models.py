@@ -19,7 +19,11 @@ from .data_fixtures import statuses, maintenance_levels, security_classification
 
 LANGUAGE_CHOICES = ((1, 'English'), (2, 'French'),)
 YES_NO_CHOICES = [(True, _("Yes")), (False, _("No")), ]
-
+NULL_YES_NO_CHOICES = (
+    (None, _("Unsure")),
+    (1, _("Yes")),
+    (0, _("No")),
+)
 
 class InventoryUser(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="inventory_user", verbose_name=_("DM Apps user"))
@@ -177,8 +181,7 @@ class Resource(models.Model):
     descr_eng = models.TextField(blank=True, null=True, verbose_name="Description (English)")
     descr_fre = models.TextField(blank=True, null=True, verbose_name="Description (French)")
     notes = models.TextField(blank=True, null=True, verbose_name="General notes (DFO internal)")
-    has_dma = models.BooleanField(default=False, verbose_name=_("Has a data managment agreement for this data resource been formalized?"),
-                                  choices=YES_NO_CHOICES)
+
 
     # MANDATORY METADATA
     resource_type = models.IntegerField(choices=model_choices.resource_type_choices, blank=True, null=True)
@@ -219,7 +222,7 @@ class Resource(models.Model):
     resource_constraint_eng = models.TextField(blank=True, null=True, verbose_name="Resource constraint (English)")
     resource_constraint_fre = models.TextField(blank=True, null=True, verbose_name="Resource constraint (French)")
 
-    # MANDATORY METADATA
+    # OPTIONAL METADATA
     sampling_method_eng = models.TextField(blank=True, null=True, verbose_name="Sampling method (English)")
     sampling_method_fre = models.TextField(blank=True, null=True, verbose_name="Sampling method (French)")
     physical_sample_descr_eng = models.TextField(blank=True, null=True, verbose_name="Description of physical samples (English)")
@@ -251,8 +254,8 @@ class Resource(models.Model):
                                        "e.g., cloud storage is estimated at $1000/yr and will be paid for under the the division manager's budget"))
 
     # Sharing
-    had_sharing_agreements = models.BooleanField(default=False, verbose_name=_("Is the dataset subject to a data sharing agreement, MOU, etc.?"),
-                                                 choices=YES_NO_CHOICES)
+    had_sharing_agreements = models.IntegerField(verbose_name=_("Is the dataset subject to a data sharing agreement, MOU, etc.?"), blank=True, null=True,
+                                                 choices=NULL_YES_NO_CHOICES)
     sharing_agreements_text = models.TextField(blank=True, null=True, verbose_name=_("If yes, who are the counterparts for the agreement(s)?"),
                                                help_text=_("please provide the name of the organization and the primary contact for each agreement."))
     publication_timeframe = models.TextField(blank=True, null=True, verbose_name=_("How soon after data collection will data be made available?"),
@@ -292,6 +295,7 @@ class Resource(models.Model):
                                        verbose_name=_("FY of latest publication"))
     date_verified = models.DateTimeField(blank=True, null=True, editable=False)
     favourited_by = models.ManyToManyField(User, editable=False, related_name="resource_favourited_by")
+    has_dma = models.BooleanField(default=False, verbose_name=_("Does this record have a formalized data management agreement?"), editable=False)
 
     # TO BE DELETED
     odi_id = models.CharField(max_length=20, blank=True, null=True, verbose_name=_("ODIP Identifier"), unique=True, editable=False)

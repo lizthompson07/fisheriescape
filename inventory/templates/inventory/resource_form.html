@@ -38,7 +38,6 @@
           {% bootstrap_field form.descr_fre label_class="" placeholder="" %}
         </div>
       </div>
-      {% bootstrap_field form.has_dma label_class="text-success" placeholder="" %}
       {% bootstrap_field form.notes label_class="text-success" placeholder="" %}
     </div>
   </div>
@@ -222,6 +221,7 @@
         </p>
       </div>
       <div class="card-body">
+        {% bootstrap_field form.thumbnail_url label_class="" placeholder="" %}
         <img src="{% static 'img/icons/fgp.png' %}" alt="" width="40px" class="mb-3">
         {% bootstrap_field form.fgp_url label_class="" placeholder="" %}
         <div class="mb-3">

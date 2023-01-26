@@ -71,8 +71,8 @@ def ci_responsible_party(resource_person):
     charstring(root, 'gmd:individualName', resource_person.person.full_name)
 
     # organisationName
-    charstring(root, 'gmd:organisationName', attr_error_2_none(resource_person.person.get_org_instance(), "name_eng"),
-               attr_error_2_none(resource_person.person.get_org_instance(), "name_fre"))
+    charstring(root, 'gmd:organisationName', attr_error_2_none(resource_person.person.organization, "name_eng"),
+               attr_error_2_none(resource_person.person.organization, "name_fre"))
 
     # positionName
     charstring(root, 'gmd:positionName', resource_person.person.position_eng, resource_person.person.position_fre)
@@ -87,21 +87,21 @@ def ci_responsible_party(resource_person):
     address = SubElement(ci_contact, "gmd:address")
     ci_address = SubElement(address, "gmd:CI_Address")
     # civic
-    charstring(ci_address, 'gmd:deliveryPoint', attr_error_2_none(resource_person.person.get_org_instance(), "address"),
-               attr_error_2_none(resource_person.person.get_org_instance(), "address"))
+    charstring(ci_address, 'gmd:deliveryPoint', attr_error_2_none(resource_person.person.organization, "address"),
+               attr_error_2_none(resource_person.person.organization, "address"))
     # city
-    charstring(ci_address, 'gmd:city', attr_error_2_none(resource_person.person.get_org_instance(), "city"),
-               attr_error_2_none(resource_person.person.get_org_instance(), "city"))
+    charstring(ci_address, 'gmd:city', attr_error_2_none(resource_person.person.organization, "city"),
+               attr_error_2_none(resource_person.person.organization, "city"))
     # province
-    my_loc = attr_error_2_none(resource_person.person.get_org_instance(), "location")
+    my_loc = attr_error_2_none(resource_person.person.organization, "location")
     charstring(ci_address, 'gmd:administrativeArea',
                attr_error_2_none(my_loc, "location_eng"),
                attr_error_2_none(my_loc, "location_fre"),
                )
     # postalcode
-    charstring(ci_address, 'gmd:postalCode', attr_error_2_none(resource_person.person.get_org_instance(), "postal_code"))
+    charstring(ci_address, 'gmd:postalCode', attr_error_2_none(resource_person.person.organization, "postal_code"))
     # country
-    my_loc = attr_error_2_none(resource_person.person.get_org_instance(), "location")
+    my_loc = attr_error_2_none(resource_person.person.organization, "location")
     charstring(ci_address, 'gmd:country',
                attr_error_2_none(my_loc, "country"),
                attr_error_2_none(my_loc, "country_fr"),
@@ -930,7 +930,17 @@ def verify(resource):
         'east_bounding',
         'north_bounding',
         'thumbnail_url',
-        'dma',
+        'maintenance_text',
+        'storage_solution_text',
+        'storage_needed',
+        'raw_data_retention',
+        'data_retention',
+        'backup_plan',
+        'had_sharing_agreements',
+        'publication_timeframe',
+        'publishing_platforms',
+
+
 
         # bilingual fields
         '?title_',
@@ -960,6 +970,7 @@ def verify(resource):
         'data_resources|',
         'web_services|',
         'distribution_formats|',
+        'storage_solutions|',
 
         # will check all keywords associated with resource
         '*keyword.text_value_',  # special keywords function will be called
@@ -1016,17 +1027,24 @@ def verify(resource):
 
     for field in fields_to_check:
         # starting with the most simple case: unilingual fields of resource
+
         if "$" not in field and "|" not in field and "." not in field and "__" not in field and "?" not in field:
-            if field == "dma":
-                if not hasattr(resource, "dma"):
-                    checklist.append(f"A <a href='{reverse('inventory:dma_new')+f'?resource={resource.id}'}' target='_blank'>data management agreement</a> has not been created for this record. This is optional but <b>highly recommended.</b>")
-                    rating = rating - 0  # make this optional
-            else:
-                field_value = nz(getattr(resource, field), None)
-                verbose_name = resource._meta.get_field(field).verbose_name
+            field_value = nz(getattr(resource, field), None)
+            verbose_name = resource._meta.get_field(field).verbose_name
+            if field_value is None:
+                checklist.append("A value for '{}' is missing.".format(verbose_name))
+                rating = rating - 1
+
+            # if there is an agreement then there should also be a description of that agreement
+            if field == "had_sharing_agreements" and field_value == 1:
+                rating += 1
+                max_rating += 1
+                field_value = nz(getattr(resource, "sharing_agreements_text"), None)
+                verbose_name = resource._meta.get_field("sharing_agreements_text").verbose_name
                 if field_value is None:
-                    checklist.append("A value for {} is missing.".format(verbose_name))
+                    checklist.append("A value for '{}' is missing.".format(verbose_name))
                     rating = rating - 1
+
         # next lets deal with the simple bilingual fields
         elif field.startswith("?"):
             # for check to see if there is a value
@@ -1068,11 +1086,11 @@ def verify(resource):
             if (field_value_eng is not None and field_value_fre is None) or (field_value_eng is None and field_value_fre is not None):
                 checklist.append(
                     "'{}' and '{}' are optional fields, but if entered, they must be present in both languages".format(verbose_name_eng,
-                                                                                                                       verbose_name_fre))
+                                                                                                                      verbose_name_fre))
                 rating = rating - 1
                 translation_needed = True
 
-        # next lets deal with foreign keys
+                # next lets deal with foreign keys
         elif field.startswith("."):
             field_split = field.split(".")[1:]  # discard the first item
             fk_field = field_split[0]
@@ -1166,15 +1184,16 @@ def verify(resource):
                         elif field_split[2].startswith("name"):  # means we are looking at the org name
                             # if there is no organization, this will produce an error
                             try:
-                                if person.get_org_instance().name_eng is None or person.get_org_instance().name_eng == "":
+                                if person.organization.name_eng is None or person.organization.name_eng == "":
                                     checklist.append("An English organization name is needed for {}".format(person))
                                     rating = rating - 1
                                     translation_needed = True
-                                if person.get_org_instance().name_fre is None or person.get_org_instance().name_fre == "":
+                                if person.organization.name_fre is None or person.organization.name_fre == "":
                                     checklist.append("A French organization name is needed for {}".format(person))
                                     rating = rating - 1
                                     translation_needed = True
-                            except AttributeError:
+                            except AttributeError as e:
+                                print(e)
                                 # two points are lost
                                 rating = rating - 2
                         elif field_split[2].startswith("loc") and len(field_split) == 3:  # means we are looking at the fk
@@ -1191,11 +1210,11 @@ def verify(resource):
                                 "loc"):  # means we are looking at the location name
                             # if there is no organization location, this will produce an error
                             try:
-                                if person.get_org_instance().location.location_eng is None:
+                                if person.organization.location.location_eng is None:
                                     checklist.append("An English organization location is needed for {}".format(person))
                                     rating = rating - 1
                                     translation_needed = True
-                                if person.get_org_instance().location.location_fre is None:
+                                if person.organization.location.location_fre is None:
                                     checklist.append("A French organization location is needed for {}".format(person))
                                     rating = rating - 1
                                     translation_needed = True
