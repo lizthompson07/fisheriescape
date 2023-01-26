@@ -386,9 +386,8 @@ class ImportSamplesView(eDNAAdminRequiredMixin, CommonFormView):
         temp_file.seek(0)
         csv_reader = csv.DictReader(StringIO(temp_file.read().decode('utf-8')))
         try:
-            utils.sample_csv_parser(csv_reader, my_object)
+            utils.sample_csv_parser(csv_reader, my_object, self.request)
         except Exception as e:
-            messages.error(self.request, _('Invalid CSV. Check all mandatory columns are filled. Error: {}'.format(e)))
             return HttpResponseRedirect(self.request.get_full_path())
         return HttpResponseRedirect(self.get_parent_crumb()["url"])
 
