@@ -23,8 +23,8 @@ from dm_apps.context_processor import my_envr
 from lib.functions.custom_functions import fiscal_year, listrify
 from shared_models import models as shared_models
 from shared_models.views import CommonTemplateView, CommonFormsetView, CommonHardDeleteView, CommonFilterView, CommonDetailView, CommonUpdateView, \
-    CommonCreateView, CommonPopoutCreateView, CommonPopoutDeleteView, CommonPopoutUpdateView, CommonDeleteView
-from . import emails
+    CommonCreateView, CommonPopoutCreateView, CommonPopoutDeleteView, CommonPopoutUpdateView, CommonDeleteView, CommonSingleTableListView
+from . import emails, tables
 from . import filters
 from . import forms
 from . import models
@@ -127,25 +127,13 @@ class OpenDataDashboardTemplateView(InventoryBasicMixin, CommonTemplateView):
 ############
 
 
-class ResourceListView(InventoryBasicMixin, CommonFilterView):
+class ResourceListView(InventoryBasicMixin, CommonSingleTableListView):
     filterset_class = filters.ResourceFilter
     template_name = 'inventory/resource_list.html'
     home_url_name = "inventory:index"
     container_class = "container-fluid"
-    # row_object_url_name = "inventory:resource_detail"
+    table_class = tables.ResourceTable
     new_object_url = reverse_lazy("inventory:resource_new")
-    paginate_by = 25
-    field_list = [
-        {"name": ' '},
-        {"name": 't_title|{}'.format(gettext_lazy("title")), "class": "w-30", "width": ""},
-        {"name": 'external_links|{}'.format(gettext_lazy("external links"))},
-        {"name": 'resource_type', "class": "", "width": ""},
-        {"name": 'region'},
-        {"name": 'section', "class": "w-15", "width": ""},
-        {"name": 'Previous time certified', "class": "", "width": ""},
-        {"name": 'completeness rating', "class": "", "width": ""},
-        {"name": 'review_status_display|{}'.format(gettext_lazy("review status"))}
-    ]
 
     def is_personalized(self):
         return bool(self.request.GET.get("personalized"))

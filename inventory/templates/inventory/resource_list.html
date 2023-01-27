@@ -1,4 +1,4 @@
-{% extends "inventory/list.html" %}
+{% extends "inventory/list_w_table.html" %}
 {% load humanize %}
 {% load static %}
 {% load custom_filters %}
@@ -50,66 +50,23 @@
 
 {% endblock %}
 
-{% block pre_table %}
-  {% if personal %}
-    <p class="lead"><a class="btn btn-warning" href="{% url 'inventory:person_edit' user.id %}">Edit your personal details</a></p>
-  {% endif %}
-{% endblock %}
-
-{% block table_td %}
-  {% if field.name == "region" %}
-    {{ object.section.division.branch.region }}
-
-  {% elif field.name == " " %}
-    {% if user in object.favourited_by.all %}
-      <a href="{% url 'inventory:remove_favourites' object.id %}" data-toggle="tooltip" title="remove from favourites">
-        <span class="mdi mdi-star"></span>
-      </a>
-
-    {% elif object|has_role:user %}
-      <span class="mdi mdi-account-multiple"></span>
-
-    {% else %}
-
-      <a href="{% url 'inventory:add_favourites' object.id %}" data-toggle="tooltip" title="add to favourites">
-        <span class="mdi mdi-star-outline text-secondary"></span>
-      </a>
-
-    {% endif %}
-
-  {% elif "title" in field.name %}
-    <a href="{% url 'inventory:resource_detail' object.id %}" target="_blank">{{ object.t_title }}</a>
-
-  {% elif "external_link" in field.name %}
-    {% if object.fgp_url %}
-      <a class="stop-blank mx-1" href="{{ object.fgp_url }}" data-toggle="tooltip"
-         title="Open URL in the Federal Geospatial Platform">
-        <img src="{% static 'img/icons/fgp.png' %}" alt="" width="15px">
-      </a>
-    {% endif %}
-
-    {% if object.public_url %}
-      <a class="stop-blank mx-1" href="{{ object.public_url }}" data-toggle="tooltip"
-         title="Open URL in the Open Government Portal">
-        <img src="{% static 'img/icons/canada.png' %}" alt="" width="15px">
-      </a>
-    {% endif %}
-
-  {% elif "certified" in field.name %}
-
-    {% if object.certification_history.count > 0 %}
-      {{ object.certification_history.first.certification_date|naturaltime }}
-    {% else %}
-      <span class="red-font"><b>Never</b></span>
-    {% endif %}
-
-  {% elif "completeness" in field.name %}
-    {{ object.completedness_rating|percentage:0 }}
-
-  {% else %}
-    {% get_field_value object field.name safe=True %}
-
-  {% endif %}
-{% endblock %}
+{#{% block table_td %}#}
+{##}
+{##}
+{#  {% elif "external_link" in field.name %}#}
+{##}
+{##}
+{#  {% elif "certified" in field.name %}#}
+{##}
+{#
+{##}
+{#  {% elif "completeness" in field.name %}#}
+{#    {{ object.completedness_rating|percentage:0 }}#}
+{##}
+{#  {% else %}#}
+{#    {% get_field_value object field.name safe=True %}#}
+{##}
+{#  {% endif %}#}
+{#{% endblock %}#}
 
 

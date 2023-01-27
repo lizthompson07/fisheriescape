@@ -157,6 +157,7 @@ INSTALLED_APPS = [
                      'django.contrib.humanize',
                      'bootstrap4',
                      'bootstrap5',
+                     'django_tables2',
                      'el_pagination',
                      'debug_toolbar',
                      'webpack_loader',
