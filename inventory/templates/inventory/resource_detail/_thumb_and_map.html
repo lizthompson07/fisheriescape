@@ -3,7 +3,7 @@
 {% load custom_tags %}
 
 <div class="row mb-5">
-    <div class="col-4">
+    <div class="col-5">
       {% if object.thumbnail %}
         {% echo object.thumbnail|safe as img_url %}
       {% else %}
@@ -12,7 +12,7 @@
 
       <a href="{{ img_url }}" data-toggle="tooltip"
          title="{% trans "to add/change a thumbnail to this resource, add a new file with the word 'thumbnail' included in the caption" %}">
-        <img src="{{ img_url }}" alt="{% trans "missing thumbnail" %}" height="200px">
+        <img src="{{ img_url }}" alt="{% trans "missing thumbnail" %}" style="width: 100%">
       </a>
 
     </div>

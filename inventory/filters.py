@@ -27,12 +27,12 @@ class ResourceFilter(django_filters.FilterSet):
                                               queryset=models.User.objects.filter(resource_people__isnull=False).distinct().order_by("first_name", "last_name"),
                                               widget=forms.Select(attrs=chosen_js), )
 
-    fgp_publication_date = django_filters.BooleanFilter(field_name="fgp_publication_date",
-                                                        lookup_expr='isnull', label=_("Published to FGP?"),
+    fgp_publication_date = django_filters.BooleanFilter(field_name="fgp_url",
+                                                        lookup_expr='isnull', label=_("On FGP?"),
                                                         exclude=True,  # this will reverse the logic
                                                         )
-    od_publication_date = django_filters.BooleanFilter(field_name="od_publication_date",
-                                                       lookup_expr='isnull', label=_("Published to Open Portal?"),
+    od_publication_date = django_filters.BooleanFilter(field_name="public_url",
+                                                       lookup_expr='isnull', label=_("On Open Data Portal?"),
                                                        exclude=True,  # this will reverse the logic
                                                        )
     has_review = django_filters.BooleanFilter(field_name="reviews",
@@ -46,24 +46,21 @@ class ResourceFilter(django_filters.FilterSet):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # status_choices = [(s.id, str(s)) for s in models.Status.objects.all()]
         section_choices = [(s.id, s.full_name) for s in
                            shared_models.Section.objects.all().order_by("division__branch__region", "division__branch",
                                                                         "division", "name")]
 
-        # self.filters['status'] = django_filters.ChoiceFilter(field_name="status", label=_("Status"),
-        #                                                      lookup_expr='exact', choices=status_choices)
         self.filters['section'] = django_filters.ChoiceFilter(field_name="section", label=_("Section"),
                                                               lookup_expr='exact', choices=section_choices)
 
         # if there is a filter on section, filter the people filter accordingly
         try:
             if self.data["region"] != "":
-                SECTION_CHOICES = [(s.id, s.full_name) for s in
+                section_choices = [(s.id, s.full_name) for s in
                                    shared_models.Section.objects.filter(division__branch__region_id=self.data["region"]).order_by(
                                        "division__branch__region", "division__branch", "division", "name")]
                 self.filters["section"] = django_filters.ChoiceFilter(field_name="section", label=_("Section"), lookup_expr='exact',
-                                                                      choices=SECTION_CHOICES)
+                                                                      choices=section_choices)
         except KeyError:
             pass
 

@@ -171,7 +171,7 @@ class ResourceListView(InventoryBasicMixin, CommonFilterView):
 
 class ResourceDetailView(InventoryBasicMixin, CommonDetailView):
     model = models.Resource
-    template_name = "inventory/resource_detail/resource_detail.html"
+    template_name = "inventory/resource_detail/main.html"
     container_class = "container"
     home_url_name = "inventory:index"
 
