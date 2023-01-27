@@ -295,7 +295,6 @@ class Resource(models.Model):
                                        verbose_name=_("FY of latest publication"))
     date_verified = models.DateTimeField(blank=True, null=True, editable=False)
     favourited_by = models.ManyToManyField(User, editable=False, related_name="resource_favourited_by")
-    has_dma = models.BooleanField(default=False, verbose_name=_("Does this record have a formalized data management agreement?"), editable=False)
 
     # TO BE DELETED
     odi_id = models.CharField(max_length=20, blank=True, null=True, verbose_name=_("ODIP Identifier"), unique=True, editable=False)

@@ -31,7 +31,7 @@ from . import models
 from . import reports
 from . import xml_export
 from .mixins import SuperuserOrAdminRequiredMixin, CanModifyRequiredMixin, AdminRequiredMixin, InventoryBasicMixin, InventoryLoginRequiredMixin
-from .utils import can_modify, get_dma_field_list, get_dma_review_field_list, can_modify_dma
+from .utils import can_modify, get_dma_field_list, get_dma_review_field_list, can_modify_dma, get_resource_field_list
 
 
 # USER PERMISSIONS
@@ -205,6 +205,7 @@ class ResourceDetailView(InventoryBasicMixin, CommonDetailView):
         my_resource = self.get_object()
         context['can_modify'] = can_modify(self.request.user, my_resource.id, as_dict=True)
         context["dma_review_field_list"] = get_dma_review_field_list()
+        context["get_resource_field_list"] = get_resource_field_list()
 
         return context
 
@@ -1442,7 +1443,6 @@ class DMACloneView(DMAUpdateView):
         for item in old_obj.storage_solutions.all():
             new_obj.storage_solutions.add(item)
 
-
         return HttpResponseRedirect(reverse_lazy("inventory:dma_edit", args=[new_obj.id]))
 
 
@@ -1476,3 +1476,63 @@ class DMAReviewUpdateView(AdminRequiredMixin, CommonPopoutUpdateView):
         r.updated_by = self.request.user
         r.save()
         return super().form_valid(form)
+
+
+class RoleFormsetView(AdminRequiredMixin, CommonFormsetView):
+    template_name = 'inventory/formset.html'
+    h1 = "Manage Roles"
+    queryset = models.PersonRole.objects.all()
+    formset_class = forms.PersonRoleFormset
+    success_url_name = "inventory:manage_roles"
+    home_url_name = "inventory:index"
+    delete_url_name = "inventory:delete_role"
+
+
+class RoleHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
+    model = models.PersonRole
+    success_url = reverse_lazy("inventory:manage_roles")
+
+
+class OrganizationFormsetView(AdminRequiredMixin, CommonFormsetView):
+    template_name = 'inventory/formset.html'
+    h1 = "Manage Organizations"
+    queryset = models.Organization.objects.all()
+    formset_class = forms.OrganizationFormset
+    success_url_name = "inventory:manage_organizations"
+    home_url_name = "inventory:index"
+    delete_url_name = "inventory:delete_organization"
+
+
+class OrganizationHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
+    model = models.Organization
+    success_url = reverse_lazy("inventory:manage_organizations")
+
+
+class StorageSolutionFormsetView(AdminRequiredMixin, CommonFormsetView):
+    template_name = 'inventory/formset.html'
+    h1 = "Manage Storage Solutions"
+    queryset = models.StorageSolution.objects.all()
+    formset_class = forms.StorageSolutionFormset
+    success_url_name = "inventory:manage_storage_solutions"
+    home_url_name = "inventory:index"
+    delete_url_name = "inventory:delete_storage_solution"
+
+
+class StorageSolutionHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
+    model = models.StorageSolution
+    success_url = reverse_lazy("inventory:manage_storage_solutions")
+
+
+class DistributionFormatFormsetView(AdminRequiredMixin, CommonFormsetView):
+    template_name = 'inventory/formset.html'
+    h1 = "Manage Distribution Formats"
+    queryset = models.DistributionFormat.objects.all()
+    formset_class = forms.DistributionFormatFormset
+    success_url_name = "inventory:manage_distribution_formats"
+    home_url_name = "inventory:index"
+    delete_url_name = "inventory:delete_distribution_format"
+
+
+class DistributionFormatHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
+    model = models.DistributionFormat
+    success_url = reverse_lazy("inventory:manage_distribution_formats")

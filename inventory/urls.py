@@ -8,6 +8,15 @@ urlpatterns = [
     # user permissions
     path('settings/users/', views.InventoryUserFormsetView.as_view(), name="manage_inventory_users"),
     path('settings/users/<int:pk>/delete/', views.InventoryUserHardDeleteView.as_view(), name="delete_inventory_user"),
+    path('settings/roles/', views.RoleFormsetView.as_view(), name="manage_roles"),
+    path('settings/role/<int:pk>/delete/', views.RoleHardDeleteView.as_view(), name="delete_role"),
+    path('settings/organizations/', views.OrganizationFormsetView.as_view(), name="manage_organizations"),
+    path('settings/organization/<int:pk>/delete/', views.OrganizationHardDeleteView.as_view(), name="delete_organization"),
+    path('settings/storage-solutions/', views.StorageSolutionFormsetView.as_view(), name="manage_storage_solutions"),
+    path('settings/storage-solution/<int:pk>/delete/', views.StorageSolutionHardDeleteView.as_view(), name="delete_storage_solution"),
+    path('settings/distribution-formats/', views.DistributionFormatFormsetView.as_view(), name="manage_distribution_formats"),
+    path('settings/distribution-format/<int:pk>/delete/', views.DistributionFormatHardDeleteView.as_view(), name="delete_distribution_format"),
+
     # role
     # org
     # storage solution

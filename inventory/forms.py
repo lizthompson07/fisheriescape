@@ -368,7 +368,60 @@ class DMAReviewForm(forms.ModelForm):
         model = models.DMAReview
         exclude = ["dma"]
 
+
 class ReviewForm(forms.ModelForm):
     class Meta:
         model = models.Review
         exclude = ["resource"]
+
+
+class PersonRoleForm(forms.ModelForm):
+    class Meta:
+        model = models.PersonRole
+        fields = "__all__"
+
+
+PersonRoleFormset = modelformset_factory(
+    model=models.PersonRole,
+    form=PersonRoleForm,
+    extra=1,
+)
+
+
+class OrganizationForm(forms.ModelForm):
+    class Meta:
+        model = models.Organization
+        fields = "__all__"
+
+
+OrganizationFormset = modelformset_factory(
+    model=models.Organization,
+    form=OrganizationForm,
+    extra=1,
+)
+
+
+class StorageSolutionForm(forms.ModelForm):
+    class Meta:
+        model = models.StorageSolution
+        fields = "__all__"
+
+
+StorageSolutionFormset = modelformset_factory(
+    model=models.StorageSolution,
+    form=StorageSolutionForm,
+    extra=1,
+)
+
+
+class DistributionFormatForm(forms.ModelForm):
+    class Meta:
+        model = models.DistributionFormat
+        fields = "__all__"
+
+
+DistributionFormatFormset = modelformset_factory(
+    model=models.DistributionFormat,
+    form=DistributionFormatForm,
+    extra=1,
+)

@@ -1032,7 +1032,7 @@ def verify(resource):
             field_value = nz(getattr(resource, field), None)
             verbose_name = resource._meta.get_field(field).verbose_name
             if field_value is None:
-                checklist.append("A value for '{}' is missing.".format(verbose_name))
+                checklist.append(f"A value is missing for: '{verbose_name}'")
                 rating = rating - 1
 
             # if there is an agreement then there should also be a description of that agreement
@@ -1042,7 +1042,7 @@ def verify(resource):
                 field_value = nz(getattr(resource, "sharing_agreements_text"), None)
                 verbose_name = resource._meta.get_field("sharing_agreements_text").verbose_name
                 if field_value is None:
-                    checklist.append("A value for '{}' is missing.".format(verbose_name))
+                    checklist.append(f"A value is missing for: '{verbose_name}'")
                     rating = rating - 1
 
         # next lets deal with the simple bilingual fields
@@ -1058,12 +1058,12 @@ def verify(resource):
 
             # check english field
             if field_value_eng is None:
-                checklist.append("A value for {} is missing.".format(verbose_name_eng))
+                checklist.append(f"A value is missing for: '{verbose_name_eng}'")
                 rating = rating - 1
 
             # check french field
             if field_value_fre is None:
-                checklist.append("A value for {} is missing.".format(verbose_name_fre))
+                checklist.append(f"A value is missing for: '{verbose_name_fre}'")
                 rating = rating - 1
 
             # now do a special bilingual field check to see if translation is needed
