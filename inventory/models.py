@@ -359,8 +359,8 @@ class Resource(models.Model):
             elif last_review.decision == 1:  # compliant
                 self.review_status = 1  # on-track
                 # but wait, what if this is an old evaluation?
-                # if the review was more than six months old, set the status to 5
-                if (timezone.now() - last_review.created_at).days > (28 * 6):
+                # if the review fiscal year is not the current fiscal year, set the status to 5
+                if fiscal_year(timezone.now(), sap_style=True) != last_review.fiscal_year:
                     self.review_status = 5  # pending evaluation
 
             elif last_review.decision == 2:  # non-compliant
