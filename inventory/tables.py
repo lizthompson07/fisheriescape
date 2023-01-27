@@ -17,7 +17,7 @@ class ResourceTable(tables.Table):
     #
     fav = tables.Column(verbose_name=gettext_lazy(" "), empty_values=(), attrs=dict(th={"class": "w-5"}))
     t_title = tables.Column(verbose_name=gettext_lazy("Title"), empty_values=(), attrs=dict(th={"class": "w-30"}))
-    external_links = tables.Column(verbose_name=gettext_lazy("External_links"), empty_values=())
+    external_links = tables.Column(verbose_name=gettext_lazy("External links"), empty_values=())
     prev_cert = tables.Column(verbose_name=gettext_lazy("Previous time certified"), empty_values=())
     rating = tables.Column(verbose_name=gettext_lazy("Completeness rating"), empty_values=())
     review_status = tables.Column(verbose_name=gettext_lazy("Review status"), empty_values=())
