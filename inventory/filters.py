@@ -23,8 +23,8 @@ class ResourceFilter(django_filters.FilterSet):
     # this is a placeholder for the filter order... real definition happens on the fly in __init__ method
     section = django_filters.ChoiceFilter(field_name="section", lookup_expr='exact',
                                           widget=forms.Select(attrs=chosen_js))
-    person = django_filters.ModelChoiceFilter(field_name="people", label=_("Person"), lookup_expr='exact',
-                                              queryset=models.Person.objects.all(),
+    person = django_filters.ModelChoiceFilter(field_name="resource_people2__user", label=_("Person"), lookup_expr='exact',
+                                              queryset=models.User.objects.filter(resource_people__isnull=False).distinct().order_by("first_name", "last_name"),
                                               widget=forms.Select(attrs=chosen_js), )
 
     fgp_publication_date = django_filters.BooleanFilter(field_name="fgp_publication_date",
@@ -36,9 +36,9 @@ class ResourceFilter(django_filters.FilterSet):
                                                        exclude=True,  # this will reverse the logic
                                                        )
     has_review = django_filters.BooleanFilter(field_name="reviews",
-                                                       lookup_expr='isnull', label=_("Has review?"),
-                                                       exclude=True,  # this will reverse the logic
-                                                       )
+                                              lookup_expr='isnull', label=_("Has review?"),
+                                              exclude=True,  # this will reverse the logic
+                                              )
 
     flagged_4_publication = django_filters.BooleanFilter(field_name="flagged_4_publication", lookup_expr='exact')  # placeholder for ordering
     flagged_4_deletion = django_filters.BooleanFilter(field_name="flagged_4_deletion", lookup_expr='exact')  # placeholder for ordering
@@ -58,18 +58,14 @@ class ResourceFilter(django_filters.FilterSet):
 
         # if there is a filter on section, filter the people filter accordingly
         try:
-            if self.data["section"] != "":
-                self.filters["person"].queryset = models.Person.objects.filter(resource__section_id=self.data["section"]).distinct()
-            elif self.data["region"] != "":
+            if self.data["region"] != "":
                 SECTION_CHOICES = [(s.id, s.full_name) for s in
                                    shared_models.Section.objects.filter(division__branch__region_id=self.data["region"]).order_by(
                                        "division__branch__region", "division__branch", "division", "name")]
                 self.filters["section"] = django_filters.ChoiceFilter(field_name="section", label=_("Section"), lookup_expr='exact',
                                                                       choices=SECTION_CHOICES)
-                self.filters["person"].queryset = models.Person.objects.filter(
-                    resource__section__division__branch__region=self.data["region"]).distinct()
         except KeyError:
-            print('no data in filter')
+            pass
 
 
 class PersonFilter(django_filters.FilterSet):

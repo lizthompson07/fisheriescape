@@ -1121,8 +1121,8 @@ def verify(resource):
                 if resource.certification_history.count() == 0:
                     checklist.append(f'This record has not been certified ({cert_now_html})')
                     rating = rating - 1
-                elif abs((resource.certification_history.first().certification_date - timezone.now()).days) > 30:
-                    checklist.append(f'This record has not been certified within the past 30 days ({cert_now_html})')
+                elif abs((resource.certification_history.first().certification_date - timezone.now()).days) > 60:
+                    checklist.append(f'This record has not been certified within the past 60 days ({cert_now_html})')
                     rating = rating - 1
 
             elif field == 'keywords':
