@@ -156,7 +156,6 @@ class ResourceListView(InventoryBasicMixin, CommonFilterView):
                                'descr_eng', Value(" "),
                                'purpose_eng', Value(" "),
                                'uuid', Value(" "),
-                               'odi_id',
                                output_field=TextField()))
 
         if self.is_personalized():
@@ -289,7 +288,6 @@ class ResourceCloneUpdateView(ResourceUpdateView):
 
         new_obj.pk = None
         new_obj.uuid = None
-        new_obj.odi_id = None
         new_obj.public_url = None
         new_obj.fgp_url = None
         new_obj.od_publication_date = None
@@ -306,6 +304,10 @@ class ResourceCloneUpdateView(ResourceUpdateView):
 
         for item in old_obj.distribution_formats.all():
             new_obj.distribution_formats.add(item)
+
+        # Now we need to replicate all the related records:
+        for item in old_obj.storage_solutions.all():
+            new_obj.storage_solutions.add(item)
 
         for item in old_obj.citations2.all():
             new_obj.citations2.add(item)
@@ -1169,19 +1171,6 @@ def export_batch_xml(request, sections):
 
 
 @login_required()
-def export_odi_report(request):
-    # print(trip)
-    file_url = reports.generate_odi_report()
-    if os.path.exists(file_url):
-        with open(file_url, 'rb') as fh:
-            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
-            response['Content-Disposition'] = 'inline; filename="ODI Report {}.xlsx"'.format(
-                timezone.now().strftime("%Y-%m-%d"))
-            return response
-    raise Http404
-
-
-@login_required()
 def export_phyiscal_samples(request):
     # print(trip)
     file_url = reports.generate_physical_samples_report()
@@ -1452,6 +1441,7 @@ class DMACloneView(DMAUpdateView):
         # Now we need to replicate all the related records:
         for item in old_obj.storage_solutions.all():
             new_obj.storage_solutions.add(item)
+
 
         return HttpResponseRedirect(reverse_lazy("inventory:dma_edit", args=[new_obj.id]))
 

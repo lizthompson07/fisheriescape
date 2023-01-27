@@ -98,9 +98,7 @@ class ResourceForm(forms.ModelForm):
 
         if kwargs.get("initial") and kwargs.get("initial").get("cloning"):
             # m2m
-            del self.fields["distribution_formats"]
             # non-cloning fields
-            del self.fields["odi_id"]
             del self.fields["public_url"]
             del self.fields["fgp_publication_date"]
             del self.fields["od_publication_date"]

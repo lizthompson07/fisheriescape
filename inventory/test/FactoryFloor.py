@@ -65,7 +65,7 @@ class ResourceFactory(factory.django.DjangoModelFactory):
             "time_start_day": start_date.day,
             "time_start_month": start_date.month,
             "time_start_year": start_date.year,
-            "had_sharing_agreements": faker.pybool(),
+            "had_sharing_agreements": 0,
         }
 
 
