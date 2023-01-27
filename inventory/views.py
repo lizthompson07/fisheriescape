@@ -205,6 +205,8 @@ class ResourceDetailView(InventoryBasicMixin, CommonDetailView):
             context['verified'] = False
         my_resource = self.get_object()
         context['can_modify'] = can_modify(self.request.user, my_resource.id, as_dict=True)
+        context["dma_review_field_list"] = get_dma_review_field_list()
+
         return context
 
 
@@ -900,6 +902,38 @@ def export_resource_xml(request, resource, publish):
     # print(xml_data)
     return response
     # return HttpResponseRedirect(reverse('inventory:resource_detail', kwargs={'pk':resource}))
+
+
+# Reviews #
+###############
+
+class ReviewCreateView(AdminRequiredMixin, CommonPopoutCreateView):
+    model = models.Review
+    form_class = forms.ReviewForm
+
+    def form_valid(self, form):
+        r = form.save(commit=False)
+        r.updated_by = self.request.user
+        r.resource_id = self.kwargs.get("resource")
+        r.save()
+        return super().form_valid(form)
+
+
+class ReviewDeleteView(AdminRequiredMixin, CommonPopoutDeleteView):
+    model = models.Review
+    delete_protection = False
+
+
+class ReviewUpdateView(AdminRequiredMixin, CommonPopoutUpdateView):
+    model = models.Review
+    form_class = forms.ReviewForm
+    home_url_name = "inventory:index"
+
+    def form_valid(self, form):
+        r = form.save(commit=False)
+        r.updated_by = self.request.user
+        r.save()
+        return super().form_valid(form)
 
 
 # DATA MANAGEMENT ADMIN #

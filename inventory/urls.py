@@ -39,6 +39,11 @@ urlpatterns = [
     path('resource-person/<int:pk>/edit/', views.ResourcePersonUpdateView.as_view(), name="resource_person_edit"),
     path('resource-person/<int:pk>/edit-profile/', views.ResourcePersonProfileUpdateView.as_view(), name="profile_edit"),
 
+    # Reviews #
+    #################
+    path('resources/<int:resource>/new-review/', views.ReviewCreateView.as_view(), name="review_new"),
+    path('reviews/<int:pk>/edit/', views.ReviewUpdateView.as_view(), name="review_edit"),
+    path('reviews/<int:pk>/delete/', views.ReviewDeleteView.as_view(), name="review_delete"),
 
     # RESOURCE KEYWORD #
     ####################
@@ -138,6 +143,5 @@ urlpatterns = [
     path('reports/open-data/', views.export_open_data_resources, name="export_open_data_resources"),
     path('reports/custodians/', views.export_custodians, name="export_custodians"),
     path('reports/dmas/', views.export_dmas, name="export_dmas"),
-
 
 ]

@@ -52,7 +52,6 @@
     {% verbose_td_display object "fgp_publication_date" %}
     {% verbose_td_display object "od_publication_date" %}
     {% verbose_td_display object "last_revision_date" %}
-
     <tr>
       <th>{% trans "Parent record" %}</th>
       <td>
@@ -65,12 +64,10 @@
         {% endif %}
       </td>
     </tr>
-
     <tr>
       <th>{% trans "Child records" %}</th>
       <td>
         <ul>
-
           {% for item in object.children.all %}
             <li class="mb-1">
               <a href="{% url 'inventory:resource_detail' item.id %}">
@@ -84,12 +81,17 @@
       </td>
     </tr>
     <tr>
-      <th style="width: 150px">Last modified</th>
+      <th>Last modified</th>
       <td>
         {{ object.last_modified_by }}
       </td>
     </tr>
-    {% verbose_td_display object "review_status" %}
+    <tr>
+      <th>Review Status</th>
+      <td>
+        {{ object.review_status_display }}
+      </td>
+    </tr>
 
 
   </table>

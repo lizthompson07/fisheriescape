@@ -463,7 +463,7 @@ class ResourcePerson2(models.Model):
 
 
 class Review(MetadataFields):
-    resource = models.ForeignKey(Resource, related_name="reviews", on_delete=models.CASCADE)
+    resource = models.ForeignKey(Resource, related_name="reviews", on_delete=models.CASCADE, editable=False)
     fiscal_year = models.ForeignKey(shared_models.FiscalYear, related_name="inventory_reviews", on_delete=models.DO_NOTHING,
                                     default=fiscal_year(timezone.now(), sap_style=True))
     decision = models.IntegerField(default=0, choices=model_choices.review_decision_choices)

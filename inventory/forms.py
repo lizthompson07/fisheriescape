@@ -369,3 +369,8 @@ class DMAReviewForm(forms.ModelForm):
     class Meta:
         model = models.DMAReview
         exclude = ["dma"]
+
+class ReviewForm(forms.ModelForm):
+    class Meta:
+        model = models.Review
+        exclude = ["resource"]
