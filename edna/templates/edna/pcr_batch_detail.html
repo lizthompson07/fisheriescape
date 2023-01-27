@@ -85,6 +85,7 @@
           </th>
           <th class="px-1 py-1 w200px">${labels.master_mix}</th>
           <th class="px-1 py-1 w300px">${pcrAssaylabels.assay}</th>
+          <th class="px-1 py-1 w50px">{% trans "LOD" %}</th>
           <th class="px-1 py-1" style="width: 100px">${pcrAssaylabels.threshold}</th>
           <th class="px-1 py-1" style="width: 100px">${pcrAssaylabels.is_undetermined}</th>
           <th class="px-1 py-1" style="width: 110px">${pcrAssaylabels.ct}</th>
@@ -136,6 +137,9 @@
           {# asssays #}
           <td class="px-0 py-0 text-muted">
             ${obj.assay_display}
+          </td>
+          <td class="px-0 py-0 text-muted">
+            ${obj.lod}
           </td>
           <td class="px-0 py-0">
             <text-input-cell

@@ -325,10 +325,15 @@ class PCRAssaySerializer(serializers.ModelSerializer):
 class PCRAssaySerializerLITE(serializers.ModelSerializer):
     result_display = serializers.SerializerMethodField()
     assay_display = serializers.SerializerMethodField()
+    lod = serializers.SerializerMethodField()
 
     def get_assay_display(self, instance):
         if instance.assay:
             return str(instance.assay)
+
+    def get_lod(self, instance):
+        if instance.assay:
+            return instance.assay.lod
 
     def get_result_display(self, instance):
         return instance.get_result_display()
