@@ -98,15 +98,11 @@ class WebServiceFactory(factory.django.DjangoModelFactory):
 
 class ResourcePersonFactory(factory.django.DjangoModelFactory):
     class Meta:
-        model = models.ResourcePerson
+        model = models.ResourcePerson2
 
     resource = factory.SubFactory(ResourceFactory)
-    person = factory.SubFactory(PersonFactory)
-    role = factory.lazy_attribute(lambda o: models.PersonRole.objects.all()[faker.random_int(0, models.PersonRole.objects.count() - 1)])
-
-
-class CustodianResourcePersonFactory(ResourcePersonFactory):
-    role = factory.lazy_attribute(lambda o: models.PersonRole.objects.get(code="RI_409"))
+    user = factory.SubFactory(UserFactory)
+    # role = factory.lazy_attribute(lambda o: models.PersonRole.objects.all()[faker.random_int(0, models.PersonRole.objects.count() - 1)])
 
 
 class ResourceCertificationFactory(factory.django.DjangoModelFactory):
