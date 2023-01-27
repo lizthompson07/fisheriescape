@@ -87,44 +87,26 @@
       </a>
     {% endif %}
 
-  {% elif "certified" in field.name %}
-
-    {% if object.certification_history.count > 0 %}
-      <span class=" p-1
-      {% if now|timedelta:object.certification_history.first.certification_date < 90 %}
-       good
-      {% elif now|timedelta:object.certification_history.first.certification_date < 180 %}
-        mild-concern
-      {% elif now|timedelta:object.certification_history.first.certification_date < 270 %}
-        concern
-      {% else %}
-        bad
-      {% endif %}
-      ">    {{ object.certification_history.first.certification_date|naturaltime }}    </span>
-    {% else %}
-      <span class="red-font"><b>Never</b></span>
-    {% endif %}
+{#  {% elif "certified" in field.name %}#}
+{##}
+{#    {% if object.certification_history.count > 0 %}#}
+{#      <span class=" p-1#}
+{#      {% if now|timedelta:object.certification_history.first.certification_date < 90 %}#}
+{#       good#}
+{#      {% elif now|timedelta:object.certification_history.first.certification_date < 180 %}#}
+{#        mild-concern#}
+{#      {% elif now|timedelta:object.certification_history.first.certification_date < 270 %}#}
+{#        concern#}
+{#      {% else %}#}
+{#        bad#}
+{#      {% endif %}#}
+{#      ">    {{ object.certification_history.first.certification_date|naturaltime }}    </span>#}
+{#    {% else %}#}
+{#      <span class="red-font"><b>Never</b></span>#}
+{#    {% endif %}#}
 
   {% elif "completeness" in field.name %}
     {{ object.completedness_rating|percentage:0 }}
-  {% elif "title" in field.name %}
-    {% get_field_value object field.name safe=True %}
-    {% if object.fgp_url or object.public_url %}
-      <span class="ml-1">
-      {% if object.fgp_url %}
-        <a class="stop-blank mx-1" href="{{ object.fgp_url }}" data-toggle="tooltip"
-           title="Open URL in the Federal Geospatial Platform">
-          <img src="{% static 'img/icons/fgp.png' %}" alt="" width="20px">
-        </a>
-      {% endif %}
-        {% if object.public_url %}
-          <a class="stop-blank mx-1" href="{{ object.public_url }}" data-toggle="tooltip"
-             title="Open URL in the Open Government Portal">
-          <img src="{% static 'img/icons/canada.png' %}" alt="" width="20px">
-        </a>
-        {% endif %}
-      </span>
-    {% endif %}
 
   {% else %}
     {% get_field_value object field.name safe=True %}
