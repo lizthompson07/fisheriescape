@@ -246,7 +246,7 @@
 
       toggleToR(tor) {
         apiService(`/api/csas/tors/${tor.id}/?toggle_posting=true`, "POST").then(data => {
-          if (!data.id) this.errors = groomJSON(data);
+          if (!data.id) alert(groomJSON(data));
           else this.getProcesses();
         });
       },

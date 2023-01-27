@@ -987,8 +987,8 @@ class ToRViewSet(viewsets.ModelViewSet):
             if tor.status == 50:
                 tor.status = 40
                 tor.save()
-            # if not posted, then post
-            elif tor.status == 40:
+            # otherwise we post it no matter what the status
+            else:
                 tor.status = 50
                 tor.save()
                 if not tor.posting_notification_date:
