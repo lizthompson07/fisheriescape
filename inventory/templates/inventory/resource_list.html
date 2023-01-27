@@ -87,9 +87,9 @@
       </a>
     {% endif %}
 
-{#  {% elif "certified" in field.name %}#}
-{##}
-{#    {% if object.certification_history.count > 0 %}#}
+  {% elif "certified" in field.name %}
+
+    {% if object.certification_history.count > 0 %}
 {#      <span class=" p-1#}
 {#      {% if now|timedelta:object.certification_history.first.certification_date < 90 %}#}
 {#       good#}
@@ -100,10 +100,12 @@
 {#      {% else %}#}
 {#        bad#}
 {#      {% endif %}#}
-{#      ">    {{ object.certification_history.first.certification_date|naturaltime }}    </span>#}
-{#    {% else %}#}
-{#      <span class="red-font"><b>Never</b></span>#}
-{#    {% endif %}#}
+{#      ">    #}
+        {{ object.certification_history.first.certification_date|naturaltime }}
+{#      </span>#}
+    {% else %}
+      <span class="red-font"><b>Never</b></span>
+    {% endif %}
 
   {% elif "completeness" in field.name %}
     {{ object.completedness_rating|percentage:0 }}
