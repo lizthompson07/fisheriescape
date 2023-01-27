@@ -13,9 +13,12 @@
   {% trans "Review" %}
 {% endblock %}
 
-{% block optional_btn_url %}
+{% block optional_btn %}
   {% if is_admin %}
-    {% url 'inventory:review_new' object.id %}
+     <a class=" mb-2 btn btn-xs btn-outline-dark" href="#" pop-href="{% url 'inventory:review_new' object.id %}">
+        Add <span class="mdi mdi-plus text-dark"></span>
+      </a>
+
   {% endif %}
 {% endblock %}
 

@@ -25,6 +25,7 @@ NULL_YES_NO_CHOICES = (
     (0, _("No")),
 )
 
+
 class InventoryUser(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="inventory_user", verbose_name=_("DM Apps user"))
     region = models.ForeignKey(Region, verbose_name=_("regional administrator?"), related_name="inventory_users", on_delete=models.CASCADE, blank=True,
@@ -181,7 +182,6 @@ class Resource(models.Model):
     descr_eng = models.TextField(blank=True, null=True, verbose_name="Description (English)")
     descr_fre = models.TextField(blank=True, null=True, verbose_name="Description (French)")
     notes = models.TextField(blank=True, null=True, verbose_name="General notes (DFO internal)")
-
 
     # MANDATORY METADATA
     resource_type = models.IntegerField(choices=model_choices.resource_type_choices, blank=True, null=True)
@@ -356,13 +356,18 @@ class Resource(models.Model):
             last_review = self.reviews.last()
             if last_review.is_final_review:
                 self.review_status = 2  # complete
+            elif last_review.decision == 3:  # In progress
+                self.review_status = 6  # In progress
+                # but wait, what if this is an old evaluation?
+                # if the review fiscal year is not the current fiscal year, set the status to 5
+                if fiscal_year(timezone.now(), sap_style=True) != last_review.fiscal_year.id:
+                    self.review_status = 5  # pending evaluation
             elif last_review.decision == 1:  # compliant
                 self.review_status = 1  # on-track
                 # but wait, what if this is an old evaluation?
                 # if the review fiscal year is not the current fiscal year, set the status to 5
                 if fiscal_year(timezone.now(), sap_style=True) != last_review.fiscal_year.id:
                     self.review_status = 5  # pending evaluation
-
             elif last_review.decision == 2:  # non-compliant
                 self.review_status = 3  # encountering issues
 

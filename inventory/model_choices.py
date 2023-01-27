@@ -20,6 +20,7 @@ country_choices = (
 )
 
 review_decision_choices = (
+    (3, _("In Progress")),
     (0, _("Unevaluated")),
     (1, _("Compliant")),
     (2, _("Non-compliant")),
@@ -32,6 +33,7 @@ dma_status_choices = (
     (3, _("Encountering issues")),
     (4, _("Aborted / cancelled")),
     (5, _("Pending new evaluation")),
+    (6, _("In Progress")),
 )
 
 dma_frequency_choices = (
