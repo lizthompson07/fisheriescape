@@ -54,7 +54,6 @@ def get_sample_field_list():
 
 def get_collection_field_list(collection):
     my_list = [
-        'id',
         'name',
         'description',
         'region',

@@ -907,7 +907,6 @@ class FilterDetailView(eDNAAdminRequiredMixin, CommonDetailView):
     home_url_name = "edna:index"
     container_class = "container curvy"
     field_list = [
-        'display|filter Id',
         "filtration_batch",
         "sample",
         "tube_id",
@@ -922,7 +921,7 @@ class FilterDetailView(eDNAAdminRequiredMixin, CommonDetailView):
     ]
 
     def get_parent_crumb(self):
-        return {"title": self.get_object().filtration_batch, "url": reverse("edna:filter_list")}
+        return {"title": gettext_lazy("Filtrations"), "url": reverse("edna:filter_list")}
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -959,7 +958,6 @@ class DNAExtractDetailView(eDNAAdminRequiredMixin, CommonDetailView):
     home_url_name = "edna:index"
     container_class = "container curvy"
     field_list = [
-        'display|extract Id',
         "extraction_batch",
         "filter",
         "sample",
@@ -975,7 +973,7 @@ class DNAExtractDetailView(eDNAAdminRequiredMixin, CommonDetailView):
     ]
 
     def get_parent_crumb(self):
-        return {"title": self.get_object().extraction_batch, "url": reverse("edna:extract_list")}
+        return {"title": gettext_lazy("Extractions"), "url": reverse("edna:extract_list")}
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -1007,7 +1005,6 @@ class PCRDetailView(eDNAAdminRequiredMixin, CommonDetailView):
     home_url_name = "edna:index"
     container_class = "container curvy"
     field_list = [
-        'display|pcr Id',
         "pcr_batch",
         "sample",
         "filter",
