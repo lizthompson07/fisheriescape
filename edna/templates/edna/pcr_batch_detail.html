@@ -468,7 +468,7 @@
       },
       updatePCR(pcr) {
         this.pcrErrorMsg = null;
-        endpoint = `/api/edna/pcrs/${pcr.id}/`;
+        endpoint = `/api/edna/pcrs/${pcr.id}/?lite=true`;
         apiService(endpoint, "PUT", pcr)
             .then(response => {
               if (!response.id) {
@@ -481,7 +481,8 @@
       },
       updatePCRAssay(pcrAssay) {
         this.pcrErrorMsg = null;
-        endpoint = `/api/edna/pcr-assays/${pcrAssay.id}/`;
+        endpoint = `/api/edna/pcr-assays/${pcrAssay.id}/?lite=true`;
+        console.log(pcrAssay);
         apiService(endpoint, "PUT", pcrAssay)
             .then(response => {
               if (!response.id) {
@@ -489,7 +490,9 @@
                 this.getPCRAssay(pcrAssay)
               } else {
                 this.unsavedChanges = false;
-                this.$set(this.pcrAssays, this.pcrAssays.indexOf(pcrAssay), response);
+                let newPcrAssay = response;
+                newPcrAssay.pcr_obj = pcrAssay.pcr_obj
+                this.$set(this.pcrAssays, this.pcrAssays.indexOf(pcrAssay), newPcrAssay);
               }
             })
       },

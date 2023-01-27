@@ -517,7 +517,7 @@
           },
           updateExtract(extract) {
             this.extractErrorMsg = null;
-            endpoint = `/api/edna/extracts/${extract.id}/`;
+            endpoint = `/api/edna/extracts/${extract.id}/?lite=true`;
             extract.start_datetime = extract.datetime_display
             apiService(endpoint, "PUT", extract)
                 .then(response => {
