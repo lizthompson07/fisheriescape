@@ -360,7 +360,7 @@ class Resource(models.Model):
                 self.review_status = 1  # on-track
                 # but wait, what if this is an old evaluation?
                 # if the review fiscal year is not the current fiscal year, set the status to 5
-                if fiscal_year(timezone.now(), sap_style=True) != last_review.fiscal_year:
+                if fiscal_year(timezone.now(), sap_style=True) != last_review.fiscal_year.id:
                     self.review_status = 5  # pending evaluation
 
             elif last_review.decision == 2:  # non-compliant
