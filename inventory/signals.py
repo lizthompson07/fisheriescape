@@ -5,17 +5,27 @@ from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
-from .models import DMAReview, File, Person
+from .models import DMAReview, File, Person, Review
 
 
 @receiver(models.signals.post_save, sender=DMAReview)
-def save_project_year_on_review_save(sender, instance, created, **kwargs):
+def save_dma_on_review_save(sender, instance, created, **kwargs):
     instance.dma.save()
 
 
 @receiver(models.signals.post_delete, sender=DMAReview)
 def save_dma_on_review_delete(sender, instance, **kwargs):
     instance.dma.save()
+
+
+@receiver(models.signals.post_save, sender=Review)
+def save_resource_on_review_save(sender, instance, created, **kwargs):
+    instance.resource.save()
+
+
+@receiver(models.signals.post_delete, sender=Review)
+def save_resource_on_review_delete(sender, instance, **kwargs):
+    instance.resource.save()
 
 
 @receiver(models.signals.post_delete, sender=File)

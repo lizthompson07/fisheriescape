@@ -54,7 +54,7 @@ class ResourceForm(forms.ModelForm):
             "sharing_agreements_text": forms.Textarea(attrs={"rows": 2}),
             "publication_timeframe": forms.Textarea(attrs={"rows": 2}),
             "publishing_platforms": forms.Textarea(attrs={"rows": 2}),
-            "comments": forms.Textarea(attrs={"rows": 2}),
+            "sharing_comments": forms.Textarea(attrs={"rows": 2}),
 
             "fgp_publication_date": forms.DateInput(attrs=attr_fp_date),
             "od_publication_date": forms.DateInput(attrs=attr_fp_date),

@@ -263,7 +263,7 @@ class Resource(models.Model):
     publishing_platforms = models.TextField(blank=True, null=True, verbose_name=_("Which open data publishing mechanism(s) will be used?"), help_text=_(
         "The best option is the Government of Canada's Open Data Platform however other platforms / publications are acceptable provided they are"
         " freely available to the general public."))
-    comments = models.TextField(blank=True, null=True, verbose_name=_("Additional comments to take into consideration (if applicable):"))
+    sharing_comments = models.TextField(blank=True, null=True, verbose_name=_("Additional comments to take into consideration (if applicable):"))
 
     # Open Data Publication
     fgp_url = models.URLField(blank=True, null=True, verbose_name="Link to record on FGP")
