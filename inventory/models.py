@@ -476,7 +476,7 @@ class Review(MetadataFields):
     comments = models.TextField(blank=True, null=True, verbose_name=_("comments"))
 
     class Meta:
-        ordering = ["fiscal_year", '-created_at']
+        ordering = ["-fiscal_year", '-created_at']
         unique_together = [
             ('resource', 'fiscal_year'),  # there should only be a single review per year on a given DMA
         ]

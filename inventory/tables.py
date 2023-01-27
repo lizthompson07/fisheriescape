@@ -39,7 +39,7 @@ class ResourceTable(tables.Table):
         attrs = {"class": "table table-sm table-hover"}
 
     def render_t_title(self, record):
-        return mark_safe(f'<a href="{reverse("inventory:resource_detail", args=[record.id])}">{record.t_title}</a>')
+        return mark_safe(f'<a target="_blank" href="{reverse("inventory:resource_detail", args=[record.id])}">{record.t_title}</a>')
 
     def render_rating(self, record):
         return percentage(record.completedness_rating)
