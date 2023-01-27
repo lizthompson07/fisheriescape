@@ -168,6 +168,11 @@ class ResourceListView(InventoryBasicMixin, CommonFilterView):
             h1 = f"Resources Favourited by or Attached to {self.request.user}"
         return h1
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["is_personalized"] = self.is_personalized()
+        return context
+
 
 class ResourceDetailView(InventoryBasicMixin, CommonDetailView):
     model = models.Resource
