@@ -1,4 +1,3 @@
-from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext as _
 
@@ -21,18 +20,20 @@ def is_admin(user):
 
 def is_custodian(user, resource):
     if user.id:
-        # if the user has no associated Person in the app, automatic fail
-        try:
-            person, created = models.Person.objects.get_or_create(user=user)
-            if created:
-                print("creating person!!")
-        except ObjectDoesNotExist:
-            return False
-        else:
-            # check to see if they are listed as custodian (role_id=1) on the specified resource id
-            # custodian (1); principal investigator (2); data manager (8); steward (19); author (13); owner (10)
-            return models.ResourcePerson.objects.filter(person=person, resource=resource,
-                                                        role_id__in=[1, 2, 8, 19, 13, 10]).count() > 0
+        # check to see if they are listed as custodian (role_id=1) on the specified resource id
+        # custodian (1); principal investigator (2); data manager (8); steward (19); author (13); owner (10)
+        permissible_codes = [
+            "RI_409",  # Custodian
+            "RI_415",  # Principal investigator
+            "RI_414",  # Point of contact
+            "DM",  # Data manager
+            "RI_413",  # originator
+            "RI_410",  # owner
+            "RI_411",  # Data user
+            "RI_418",  # author
+            "STWD",  # Steward
+        ]
+        return models.ResourcePerson2.objects.filter(user=user, resource=resource, roles__code__iexact__in=permissible_codes).exists()
 
 
 def can_modify(user, resource_id, as_dict=False):
