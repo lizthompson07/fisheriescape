@@ -33,7 +33,7 @@ def is_custodian(user, resource):
             "RI_418",  # author
             "STWD",  # Steward
         ]
-        return models.ResourcePerson2.objects.filter(user=user, resource=resource, roles__code__iexact__in=permissible_codes).exists()
+        return models.ResourcePerson2.objects.filter(user=user, resource=resource, roles__code__in=permissible_codes).exists()
 
 
 def can_modify(user, resource_id, as_dict=False):
