@@ -5,35 +5,29 @@
 
 <div class="mb-5 w-90">
   <div class="mb-3">
+    <div class="mb-3">
+      {% if object.fgp_url %}
+        <a class="stop-blank mx-1" href="{{ object.fgp_url }}" data-toggle="tooltip"
+           title="Open URL in the Federal Geospatial Platform">
+          <img src="{% static 'img/icons/fgp.png' %}" alt="" width="40px">
+        </a>
+      {% endif %}
+      {% if object.public_url %}
+        <a class="stop-blank mx-1" href="{{ object.public_url }}" data-toggle="tooltip"
+           title="Open URL in the Open Government Portal">
+          <img src="{% static 'img/icons/canada.png' %}" alt="" width="40px">
+        </a>
+      {% endif %}
+    </div>
     <h4 class="neighbours">
       Basic Detail
     </h4>
     <a href="#" class="mb-2 btn btn-xs btn-outline-dark" data-toggle="modal" data-target="#full_all"> View Full Record </a>
+
   </div>
 
   <table class="table table-sm small">
-    <tr>
-      <th class="w-25">{% trans "External Links" %}</th>
-      <td>
 
-        <div>
-          {% if object.fgp_url %}
-            <a class="stop-blank mx-1" href="{{ object.fgp_url }}" data-toggle="tooltip"
-               title="Open URL in the Federal Geospatial Platform">
-              <img src="{% static 'img/icons/fgp.png' %}" alt="" width="40px">
-            </a>
-          {% endif %}
-          {% if object.public_url %}
-            <a class="stop-blank mx-1" href="{{ object.public_url }}" data-toggle="tooltip"
-               title="Open URL in the Open Government Portal">
-              <img src="{% static 'img/icons/canada.png' %}" alt="" width="40px">
-            </a>
-          {% endif %}
-        </div>
-
-
-      </td>
-    </tr>
     {% if LANG == 'fr' %}
       {% verbose_td_display object "title_fre" %}
       {% verbose_td_display object "descr_fre" to_html=True %}
@@ -44,17 +38,19 @@
       {% verbose_td_display object "descr_eng" to_html=True %}
       {% verbose_td_display object "purpose_eng" to_html=True %}
     {% endif %}
-
+    <tr>
+      <th class="w-25">{% trans "Section" %}</th>
+      <td>{{ object.section.full_name }}      </td>
+    </tr>
     {% verbose_td_display object "resource_type" %}
-    {% verbose_td_display object "section" %}
     {% verbose_td_display object "status" %}
     {% verbose_td_display object "time_period|time period" %}
-    {% verbose_td_display object "storage_solutions" %}
-    {% verbose_td_display object "storage_solution_text" to_html=True %}
+{#    {% verbose_td_display object "storage_solutions" %}#}
+    {#    {% verbose_td_display object "storage_solution_text" to_html=True %}#}
     {% verbose_td_display object "notes" to_html=True %}
-    {% verbose_td_display object "fgp_publication_date" %}
-    {% verbose_td_display object "od_publication_date" %}
-    {% verbose_td_display object "last_revision_date" %}
+    {#    {% verbose_td_display object "fgp_publication_date" %}#}
+    {#    {% verbose_td_display object "od_publication_date" %}#}
+    {#    {% verbose_td_display object "last_revision_date" %}#}
     <tr>
       <th>{% trans "Parent record" %}</th>
       <td>
@@ -63,7 +59,6 @@
             {{ object.parent.t_title }} ({{ object.parent.uuid }})
           </a>&nbsp;
         {% else %}
-          <em>n/a</em>
         {% endif %}
       </td>
     </tr>
@@ -78,13 +73,13 @@
               </a>
             </li>
           {% empty %}
-            <em>n/a</em>
+
           {% endfor %}
         </ul>
       </td>
     </tr>
     <tr>
-      <th>Last modified</th>
+      <th>Last modified by</th>
       <td>
         {{ object.last_modified_by }}
       </td>
