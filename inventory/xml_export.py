@@ -616,8 +616,9 @@ def construct(my_resource, pretty=True):
              "http://nap.geogratis.gc.ca/metadata/register/napMetadataRegister.xml#IC_95", "RI_458", "utf8; utf8")
 
     # parentIdentifier
-    if my_resource.parent != None:
-        charstring(root, 'gmd:parentIdentifier', str(my_resource.parent.uuid))
+    # for now the FGP/Open Data cannot handle a parent record not being published along with the child. Therefore we will not export the parent child hierarchy
+    # if my_resource.parent != None:
+    #     charstring(root, 'gmd:parentIdentifier', str(my_resource.parent.uuid))
 
     # ResourceType
     try:
