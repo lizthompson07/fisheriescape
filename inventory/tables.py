@@ -62,10 +62,10 @@ class ResourceTable(tables.Table):
         payload = str()
         if record.fgp_url:
             img_url = static('img/icons/fgp.png')
-            payload += f'<a class="stop-blank mx-1" href="{{ object.fgp_url }}" data-toggle="tooltip" title="Open URL in the Federal Geospatial Platform"> <img src="{img_url}" alt="" width="15px"> </a>'
+            payload += f'<a class="stop-blank mx-1" href="{ record.fgp_url}" data-toggle="tooltip" title="Open URL in the Federal Geospatial Platform"> <img src="{img_url}" alt="" width="15px"> </a>'
         if record.public_url:
             img_url = static('img/icons/canada.png')
-            payload += f'<a class="stop-blank mx-1" href="{{ object.public_url }}" data-toggle="tooltip" title="Open URL in the Open Government Portal"> <img src="{img_url}" alt="" width="15px"> </a>'
+            payload += f'<a class="stop-blank mx-1" href="{ record.public_url }" data-toggle="tooltip" title="Open URL in the Open Government Portal"> <img src="{img_url}" alt="" width="15px"> </a>'
         return mark_safe(payload)
 
     def render_prev_cert(self, record):
