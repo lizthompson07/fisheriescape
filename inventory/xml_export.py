@@ -64,55 +64,55 @@ def codelist(root, level_1_tag, level_2_tag, code_list, code_list_value, text):
     return None
 
 
-def ci_responsible_party(resource_person):
+def ci_responsible_party(resource_person, role):
     root = Element('gmd:CI_ResponsibleParty')
 
     # individualName
-    charstring(root, 'gmd:individualName', resource_person.person.full_name)
+    charstring(root, 'gmd:individualName', resource_person.user.get_full_name())
 
     # organisationName
-    charstring(root, 'gmd:organisationName', attr_error_2_none(resource_person.person.organization, "name_eng"),
-               attr_error_2_none(resource_person.person.organization, "name_fre"))
+    charstring(root, 'gmd:organisationName', attr_error_2_none(resource_person.organization, "name_eng"),
+               attr_error_2_none(resource_person.organization, "name_fre"))
 
     # positionName
-    charstring(root, 'gmd:positionName', resource_person.person.position_eng, resource_person.person.position_fre)
+    charstring(root, 'gmd:positionName', resource_person.user.profile.position_eng, resource_person.user.profile.position_fre)
 
     contact_info = SubElement(root, "gmd:contactInfo")
     ci_contact = SubElement(contact_info, "gmd:CI_Contact")
     # telephone
     phone = SubElement(ci_contact, "gmd:phone")
     ci_telephone = SubElement(phone, "gmd:CI_Telephone")
-    charstring(ci_telephone, 'gmd:voice', resource_person.person.phone, resource_person.person.phone)
+    charstring(ci_telephone, 'gmd:voice', resource_person.user.profile.phone, resource_person.user.profile.phone)
     # address
     address = SubElement(ci_contact, "gmd:address")
     ci_address = SubElement(address, "gmd:CI_Address")
     # civic
-    charstring(ci_address, 'gmd:deliveryPoint', attr_error_2_none(resource_person.person.organization, "address"),
-               attr_error_2_none(resource_person.person.organization, "address"))
+    charstring(ci_address, 'gmd:deliveryPoint', attr_error_2_none(resource_person.organization, "address"),
+               attr_error_2_none(resource_person.organization, "address"))
     # city
-    charstring(ci_address, 'gmd:city', attr_error_2_none(resource_person.person.organization, "city"),
-               attr_error_2_none(resource_person.person.organization, "city"))
+    charstring(ci_address, 'gmd:city', attr_error_2_none(resource_person.organization, "city"),
+               attr_error_2_none(resource_person.organization, "city"))
     # province
-    my_loc = attr_error_2_none(resource_person.person.organization, "location")
+    my_loc = attr_error_2_none(resource_person.organization, "location")
     charstring(ci_address, 'gmd:administrativeArea',
                attr_error_2_none(my_loc, "location_eng"),
                attr_error_2_none(my_loc, "location_fre"),
                )
     # postalcode
-    charstring(ci_address, 'gmd:postalCode', attr_error_2_none(resource_person.person.organization, "postal_code"))
+    charstring(ci_address, 'gmd:postalCode', attr_error_2_none(resource_person.organization, "postal_code"))
     # country
-    my_loc = attr_error_2_none(resource_person.person.organization, "location")
+    my_loc = attr_error_2_none(resource_person.organization, "location")
     charstring(ci_address, 'gmd:country',
                attr_error_2_none(my_loc, "country"),
                attr_error_2_none(my_loc, "country_fr"),
                )
     # email
-    charstring(ci_address, 'gmd:electronicMailAddress', resource_person.person.dmapps_user.email,
-               resource_person.person.dmapps_user.email)
+    charstring(ci_address, 'gmd:electronicMailAddress', resource_person.user.email,
+               resource_person.user.email)
     # role
     codelist(root, "gmd:role", "gmd:CI_RoleCode",
-             "http://nap.geogratis.gc.ca/metadata/register/napMetadataRegister.xml#IC_90", resource_person.role.code,
-             resource_person.role.role)
+             "http://nap.geogratis.gc.ca/metadata/register/napMetadataRegister.xml#IC_90", role.code,
+             role.role)
     return root
 
 
@@ -632,7 +632,8 @@ def construct(my_resource, pretty=True):
 
     # for each point of contact
     for person in my_resource.resource_people2.filter(roles__code__iexact="RI_414"):
-        gmd_contact.append(ci_responsible_party(person))
+        role = models.PersonRole.objects.get(code__iexact="RI_414")
+        gmd_contact.append(ci_responsible_party(person, role))
 
     # timestamp
     datestamp(root, 'gmd:dateStamp', timezone.now().year, timezone.now().month, timezone.now().day)
@@ -716,9 +717,9 @@ def construct(my_resource, pretty=True):
     # Custodians and other roles (not point of contact)
     # for each point of contact
     for person in my_resource.resource_people2.filter(~Q(roles__code__iexact="RI_414")).filter(roles__code__isnull=False).distinct():
-        # if person.role.id == 1:
-        citedResponsibleParty = SubElement(CI_Citation, 'gmd:citedResponsibleParty')
-        citedResponsibleParty.append(ci_responsible_party(person))
+        for role in person.roles.all():
+            citedResponsibleParty = SubElement(CI_Citation, 'gmd:citedResponsibleParty')
+            citedResponsibleParty.append(ci_responsible_party(person, role))
 
     # abstract
     charstring(MD_DataIdentification, 'gmd:abstract', my_resource.descr_eng, my_resource.descr_fre)
@@ -887,7 +888,8 @@ def construct(my_resource, pretty=True):
 
     # for each point of contact
     for person in my_resource.get_points_of_contact():
-        distributorContact.append(ci_responsible_party(person))
+        role = models.PersonRole.objects.get(code__iexact="RI_414")
+        distributorContact.append(ci_responsible_party(person, role))
 
     # for each data resource
     for data_resource in my_resource.data_resources.all():
