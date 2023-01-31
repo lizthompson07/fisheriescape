@@ -1,4 +1,3 @@
-<script src="http://localhost:8098"></script>
 {% extends 'edna/base.html' %}
 {% load verbose_names %}
 {% load static %}
@@ -143,11 +142,14 @@
         <th v-if="viewSamples" rowspan="2" colspan="9" class="lead samples">{% trans "Samples" %}</th>
         <th v-if="viewFilters" rowspan="2" colspan="9" class="lead filters">{% trans "Filters" %}</th>
         <th v-if="viewExtracts" rowspan="2" colspan="8" class="lead extracts">{% trans "Extractions" %}</th>
-        <th v-if="viewPCRs" :colspan="filteredAssaysTested.length * 6" class="lead assays">{% trans "Results" %}</th>
+        <th v-if="viewPCRs" :colspan="resultsWidth" class="lead assays">{% trans "Results" %}</th>
       </tr>
       <tr>
-        <th v-if="viewPCRs" colspan="6" v-for="(a, index) in filteredAssaysTested" class="assays text-muted" style="font-size: 12px">${a.name} <br><span
-          v-html="a.species_display"></span></th>
+          <template v-for="(filteredAssay, index) in filteredAssaysTested">
+            <th v-if="viewPCRs" :colspan="5 + filteredAssay.max_replicates"  class="assays text-muted" style="font-size: 12px">${filteredAssay.name} <br>
+                <span v-html="filteredAssay.species_display"></span>
+            </th>
+          </template>
       </tr>
       <tr >
         {# Samples #}
@@ -249,7 +251,7 @@
             </tr>
 
             <template v-if="viewPCRs" v-for="(pcrResult, pcrIndex) in extract.pcr_results">
-              <tr v-if="pcrResult" class="pcrs">
+              <tr v-if="pcrResult.pcr_batch" class="pcrs">
                 <td  :rowspan="filteredAssaysTested.length - (pcrIndex % filteredAssaysTested.length)" style="height: 100px;">
                     <a v-if="extract.id" :href=`/edna/pcr-batches/${pcrResult.pcr_batch}/view/` target="_blank">PCR Batch ${pcrResult.pcr_batch}</a>
                 </td>
@@ -261,11 +263,15 @@
                     <td  :rowspan="filteredAssaysTested.length - (pcrIndex % filteredAssaysTested.length)" style="height: 100px;">---</td>
                 </template>
                 <td  :rowspan="filteredAssaysTested.length - (pcrIndex % filteredAssaysTested.length)" style="height: 100px;">${pcrResult.mean_conc}</td>
-                <td  :rowspan="filteredAssaysTested.length - (pcrIndex % filteredAssaysTested.length)" style="height: 100px;">${pcrResult.result}</td>
+                <td  :rowspan="filteredAssaysTested.length - (pcrIndex % filteredAssaysTested.length)" style="height: 100px;">
+                  <span v-if="pcrResult.result === 1" class="good">${pcrResult.result_display}</span>
+                  <span v-else class="bad">${pcrResult.result_display}</span>
+                </td>
+
                 <td  :rowspan="filteredAssaysTested.length - (pcrIndex % filteredAssaysTested.length)" style="height: 100px;">${pcrResult.assay}</td>
               </tr>
               <tr v-else>
-                <td v-for="i in 6" class="greyed" :rowspan="filteredAssaysTested.length - (pcrIndex % filteredAssaysTested.length)" style="height: 100px;"></td>
+                <td v-for="i in (5 + pcrResult)" class="greyed" :rowspan="filteredAssaysTested.length - (pcrIndex % filteredAssaysTested.length)" style="height: 100px;"></td>
               </tr>
             </template>
           </template>
@@ -395,9 +401,9 @@
           }
           return endpoint
       },
-      getPcrEndpoint(){
-          let endpoint = `/api/edna/pcrs/?lite=true&`
-          if (this.projectId) endpoint += `collection=${this.projectId}&`;
+      getPcrResultsEndpoint(){
+          let endpoint = `/api/edna/pcr-assays/?results_format=true&`
+          if (this.projectId) endpoint += `pcr__collection=${this.projectId}&`;
           if (this.filterSpecies) {
               let speciesIdList = this.filterSpecies.map(element => element.species)
               endpoint += `speciesList=${speciesIdList}&`;
@@ -438,21 +444,23 @@
             this.loadingObject.filters = false;
             apiService(`/api/edna/extracts/?lite=true&collection=${this.projectId}`).then(response => {
               // add any results:
-              apiService(`/api/edna/pcr-assays/?results_format=true&pcr__collection=${this.projectId}`).then(pcrResultsResponse => {
+              apiService(this.getPcrResultsEndpoint()).then(pcrResultsResponse => {
                   response = join_api_arrays(response, pcrResultsResponse, "id", "extract", true, "pcr_results")
                   for (const extract of response) {
                       //order the results:
 
                       let old_array = extract.pcr_results.slice();
                       let new_order = [];
-                      for (let i=0; i < (extract.pcr_results.length * this.assaysTested.length); i++){
-                        if (old_array.length || (i % this.assaysTested.length !== 0)) {
-                          let assay_id =  this.assaysTested[i % this.assaysTested.length].id
-                          console.log(old_array.findIndex(obj => obj.assay === assay_id))
-
-                          // push undefined if there is no result
+                      for (let i=0; i < (extract.pcr_results.length * this.filteredAssaysTested.length); i++){
+                        if (old_array.length || (i % this.filteredAssaysTested.length !== 0)) {
+                          let assay_id =  this.filteredAssaysTested[i % this.filteredAssaysTested.length].id
+                          // push replicate number if there is no result
                           let result_match = old_array.find(obj => obj.assay === assay_id)
-                          new_order.push(result_match);
+                          if (result_match) {
+                            new_order.push(result_match);
+                          } else {
+                            new_order.push(this.filteredAssaysTested[i % this.filteredAssaysTested.length].max_replicates);
+                          }
                           if (result_match){
                             old_array.splice(old_array.findIndex(obj => obj.assay === assay_id), 1);
                           }
@@ -551,6 +559,13 @@
           if (filter.selected) myArray.push(filter)
         }
         return myArray
+      },
+      resultsWidth(){
+        let resultsWidth = 0
+        for (const assay of this.filteredAssaysTested){
+            resultsWidth += 5 + assay.max_replicates;
+        }
+        return resultsWidth;
       },
       ready2Show() {
         for (const loadingObjectKey in this.loadingObject) {

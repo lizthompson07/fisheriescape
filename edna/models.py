@@ -593,6 +593,8 @@ class PCRAssay(MetadataFields):
         (0, _("negative")),
         (90, _("no assay :(")),
         (91, _("LOD missing :(")),
+        (92, _("Inconclusive")),
+        (93, _("Suspected")),
     )
 
     pcr = models.ForeignKey(PCR, related_name='assays', on_delete=models.CASCADE, verbose_name=_("PCR"))

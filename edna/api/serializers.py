@@ -1,12 +1,12 @@
 from django.contrib.auth.models import User
 from django.contrib.humanize.templatetags.humanize import naturaltime
-from django.db.models import Count
+from django.db.models import Count, Avg, Sum
 from django.utils.translation import gettext as _
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
 from lib.functions.custom_functions import listrify
-from .. import models
+from .. import models, utils
 from ..utils import get_timezone_time
 
 
@@ -303,6 +303,22 @@ class PCRResultsSerializer(serializers.Serializer):
                                         pcr__pcr_batch=instance["pcr_batch"],
                                         pcr__extract=instance["extract"]).values("ct", "edna_conc")
         return result_qs
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+
+        pcr_assay_qs = self.context.get("pcr_assay_qs")
+        result_qs = pcr_assay_qs.filter(assay=instance["assay_pk"],
+                                        pcr__pcr_batch=instance["pcr_batch"],
+                                        pcr__extract=instance["extract"])
+        data["replicate_results"] = result_qs.values("ct", "edna_conc")
+        data["mean_conc"] = result_qs.aggregate(Sum("edna_conc"))["edna_conc__sum"] / result_qs.count()
+        data["threshold"] = result_qs.first().threshold
+        lod = result_qs.first().assay.lod
+        data["LOD"] = lod
+        # get result:
+        data["result"], data["result_display"] = utils.get_pcr_result(result_qs, lod)
+        return data
 
 
 class PCRAssaySerializer(serializers.ModelSerializer):

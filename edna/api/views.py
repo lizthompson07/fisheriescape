@@ -349,15 +349,17 @@ class PCRAssayViewSet(viewsets.ModelViewSet):
 
     def list(self, request, *args, **kwargs):
         qp = request.query_params
+        if qp.get("speciesList"):
+            self.queryset = self.queryset.filter(assay__species__in=qp.get("speciesList").split(',')).distinct()
         if qp.get("batch"):
             batch = get_object_or_404(models.PCRBatch, pk=qp.get("batch"))
-            qs = models.PCRAssay.objects.filter(pcr__pcr_batch=batch).select_related("assay", "pcr__extract", "pcr__extract__filter", "pcr__extract__sample")
+            qs = self.queryset.filter(pcr__pcr_batch=batch).select_related("assay", "pcr__extract", "pcr__extract__filter", "pcr__extract__sample")
             serializer = self.get_serializer(qs, many=True)
             return Response(serializer.data)
         if qp.get("pcr__collection"):
             if qp.get("results_format"):
                 collection = get_object_or_404(models.Collection, pk=qp.get("pcr__collection"))
-                all_assay_qs = models.PCRAssay.objects.filter(pcr__collection=collection).select_related("pcr")
+                all_assay_qs = self.queryset.filter(pcr__collection=collection).select_related("pcr")
                 results_qs = all_assay_qs.values(assay_pk=F("assay_id"), pcr_batch=F("pcr__pcr_batch_id"), extract=F("pcr__extract_id")).distinct()
                 # get unique assays, similar to qs.distinct("key1", "key2", etc.) which only works on postgres
                 results_list = [dict(y) for y in set(tuple(pcr_assay.items()) for pcr_assay in results_qs)]
