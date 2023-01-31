@@ -206,8 +206,45 @@ class File(models.Model):
         return self.caption
 
 
+class Batch(models.Model):
+    datetime = models.DateTimeField(default=timezone.now, verbose_name=_("date/time"))
+    operators = models.ManyToManyField(User, blank=True, verbose_name=_("operator(s)"))
+    default_collection = models.ForeignKey(Collection, on_delete=models.DO_NOTHING, verbose_name=_("project"), blank=False, null=True)
+    comments = models.TextField(null=True, blank=True, verbose_name=_("comments"))
+
+    class Meta:
+        ordering = ["-datetime"]
+        abstract = True
+
+    @property
+    def display_time(self):
+        return get_timezone_time(self.datetime).strftime("%Y-%m-%d %H:%M")
+
+
+class SampleBatch(Batch):
+    datetime = models.DateTimeField(default=timezone.now, verbose_name=_("date received at facility"))
+    operators = models.ManyToManyField(User, blank=True, verbose_name=_("Received by"))
+    sent_by = models.CharField(max_length=100, blank=True, null=True, verbose_name=_("Received from"))
+    storage_location = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("Storage Location at Reception"))
+
+    class Meta:
+        verbose_name_plural = _("Sample Collection / Receipt")
+        ordering = ["-datetime"]
+
+    def __str__(self):
+        return "{} {} ({})".format(_("Sample Collection"), self.id, self.datetime.strftime("%Y-%m-%d"))
+
+    def get_absolute_url(self):
+        return reverse('edna:sample_batch_detail', kwargs={'pk': self.id})
+
+    @property
+    def sample_count(self):
+        return self.samples.count()
+
+
 class Sample(MetadataFields):
     collection = models.ForeignKey(Collection, related_name='samples', on_delete=models.CASCADE, verbose_name=_("project"))
+    sample_batch = models.ForeignKey(SampleBatch, related_name='samples', on_delete=models.CASCADE, verbose_name=_("sample collection / receipt"))
     sample_type = models.ForeignKey(SampleType, related_name='samples', on_delete=models.DO_NOTHING, verbose_name=_("sample type"))
     is_field_blank = models.BooleanField(default=False, verbose_name=_("is this a field blank?"))
     bottle_id = models.CharField(verbose_name=_("bottle ID"), blank=True, null=True, max_length=50)
@@ -231,7 +268,7 @@ class Sample(MetadataFields):
 
     class Meta:
         ordering = ["datetime", "id"]
-        unique_together = (("bottle_id", "collection"))
+        unique_together = (("bottle_id", "sample_batch"))
 
     def get_absolute_url(self):
         return reverse("edna:sample_detail", args=[self.pk])
@@ -298,21 +335,6 @@ class Sample(MetadataFields):
         return not self.filters.exists() and not self.extracts.exists()
 
 
-class Batch(models.Model):
-    datetime = models.DateTimeField(default=timezone.now, verbose_name=_("date/time"))
-    operators = models.ManyToManyField(User, blank=True, verbose_name=_("operator(s)"))
-    default_collection = models.ForeignKey(Collection, on_delete=models.DO_NOTHING, verbose_name=_("project"), blank=False, null=True)
-    comments = models.TextField(null=True, blank=True, verbose_name=_("comments"))
-
-    class Meta:
-        ordering = ["-datetime"]
-        abstract = True
-
-    @property
-    def display_time(self):
-        return get_timezone_time(self.datetime).strftime("%Y-%m-%d %H:%M")
-
-
 class FiltrationBatch(Batch):
     class Meta:
         verbose_name_plural = _("Filtration Batches")
@@ -355,8 +377,10 @@ class Filter(MetadataFields):
         return not self.sample
 
     def __str__(self):
-        mystr = f"f{self.id}"
-        return mystr
+        if self.tube_id:
+            return self.tube_id
+        else:
+            return "N/A"
 
     def save(self, *args, **kwargs):
         # if there is a sample, the collection is known
@@ -446,18 +470,19 @@ class DNAExtract(MetadataFields):
         super().save(*args, **kwargs)
 
     class Meta:
-        ordering = ["extraction_batch", "order", "id"]
+        ordering = ["extraction_batch", "order", "filter__tube_id", "id"]
 
     @property
     def is_extraction_blank(self):
         return not self.sample and not self.filter
 
     def __str__(self):
-        mystr = f"x{self.id}"
+        if self.extraction_number:
+            return self.extraction_number
         # if there is no sample or filter associated with this extract, it is an extraction blank
         # if not self.sample and not self.filter:
         #     mystr += " (extraction blank)"
-        return mystr
+        return "N/A"
 
     @property
     def display(self):
@@ -488,6 +513,7 @@ class PCRBatch(Batch):
         (1, _("OK")),
         (0, _("Bad")),
     )
+    default_collection = models.ManyToManyField(Collection, verbose_name=_("project(s)"))
     plate_id = models.CharField(max_length=25, blank=True, null=True, verbose_name=_(" qPCR plate ID"))
     machine_number = models.CharField(max_length=25, blank=True, null=True, verbose_name=_(" qPCR machine number"))
     run_program = models.CharField(max_length=255, blank=True, null=True, verbose_name=_(" qPCR run program"))
@@ -507,6 +533,9 @@ class PCRBatch(Batch):
     def pcr_count(self):
         return self.pcrs.count()
 
+    @property
+    def default_collection_list(self):
+        return [{'id':obj.id, 'name':obj.name } for obj in self.default_collection.all()]
 
 class PCR(MetadataFields):
     """ the filter id of this table is effectively the tube id"""
@@ -534,7 +563,9 @@ class PCR(MetadataFields):
         ordering = ["pcr_plate_well_prefix", "pcr_plate_well_suffix", "pcr_batch", "extract__id", "id"]
 
     def __str__(self):
-        return f"q{self.id}"
+        if self.pcr_plate_well:
+            return self.pcr_plate_well
+        return "N/A"
 
     @property
     def display(self):

@@ -21,9 +21,11 @@ class SampleFilter(django_filters.FilterSet):
         fields = {
             'id': ['exact'],
             'sample_type': ['exact'],
+            'sample_batch': ['exact'],
             'bottle_id': ['icontains'],
             'collection': ['exact'],
             'location': ['icontains'],
+            'site': ['icontains'],
             'filters': ['isnull'],
         }
 
@@ -59,11 +61,11 @@ class DNAExtractFilter(django_filters.FilterSet):
             'id': ['exact', 'gte', 'lte'],
             'filter': ['exact'],
             'filter__sample': ['exact'],
-            'extraction_number': ['exact'],
+            'extraction_number': ['exact', 'gte', 'lte' ],
             'extraction_plate_id': ['exact'],
             'extraction_batch': ['exact'],
             'pcrs': ['isnull'],
-            'collection': ['exact'],
+            'collection': ['exact', 'in'],
         }
 
     def __init__(self, *args, **kwargs):
@@ -101,6 +103,15 @@ class CollectionFilter(django_filters.FilterSet):
         fy_choices = [(obj.id, str(obj)) for obj in FiscalYear.objects.filter(collections__isnull=False).distinct()]
         self.filters["contact_users"] = django_filters.ChoiceFilter(field_name="contact_users", choices=user_choices, label=labels["contact_users"])
         self.filters["fiscal_year"] = django_filters.ChoiceFilter(field_name="fiscal_year", choices=fy_choices, label=labels["fiscal_year"])
+
+
+class SampleBatchFilter(django_filters.FilterSet):
+    class Meta:
+        model = models.SampleBatch
+        fields = {
+            'datetime': ['exact'],
+            'default_collection': ['exact'],
+        }
 
 
 class FiltrationBatchFilter(django_filters.FilterSet):

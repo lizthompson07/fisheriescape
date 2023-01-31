@@ -1,10 +1,7 @@
-import os
 import uuid
 
 from django.contrib.auth.models import User
 from django.db import models
-from django.db.models.signals import post_save
-from django.dispatch import receiver
 from django.template.defaultfilters import default_if_none, slugify
 from django.urls import reverse
 from django.utils import timezone
@@ -12,14 +9,21 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 from markdown import markdown
 
-from dm_apps import custom_widgets
-from lib.functions.custom_functions import truncate, fiscal_year
+from lib.functions.custom_functions import truncate, fiscal_year, listrify
 from shared_models import models as shared_models
 # Choices for language
 from shared_models.models import SimpleLookup, Region, MetadataFields
+from . import model_choices
+from .data_fixtures import statuses, maintenance_levels, security_classifications, character_sets, spatial_representation_types, spatial_reference_systems, \
+    resource_types, content_types
 
 LANGUAGE_CHOICES = ((1, 'English'), (2, 'French'),)
 YES_NO_CHOICES = [(True, _("Yes")), (False, _("No")), ]
+NULL_YES_NO_CHOICES = (
+    (None, _("Unsure")),
+    (1, _("Yes")),
+    (0, _("No")),
+)
 
 
 class InventoryUser(models.Model):
@@ -35,17 +39,18 @@ class InventoryUser(models.Model):
         ordering = ["-is_admin", "user__first_name", ]
 
 
+class DistributionFormat(SimpleLookup):
+    pass
+
+
+class StorageSolution(SimpleLookup):
+    pass
+
+
 class Location(models.Model):
-    # Choices for surface_type
-    CAN = 'Canada'
-    US = 'United States'
-    COUNTRY_CHOICES = (
-        (CAN, 'Canada'),
-        (US, 'United States'),
-    )
     location_eng = models.CharField(max_length=1000, blank=True, null=True)
     location_fre = models.CharField(max_length=1000, blank=True, null=True)
-    country = models.CharField(max_length=25, choices=COUNTRY_CHOICES)
+    country = models.CharField(max_length=25, choices=model_choices.country_choices)
     country_fr = models.CharField(max_length=25)
     abbrev_eng = models.CharField(max_length=25, blank=True, null=True)
     abbrev_fre = models.CharField(max_length=25, blank=True, null=True)
@@ -73,7 +78,7 @@ class Organization(models.Model):
 
 class PersonRole(models.Model):
     role = models.CharField(max_length=25)
-    code = models.CharField(max_length=25, blank=True, null=True)
+    code = models.CharField(max_length=25, blank=True, null=True, help_text="Leave blank if there is no official NAP code")
     notes = models.CharField(max_length=255, blank=True, null=True)
 
     def __str__(self):
@@ -84,13 +89,16 @@ class PersonRole(models.Model):
 
 
 class Person(models.Model):
+    """
+    TODO This field should be removed and replaced by the Shared Models.
+    """
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True, related_name="person")
+    organization = models.ForeignKey(Organization, on_delete=models.DO_NOTHING, blank=True, null=True)
     full_name = models.CharField(max_length=255, blank=True, null=True)
     position_eng = models.CharField(max_length=255, blank=True, null=True)
     position_fre = models.CharField(max_length=255, blank=True, null=True)
     phone = models.CharField(max_length=25, blank=True, null=True)
     language = models.IntegerField(choices=LANGUAGE_CHOICES, blank=True, null=True, verbose_name=_("language preference"))
-    organization = models.ForeignKey(Organization, on_delete=models.DO_NOTHING, blank=True, null=True)
 
     def __str__(self):
         return "{}, {}".format(self.user.last_name, self.user.first_name)
@@ -102,73 +110,6 @@ class Person(models.Model):
         self.full_name = "{} {}".format(self.user.first_name, self.user.last_name)
 
         super().save(*args, **kwargs)
-
-
-class Status(models.Model):
-    label = models.CharField(max_length=25)
-    code = models.CharField(max_length=25, blank=True, null=True)
-    notes = models.CharField(max_length=255, blank=True, null=True)
-
-    def __str__(self):
-        return self.label
-
-        # return "{}  ({})".format(self.label, self.notes) if self.notes else "{}".format(self.label)
-
-
-class SpatialRepresentationType(models.Model):
-    label = models.CharField(max_length=25)
-    code = models.CharField(max_length=25, blank=True, null=True)
-    notes = models.CharField(max_length=255, blank=True, null=True)
-
-    def __str__(self):
-        return self.label
-
-
-class SpatialReferenceSystem(models.Model):
-    label = models.CharField(max_length=255)
-    code = models.CharField(max_length=25, blank=True, null=True)
-    codespace = models.CharField(max_length=255, blank=True, null=True)
-
-    def __str__(self):
-        return self.label
-
-
-class SecurityClassification(models.Model):
-    label = models.CharField(max_length=25)
-    code = models.CharField(max_length=25, blank=True, null=True)
-
-    def __str__(self):
-        return self.label
-
-
-class ResourceType(models.Model):
-    label = models.CharField(max_length=25)
-    code = models.CharField(max_length=25, blank=True, null=True)
-    notes = models.CharField(max_length=255, blank=True, null=True)
-
-    def __str__(self):
-        return self.label
-
-    class Meta:
-        db_table = 'inventory_resource_type'
-
-
-class Maintenance(models.Model):
-    frequency = models.CharField(max_length=25)
-    code = models.CharField(max_length=25, blank=True, null=True)
-    notes = models.CharField(max_length=255, blank=True, null=True)
-
-    def __str__(self):
-        return self.frequency
-
-
-class CharacterSet(models.Model):
-    label = models.CharField(max_length=25)
-    code = models.CharField(max_length=25, blank=True, null=True)
-    notes = models.CharField(max_length=255, blank=True, null=True)
-
-    def __str__(self):
-        return self.label
 
 
 class KeywordDomain(models.Model):
@@ -231,99 +172,132 @@ class Keyword(models.Model):
             return self.text_value_fre
 
 
-class DistributionFormat(SimpleLookup):
-    pass
-
-
 class Resource(models.Model):
-    uuid = models.UUIDField(blank=True, null=True, verbose_name="UUID", unique=True)
-    resource_type = models.ForeignKey(ResourceType, on_delete=models.DO_NOTHING, blank=True, null=True)
-    # section = models.ForeignKey(Section, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="resources")
+    # IDENTIFICATION
     section = models.ForeignKey(shared_models.Section, on_delete=models.DO_NOTHING, null=True, blank=True, related_name="resources")
-    title_eng = custom_widgets.OracleTextField(verbose_name="Title (English)")
-    title_fre = custom_widgets.OracleTextField(blank=True, null=True, verbose_name="Title (French)")
-    status = models.ForeignKey(Status, on_delete=models.DO_NOTHING, blank=True, null=True)
-    maintenance = models.ForeignKey(Maintenance, on_delete=models.DO_NOTHING, blank=True, null=True,
-                                    verbose_name="Maintenance frequency")
-    purpose_eng = custom_widgets.OracleTextField(blank=True, null=True, verbose_name="Purpose (English)")
-    purpose_fre = custom_widgets.OracleTextField(blank=True, null=True, verbose_name="Purpose (French)")
-    descr_eng = custom_widgets.OracleTextField(blank=True, null=True, verbose_name="Description (English)")
-    descr_fre = custom_widgets.OracleTextField(blank=True, null=True, verbose_name="Description (French)")
+    title_eng = models.TextField(verbose_name="Title (English)")
+    title_fre = models.TextField(blank=True, null=True, verbose_name="Title (French)")
+    purpose_eng = models.TextField(blank=True, null=True, verbose_name="Purpose (English)")
+    purpose_fre = models.TextField(blank=True, null=True, verbose_name="Purpose (French)")
+    descr_eng = models.TextField(blank=True, null=True, verbose_name="Description (English)")
+    descr_fre = models.TextField(blank=True, null=True, verbose_name="Description (French)")
+    notes = models.TextField(blank=True, null=True, verbose_name="General notes (DFO internal)")
+
+    # MANDATORY METADATA
+    resource_type = models.IntegerField(choices=model_choices.resource_type_choices, blank=True, null=True)
+    status = models.IntegerField(blank=True, null=True, choices=model_choices.status_choices)
+    maintenance = models.IntegerField(blank=True, null=True, verbose_name="At what frequency should the metadata be updated?",
+                                      choices=model_choices.maintenance_choices,
+                                      help_text=_("What should be the expectation for how often the metadata is updated?"))
+    maintenance_text = models.TextField(blank=True, null=True, verbose_name=_("Justification for frequency:"),
+                                        help_text=_("What justification can be provided for the above selection?"))
+
     time_start_day = models.IntegerField(blank=True, null=True, verbose_name="Start day")
     time_start_month = models.IntegerField(blank=True, null=True, verbose_name="Start month")
     time_start_year = models.IntegerField(blank=True, null=True, verbose_name="Start year")
     time_end_day = models.IntegerField(blank=True, null=True, verbose_name="End day")
     time_end_month = models.IntegerField(blank=True, null=True, verbose_name="End month")
     time_end_year = models.IntegerField(blank=True, null=True, verbose_name="End year")
-    sampling_method_eng = models.TextField(blank=True, null=True, verbose_name="Sampling method (English)")
-    sampling_method_fre = models.TextField(blank=True, null=True, verbose_name="Sampling method (French)")
-    physical_sample_descr_eng = models.TextField(blank=True, null=True,
-                                                 verbose_name="Description of physical samples (English)")
-    physical_sample_descr_fre = models.TextField(blank=True, null=True,
-                                                 verbose_name="Description of physical samples (French)")
-    resource_constraint_eng = models.TextField(blank=True, null=True, verbose_name="Resource constraint (English)")
-    resource_constraint_fre = models.TextField(blank=True, null=True, verbose_name="Resource constraint (French)")
-    qc_process_descr_eng = models.TextField(blank=True, null=True, verbose_name="QC process description (English)")
-    qc_process_descr_fre = models.TextField(blank=True, null=True, verbose_name="QC process description (French)")
-    security_use_limitation_eng = models.CharField(max_length=255, blank=True, null=True,
-                                                   verbose_name="Security use limitation (English)")
-    security_use_limitation_fre = models.CharField(max_length=255, blank=True, null=True,
-                                                   verbose_name="Security use limitation (French)")
-    security_classification = models.ForeignKey(SecurityClassification, on_delete=models.DO_NOTHING, blank=True,
-                                                null=True)
-    storage_envr_notes = models.TextField(blank=True, null=True, verbose_name="Storage notes (internal)")
-    distribution_formats = models.ManyToManyField(DistributionFormat, blank=True)
-    data_char_set = models.ForeignKey(CharacterSet, on_delete=models.DO_NOTHING, blank=True, null=True,
-                                      verbose_name="Data character set")
-    spat_representation = models.ForeignKey(SpatialRepresentationType, on_delete=models.DO_NOTHING, blank=True,
-                                            null=True, verbose_name="Spatial representation type")
-    spat_ref_system = models.ForeignKey(SpatialReferenceSystem, on_delete=models.DO_NOTHING, blank=True, null=True,
-                                        verbose_name="Spatial reference system")
-    geo_descr_eng = models.CharField(max_length=1000, blank=True, null=True,
-                                     verbose_name="Geographic description (English)")
-    geo_descr_fre = models.CharField(max_length=1000, blank=True, null=True,
-                                     verbose_name="Geographic description (French)")
+
+    geo_descr_eng = models.CharField(max_length=1000, blank=True, null=True, verbose_name="Geographic description (English)")
+    geo_descr_fre = models.CharField(max_length=1000, blank=True, null=True, verbose_name="Geographic description (French)")
     west_bounding = models.FloatField(blank=True, null=True, verbose_name="West bounding coordinate")
     south_bounding = models.FloatField(blank=True, null=True, verbose_name="South bounding coordinate")
     east_bounding = models.FloatField(blank=True, null=True, verbose_name="East bounding coordinate")
     north_bounding = models.FloatField(blank=True, null=True, verbose_name="North bounding coordinate")
+
+    security_classification = models.IntegerField(blank=True, null=True, choices=model_choices.security_classification_choices)
+    security_use_limitation_eng = models.CharField(max_length=255, blank=True, null=True, verbose_name="Security use limitation (English)")
+    security_use_limitation_fre = models.CharField(max_length=255, blank=True, null=True, verbose_name="Security use limitation (French)")
+
+    parent = models.ForeignKey("self", on_delete=models.DO_NOTHING, blank=True, null=True, related_name='children',
+                               verbose_name="Parent resource", help_text=_("Is this record a child of another metadata record?"))
+    distribution_formats = models.ManyToManyField(DistributionFormat, blank=True)
+    data_char_set = models.IntegerField(blank=True, null=True, verbose_name="Data character set", choices=model_choices.data_char_set_choices,
+                                        help_text=_("What is the encoding type of the distribution format? If you are using excel, please select ASCII."))
+
+    spat_representation = models.IntegerField(blank=True, null=True, verbose_name="Spatial representation type",
+                                              choices=model_choices.spat_representation_choices)
+    spat_ref_system = models.IntegerField(blank=True, null=True, verbose_name="Spatial reference system", choices=model_choices.spat_ref_system_choices)
+    resource_constraint_eng = models.TextField(blank=True, null=True, verbose_name="Resource constraint (English)")
+    resource_constraint_fre = models.TextField(blank=True, null=True, verbose_name="Resource constraint (French)")
+
+    # OPTIONAL METADATA
+    sampling_method_eng = models.TextField(blank=True, null=True, verbose_name="Sampling method (English)")
+    sampling_method_fre = models.TextField(blank=True, null=True, verbose_name="Sampling method (French)")
+    physical_sample_descr_eng = models.TextField(blank=True, null=True, verbose_name="Description of physical samples (English)")
+    physical_sample_descr_fre = models.TextField(blank=True, null=True, verbose_name="Description of physical samples (French)")
+    qc_process_descr_eng = models.TextField(blank=True, null=True, verbose_name="QC process description (English)")
+    qc_process_descr_fre = models.TextField(blank=True, null=True, verbose_name="QC process description (French)")
     parameters_collected_eng = models.TextField(blank=True, null=True, verbose_name="Parameters collected (English)")
     parameters_collected_fre = models.TextField(blank=True, null=True, verbose_name="Parameters collected (French)")
+    analytic_software = models.TextField(blank=True, null=True, verbose_name="Is any special software required?")
     additional_credit = models.TextField(blank=True, null=True)
-    analytic_software = models.TextField(blank=True, null=True, verbose_name="Analytic software notes")
-    date_verified = models.DateTimeField(blank=True, null=True)
 
+    # Archiving / Storage
+
+    storage_solutions = models.ManyToManyField(StorageSolution, blank=True, verbose_name=_(
+        "Which storage solution(s) will be used to house the raw field data, processed data, and all other data products?"))
+
+    storage_solution_text = models.TextField(blank=True, null=True, verbose_name=_("Justification for selection of storage solution(s)"),
+                                             help_text=_("Provide your rational for the selection(s) made above."))
+    storage_needed = models.TextField(blank=True, null=True, verbose_name=_("What is the estimated storage space needed for the above?"),
+                                      help_text=_("This includes raw field data, processed data, and all other data products etc.)"))
+    raw_data_retention = models.TextField(blank=True, null=True, verbose_name=_("What is the retention policy for the raw field data?"), help_text=_(
+        "This would include instrument data, field sheets, physical samples etc. Please refer to the DFO EOS Retention Policy for clarification)"))
+    data_retention = models.TextField(blank=True, null=True, verbose_name=_("What is the retention policy for the data?"),
+                                      help_text=_("Please refer to the DFO EOS Retention Policy for clarification."))
+    backup_plan = models.TextField(blank=True, null=True, verbose_name=_("What procedures will be taken to back-up/secure the data?"))
+    cloud_costs = models.TextField(blank=True, null=True,
+                                   verbose_name=_("If using cloud storage, what is the estimated annual cost and who will be covering the cost? "),
+                                   help_text=_(
+                                       "e.g., cloud storage is estimated at $1000/yr and will be paid for under the the division manager's budget"))
+
+    # Sharing
+    had_sharing_agreements = models.IntegerField(verbose_name=_("Is the dataset subject to a data sharing agreement, MOU, etc.?"), blank=True, null=True,
+                                                 choices=NULL_YES_NO_CHOICES)
+    sharing_agreements_text = models.TextField(blank=True, null=True, verbose_name=_("If yes, who are the counterparts for the agreement(s)?"),
+                                               help_text=_("please provide the name of the organization and the primary contact for each agreement."))
+    publication_timeframe = models.TextField(blank=True, null=True, verbose_name=_("How soon after data collection will data be made available?"),
+                                             help_text=_("The answer provided will set the expectation for the open data publication frequency"))
+    publishing_platforms = models.TextField(blank=True, null=True, verbose_name=_("Which open data publishing mechanism(s) will be used?"), help_text=_(
+        "The best option is the Government of Canada's Open Data Platform however other platforms / publications are acceptable provided they are"
+        " freely available to the general public."))
+    sharing_comments = models.TextField(blank=True, null=True, verbose_name=_("Additional comments to take into consideration (if applicable):"))
+
+    # Open Data Publication
     fgp_url = models.URLField(blank=True, null=True, verbose_name="Link to record on FGP")
     public_url = models.URLField(blank=True, null=True, verbose_name="Link to record on Open Gov't Portal")
     thumbnail_url = models.URLField(blank=True, null=True, verbose_name="Public URL to thumbnail image")
     fgp_publication_date = models.DateTimeField(blank=True, null=True, verbose_name="Date published to FGP")
     od_publication_date = models.DateTimeField(blank=True, null=True, verbose_name="Date published to Open Gov't Portal")
     od_release_date = models.DateTimeField(blank=True, null=True, verbose_name="Date released to Open Gov't Portal")
-    odi_id = models.CharField(max_length=20, blank=True, null=True, verbose_name=_("ODIP Identifier"), unique=True)
-
     last_revision_date = models.DateTimeField(blank=True, null=True, verbose_name="Date of last published revision")
     open_data_notes = models.TextField(blank=True, null=True,
                                        verbose_name="Open data notes")
-    notes = models.TextField(blank=True, null=True, verbose_name="General notes (internal)")
+
+    # M2m
     citations2 = models.ManyToManyField(shared_models.Citation, related_name='resources', blank=True)
     keywords = models.ManyToManyField(Keyword, related_name='resources', blank=True)
-    people = models.ManyToManyField(Person, through='ResourcePerson')
-    paa_items = models.ManyToManyField(shared_models.PAAItem, blank=True, verbose_name=_("Program Alignment Architecture (PAA) references"))
-    parent = models.ForeignKey("self", on_delete=models.DO_NOTHING, blank=True, null=True, related_name='children',
-                               verbose_name="Parent resource")
 
+    # non editable etc
+    uuid = models.UUIDField(blank=True, null=True, verbose_name="UUID", unique=True, editable=False)
+    review_status = models.IntegerField(default=0, editable=False, choices=model_choices.dma_status_choices)
     date_last_modified = models.DateTimeField(auto_now=True, editable=False)
-    last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True)
-    flagged_4_deletion = models.BooleanField(default=False)
-    flagged_4_publication = models.BooleanField(default=False, verbose_name=_("Flagged for Publication"))
-    completedness_report = models.TextField(blank=True, null=True, verbose_name=_("completedness report"))
-    completedness_rating = models.FloatField(blank=True, null=True, verbose_name=_("completedness rating"))
-    translation_needed = models.BooleanField(default=True, verbose_name=_("translation needed"))
+    last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, editable=False, blank=True, null=True,
+                                         related_name="resource_last_modified_by_users")
+    flagged_4_deletion = models.BooleanField(default=False, editable=False)
+    flagged_4_publication = models.BooleanField(default=False, verbose_name=_("Flagged for Publication"), editable=False)
+    completedness_report = models.TextField(blank=True, null=True, verbose_name=_("completedness report"), editable=False)
+    completedness_rating = models.FloatField(blank=True, null=True, verbose_name=_("completedness rating"), editable=False)
+    translation_needed = models.BooleanField(default=True, verbose_name=_("translation needed"), editable=False)
     publication_fy = models.ForeignKey(shared_models.FiscalYear, on_delete=models.DO_NOTHING, blank=True, null=True, editable=False,
                                        verbose_name=_("FY of latest publication"))
-
+    date_verified = models.DateTimeField(blank=True, null=True, editable=False)
     favourited_by = models.ManyToManyField(User, editable=False, related_name="resource_favourited_by")
 
+    # TO BE DELETED
+    odi_id = models.CharField(max_length=20, blank=True, null=True, verbose_name=_("ODIP Identifier"), unique=True, editable=False)
 
     def get_absolute_url(self):
         return reverse('inventory:resource_detail', kwargs={'pk': self.pk})
@@ -332,7 +306,7 @@ class Resource(models.Model):
         ordering = ['id', ]
 
     def __str__(self):
-        return "({}) {}".format(self.id, getattr(self, str(_("title_eng"))))
+        return self.t_title
 
     @property
     def t_title(self):
@@ -374,7 +348,39 @@ class Resource(models.Model):
 
         # will handle this through the resource form. If not, each time the record is verified, this field will be updated
         # self.date_last_modified = timezone.now()
+
+        # set the review status...
+        if not self.reviews.exists():
+            self.review_status = 0  # unevaluated
+        else:
+            last_review = self.reviews.last()
+            if last_review.is_final_review:
+                self.review_status = 2  # complete
+            elif last_review.decision == 3:  # In progress
+                self.review_status = 6  # In progress
+                # but wait, what if this is an old evaluation?
+                # if the review fiscal year is not the current fiscal year, set the status to 5
+                if fiscal_year(timezone.now(), sap_style=True) != last_review.fiscal_year.id:
+                    self.review_status = 5  # pending evaluation
+            elif last_review.decision == 1:  # compliant
+                self.review_status = 1  # on-track
+                # but wait, what if this is an old evaluation?
+                # if the review fiscal year is not the current fiscal year, set the status to 5
+                if fiscal_year(timezone.now(), sap_style=True) != last_review.fiscal_year.id:
+                    self.review_status = 5  # pending evaluation
+            elif last_review.decision == 2:  # non-compliant
+                self.review_status = 3  # encountering issues
+
         super().save(*args, **kwargs)
+
+    @property
+    def review_status_display(self):
+        return mark_safe(f'<span class=" px-1 py-1 {slugify(self.get_review_status_display())}">{self.get_review_status_display()}</span>')
+
+    @property
+    def region(self):
+        if self.section:
+            return self.section.division.branch.sector.region
 
     @property
     def thumbnail(self):
@@ -396,70 +402,133 @@ class Resource(models.Model):
             ]
 
     def get_custodians(self):
-        return self.resource_people.filter(role__code__iexact="RI_409")
+        return self.resource_people2.filter(roles__code__iexact="RI_409").distinct()
 
     def get_points_of_contact(self):
-        return self.resource_people.filter(role__code__iexact="RI_414")
+        return self.resource_people2.filter(roles__code__iexact="RI_414").distinct()
+
+    def get_status_instance(self):
+        if self.status:
+            return statuses.get_instance(self.status)
+
+    def get_maintenance_instance(self):
+        if self.maintenance:
+            return maintenance_levels.get_instance(self.maintenance)
+
+    def get_security_classification_instance(self):
+        if self.security_classification:
+            return security_classifications.get_instance(self.security_classification)
+
+    def get_data_char_set_instance(self):
+        if self.data_char_set:
+            return character_sets.get_instance(self.data_char_set)
+
+    def get_spat_representation_instance(self):
+        if self.spat_representation:
+            return spatial_representation_types.get_instance(self.spat_representation)
+
+    def get_spat_ref_system_instance(self):
+        if self.spat_ref_system:
+            return spatial_reference_systems.get_instance(self.spat_ref_system)
+
+    def get_resource_type_instance(self):
+        if self.resource_type:
+            return resource_types.get_instance(self.resource_type)
 
 
-class ContentType(models.Model):
-    title = models.CharField(max_length=255, verbose_name="Name (English)")
-    english_value = models.CharField(max_length=255, verbose_name="Name (French)")
-    french_value = models.CharField(max_length=255)
+class ResourcePerson2(models.Model):
+    resource = models.ForeignKey(Resource, on_delete=models.CASCADE, related_name="resource_people2", editable=False)
+    user = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="resource_people")
+    roles = models.ManyToManyField(PersonRole, verbose_name=_("roles"), blank=True)
+    notes = models.TextField(blank=True, null=True, verbose_name=_("notes"))
+    organization = models.ForeignKey(Organization, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("affiliated organization"))
 
-    def __str__(self):
-        return "{}".format(self.title)
+    @property
+    def is_custodian(self):
+        return self.roles.filter(code__iexact="RI_409").exists()
 
     class Meta:
-        ordering = ["title", ]
+        unique_together = (('resource', 'user'),)
+        ordering = ['user']
+        verbose_name = "Resource Person"
+        verbose_name_plural = "Resource People"
+
+    def get_absolute_url(self):
+        return reverse('inventory:resource_detail', kwargs={'pk': self.resource.id})
+
+    @property
+    def roles_display(self):
+        if self.roles.exists():
+            return listrify(self.roles.all())
+
+    def __str__(self):
+        payload = f"{self.user}"
+        return payload
+
+
+class Review(MetadataFields):
+    resource = models.ForeignKey(Resource, related_name="reviews", on_delete=models.CASCADE, editable=False)
+    fiscal_year = models.ForeignKey(shared_models.FiscalYear, related_name="inventory_reviews", on_delete=models.DO_NOTHING,
+                                    default=fiscal_year(timezone.now(), sap_style=True))
+    decision = models.IntegerField(default=0, choices=model_choices.review_decision_choices)
+    is_final_review = models.BooleanField(default=False, verbose_name=_("Will this be the final review of this agreement?"),
+                                          help_text=_("If so, please make sure to provide an explanation in the comments field."))
+    comments = models.TextField(blank=True, null=True, verbose_name=_("comments"))
+
+    class Meta:
+        ordering = ["-fiscal_year", '-created_at']
+        unique_together = [
+            ('resource', 'fiscal_year'),  # there should only be a single review per year on a given DMA
+        ]
+
+    @property
+    def comments_html(self):
+        if self.comments:
+            return mark_safe(markdown(self.comments))
+
+    @property
+    def decision_display(self):
+        return mark_safe(f'<span class=" px-1 py-1 {slugify(self.get_decision_display())}">{self.get_decision_display()}</span>')
 
 
 class DataResource(models.Model):
-    # choices for protocol
-    HTTP = "HTTP"
-    HTTPS = "HTTPS"
-    FTP = "FTP"
-    PROTOCOL_CHOICES = [
-        (HTTP, HTTP),
-        (HTTPS, HTTPS),
-        (FTP, FTP),
-    ]
     resource = models.ForeignKey(Resource, on_delete=models.CASCADE, related_name="data_resources", editable=False)
     url = models.URLField()
     name_eng = models.CharField(max_length=255, verbose_name="Name (English)")
     name_fre = models.CharField(max_length=255, verbose_name="Name (French)")
-    protocol = models.CharField(max_length=255, choices=PROTOCOL_CHOICES)
-    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    protocol = models.CharField(max_length=255, choices=model_choices.protocol_choices)
+    content_type = models.IntegerField(choices=model_choices.content_type_choices)
 
     def __str__(self):
-        return "{} - {}".format(self.content_type, self.name_eng)
+        return "{} - {}".format(self.get_content_type_instance().title, self.name_eng)
+
+    def get_content_type_instance(self):
+        if self.content_type:
+            return content_types.get_instance(self.content_type)
 
 
 class WebService(models.Model):
-    # choices for service_language
-    ENG = "urn:xml:lang:eng-CAN"
-    FRA = "urn:xml:lang:fra-CAN"
-    SERVICE_LANGUAGE_CHOICES = [
-        (ENG, "English"),
-        (FRA, "French"),
-    ]
     resource = models.ForeignKey(Resource, on_delete=models.CASCADE, related_name="web_services", editable=False)
     protocol = models.CharField(max_length=255, default="ESRI REST: Map Service")
-    service_language = models.CharField(max_length=255, choices=SERVICE_LANGUAGE_CHOICES)
+    service_language = models.CharField(max_length=255, choices=model_choices.service_language_choices)
     url = models.URLField()
     name_eng = models.CharField(max_length=255, verbose_name="Name (English)")
     name_fre = models.CharField(max_length=255, verbose_name="Name (French)")
-    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    content_type = models.IntegerField(choices=model_choices.content_type_choices)
 
     def __str__(self):
-        return "{} - {}".format(self.content_type, self.name_eng)
+        return "{} - {}".format(self.get_content_type_instance().title, self.name_eng)
+
+    def get_content_type_instance(self):
+        if self.content_type:
+            return content_types.get_instance(self.content_type)
 
 
 class ResourcePerson(models.Model):
     resource = models.ForeignKey(Resource, on_delete=models.CASCADE, related_name="resource_people")
     person = models.ForeignKey(Person, on_delete=models.DO_NOTHING, related_name="resource_people")
-    role = models.ForeignKey(PersonRole, on_delete=models.DO_NOTHING)
-    notes = models.TextField(blank=True, null=True)
+    role = models.ForeignKey(PersonRole, on_delete=models.DO_NOTHING, verbose_name=_("role"))
+    notes = models.TextField(blank=True, null=True, verbose_name=_("notes"))
 
     class Meta:
         unique_together = (('resource', 'person', 'role'),)
@@ -498,21 +567,10 @@ class ResourceCertification(models.Model):
 class Correspondence(models.Model):
     custodian = models.ForeignKey(User, on_delete=models.CASCADE, related_name="correspondences")
     subject = models.CharField(max_length=255)
-    date = models.DateTimeField(blank=True, null=True, default=timezone.now)
+    date = models.DateTimeField(blank=True, null=True, auto_now=True, editable=False)
 
     class Meta:
         ordering = ['-date']
-
-
-@receiver(post_save, sender=User)
-def create_user_profile(sender, instance, created, **kwargs):
-    if created:
-        Person.objects.create(user=instance)
-
-
-# @receiver(post_save, sender=User)
-# def save_user_profile(sender, instance, **kwargs):
-#     Person.profile.save()
 
 
 def file_directory_path(instance, filename):
@@ -533,60 +591,8 @@ class File(models.Model):
         return self.caption
 
 
-@receiver(models.signals.post_delete, sender=File)
-def auto_delete_file_on_delete(sender, instance, **kwargs):
-    """
-    Deletes file from filesystem
-    when corresponding `MediaFile` object is deleted.
-    """
-    if instance.file:
-        if os.path.isfile(instance.file.path):
-            os.remove(instance.file.path)
-
-
-@receiver(models.signals.pre_save, sender=File)
-def auto_delete_file_on_change(sender, instance, **kwargs):
-    """
-    Deletes old file from filesystem
-    when corresponding `MediaFile` object is updated
-    with new file.
-    """
-    if not instance.pk:
-        return False
-
-    try:
-        old_file = File.objects.get(pk=instance.pk).file
-    except File.DoesNotExist:
-        return False
-
-    new_file = instance.file
-    if not old_file == new_file:
-        if os.path.isfile(old_file.path):
-            os.remove(old_file.path)
-
-
-class StorageSolution(SimpleLookup):
-    pass
-
-
 class DMA(MetadataFields):
-    status_choices = (
-        (0, _("Unevaluated")),
-        (1, _("On-track")),
-        (2, _("Complete")),
-        (3, _("Encountering issues")),
-        (4, _("Aborted / cancelled")),
-        (5, _("Pending new evaluation")),
-    )
-    frequency_choices = (
-        (1, _("Daily")),
-        (2, _("Weekly")),
-        (3, _("Monthly")),
-        (4, _("Annually")),
-        (5, _("Irregular / as needed")),
-        (9, _("Other")),
-    )
-    status = models.IntegerField(default=3, editable=False, choices=status_choices)
+    status = models.IntegerField(default=3, editable=False, choices=model_choices.dma_status_choices)
 
     # Identification
 
@@ -614,7 +620,8 @@ class DMA(MetadataFields):
     metadata_url = models.CharField(blank=True, null=True, max_length=1000, verbose_name=_("Please provide any URLs to the metadata"),
                                     help_text=_("Full link to any metadata records available online, if applicable"))
     metadata_update_freq = models.IntegerField(blank=True, null=True, verbose_name=_("At what frequency should the metadata be updated? "),
-                                               help_text=_("What should be the expectation for how often the metadata is updated?"), choices=frequency_choices)
+                                               help_text=_("What should be the expectation for how often the metadata is updated?"),
+                                               choices=model_choices.dma_frequency_choices)
     metadata_freq_text = models.TextField(blank=True, null=True, verbose_name=_("Justification for frequency:"),
                                           help_text=_("What justification can be provided for the above selection?"))
 
@@ -681,10 +688,6 @@ class DMA(MetadataFields):
         return self.title
 
     @property
-    def status_display(self):
-        return mark_safe(f'<span class=" px-1 py-1 {slugify(self.get_status_display())}">{self.get_status_display()}</span>')
-
-    @property
     def region(self):
         if self.section:
             return self.section.division.branch.sector.region
@@ -693,16 +696,12 @@ class DMA(MetadataFields):
     def display_with_region(self):
         return str(self) + f" ({self.region})"
 
+
 class DMAReview(MetadataFields):
-    decision_choices = (
-        (0, _("Unevaluated")),
-        (1, _("Compliant")),
-        (2, _("Non-compliant")),
-    )
     dma = models.ForeignKey(DMA, related_name="reviews", on_delete=models.CASCADE)
     fiscal_year = models.ForeignKey(shared_models.FiscalYear, related_name="inventory_dma_reviews", on_delete=models.DO_NOTHING,
                                     default=fiscal_year(timezone.now(), sap_style=True))
-    decision = models.IntegerField(default=0, choices=decision_choices)
+    decision = models.IntegerField(default=0, choices=model_choices.review_decision_choices)
     is_final_review = models.BooleanField(default=False, verbose_name=_("Will this be the final review of this agreement?"),
                                           help_text=_("If so, please make sure to provide an explanation in the comments field."))
     comments = models.TextField(blank=True, null=True, verbose_name=_("comments"))

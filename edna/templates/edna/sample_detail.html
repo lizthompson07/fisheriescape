@@ -32,7 +32,14 @@
       <div class="card-body">
         <table class="table table-sm">
           {% for field in field_list %}
-            {% verbose_td_display object field th_width="200px" display_time=True %}
+            {% if field == "sample_batch" %}
+              <th>{% get_verbose_label object field %}</th>
+              <td>
+                <a href="{% url 'edna:sample_batch_detail' object.sample_batch.id %}">{% get_field_value object field %}</a>
+              </td>
+            {% else %}
+              {% verbose_td_display object field th_width="200px" display_time=True %}
+            {% endif %}
           {% endfor %}
         </table>
       </div>

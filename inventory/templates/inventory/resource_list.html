@@ -1,125 +1,72 @@
-{% extends "inventory/list.html" %}
+{% extends "inventory/list_w_table.html" %}
 {% load humanize %}
 {% load static %}
 {% load custom_filters %}
 {% load bootstrap4 %}
 {% load verbose_names %}
+{% load inventory_filters %}
 {% load i18n %}
 
+{% block table_row_id %}id_{{ object.id }}{% endblock %}
+
 {% block filter %}
-  <div class="{% block filter_div_classes %}{% endblock %}">
-    <form class="form {% block extra_filter_classes %}{{ block.super }}{% endblock %}" action="." method="get" id="filter-form">
-      <div class="row">
-        <div class="col">
-          {% bootstrap_field filter.form.search_term placeholder="" size="small" %}
-          {% bootstrap_field filter.form.fgp_publication_date placeholder="" size="small" %}
-        </div>
-        <div class="col">
-          {% bootstrap_field filter.form.region placeholder="" size="small" %}
-          {% bootstrap_field filter.form.od_publication_date placeholder="" size="small" %}
+  {% if not is_personalized %}
+
+    <div class="{% block filter_div_classes %}{% endblock %}">
+      <form class="form {% block extra_filter_classes %}{{ block.super }}{% endblock %}" action="." method="get" id="filter-form">
+        <div class="row">
+          <div class="col">
+            {% bootstrap_field filter.form.search_term placeholder="" size="small" %}
+            {% bootstrap_field filter.form.fgp_publication_date placeholder="" size="small" %}
+          </div>
+          <div class="col">
+            {% bootstrap_field filter.form.region placeholder="" size="small" %}
+            {% bootstrap_field filter.form.od_publication_date placeholder="" size="small" %}
+
+          </div>
+          <div class="col">
+            {% bootstrap_field filter.form.section placeholder="" size="small" %}
+            {% bootstrap_field filter.form.flagged_4_publication placeholder="" size="small" %}
+          </div>
+          <div class="col">
+            {% bootstrap_field filter.form.flagged_4_deletion placeholder="" size="small" %}
+            {% bootstrap_field filter.form.has_review placeholder="" size="small" %}
+          </div>
+          <div class="col">
+            {% bootstrap_field filter.form.person placeholder="" size="small" %}
+            {% bootstrap_field filter.form.review_status placeholder="" size="small" %}
+          </div>
+          <div class="col text-right">
+            <br>
+            <a href="." class="btn btn-secondary btn-sm">{% trans "Clear" %}</a>
+          </div>
+
 
         </div>
-        <div class="col">
-          {% bootstrap_field filter.form.section placeholder="" size="small" %}
-          {% bootstrap_field filter.form.flagged_4_publication placeholder="" size="small" %}
-        </div>
-        <div class="col">
-          {% bootstrap_field filter.form.person placeholder="" size="small" %}
-          {% bootstrap_field filter.form.flagged_4_deletion placeholder="" size="small" %}
-        </div>
-        <div class="col">
-          {% bootstrap_field filter.form.resource_type placeholder="" size="small" %}
-        </div>
-        <div class="col text-right">
-          <br>
-          <a href="." class="btn btn-secondary btn-sm">{% trans "Clear" %}</a>
-        </div>
 
-
-      </div>
-
-    </form>
-  </div>
-{% endblock %}
-
-{% block pre_table %}
-  {% if personal %}
-    <p class="lead"><a class="btn btn-warning" href="{% url 'inventory:person_edit' user.id %}">Edit your personal details</a></p>
+      </form>
+    </div>
   {% endif %}
+
 {% endblock %}
 
-{% block table_td %}
-  {% if field.name == "region" %}
-    {{ object.section.division.branch.region }}
-  {% elif "title" in field.name %}
-    <a href="{% url 'inventory:resource_detail' object.id %}" target="_blank">{{ object.t_title }}</a>
-    {% if user in object.favourited_by.all %}      <span class="mdi mdi-star" data-toggle="tooltip" title="favourites"></span>    {% endif %}
-
-    {% if object.fgp_url %}
-      <a class="stop-blank mx-1" href="{{ object.fgp_url }}" data-toggle="tooltip"
-         title="Open URL in the Federal Geospatial Platform">
-        <img src="{% static 'img/icons/fgp.png' %}" alt="" width="15px">
-      </a>
-    {% endif %}
-    {% if object.public_url %}
-      <a class="stop-blank mx-1" href="{{ object.public_url }}" data-toggle="tooltip"
-         title="Open URL in the Open Government Portal">
-        <img src="{% static 'img/icons/canada.png' %}" alt="" width="15px">
-      </a>
-    {% endif %}
-
-  {% elif "certified" in field.name %}
-
-    {% if object.certification_history.count > 0 %}
-      <span class=" p-1
-      {% if now|timedelta:object.certification_history.first.certification_date < 90 %}
-       good
-      {% elif now|timedelta:object.certification_history.first.certification_date < 180 %}
-        mild-concern
-      {% elif now|timedelta:object.certification_history.first.certification_date < 270 %}
-        concern
-      {% else %}
-        bad
-      {% endif %}
-      ">    {{ object.certification_history.first.certification_date|naturaltime }}    </span>
-    {% else %}
-      <span class="red-font"><b>Never</b></span>
-    {% endif %}
-
-
-
-
-
-    {#    {% if object.certification_history.count > 0 %}#}
-    {#      {{ object.certification_history.first.certification_date|naturaltime }}#}
-    {#    {% else %}#}
-    {#      <span class="red-font"><b>Never</b></span>#}
-    {#    {% endif %}#}
-  {% elif "completeness" in field.name %}
-    {{ object.completedness_rating|percentage:0 }}
-  {% elif "title" in field.name %}
-    {% get_field_value object field.name safe=True %}
-    {% if object.fgp_url or object.public_url %}
-      <span class="ml-1">
-      {% if object.fgp_url %}
-        <a class="stop-blank mx-1" href="{{ object.fgp_url }}" data-toggle="tooltip"
-           title="Open URL in the Federal Geospatial Platform">
-          <img src="{% static 'img/icons/fgp.png' %}" alt="" width="20px">
-        </a>
-      {% endif %}
-        {% if object.public_url %}
-          <a class="stop-blank mx-1" href="{{ object.public_url }}" data-toggle="tooltip"
-             title="Open URL in the Open Government Portal">
-          <img src="{% static 'img/icons/canada.png' %}" alt="" width="20px">
-        </a>
-        {% endif %}
-      </span>
-    {% endif %}
-
-  {% else %}
-    {% get_field_value object field.name safe=True %}
-
-  {% endif %}
-{% endblock %}
+{#{% block table_td %}#}
+{##}
+{##}
+{#  {% elif "external_link" in field.name %}#}
+{##}
+{##}
+{#  {% elif "certified" in field.name %}#}
+{##}
+{#
+{##}
+{#  {% elif "completeness" in field.name %}#}
+{#    {{ object.completedness_rating|percentage:0 }}#}
+{##}
+{#  {% else %}#}
+{#    {% get_field_value object field.name safe=True %}#}
+{##}
+{#  {% endif %}#}
+{#{% endblock %}#}
 
 

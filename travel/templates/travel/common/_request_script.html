@@ -16,7 +16,8 @@ let lateJustificationTip = "{% trans "You must provide a late justification in o
 let noTravellersTip = "{% trans "You cannot submit a trip request that has no associated travellers." %}";
 let firstTravellerMsg = "{% trans "Please enter in your information then click on 'Next'." %}";
 let noPermissionsMsg = "{% trans "You do not have sufficient permissions to view this page" %}";
-let travellerCherryPickMsg = "{% trans "You are about to approve this traveller as a one-off from the entire delegation. Are you certain you wish to proceed? \n\nThis will result in this traveller being removed and then cloned into separate request. \n\nPlease type 'yes' to confirm:" %}";
+let travellerCherryPickMsg = "{% trans "You are about to approve this traveller as a one-off from the entire request. Are you certain you wish to proceed? \n\nThis will result in this traveller being removed and then cloned into separate request. \n\nPlease type 'yes' to confirm:" %}";
+let travellerCherryPickDenyMsg = "{% trans "You are about to deny this traveller as a one-off from the entire request. Are you certain you wish to proceed? \n\nPlease type 'yes' to confirm:" %}";
 let travellerCherryPickCommentMsg = "{% trans "Please provide your approval comments here:" %}";
 
 </script>
@@ -548,6 +549,22 @@ var app = new Vue({
           let comments = prompt(travellerCherryPickCommentMsg, _default = "approved / approuvé");
           if (comments.trim()) {
             apiService(`/api/travel/travellers/${traveller.id}/?cherry_pick_approval=true`, "POST", {comments: comments})
+                .then(response => {
+                  this.getRequest();
+                })
+          }
+        }
+      }
+    },
+    cherryPickDenyTraveller(traveller) {
+      if (this.request.travellers.length <= 1) alert("{% trans "You can only use this feature when there is more than one traveller on a request." %}")
+      else {
+        var userInput = false;
+        userInput = prompt(travellerCherryPickDenyMsg);
+        if (userInput === true || userInput.toLowerCase() === "yes" || userInput.toLowerCase() === "oui") {
+          let comments = prompt(travellerCherryPickCommentMsg, _default = "denied / refusé");
+          if (comments.trim()) {
+            apiService(`/api/travel/travellers/${traveller.id}/?cherry_pick_deny=true`, "POST", {comments: comments})
                 .then(response => {
                   this.getRequest();
                 })

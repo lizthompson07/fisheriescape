@@ -1,0 +1,74 @@
+{% extends "inventory/resource_detail/section_template.html" %}
+
+{% load static %}
+{% load i18n %}
+{% load custom_filters %}
+{% load custom_tags %}
+
+{% block wd %} w-90 {% endblock %}
+{% block mdi_class %}mdi-account-multiple{% endblock %}
+
+{% block section_title %}
+  {% trans "People" %}
+{% endblock %}
+
+{% block optional_btn_url %}
+  {% url 'inventory:resource_person_add' object.id %}
+{% endblock %}
+
+{% block section_table_header_rows %}
+  <th class="w-50">{% trans "Person" %}</th>
+  <th class="w-20">{% trans "Role(s)" %}</th>
+  <th>{% trans "Notes" %}</th>
+{% endblock %}
+{% block btn_href_arg %}href{% endblock %}
+{% block section_table %}
+  {% if not object.resource_people2.exists %}
+    <em>{% trans "There are no people associated with this record." %}</em>
+  {% else %}
+    {{ block.super }}
+  {% endif %}
+{% endblock %}
+
+{% block section_table_body_rows %}
+  {% echo "<span class=text-danger>MISSING</span>" as missing_txt %}
+  {% for rp in object.resource_people2.all %}
+    <tr>
+      <td>
+        <b>{{ rp.user }}
+          {% if rp.is_custodian %}<span class="ml-1 mdi mdi-account-star h6" data-toggle="tooltip" title="This person is a custodian"></span>{% endif %}
+        </b><br>
+        {{ rp.organization }}<br>
+        {{ rp.user.profile.position_eng|nz:missing_txt }} | {{ rp.user.profile.position_fre|nz:missing_txt }} <br>
+        <u>E-mail:</u> {{ rp.user.email|nz:missing_txt }} / <u>Phone:</u> {{ rp.user.profile.phone|nz:missing_txt }}
+      </td>
+      <td>
+        {% for role in rp.roles.all %}
+          {{ role }}
+          <span class="text-primary helper" data-toggle="popover" title="{{ role }}" data-content="{{ role.notes }}" data-trigger="hover">
+          <span class="mdi mdi-help-box text-primary"></span>
+          </span><br>
+        {% endfor %}
+      </td>
+      <td>{{ rp.notes|nz }}</td>
+
+      {% if can_modify.can_modify %}
+        <td class="w-10">
+          <a href="{% url "inventory:resource_person_edit" rp.id %}" data-toggle="tooltip" title="edit" class="btn btn-sm btn-warning">
+            <span class="mdi mdi-pencil text-dark"></span>
+          </a>
+
+          {% if custodian_count <= 1 and not user.is_superuser %}
+            <span data-toggle="tooltip" title="Cannot delete a sole custodian. Add a new custodian before removing." class="btn btn-sm btn-danger">
+                  <span class="mdi mdi-trash-can text-light"></span>
+                </span>
+          {% else %}
+            <a href="{% url 'inventory:resource_person_delete' rp.id %}" class="btn btn-sm btn-danger">
+              <span class="mdi mdi-trash-can text-light"></span>
+            </a>
+          {% endif %}
+        </td>
+      {% endif %}
+    </tr>
+  {% endfor %}
+{% endblock %}

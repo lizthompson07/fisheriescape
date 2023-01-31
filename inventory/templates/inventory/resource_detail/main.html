@@ -1,0 +1,243 @@
+{% extends "inventory/base.html" %}
+{% load static %}
+{% load verbose_names %}
+{% load custom_filters %}
+{% load custom_tags %}
+{% load i18n %}
+{% load l10n %}
+
+
+{% block header %}
+  {{ block.super }}
+
+
+  <style>
+  #map {
+      height: 200px; /* The height is 400 pixels */
+      width: 100%; /* The width is the width of the web page */
+  }
+  </style>
+
+{% endblock %}
+
+{% block title_area %}
+
+  <div class="mb-3">
+    <div class="float-right">
+      {% if user in object.favourited_by.all %}
+        <a href="{% url 'inventory:remove_favourites' object.id %}">
+          <span class="mdi mdi-star neighbours h1"></span>
+        </a>
+      {% else %}
+        <a href="{% url 'inventory:add_favourites' object.id %}">
+          <span class="mdi mdi-star-outline neighbours h1"></span>
+        </a>
+      {% endif %}
+    </div>
+    <div class="">
+      <h1>{{ object.t_title }}</h1>
+      <p class="text-muted">UUID: {{ object.uuid }}</p>
+    </div>
+  </div>
+
+{% endblock %}
+
+{% block subcontent %}
+
+  {# TOOLBAR #}
+  {% include "inventory/resource_detail/_toolbar.html" %}
+
+  {# ALERTS #}
+  {% include "inventory/resource_detail/_alerts.html" %}
+
+  {# THUMBNAIL AND MAP #}
+  {% include "inventory/resource_detail/_thumb_and_map.html" %}
+
+  {# DETAIL PAGE #}
+  {% include "inventory/resource_detail/_basic.html" %}
+
+  {#  PEOPLE #}
+  {% include "inventory/resource_detail/_people.html" %}
+
+  {#  KEYWORDS #}
+  {% include "inventory/resource_detail/_keywords.html" %}
+
+  {#  CITATIONS #}
+  {% include "inventory/resource_detail/_citations.html" %}
+
+  {#  FILES #}
+  {% include "inventory/resource_detail/_files.html" %}
+
+  {#  DATA RESOURCES #}
+  {% include "inventory/resource_detail/_data_resources.html" %}
+
+  {#  WEB RESOURCES #}
+  {% include "inventory/resource_detail/_web_services.html" %}
+
+  {#  CERTIFICATIONS #}
+  {% include "inventory/resource_detail/_certification_history.html" %}
+
+  {#  REVIEWS #}
+  {% include "inventory/resource_detail/_review.html" %}
+
+
+
+
+  {#<!-- HNAP MODAL -->#}
+  <div class="modal fade" id="hnap" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+       aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+      <div class="modal-content">
+
+        <div class="modal-body">
+          {% if verified %}
+            <h1>Are you going to publish this record to FGP?</h1>
+            <br>
+            <h3>If you click 'yes', the current date will be recorded in the corresponding field.</h3>
+            <br>
+          {% else %}
+            <h1>Just a heads up: this record is not considered complete.</h1>
+            <br>
+            <h3>Here is what still needs to be addressed:</h3>
+            {{ object.completedness_report|safe }}
+          {% endif %}
+        </div>
+        <div class="modal-footer">
+          {% if verified %}
+            <a class="btn btn-lg btn-warning" onclick="$('#hnap').modal('hide')"
+               href="{% url 'inventory:export_xml' object.id 'yes' %}">Yes</a>
+            <a class="btn btn-lg btn-primary " onclick="$('#hnap').modal('hide')"
+               href="{% url 'inventory:export_xml' object.id 'no' %}">No, This is a Dry Run</a>
+            <button type="button" class="btn btn-lg btn-secondary" data-dismiss="modal">Forget the Whole Thing</button>
+          {% else %}
+            <a class="btn btn-lg btn-warning" onclick="$('#hnap').modal('hide')"
+               href="{% url 'inventory:export_xml' object.id 'no' %}">Export Anyways!</a>
+            <button type="button" class="btn btn-lg btn-secondary" data-dismiss="modal">Nevermind</button>
+          {% endif %}
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  {#<!-- COMPLETEDNESS MODAL -->#}
+  <div class="modal fade" id="completedness" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+       aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+      <div class="modal-content">
+
+        <div class="modal-body">
+          {% if verified %}
+            <div class="text-center">
+              <img src="{% static 'img/inventory/good to go.jpg' %}" alt="">
+            </div>
+          {% else %}
+            <h1> This record is <span class="blue-font">{{ object.completedness_rating|percentage:0 }}</span> complete.</h1>
+            {% if object.translation_needed %}
+              <br><h1>It seems as though there is a need for translation.</h1>
+            {% endif %}
+            <br><h1>Here is what still needs to be addressed:</h1>
+            <span class="red-font">
+                                {{ object.completedness_report|safe }}
+                            </span>
+          {% endif %}
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-lg btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+  
+
+  {#<!-- View Full Details MODAL -->#}
+  <div class="modal fade" id="full_all" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLongTitle"> View Full Details </h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+
+            <table class="table table-sm">
+              {% for field in get_resource_field_list %}
+                {% verbose_td_display object field th_width="25%" %}
+              {% endfor %}
+            </table>
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+
+{% endblock %}
+
+
+{% block body_js %}
+
+  {% localize off %}
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+  {% endlocalize %}
+
+
+  <script type="text/javascript">
+  $(".collapse-btn").click(function () {
+    console.log($(this).text())
+    if ($(this).text() == "(Show all)") {
+      $(this).text("(Hide all)")
+    } else {
+      $(this).text("(Show all)")
+    }
+  })
+  </script>
+
+
+  <script>
+  {% if object.bounds %}
+    function initialize() {
+      map = new L.Map("map", {
+        center: new L.LatLng(46, -64),
+        zoom: 8,
+      });
+
+
+      var polygonCoords = [
+        {% for point in object.bounds %}
+          {lat: {{point|last}}, lng: {{point|first}}},
+        {% endfor %}
+      ];
+
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      }).addTo(map)
+
+      L.polygon([polygonCoords], {
+        color: 'red',
+      }).addTo(map);
+
+      map.fitBounds(polygonCoords);
+    }
+
+    $(document).ready(function () {
+      // Stuff to do as soon as the DOM is ready
+      initialize()
+
+    });
+  {% endif %}
+
+  </script>
+{% endblock %}

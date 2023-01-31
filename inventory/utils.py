@@ -1,4 +1,3 @@
-from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext as _
 
@@ -21,18 +20,20 @@ def is_admin(user):
 
 def is_custodian(user, resource):
     if user.id:
-        # if the user has no associated Person in the app, automatic fail
-        try:
-            person, created = models.Person.objects.get_or_create(user=user)
-            if created:
-                print("creating person!!")
-        except ObjectDoesNotExist:
-            return False
-        else:
-            # check to see if they are listed as custodian (role_id=1) on the specified resource id
-            # custodian (1); principal investigator (2); data manager (8); steward (19); author (13); owner (10)
-            return models.ResourcePerson.objects.filter(person=person, resource=resource,
-                                                        role_id__in=[1, 2, 8, 19, 13, 10]).count() > 0
+        # check to see if they are listed as custodian (role_id=1) on the specified resource id
+        # custodian (1); principal investigator (2); data manager (8); steward (19); author (13); owner (10)
+        permissible_codes = [
+            "RI_409",  # Custodian
+            "RI_415",  # Principal investigator
+            "RI_414",  # Point of contact
+            "DM",  # Data manager
+            "RI_413",  # originator
+            "RI_410",  # owner
+            "RI_411",  # Data user
+            "RI_418",  # author
+            "STWD",  # Steward
+        ]
+        return models.ResourcePerson2.objects.filter(user=user, resource=resource, roles__code__in=permissible_codes).exists()
 
 
 def can_modify(user, resource_id, as_dict=False):
@@ -55,7 +56,6 @@ def can_modify(user, resource_id, as_dict=False):
         return payload
     else:
         return can_modify
-
 
 
 def can_modify_dma(user, dma_id, as_dict=False):
@@ -81,6 +81,69 @@ def can_modify_dma(user, dma_id, as_dict=False):
         return can_modify
 
 
+def get_resource_field_list():
+    my_list = [
+        "section",
+        "title_eng",
+        "title_fre",
+        "purpose_eng",
+        "purpose_fre",
+        "descr_eng",
+        "descr_fre",
+        "notes",
+        "resource_type",
+        "status",
+        "maintenance",
+        "maintenance_text",
+        "time_period|time period",
+        "geo_descr_eng",
+        "geo_descr_fre",
+        "security_classification",
+        "security_use_limitation_eng",
+        "security_use_limitation_fre",
+        "parent",
+        "distribution_formats",
+        "data_char_set",
+        "spat_representation",
+        "spat_ref_system",
+        "resource_constraint_eng",
+        "resource_constraint_fre",
+        "sampling_method_eng",
+        "sampling_method_fre",
+        "physical_sample_descr_eng",
+        "physical_sample_descr_fre",
+        "qc_process_descr_eng",
+        "qc_process_descr_fre",
+        "parameters_collected_eng",
+        "parameters_collected_fre",
+        "analytic_software",
+        "additional_credit",
+        "storage_solutions",
+        "storage_solution_text",
+        "storage_needed",
+        "raw_data_retention",
+        "data_retention",
+        "backup_plan",
+        "cloud_costs",
+        "had_sharing_agreements",
+        "sharing_agreements_text",
+        "publication_timeframe",
+        "publishing_platforms",
+        "sharing_comments",
+        # "fgp_url",
+        # "public_url",
+        # "thumbnail_url",
+        # "fgp_publication_date",
+        # "od_publication_date",
+        # "od_release_date",
+        # "last_revision_date",
+        "open_data_notes",
+        # "uuid",
+        # "review_status",
+        # "date_last_modified",
+        # "last_modified_by",
+    ]
+    return my_list
 
 
 def get_dma_field_list():

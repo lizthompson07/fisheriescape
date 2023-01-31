@@ -6,6 +6,7 @@ from django.utils.translation import gettext as _, gettext_lazy
 
 from shared_models import models as shared_models
 from . import models
+from .data_fixtures import resource_types, statuses
 
 chosen_js = {"class": "chosen-select-contains"}
 attr_fp_date_time = {"class": "fp-date-time", "placeholder": "Select Date and Time.."}
@@ -19,21 +20,10 @@ class ResourceForm(forms.ModelForm):
         model = models.Resource
         exclude = [
             'file_identifier',
-            'uuid',
-            'date_verified',
             'citations2',
             'keywords',
-            'people',
-            'flagged_4_publication',
-            'flagged_4_deletion',
-            'completedness_rating',
-            'completedness_report',
-            'translation_needed',
-            'paa_items'
         ]
         widgets = {
-            'last_modified_by': forms.HiddenInput(),
-            'date_last_modified': forms.HiddenInput(),
             'title_eng': forms.Textarea(attrs={"rows": 5}),
             'title_fre': forms.Textarea(attrs={"rows": 5}),
             "purpose_eng": forms.Textarea(attrs={"rows": 5}),
@@ -50,16 +40,32 @@ class ResourceForm(forms.ModelForm):
             "qc_process_descr_fre": forms.Textarea(attrs={"rows": 5}),
             "storage_envr_notes": forms.Textarea(attrs={"rows": 5}),
             "parameters_collected_eng": forms.Textarea(attrs={"rows": 5}),
-            "distribution_formats": forms.SelectMultiple(attrs=chosen_js),
             "parameters_collected_fre": forms.Textarea(attrs={"rows": 5}),
             "additional_credit": forms.Textarea(attrs={"rows": 5}),
             "analytic_software": forms.Textarea(attrs={"rows": 5}),
             "notes": forms.Textarea(attrs={"rows": 5}),
+            "maintenance_text": forms.Textarea(attrs={"rows": 2}),
+            "storage_solution_text": forms.Textarea(attrs={"rows": 2}),
+            "storage_needed": forms.Textarea(attrs={"rows": 2}),
+            "raw_data_retention": forms.Textarea(attrs={"rows": 2}),
+            "data_retention": forms.Textarea(attrs={"rows": 2}),
+            "backup_plan": forms.Textarea(attrs={"rows": 3}),
+            "cloud_costs": forms.Textarea(attrs={"rows": 2}),
+            "sharing_agreements_text": forms.Textarea(attrs={"rows": 2}),
+            "publication_timeframe": forms.Textarea(attrs={"rows": 2}),
+            "publishing_platforms": forms.Textarea(attrs={"rows": 2}),
+            "sharing_comments": forms.Textarea(attrs={"rows": 2}),
+
             "fgp_publication_date": forms.DateInput(attrs=attr_fp_date),
             "od_publication_date": forms.DateInput(attrs=attr_fp_date),
             "od_release_date": forms.DateInput(attrs=attr_fp_date),
             "last_revision_date": forms.DateInput(attrs=attr_fp_date),
+
+            "distribution_formats": forms.SelectMultiple(attrs=chosen_js),
+            "storage_solutions": forms.SelectMultiple(attrs=chosen_js),
             "parent": forms.Select(attrs=chosen_js),
+            'section': forms.Select(attrs=chosen_js),
+
         }
         labels = {
             "section": "DFO Section",
@@ -75,20 +81,14 @@ class ResourceForm(forms.ModelForm):
         self.fields["time_end_month"].label += _(" (optional)")
         self.fields["time_end_day"].label += _(" (optional)")
 
-        SECTION_CHOICES = [(s.id, s.full_name) for s in
-                           shared_models.Section.objects.all().order_by("division__branch__region", "division__branch", "division",
-                                                                        "name")]
-        SECTION_CHOICES.insert(0, tuple((None, "---")))
+        section_choices = [(s.id, s.full_name) for s in
+                           shared_models.Section.objects.all().order_by("division__branch__region", "division__branch", "division", "name")]
+        section_choices.insert(0, tuple((None, "---")))
+        self.fields['section'].choices = section_choices
 
-        self.fields['section'].choices = SECTION_CHOICES
-        self.fields['section'].widget.attrs = chosen_js
-
-        resource_type_choices = [(obj.id, "{}  ({})".format(obj.label, obj.notes) if obj.notes else "{}".format(obj.label)) for obj in
-                                 models.ResourceType.objects.all()]
+        resource_type_choices = [(obj.id, f"{obj.label}  ({obj.notes})" if obj.notes else obj.label) for obj in resource_types.get_instances()]
         resource_type_choices.insert(0, tuple((None, "---")))
-
-        status_choices = [(obj.id, "{}  ({})".format(obj.label, obj.notes) if obj.notes else "{}".format(obj.label)) for obj in
-                          models.Status.objects.all()]
+        status_choices = [(obj.id, f"{obj.label}  ({obj.notes})" if obj.notes else obj.label) for obj in statuses.get_instances()]
         status_choices.insert(0, tuple((None, "---")))
         self.fields['resource_type'].choices = resource_type_choices
         self.fields['status'].choices = status_choices
@@ -98,9 +98,7 @@ class ResourceForm(forms.ModelForm):
 
         if kwargs.get("initial") and kwargs.get("initial").get("cloning"):
             # m2m
-            del self.fields["distribution_formats"]
             # non-cloning fields
-            del self.fields["odi_id"]
             del self.fields["public_url"]
             del self.fields["fgp_publication_date"]
             del self.fields["od_publication_date"]
@@ -165,24 +163,26 @@ class ResourceKeywordForm(forms.ModelForm):
 
 class ResourcePersonForm(forms.ModelForm):
     class Meta:
-        model = models.ResourcePerson
+        model = models.ResourcePerson2
         fields = "__all__"
         labels = {
-            'notes': "Notes (optional)",
+            'notes': "Additional description of role (optional)",
+            'roles': "Please select all roles for this person",
         }
         widgets = {
-            'resource': forms.HiddenInput(),
-            'person': forms.HiddenInput(),
             'notes': forms.Textarea(attrs={'rows': "5"}),
-            # 'last_modified_by':forms.HiddenInput(),
+            'roles': forms.SelectMultiple(attrs=chosen_js),
+            'user': forms.Select(attrs=chosen_js),
+            'organization': forms.Select(attrs=chosen_js),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         role_choices = [(r.id, "{} - {}".format(r.role, r.notes)) for r in models.PersonRole.objects.all()]
         role_choices.insert(0, (None, "-----"))
-        self.fields['role'].choices = role_choices
-        self.fields['role'].choices = role_choices
+        self.fields['roles'].choices = role_choices
+        if kwargs.get("instance"):
+            del self.fields["user"]
 
 
 class PersonForm(forms.Form):
@@ -264,11 +264,9 @@ class WebServiceForm(forms.ModelForm):
 class ResourceFlagging(forms.ModelForm):
     class Meta:
         model = models.Resource
-        fields = ["flagged_4_deletion", "flagged_4_publication"]
-
+        fields = ["notes"]
         widgets = {
-            'flagged_4_deletion': forms.HiddenInput(),
-            'flagged_4_publication': forms.HiddenInput(),
+            'notes': forms.HiddenInput(),
         }
 
 
@@ -369,3 +367,61 @@ class DMAReviewForm(forms.ModelForm):
     class Meta:
         model = models.DMAReview
         exclude = ["dma"]
+
+
+class ReviewForm(forms.ModelForm):
+    class Meta:
+        model = models.Review
+        exclude = ["resource"]
+
+
+class PersonRoleForm(forms.ModelForm):
+    class Meta:
+        model = models.PersonRole
+        fields = "__all__"
+
+
+PersonRoleFormset = modelformset_factory(
+    model=models.PersonRole,
+    form=PersonRoleForm,
+    extra=1,
+)
+
+
+class OrganizationForm(forms.ModelForm):
+    class Meta:
+        model = models.Organization
+        fields = "__all__"
+
+
+OrganizationFormset = modelformset_factory(
+    model=models.Organization,
+    form=OrganizationForm,
+    extra=1,
+)
+
+
+class StorageSolutionForm(forms.ModelForm):
+    class Meta:
+        model = models.StorageSolution
+        fields = "__all__"
+
+
+StorageSolutionFormset = modelformset_factory(
+    model=models.StorageSolution,
+    form=StorageSolutionForm,
+    extra=1,
+)
+
+
+class DistributionFormatForm(forms.ModelForm):
+    class Meta:
+        model = models.DistributionFormat
+        fields = "__all__"
+
+
+DistributionFormatFormset = modelformset_factory(
+    model=models.DistributionFormat,
+    form=DistributionFormatForm,
+    extra=1,
+)

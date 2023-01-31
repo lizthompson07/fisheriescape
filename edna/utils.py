@@ -2,9 +2,17 @@ import math
 
 import pytz
 from django.conf import settings
+import datetime as dt
+
+from django.contrib import messages
+from django.db.transaction import atomic
 # open basic access up to anybody who is logged in
 from django.utils import timezone
+from django.utils.timezone import make_aware
 from django.utils.translation import gettext as _
+
+from edna import models
+from lib.templatetags.custom_filters import nz
 
 
 def is_admin(user):
@@ -65,6 +73,18 @@ def get_batch_field_list():
         "datetime",
         "operators",
         "default_collection",
+        "comments",
+    ]
+    return my_list
+
+
+def get_sample_batch_field_list():
+    my_list = [
+        "default_collection",
+        "datetime",
+        "operators",
+        "sent_by",
+        "storage_location"
     ]
     return my_list
 
@@ -113,3 +133,36 @@ def get_next_bottle_id():
 def get_timezone_time(dt):
     if dt:
         return timezone.localtime(dt)
+
+
+@atomic
+def sample_csv_parser(csv_reader, batch, request):
+    for row in csv_reader:
+        try:
+            bottle_id = row["bottle_id"]
+            sample_type = row["sample_type"]
+            location = row["location"]
+            site = row["site"]
+            station = row["station"]
+            samplers = row["samplers"]
+            datetime = make_aware(dt.datetime.strptime(row["datetime"], "%m/%d/%Y %H:%M"),
+                                  timezone=timezone.get_current_timezone())
+            latitude = nz(row["latitude"], None)
+            longitude = nz(row["longitude"], None)
+            comments = row["comments"]
+
+            sample, create = models.Sample.objects.get_or_create(bottle_id=bottle_id, sample_batch=batch,
+                                                                 collection=batch.default_collection,
+                                                                 sample_type_id=sample_type)
+            sample.location = location
+            sample.site = site
+            sample.station = station
+            sample.samplers = samplers
+            sample.datetime = datetime
+            sample.latitude = latitude
+            sample.longitude = longitude
+            sample.comments = comments
+            sample.save()
+        except Exception as err:
+            messages.error(request, _('Invalid CSV. Error on row {}. Error: {}'.format(row, err)))
+            raise

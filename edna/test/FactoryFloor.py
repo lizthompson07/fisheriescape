@@ -101,11 +101,27 @@ class SampleTypeFactory(factory.django.DjangoModelFactory):
         }
 
 
+class SampleBatchFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.SampleBatch
+
+    default_collection = factory.SubFactory(CollectionFactory)
+    datetime = factory.lazy_attribute(lambda o: faker.date_time_this_year(tzinfo=timezone.get_current_timezone()))
+
+    @staticmethod
+    def get_valid_data():
+        return {
+            'default_collection': CollectionFactory().id,
+            'datetime': faker.date_time_this_year(tzinfo=timezone.get_current_timezone()),
+        }
+
+
 class SampleFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.Sample
 
     collection = factory.SubFactory(CollectionFactory)
+    sample_batch = factory.SubFactory(SampleBatchFactory)
     sample_type = factory.SubFactory(SampleTypeFactory)
     bottle_id = factory.lazy_attribute(lambda o: faker.pyint(1, 100000))
     datetime = factory.lazy_attribute(lambda o: faker.date_time_this_year(tzinfo=timezone.get_current_timezone()))
@@ -116,6 +132,7 @@ class SampleFactory(factory.django.DjangoModelFactory):
     def get_valid_data():
         return {
             'collection': CollectionFactory().id,
+            'sample_batch': SampleBatchFactory().id,
             'sample_type': SampleTypeFactory().id,
             'bottle_id': faker.pyint(1, 100000),
             'datetime': faker.date_time_this_year(tzinfo=timezone.get_current_timezone()),

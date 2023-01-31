@@ -73,9 +73,11 @@ class SpecimenFilter(django_filters.FilterSet):
             'tag_number': ['icontains'],
             'scale_id_number': ['icontains'],
             'sample__site__river': ['exact'],
+            'sample__site__river__fishing_area': ['exact'],
             'sample__site': ['exact'],
             'sample__sample_type': ['exact'],
             'sample_id': ['exact'],
+            'old_id': ['icontains'],
         }
 
     def __init__(self, *args, **kwargs):
@@ -86,6 +88,7 @@ class SpecimenFilter(django_filters.FilterSet):
         self.filters["sample__sample_type"].label = gettext("Sample type")
         self.filters["sample__site__river"].label = gettext("River")
         self.filters["sample__site"].label = gettext("Site")
+        self.filters["sample__site__river__fishing_area"].label = gettext("Fishing area")
 
 
 class BiologicalDetailingFilter(django_filters.FilterSet):

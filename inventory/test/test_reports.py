@@ -26,28 +26,13 @@ class TestReportSearchFormView(CommonTest):
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=my_user)
 
 
-class TestODIReport(CommonTest):
-    def setUp(self):
-        super().setUp()
-        self.test_urls = [
-            reverse_lazy('inventory:export_odi_report'),
-        ]
-        self.view = views.export_odi_report
-
-    @tag("inventory", 'report')
-    def test_view(self):
-        self.assert_non_public_view(test_url=self.test_urls[0])
-        for url in self.test_urls:
-            self.assert_good_response(url)
-
-
 class TestPhysicalSamplesReport(CommonTest):
     def setUp(self):
         super().setUp()
         self.test_urls = [
             reverse_lazy('inventory:export_phyiscal_samples'),
         ]
-        self.view = views.export_odi_report
+        self.view = views.export_phyiscal_samples
 
     @tag("inventory", 'report')
     def test_view(self):
