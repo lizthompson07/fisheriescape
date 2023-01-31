@@ -573,7 +573,7 @@ class KeywordGroup:
             CI_OnlineResource = SubElement(onlineResource, 'gmd:CI_OnlineResource')
             linkage = SubElement(CI_OnlineResource, 'gmd:linkage')
             url = SubElement(linkage, 'gmd:URL')
-            url.text = "http://gcmd.nasa.gov/index.html"
+            url.text = "https://www.dfo-mpo.gc.ca/oceans/maps-cartes/bioregions-eng.html"
             charstring(CI_OnlineResource, 'gmd:protocol', 'WWW:LINK-1.0-http--link')
             codelist(CI_ResponsibleParty, "gmd:role", "gmd:CI_RoleCode",
                      "http://nap.geogratis.gc.ca/metadata/register/napMetadataRegister.xml#IC_90", 'RI_413',
@@ -583,26 +583,19 @@ class KeywordGroup:
 
 
 def construct(my_resource, pretty=True):
-    # ElementTree.register_namespace("gmd","http://www.isotc211.org/2005/gmd")
-    # ElementTree.register_namespace("xsi","http://www.w3.org/2001/XMLSchema-instance")
-
     root = Element("gmd:MD_Metadata", attrib={
         "xmlns:gmd": "http://www.isotc211.org/2005/gmd",
-        'xmlns:srv': "http://www.isotc211.org/2005/srv",
-        'xmlns:gss': "http://www.isotc211.org/2005/gss",
-        'xmlns:gco': "http://www.isotc211.org/2005/gco",
-        'xmlns:xlink': "http://www.w3.org/1999/xlink",
-        'xmlns:gts': "http://www.isotc211.org/2005/gts",
-        'xmlns:gfc': "http://www.isotc211.org/2005/gfc",
-        'xmlns:gmi': "http://www.isotc211.org/2005/gmi",
-        'xmlns:gml': "http://www.opengis.net/gml/3.2",
-        'xmlns:gmx': "http://www.isotc211.org/2005/gmx",
-        'xmlns:gsr': "http://www.isotc211.org/2005/gsr",
-        'xmlns': "http://www.isotc211.org/2005/gmd",
-        'xmlns:geonet': "http://www.fao.org/geonetwork",
-        'xmlns:xsi': "http://www.w3.org/2001/XMLSchema-instance",
-        'xsi:schemaLocation': "http://www.isotc211.org/2005/gmd http://nap.geogratis.gc.ca/metadata/tools/schemas/metadata/can-cgsb-171.100-2009-a/gmd/gmd.xsd http://www.isotc211.org/2005/srv http://nap.geogratis.gc.ca/metadata/tools/schemas/metadata/can-cgsb-171.100-2009-a/srv/srv.xsd http://www.geconnections.org/nap/napMetadataTools/napXsd/napm http://nap.geogratis.gc.ca/metadata/tools/schemas/metadata/can-cgsb-171.100-2009-a/napm/napm.xsd",
-
+        "xmlns:gmi": "http://www.isotc211.org/2005/gmi",
+        "xmlns:srv": "http://www.isotc211.org/2005/srv",
+        "xmlns:gsr": "http://www.isotc211.org/2005/gsr",
+        "xmlns:gco": "http://www.isotc211.org/2005/gco",
+        "xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
+        "xmlns:gfc": "http://www.isotc211.org/2005/gfc",
+        "xmlns:gss": "http://www.isotc211.org/2005/gss",
+        "xmlns:xlink": "http://www.w3.org/1999/xlink",
+        "xmlns:gts": "http://www.isotc211.org/2005/gts",
+        "xmlns:gml": "http://www.opengis.net/gml/3.2",
+        "xmlns:gmx": "http://www.isotc211.org/2005/gmx",
     })
 
     # uuid
@@ -717,8 +710,8 @@ def construct(my_resource, pretty=True):
 
     # Custodians and other roles (not point of contact)
     # for each point of contact
-    for person in my_resource.resource_people2.filter(~Q(roles__code__iexact="RI_414")).filter(roles__code__isnull=False).distinct():
-        for role in person.roles.all():
+    for person in my_resource.resource_people2.all():
+        for role in person.roles.filter(~Q(code__iexact="RI_414")).filter(code__isnull=False):
             citedResponsibleParty = SubElement(CI_Citation, 'gmd:citedResponsibleParty')
             citedResponsibleParty.append(ci_responsible_party(person, role))
 

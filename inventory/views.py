@@ -887,7 +887,7 @@ def export_resource_xml(request, resource, publish):
         my_resource.save()
 
     # Create the HttpResponse object
-    filename = "xml_metadata_export_{}.xml".format(my_resource.id)
+    filename = "{}.xml".format(my_resource.uuid)
     response = HttpResponse(content_type='text/xml')
     response['Content-Disposition'] = 'attachment; filename="{}"'.format(filename)
 
