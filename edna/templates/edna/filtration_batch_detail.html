@@ -457,7 +457,7 @@
       },
       updateFilter(filter) {
         this.filterErrorMsg = null;
-        endpoint = `/api/edna/filters/${filter.id}/?lite=true`;
+        endpoint = `/api/edna/filters/${filter.id}/?lite=True`;
         filter.start_datetime = filter.start_datetime_display
         filter.end_datetime = filter.end_datetime_display
         apiService(endpoint, "PUT", filter)

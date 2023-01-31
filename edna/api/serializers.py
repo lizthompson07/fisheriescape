@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 from django.contrib.humanize.templatetags.humanize import naturaltime
+from django.db.models import Count
 from django.utils.translation import gettext as _
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
@@ -279,6 +280,30 @@ class PCRSerializerLITE(serializers.ModelSerializer):
         model = models.PCR
         fields = "__all__"
 
+    master_mix_display = serializers.SerializerMethodField()
+
+    def get_master_mix_display(self, instance):
+        if instance.master_mix:
+            return str(instance.master_mix)
+
+
+class PCRResultsSerializer(serializers.Serializer):
+    pcr_batch = serializers.IntegerField()
+    extract = serializers.IntegerField()
+    assay = serializers.SerializerMethodField()
+
+    replicate_results = serializers.SerializerMethodField()
+
+    def get_assay(self, instance):
+        return instance["assay_pk"]
+
+    def get_replicate_results(self, instance):
+        pcr_assay_qs = self.context.get("pcr_assay_qs")
+        result_qs = pcr_assay_qs.filter(assay=instance["assay_pk"],
+                                        pcr__pcr_batch=instance["pcr_batch"],
+                                        pcr__extract=instance["extract"]).values("ct", "edna_conc")
+        return result_qs
+
 
 class PCRAssaySerializer(serializers.ModelSerializer):
     pcr_obj = serializers.SerializerMethodField()
@@ -395,6 +420,15 @@ class AssaySerializer(serializers.ModelSerializer):
         fields = "__all__"
 
     species_display = serializers.SerializerMethodField()
+    max_replicates = serializers.SerializerMethodField()
 
     def get_species_display(self, instance):
         return instance.species_display
+
+    def get_max_replicates(self, instance):
+        collection_id = self.context.get("collection_id")
+        if collection_id:
+            pcr_assay_qs = models.PCRAssay.objects.filter(pcr__collection=collection_id, assay=instance)
+            pcr_max_rep_count = pcr_assay_qs.values("pcr__extract").annotate(count=Count('pcr__extract')).order_by("-count").first()['count']
+            return pcr_max_rep_count
+        return 0
