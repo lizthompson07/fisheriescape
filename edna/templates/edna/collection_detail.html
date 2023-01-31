@@ -250,14 +250,19 @@
 
             <template v-if="viewPCRs" v-for="(pcrResult, pcrIndex) in extract.pcr_results">
               <tr v-if="pcrResult" class="pcrs">
-                <td  :rowspan="filteredAssaysTested.length - (pcrIndex % filteredAssaysTested.length)" style="height: 100px;">${pcrResult.pcr_batch}</td>
+                <td  :rowspan="filteredAssaysTested.length - (pcrIndex % filteredAssaysTested.length)" style="height: 100px;">
+                    <a v-if="extract.id" :href=`/edna/pcr-batches/${pcrResult.pcr_batch}/view/` target="_blank">PCR Batch ${pcrResult.pcr_batch}</a>
+                </td>
                 <td  :rowspan="filteredAssaysTested.length - (pcrIndex % filteredAssaysTested.length)" style="height: 100px;">${pcrResult.threshold}</td>
                 <template v-for="(replicateResult, repIndex) in pcrResult.replicate_results">
                     <td  :rowspan="filteredAssaysTested.length - (pcrIndex % filteredAssaysTested.length)" style="height: 100px;">${replicateResult.ct} / ${replicateResult.edna_conc}</td>
                 </template>
+                <template v-for="blank in (filteredAssaysTested.find(assay => assay.id === pcrResult.assay).max_replicates - pcrResult.replicate_results.length)">
+                    <td  :rowspan="filteredAssaysTested.length - (pcrIndex % filteredAssaysTested.length)" style="height: 100px;">---</td>
+                </template>
                 <td  :rowspan="filteredAssaysTested.length - (pcrIndex % filteredAssaysTested.length)" style="height: 100px;">${pcrResult.mean_conc}</td>
                 <td  :rowspan="filteredAssaysTested.length - (pcrIndex % filteredAssaysTested.length)" style="height: 100px;">${pcrResult.result}</td>
-                <td  :rowspan="filteredAssaysTested.length - (pcrIndex % filteredAssaysTested.length)" style="height: 100px;">${filteredAssaysTested.length - (pcrIndex % filteredAssaysTested.length)}</td>
+                <td  :rowspan="filteredAssaysTested.length - (pcrIndex % filteredAssaysTested.length)" style="height: 100px;">${pcrResult.assay}</td>
               </tr>
               <tr v-else>
                 <td v-for="i in 6" class="greyed" :rowspan="filteredAssaysTested.length - (pcrIndex % filteredAssaysTested.length)" style="height: 100px;"></td>
@@ -437,21 +442,26 @@
                   response = join_api_arrays(response, pcrResultsResponse, "id", "extract", true, "pcr_results")
                   for (const extract of response) {
                       //order the results:
-                      let old_array = extract.pcr_results;
+
+                      let old_array = extract.pcr_results.slice();
                       let new_order = [];
                       for (let i=0; i < (extract.pcr_results.length * this.assaysTested.length); i++){
                         if (old_array.length || (i % this.assaysTested.length !== 0)) {
-                          assay_id =  this.assaysTested[i % this.assaysTested.length].id
-                          result_match = old_array.find(obj => obj.assay === assay_id)
-                          old_array.splice(old_array.findIndex(({assay}) => assay == assay_id), 1);
+                          let assay_id =  this.assaysTested[i % this.assaysTested.length].id
+                          console.log(old_array.findIndex(obj => obj.assay === assay_id))
+
+                          // push undefined if there is no result
+                          let result_match = old_array.find(obj => obj.assay === assay_id)
                           new_order.push(result_match);
+                          if (result_match){
+                            old_array.splice(old_array.findIndex(obj => obj.assay === assay_id), 1);
+                          }
                         } else {
-                          extract.pcr_results = new_order;
                           break;
                         }
-                        extract.pcr_results = new_order;
-
                       }
+                      extract.pcr_results = new_order;
+
 
                       // now we have to nest this extract under each filter under the "extracts" key
                       if (!extract.sample && !extract.filter) { // means it is an extraction blank

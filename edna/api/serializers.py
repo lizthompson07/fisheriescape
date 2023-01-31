@@ -429,6 +429,6 @@ class AssaySerializer(serializers.ModelSerializer):
         collection_id = self.context.get("collection_id")
         if collection_id:
             pcr_assay_qs = models.PCRAssay.objects.filter(pcr__collection=collection_id, assay=instance)
-            pcr_max_rep_count = pcr_assay_qs.values("pcr__extract").annotate(count=Count('pcr__extract')).order_by("-count").first()['count']
+            pcr_max_rep_count = pcr_assay_qs.values("pcr__extract", "pcr__pcr_batch").annotate(count=Count('id')).order_by("-count").first()['count']
             return pcr_max_rep_count
         return 0

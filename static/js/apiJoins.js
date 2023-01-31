@@ -19,5 +19,6 @@ function join_api_arrays(baseArray, fkArray, baseField, fkField, many=false, new
       }
     }
   }
+
   return baseArray
 }
