@@ -78,7 +78,7 @@ class Organization(models.Model):
 
 class PersonRole(models.Model):
     role = models.CharField(max_length=25)
-    code = models.CharField(max_length=25, blank=True, null=True)
+    code = models.CharField(max_length=25, blank=True, null=True, help_text="Leave blank if there is no official NAP code")
     notes = models.CharField(max_length=255, blank=True, null=True)
 
     def __str__(self):
