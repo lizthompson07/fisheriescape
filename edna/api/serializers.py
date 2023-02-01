@@ -132,6 +132,11 @@ class FilterSerializerLITE(serializers.ModelSerializer):
     filtration_type_display = serializers.SerializerMethodField()
     start_datetime_display = serializers.SerializerMethodField()
     end_datetime_display = serializers.SerializerMethodField()
+    sample__bottle_id = serializers.SerializerMethodField()
+    sample__time_display = serializers.SerializerMethodField()
+    sample_display = serializers.SerializerMethodField()
+    info_display = serializers.SerializerMethodField()
+
 
     def get_filtration_type_display(self, instance):
         if instance.filtration_type:
@@ -146,6 +151,27 @@ class FilterSerializerLITE(serializers.ModelSerializer):
         if instance.end_datetime:
             dt = get_timezone_time(instance.end_datetime)
             return dt.strftime("%Y-%m-%d %H:%M")
+
+    def get_sample__bottle_id(self, instance):
+        if instance.sample:
+            return instance.sample.bottle_id
+
+    def get_sample__time_display(self, instance):
+        if instance.sample:
+            dt = get_timezone_time(instance.sample.datetime)
+            return dt.strftime("%Y-%m-%d %H:%M")
+
+    def get_sample_display(self, instance):
+        if instance.sample:
+            return str(instance.sample)
+
+    def get_info_display(self, instance):
+        payload = list()
+        if instance.is_filtration_blank:
+            payload.append("filtration blank")
+        if instance.sample and instance.sample.is_field_blank:
+            payload.append("field blank")
+        return listrify(payload)
 
 
 class DNAExtractSerializer(serializers.ModelSerializer):
@@ -214,6 +240,11 @@ class DNAExtractSerializerLITE(serializers.ModelSerializer):
     dna_extraction_protocol_display = serializers.SerializerMethodField()
     collection_display = serializers.SerializerMethodField()
 
+    sample_display = serializers.SerializerMethodField()
+    filter_display = serializers.SerializerMethodField()
+    has_pcrs = serializers.SerializerMethodField()
+    info_display = serializers.SerializerMethodField()
+
     def get_dna_extraction_protocol_display(self, instance):
         if instance.dna_extraction_protocol:
             return str(instance.dna_extraction_protocol)
@@ -226,6 +257,27 @@ class DNAExtractSerializerLITE(serializers.ModelSerializer):
     def get_collection_display(self, instance):
         if instance.collection:
             return instance.collection.__str__()
+
+    def get_sample_display(self, instance):
+        if instance.sample:
+            return instance.sample.__str__()
+
+    def get_filter_display(self, instance):
+        if instance.filter:
+            return instance.filter.__str__()
+
+    def get_has_pcrs(self, instance):
+        return instance.pcrs.exists()
+
+    def get_info_display(self, instance):
+        payload = list()
+        if instance.is_extraction_blank:
+            payload.append("extraction blank")
+        if instance.filter and instance.filter.is_filtration_blank:
+            payload.append("filtration blank")
+        if instance.sample and instance.sample.is_field_blank:
+            payload.append("field blank")
+        return listrify(payload)
 
     class Meta:
         model = models.DNAExtract

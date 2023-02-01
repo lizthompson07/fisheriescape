@@ -182,7 +182,7 @@ class DNAExtractViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.DNAExtractSerializer
     permission_classes = [eDNACRUDOrReadOnly]
     queryset = models.DNAExtract.objects.all().select_related("extraction_batch", "filter", "sample", "collection",
-                                                              "dna_extraction_protocol")
+                                                              "dna_extraction_protocol").prefetch_related("pcrs")
     filter_backends = (DjangoFilterBackend,)
     filterset_class = DNAExtractFilter
 
@@ -232,7 +232,8 @@ class DNAExtractViewSet(viewsets.ModelViewSet):
         qp = request.query_params
         if qp.get("batch"):
             batch = get_object_or_404(models.ExtractionBatch, pk=qp.get("batch"))
-            qs = batch.extracts.all()
+            qs = batch.extracts.all().select_related("extraction_batch", "filter", "sample", "collection",
+                                                              "dna_extraction_protocol").prefetch_related("pcrs")
             serializer = self.get_serializer(qs, many=True)
             return Response(serializer.data)
         return super().list(request, *args, **kwargs)

@@ -68,7 +68,6 @@
               @move-down="updateOrder('down')"
             ></select-tools>
           </th>
-          <th class="px-1 py-1 w75px">{% trans "Extraction" %}</th>
           <th class="px-1 py-1 w75px">{% trans "Sample" %}</th>
           <th class="px-1 py-1 w75px">{% trans "Filter" %}</th>
           <th class="px-1 py-1 w100px">{% trans "Type" %}</th>
@@ -104,13 +103,12 @@
           <td class="p-1" tabindex="-1">
             ${index + 1} &mdash; <input v-model='obj.selected' type="checkbox">
           </td>
-          <td class="px-1 text-muted" tabindex="-1">${obj.display}</td>
           <td class="px-1  py-0 text-muted" tabindex="-1">
-            <span v-if="obj.sample_obj">${obj.sample_obj.display}</span>
+            <span v-if="obj.sample_display">${obj.sample_display}</span>
             <span v-else>-----</span>
           </td>
           <td class="px-1 text-muted">
-            <span v-if="obj.filter_obj">${obj.filter_obj.display}</span>
+            <span v-if="obj.filter_display">${obj.filter_display}</span>
             <span v-else>-----</span>
           </td>
           <td class="px-1  py-0 text-muted" tabindex="-1">
@@ -445,7 +443,7 @@
           getExtracts(selectedItems) {
             this.loading = true;
             if (!selectedItems) selectedItems = [];
-            endpoint = `/api/edna/extracts/?batch=${extractBatchId}`;
+            endpoint = `/api/edna/extracts/?batch=${extractBatchId}&lite=true`;
             apiService(endpoint)
                 .then(response => {
                   this.loading = false;

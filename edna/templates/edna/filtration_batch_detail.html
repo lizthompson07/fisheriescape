@@ -70,7 +70,6 @@
             ></select-tools>
 
           </th>
-          <th rowspan="2" class="p-1 w100px">{% trans "Filter ID" %}</th>
           <th rowspan="2" class="p-1 w150px">{% trans "Sample ID" %}</th>
           <th rowspan="2" class="p-1 w125px">{% trans "Bottle ID" %}</th>
           <th rowspan="2" class="p-1 w150px">{% trans "Collection time" %}</th>
@@ -107,18 +106,15 @@
             ${obj.order} &mdash; <input v-model='obj.selected' type="checkbox">
           </td>
           <td class="px-1  py-0 text-muted" tabindex="-1">
-            ${obj.display}
-          </td>
-          <td class="px-1  py-0 text-muted" tabindex="-1">
-            <span v-if="obj.sample_obj">${obj.sample_obj.display}</span>
+            <span v-if="obj.sample_display">${obj.sample_display}</span>
             <span v-else>------</span>
           </td>
           <td class="px-1  py-0 text-muted" tabindex="-1">
-            <span v-if="obj.sample_obj">${obj.sample_obj.bottle_id}</span>
+            <span v-if="obj.sample__bottle_id">${obj.sample__bottle_id}</span>
             <span v-else>-----</span>
           </td>
           <td class="px-1  py-0 text-muted" tabindex="-1">
-            <span v-if="obj.sample_obj" v-html="obj.sample_obj.collection_time_display"></span>
+            <span v-if="obj.sample__time_display" v-html="obj.sample__time_display"></span>
             <span v-else>-----</span>
           </td>
           <td class="px-1  py-0 text-muted" tabindex="-1">
@@ -405,7 +401,7 @@
       getFilters(selectedItems) {
         if (!selectedItems) selectedItems = [];
         this.loading = true;
-        endpoint = `/api/edna/filters/?batch=${this.filterBatchId}`;
+        endpoint = `/api/edna/filters/?batch=${this.filterBatchId}&lite=true`;
         apiService(endpoint)
             .then(response => {
               this.loading = false;
