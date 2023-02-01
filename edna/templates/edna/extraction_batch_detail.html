@@ -43,7 +43,7 @@
       </div>
     </div>
 
-    <div v-if="loading0" class="loading mb-3 mt-3 mt-5">
+    <div v-if="loading" class="loading mb-3 mt-3 mt-5">
       <div class="spinner-border mb-3" style="width: 5rem; height: 5rem;" role="status">
         <span class="sr-only"></span>
       </div>
@@ -236,7 +236,6 @@
           extracts: [],
           labels: [],
           loading: false,
-          loading0: false,
           filterChoices: [],
           dnaExtractionProtocolChoices: [],
           unsavedChanges: false
@@ -447,7 +446,6 @@
             apiService(endpoint)
                 .then(response => {
                   this.loading = false;
-                  this.loading0 = false;
                   if (response.length && response[0].id) {
                     for (var i = 0; i < response.length; i++) {
                       response[i].selected = !!selectedItems.includes(response[i].id);
