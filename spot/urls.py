@@ -41,14 +41,14 @@ urlpatterns = [
     path('projects/download-project-full-xlsx', reports.export_project_full, name="export_project_full"),
     path('projects/<int:pk>/clone/', views.ProjectCloneView.as_view(), name="project_clone"),
 
-    # Objectives #
+    # Activity and Outcomes #
     ##############
-    path('objs/', views.ObjectiveListView.as_view(), name="obj_list"),
-    path('project/<int:project>/obj/new/', views.ObjectiveCreateView.as_view(), name="obj_new"),
-    path('obj/<int:pk>/view/', views.ObjectiveDetailView.as_view(), name="obj_detail"),
-    path('obj/<int:pk>/edit/', views.ObjectiveUpdateView.as_view(), name="obj_edit"),
-    path('obj/<int:pk>/delete/', views.ObjectiveDeleteView.as_view(), name="obj_delete"),
-    path('objs/download-objective-xlsx', reports.export_objective, name="export_objective"),
+    path('acts/', views.ActivitiesAndOutcomesListView.as_view(), name="act_list"),
+    path('project/<int:project>/act/new/', views.ActivitiesAndOutcomesCreateView.as_view(), name="act_new"),
+    path('act/<int:pk>/view/', views.ActivitiesAndOutcomesDetailView.as_view(), name="act_detail"),
+    path('act/<int:pk>/edit/', views.ActivitiesAndOutcomesUpdateView.as_view(), name="act_edit"),
+    path('act/<int:pk>/delete/', views.ActivitiesAndOutcomesDeleteView.as_view(), name="act_delete"),
+    path('acts/download-activity-outcome-xlsx', reports.export_activity_outcome, name="export_activity_outcome"),
 
     # Methods #
     ###########
@@ -94,13 +94,13 @@ urlpatterns = [
 
     # Sample Outcome #
     ###############################
-    path('obj/<int:obj>/sampleoutcome/new/', views.SampleOutcomeCreateView.as_view(), name="sampleoutcome_new"),
+    path('act/<int:act>/sampleoutcome/new/', views.SampleOutcomeCreateView.as_view(), name="sampleoutcome_new"),
     path('sampleoutcome/<int:pk>/edit/', views.SampleOutcomeUpdateView.as_view(), name="sampleoutcome_edit"),
     path('sampleoutcome/<int:pk>/delete/', views.SampleOutcomeDeleteView.as_view(), name="sampleoutcome_delete"),
 
     # Report Outcome #
     ###############################
-    path('obj/<int:obj>/reportoutcome/new/', views.ReportOutcomeCreateView.as_view(), name="reportoutcome_new"),
+    path('act/<int:act>/reportoutcome/new/', views.ReportOutcomeCreateView.as_view(), name="reportoutcome_new"),
     path('reportoutcome/<int:pk>/edit/', views.ReportOutcomeUpdateView.as_view(), name="reportoutcome_edit"),
     path('reportoutcome/<int:pk>/delete/', views.ReportOutcomeDeleteView.as_view(), name="reportoutcome_delete"),
 
@@ -145,4 +145,8 @@ urlpatterns = [
     path('project/<int:project>/projectcertified/new/', views.ProjectCertifiedCreateView.as_view(), name="projectcertified_new"),
     path('projectcertified/<int:pk>/edit/', views.ProjectCertifiedUpdateView.as_view(), name="projectcertified_edit"),
     path('projectcertified/<int:pk>/delete/', views.ProjectCertifiedDeleteView.as_view(), name="projectcertified_delete"),
+
+    # File Upload #
+    path('project/fileupload', views.FileUploadView.as_view(), name="file_upload"),
+
 ]

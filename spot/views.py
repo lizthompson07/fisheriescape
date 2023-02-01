@@ -1,20 +1,18 @@
 import csv
 from datetime import date
+from django.shortcuts import render
 from django.contrib import messages
 from django.db.models import TextField
 from django.db.models.functions import Concat
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy
-from django.views.generic import UpdateView, DeleteView, CreateView, DetailView, TemplateView
+from django.views.generic import UpdateView, DeleteView, CreateView, DetailView, TemplateView, View
 from django_filters.views import FilterView
 from shared_models.views import CommonFormsetView, CommonHardDeleteView
-from . import filters
-from . import forms
-from . import models
+from . import filters, forms, models, scripts
 from .mixins import SuperuserOrAdminRequiredMixin, SpotAccessRequiredMixin, SpotAdminRequiredMixin
 from dm_apps.settings import MAPBOX_API_KEY
 from . import emails
-from django.http import HttpResponse
 from django.db.models.deletion import ProtectedError
 
 
@@ -30,6 +28,7 @@ class IndexTemplateView(SpotAccessRequiredMixin, TemplateView):
                     river_list.append([river.name, float(river.latitude), float(river.longitude)])
         context["river_markers"] = river_list
         return context
+
 
 # ORGANIZATION #
 ################
@@ -260,7 +259,6 @@ class ProjectDetailView(SpotAccessRequiredMixin, DetailView):
             'area',
             'ecosystem_type',
             'lake_system',
-            'watershed',
             'other_site_info',
             'salmon_life_stage',
             'aquaculture_license_number',
@@ -268,14 +266,16 @@ class ProjectDetailView(SpotAccessRequiredMixin, DetailView):
             'hatchery_name',
             'DFO_tenure',
 
-            'project_stage',
-            'project_type',
-            'project_sub_type',
-            'monitoring_approach',
-            'project_theme',
-            'core_component',
-            'supportive_component',
+            'project_categorization',
+
+            'biological_process_type_1',
+            'activity_type_1',
+            'biological_process_type_3',
+            'activity_type_2',
+            'activity_type_3',
             'project_purpose',
+            'monitoring_approach',
+            'project_stage',
             'category_comments',
 
             # Place holder for header
@@ -284,6 +284,7 @@ class ProjectDetailView(SpotAccessRequiredMixin, DetailView):
             'DFO_link',
             'DFO_program_reference',
             'government_organization',
+            'policy_connection',
 
             # Place holder for header
             'project_contacts',
@@ -310,7 +311,6 @@ class ProjectDetailView(SpotAccessRequiredMixin, DetailView):
             'funding_sources',
             'other_funding_sources',
             'agreement_type',
-            'lead_organization',
 
             # Place holder for header
             'funding_year',
@@ -358,46 +358,46 @@ class ProjectDeleteView(SpotAdminRequiredMixin, DeleteView):
         return super().delete(request, *args, **kwargs)
 
 
-# OBJECTIVE #
+# ActivitiesAndOutcomes #
 ###############
-class ObjectiveListView(SpotAccessRequiredMixin, FilterView):
-    template_name = 'spot/objective_list.html'
-    filterset_class = filters.ObjectiveFilter
-    model = models.Objective
-    queryset = models.Objective.objects.annotate(
+class ActivitiesAndOutcomesListView(SpotAccessRequiredMixin, FilterView):
+    template_name = 'spot/activity_outcome_list.html'
+    filterset_class = filters.ActivitiesAndOutcomesFilter
+    model = models.ActivitiesAndOutcomes
+    queryset = models.ActivitiesAndOutcomes.objects.annotate(
         search_term=Concat('project', 'id', 'task_description', output_field=TextField()))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["my_object"] = models.Objective.objects.first()
+        context["my_object"] = models.ActivitiesAndOutcomes.objects.first()
         context["field_list"] = [
             'project',
             'element_title',
             'activity_title',
             'species|Species',
-            'location',
+            'river',
             'sample_outcome|Sampling Outcome',
             'report_outcome|Reporting Outcome',
         ]
         return context
 
 
-class ObjectiveDetailView(SpotAccessRequiredMixin, DetailView):
-    model = models.Objective
-    template_name = 'spot/objective_detail.html'
+class ActivitiesAndOutcomesDetailView(SpotAccessRequiredMixin, DetailView):
+    model = models.ActivitiesAndOutcomes
+    template_name = 'spot/activity_outcome_detail.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["field_list"] = [
             'project',
-            'unique_objective',
+            'unique_activity_outcome_number',
             'task_description',
             'element_title',
             'activity_title',
 
             'pst_requirement',
-            'objective_category',
-            'location',
+            'activity_outcome_category',
+            'river',
             'sil_requirement',
 
             'sample_outcome_placeholder',
@@ -415,53 +415,53 @@ class ObjectiveDetailView(SpotAccessRequiredMixin, DetailView):
         return context
 
 
-class ObjectiveUpdateView(SpotAccessRequiredMixin, UpdateView):
-    template_name = 'spot/objective_form.html'
-    model = models.Objective
-    form_class = forms.ObjectiveForm
+class ActivitiesAndOutcomesUpdateView(SpotAccessRequiredMixin, UpdateView):
+    template_name = 'spot/activity_outcome_form.html'
+    model = models.ActivitiesAndOutcomes
+    form_class = forms.ActivitiesAndOutcomesForm
 
     def get_initial(self):
         return {'last_modified_by': self.request.user}
 
     def form_valid(self, form):
         my_obj = form.save()
-        return HttpResponseRedirect(reverse_lazy("spot:obj_detail", kwargs={"pk": my_obj.id}))
+        return HttpResponseRedirect(reverse_lazy("spot:act_detail", kwargs={"pk": my_obj.id}))
 
 
-class ObjectiveCreateView(SpotAccessRequiredMixin, CreateView):
-    template_name = 'spot/objective_form.html'
-    model = models.Objective
-    form_class = forms.ObjectiveForm
+class ActivitiesAndOutcomesCreateView(SpotAccessRequiredMixin, CreateView):
+    template_name = 'spot/activity_outcome_form.html'
+    model = models.ActivitiesAndOutcomes
+    form_class = forms.ActivitiesAndOutcomesForm
 
     def get_initial(self):
         my_project = models.Project.objects.get(pk=self.kwargs['project'])
-        objs = list(models.Objective.objects.all())
+        objs = list(models.ActivitiesAndOutcomes.objects.all())
         num = 0
         for o in objs:
-            if o.unique_objective:
-                num = max(o.unique_objective)
+            if o.unique_activity_outcome_number:
+                num = max(o.unique_activity_outcome_number)
                 num = int(num) + 1
                 num = str(num)
             else:
                 num = None
         return {
             'project': my_project,
-            'unique_objective': num,
+            'unique_activity_outcome_number': num,
             'last_modified_by': self.request.user
         }
 
     def form_valid(self, form):
         my_obj = form.save()
-        return HttpResponseRedirect(reverse_lazy("spot:obj_detail", kwargs={"pk": my_obj.id}))
+        return HttpResponseRedirect(reverse_lazy("spot:act_detail", kwargs={"pk": my_obj.id}))
 
 
-class ObjectiveDeleteView(SpotAccessRequiredMixin, DeleteView):
-    template_name = 'spot/objective_confirm_delete.html'
-    model = models.Objective
-    success_message = 'The objective was deleted successfully!'
+class ActivitiesAndOutcomesDeleteView(SpotAccessRequiredMixin, DeleteView):
+    template_name = 'spot/activity_outcome_confirm_delete.html'
+    model = models.ActivitiesAndOutcomes
+    success_message = 'The Activity Outcome was deleted successfully!'
 
     def get_success_url(self):
-        my_project = models.Objective.objects.get(pk=self.kwargs['pk']).project
+        my_project = models.ActivitiesAndOutcomes.objects.get(pk=self.kwargs['pk']).project
         return reverse_lazy('spot:project_detail', kwargs={"pk": my_project.id})
 
     def delete(self, request, *args, **kwargs):
@@ -616,7 +616,6 @@ class DataDetailView(SpotAccessRequiredMixin, DetailView):
             'samples_collected_comment',
             'samples_collected_database',
             'shared_drive',
-            'sample_barrier',
             'sample_entered_database',
             'data_quality_check',
             'sample_format',
@@ -854,7 +853,6 @@ class ReportsDetailView(SpotAccessRequiredMixin, DetailView):
             'project',
             'report_timeline',
             'report_type',
-            'report_concerns',
             'document_name',
             'document_author',
             'document_reference_information',
@@ -929,18 +927,18 @@ class SampleOutcomeCreateView(SpotAccessRequiredMixin, CreateView):
     form_class = forms.SampleOutcomeForm
 
     def get_initial(self):
-        my_objective = models.Objective.objects.get(pk=self.kwargs['obj'])
+        my_objective = models.ActivitiesAndOutcomes.objects.get(pk=self.kwargs['act'])
 
         return {
-            'objective': my_objective,
-            'unique_objective_number': my_objective.unique_objective,
+            'activity_outcome': my_objective,
+            'unique_activity_outcome_number': my_objective.unique_activity_outcome_number,
             'last_modified_by': self.request.user
         }
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        my_objective = models.Objective.objects.get(pk=self.kwargs['obj'])
-        context['obj'] = my_objective
+        my_objective = models.ActivitiesAndOutcomes.objects.get(pk=self.kwargs['act'])
+        context['act'] = my_objective
         return context
 
     def form_valid(self, form):
@@ -983,17 +981,17 @@ class ReportOutcomeCreateView(SpotAccessRequiredMixin, CreateView):
     form_class = forms.ReportOutcomeForm
 
     def get_initial(self):
-        my_objective = models.Objective.objects.get(pk=self.kwargs['obj'])
+        my_objective = models.ActivitiesAndOutcomes.objects.get(pk=self.kwargs['act'])
         return {
-            'objective': my_objective,
-            'unique_objective_number': my_objective.unique_objective,
+            'activity_outcome': my_objective,
+            'unique_activity_outcome_number': my_objective.unique_activity_outcome_number,
             'last_modified_by': self.request.user
         }
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        my_objective = models.Objective.objects.get(pk=self.kwargs['obj'])
-        context['obj'] = my_objective
+        my_objective = models.ActivitiesAndOutcomes.objects.get(pk=self.kwargs['act'])
+        context['act'] = my_objective
         return context
 
     def form_valid(self, form):
@@ -1059,6 +1057,14 @@ class RiverDetailView(SpotAccessRequiredMixin, DetailView):
             'name',
             'latitude',
             'longitude',
+            'sub_district_area',
+            'species',
+            'cu_index',
+            'cu_name',
+            'stock_management_unit',
+            'popid',
+            'du',
+            'du_number',
         ]
         return context
 
@@ -1442,20 +1448,20 @@ class ProjectCloneView(ProjectUpdateView):
         for hn in old_obj.hatchery_name.all():
             new_obj.hatchery_name.add(hn)
 
-        for pst in old_obj.project_sub_type.all():
-            new_obj.project_sub_type.add(pst)
+        for pst in old_obj.activity_type_1.all():
+            new_obj.activity_type_1.add(pst)
 
-        for pt in old_obj.project_theme.all():
-            new_obj.project_theme.add(pt)
+        for pt in old_obj.biological_process_type_3.all():
+            new_obj.biological_process_type_3.add(pt)
 
         for ma in old_obj.monitoring_approach.all():
             new_obj.monitoring_approach.add(ma)
 
-        for cc in old_obj.core_component.all():
-            new_obj.core_component.add(cc)
+        for cc in old_obj.activity_type_2.all():
+            new_obj.activity_type_2.add(cc)
 
-        for sc in old_obj.supportive_component.all():
-            new_obj.supportive_component.add(sc)
+        for sc in old_obj.activity_type_3.all():
+            new_obj.activity_type_3.add(sc)
 
         for pp in old_obj.project_purpose.all():
             new_obj.project_purpose.add(pp)
@@ -1501,3 +1507,18 @@ class SpotUserFormsetView(SuperuserOrAdminRequiredMixin, CommonFormsetView):
 class SpotUserHardDeleteView(SuperuserOrAdminRequiredMixin, CommonHardDeleteView):
     model = models.SpotUser
     success_url = reverse_lazy("spot:manage_spot_users")
+
+class FileUploadView(SpotAccessRequiredMixin, View):
+    success_message = 'File Successfully Uploaded'
+    template_name = 'spot/file_upload_popout.html'
+
+    def post(self, request, *args, **kwargs):
+        form = forms.UserUploadForm(request.POST, request.FILES)
+        if form.is_valid():
+            scripts.user_project_upload(request.FILES['file'])
+            messages.success(self.request, self.success_message)
+            return HttpResponseRedirect(reverse_lazy("spot:file_upload"))
+
+    def get(self, request, *args, **kwargs):
+        form = forms.UserUploadForm()
+        return render(request, 'spot/file_upload_popout.html', {'form': form})

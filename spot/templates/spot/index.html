@@ -10,7 +10,7 @@
   {% endlocalize %}
     <style>
         body {
-            background-image: url("{% static 'img/LST_jelly_feed_ twitter photo_modified.jpg' %}");
+            background-image: url("{% static 'img/drone-salmon-01.jpg' %}");
             background-size: cover;
         }
 
@@ -38,25 +38,25 @@
                 <div align="center">
 
                     <h4>
-                        <a href="{% url 'spot:project_list'  %}" class="btn btn-dark">
+                        <a href="{% url 'spot:project_list'  %}" class="btn btn-dark" data-toggle="tooltip" data-placement="bottom" title="Primary project details (project classifications, location details, linked projects, species, costs etc.)">
                             {% trans "Projects" %}
                         </a>
-                        <a href="{% url 'spot:obj_list' %}" class="btn btn-dark">
-                            {% trans "Objectives" %}
+                        <a href="{% url 'spot:act_list' %}" class="btn btn-dark" data-toggle="tooltip" data-placement="bottom" title="Sampling and Reporting Outcomes">
+                            {% trans "Activities & Outcomes" %}
                         </a>
-                        <a href="{% url 'spot:meth_list' %}" class="btn btn-dark">
+                        <a href="{% url 'spot:meth_list' %}" class="btn btn-dark" data-toggle="tooltip" data-placement="bottom" title="Planning, Field Work and Sampling method details">
                             {% trans "Methods" %}
                         </a>
-                        <a href="{% url 'spot:data_list' %}" class="btn btn-dark">
+                        <a href="{% url 'spot:data_list' %}" class="btn btn-dark" data-toggle="tooltip" data-placement="bottom" title="Samples collected, Databases, Sample Formats and Data products">
                             {% trans "Data" %}
                         </a>
-                        <a href="{% url 'spot:reports_list' %}" class="btn btn-dark">
+                        <a href="{% url 'spot:reports_list' %}" class="btn btn-dark" data-toggle="tooltip" data-placement="bottom" title="Links to report documents">
                             {% trans "Reports" %}
                         </a>
-                        <a href="{% url 'spot:org_list' %}" class="btn btn-dark">
+                        <a href="{% url 'spot:org_list' %}" class="btn btn-dark" data-toggle="tooltip" data-placement="bottom" title="Non-DFO or 3rd party organizations involved in DFO projects">
                             {% trans "Organizations" %}
                         </a>
-                        <a href="{% url 'spot:person_list'  %}" class="btn btn-dark">
+                        <a href="{% url 'spot:person_list'  %}" class="btn btn-dark" data-toggle="tooltip" data-placement="bottom" title="DFO people involved in projects" >
                             {% trans "People" %}
                         </a>
 
@@ -76,7 +76,7 @@
                 <br>
                 <div align="center">
                 {% localize off %}
-                <div id="map"></div>
+                <div id="map" data-toggle="tooltip" data-placement="bottom" title="Displays pins that are linked to River locations only. Multiple projects are likely to be represented by one pin. Within any menu tab, searching by River will result in a list of projects taking place at the location of interest"></div>
                 {% endlocalize %}
                     </div>
 
@@ -98,6 +98,10 @@
     </script>
 
     <script type="application/javascript">
+    $(document).ready(function(){
+        $('[data-toggle="tooltip"]').tooltip();
+    });
+
 
     function initialize() {
       map = new L.Map("map", {

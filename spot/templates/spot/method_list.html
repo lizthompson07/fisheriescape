@@ -77,8 +77,18 @@ label {
   <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">×</a>
   <form class="form" action="." method="get" id="filter-form">
                 <h1>Filters</h1>
-                <br>
                 {% for field in filter.form %}
+                        {% if field.name == 'project_name' %}
+                            <h3><u>Search</u></h3>
+                        {% elif field.name == 'species' %}
+                            <h3><u>Geographical/<br>Biological</u></h3>
+                        {% elif field.name == 'sub_district_area' %}
+                            <h3><u>Stock Assessment</u></h3>
+                        {% elif field.name == 'project_type' %}
+                            <h3><u>Project Classifications</u></h3>
+                        {% elif field.name == 'funding_sources' %}
+                            <h3><u>Other</u></h3>
+                        {% endif %}
                         {% bootstrap_field field placeholder="" size="small" label="left" %}
                 {% endfor %}
                     <br>
