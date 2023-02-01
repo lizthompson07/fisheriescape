@@ -173,7 +173,9 @@ def get_pcr_result(result_qs, lod):
         return 91, _("LOD missing :(")
     checklist = []
     for pcr_result in result_qs:
-        if pcr_result.ct == 0:
+        if not pcr_result.ct:
+            checklist.append("No Data")
+        elif pcr_result.ct == 0:
             checklist.append("Negative")
         elif pcr_result.ct <= lod:
             checklist.append("Positive")

@@ -146,7 +146,7 @@
       </tr>
       <tr>
           <template v-for="(filteredAssay, index) in filteredAssaysTested">
-            <th v-if="viewPCRs" :colspan="5 + filteredAssay.max_replicates"  class="assays text-muted" style="font-size: 12px">${filteredAssay.name} <br>
+            <th v-if="viewPCRs" :colspan="5 + filteredAssay.max_replicates"  class="assays text-muted" style="font-size: 12px">${filteredAssay.name} (${filteredAssay.master_mix_display}) <br>
                 <span v-html="filteredAssay.species_display"></span>
             </th>
           </template>
@@ -191,7 +191,7 @@
         {# results #}
         <th v-if="!filteredAssaysTested.length" class="assays">...</th>
         <template v-for="assay in filteredAssaysTested">
-          <th v-if="viewPCRs" class="assays">${pcrLabels.batch}</th>
+          <th v-if="viewPCRs" class="assays">{% trans "PCR Batch" %}</th>
           <th v-if="viewPCRs" class="assays">${pcrAssayLabels.threshold}</th>
 
           <th v-if="viewPCRs" v-for="index in assay.max_replicates" class="assays"> {% trans "Replicate" %} ${index}: ${pcrAssayLabels.ct} / ${pcrAssayLabels.edna_conc}</th>

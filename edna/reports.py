@@ -47,7 +47,7 @@ def generate_pcr_batch_csv(pk):
             pcr_assay.pcr.extract.extraction_number if pcr_assay.pcr.extract else "",
             pcr_assay.pcr.extract.extraction_plate_id if pcr_assay.pcr.extract else "",
             pcr_assay.pcr.extract.extraction_plate_well if pcr_assay.pcr.extract else "",
-            pcr_assay.pcr.master_mix,
+            pcr_assay.assay.master_mix,
             pcr_assay.assay.alias if pcr_assay.assay else "",
             pcr_assay.pcr.pcr_plate_well,
             pcr_assay.ct,

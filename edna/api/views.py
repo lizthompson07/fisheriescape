@@ -40,7 +40,7 @@ class CollectionViewSet(viewsets.ModelViewSet):
     def retrieve(self, request, *args, **kwargs):
         qp = request.query_params
         if qp.get("assays_tested"):
-            qs = models.Assay.objects.filter(pcrs__pcr__collection=self.get_object()).distinct()
+            qs = models.Assay.objects.filter(pcrs__pcr__collection=self.get_object()).select_related("master_mix").distinct()
             if qp.get("speciesList"):
                 qs = qs.filter(species__in=qp.get("speciesList").split(',')).distinct()
             return Response(serializers.AssaySerializer(qs, many=True, context={'collection_id': self.get_object().id}).data, status=status.HTTP_200_OK)
@@ -262,7 +262,7 @@ class DNAExtractModelMetaAPIView(APIView):
 class PCRViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.PCRSerializer
     permission_classes = [eDNACRUDOrReadOnly]
-    queryset = models.PCR.objects.all().select_related("pcr_batch", "extract", "collection", "master_mix")
+    queryset = models.PCR.objects.all().select_related("pcr_batch", "extract", "collection")
 
     # pagination_class = StandardResultsSetPagination
 
@@ -305,7 +305,6 @@ class PCRModelMetaAPIView(APIView):
         data = dict()
         data['labels'] = get_labels(self.model)
         # we want to get a list of filters for which there has been no PCRs
-        data['master_mix_choices'] = [dict(text=str(item), value=item.id) for item in models.MasterMix.objects.all()]
         return Response(data)
 
 
@@ -316,10 +315,14 @@ class PCRAssayModelMetaAPIView(APIView):
     def get(self, request):
         data = dict()
         data['labels'] = get_labels(self.model)
-        data['assay_choices'] = [dict(text=str(item), value=item.id) for item in models.Assay.objects.all()]
-        data['main_assay_choices'] = [dict(text=str(item), value=item.id) for item in models.Assay.objects.filter(is_ipc=False)]
-        data['ipc_assay_choices'] = [dict(text=str(item), value=item.id) for item in models.Assay.objects.filter(is_ipc=True)]
-        data['master_mix_choices'] = [dict(text=str(item), value=item.id) for item in models.MasterMix.objects.all()]
+        assay_qs = models.Assay.objects.all()
+        qp = self.request.query_params
+        if qp.get("active"):
+            assay_qs = assay_qs.filter(active=True)
+
+        data['assay_choices'] = [dict(text=str(item), value=item.id) for item in assay_qs]
+        data['main_assay_choices'] = [dict(text=str(item), value=item.id) for item in assay_qs.filter(is_ipc=False)]
+        data['ipc_assay_choices'] = [dict(text=str(item), value=item.id) for item in assay_qs.filter(is_ipc=True)]
         return Response(data)
 
 

@@ -221,6 +221,8 @@ class AssayListView(eDNAAdminRequiredMixin, CommonListView):
         {"name": 'b_coef', "class": "", "width": ""},
         {"name": 'is_ipc', "class": "", "width": ""},
         {"name": 'species', "class": "", "width": ""},
+        {"name": 'master_mix', "class": "", "width": ""},
+        {"name": 'active', "class": "", "width": ""},
     ]
 
 
@@ -257,6 +259,8 @@ class AssayDetailView(eDNAAdminRequiredMixin, CommonDetailView):
         "b_coef",
         "is_ipc",
         "species",
+        "master_mix",
+        "active",
     ]
 
     def get_context_data(self, **kwargs):
@@ -1010,7 +1014,6 @@ class PCRDetailView(eDNAAdminRequiredMixin, CommonDetailView):
         "filter",
         "extract",
         "pcr_plate_well",
-        "master_mix",
         "comments",
         'metadata',
     ]
@@ -1071,7 +1074,6 @@ class ImportPCRView(eDNAAdminRequiredMixin, CommonFormView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["master_mixes"] = models.MasterMix.objects.all()
         context["assays"] = models.Assay.objects.all()
         return context
 
@@ -1124,10 +1126,9 @@ class ImportPCRView(eDNAAdminRequiredMixin, CommonFormView):
 
                         # start with PCR details
                         extraction_number = row_dict["extraction_number"]
-                        master_mix = row_dict["master_mix"]
                         assay = row_dict["assay"]
 
-                        if not extraction_number or not master_mix or not assay:
+                        if not extraction_number or not assay:
                             messages.warning(self.request, f'This row is missing some important information and will not be imported: {row_dict}')
                         else:
                             # get the extract object from the extraction number
@@ -1141,46 +1142,38 @@ class ImportPCRView(eDNAAdminRequiredMixin, CommonFormView):
                             else:
                                 extract = extracts.first()
 
-                                # get the master mix
-                                mixes = models.MasterMix.objects.filter(name__iexact=master_mix)
-                                if not mixes.exists():
-                                    messages.warning(self.request, f'cannot find master mix: {master_mix}')
+                                # get the assay
+                                assays = models.Assay.objects.filter(alias__iexact=assay)
+                                if not assays.exists():
+                                    messages.warning(self.request, f'cannot find assay alias: {assay}')
                                 else:
-                                    master_mix = mixes.first()
+                                    assay = assays.first()
 
-                                    # get the assay
-                                    assays = models.Assay.objects.filter(alias__iexact=assay)
-                                    if not assays.exists():
-                                        messages.warning(self.request, f'cannot find assay alias: {assay}')
-                                    else:
-                                        assay = assays.first()
+                                    # now we can get / create the pcr object
+                                    pcr = models.PCR.objects.get_or_create(
+                                        pcr_batch=batch,
+                                        extract=extract,
+                                        pcr_plate_well=row_dict["pcr_plate_well"]
+                                    )[0]
 
-                                        # now we can get / create the pcr object
-                                        pcr = models.PCR.objects.get_or_create(
-                                            pcr_batch=batch,
-                                            master_mix=master_mix,
-                                            extract=extract,
-                                            pcr_plate_well=row_dict["pcr_plate_well"]
-                                        )[0]
+                                    pcr.save() # populate the collection
 
-                                        pcr.save() # populate the collection
+                                    # now finally, the assay itself
+                                    try:
+                                        ct = float(ct)
+                                        is_undetermined = False
+                                    except Exception as e:
+                                        print(e)
+                                        is_undetermined = True
+                                        ct = None
 
-                                        # now finally, the assay itself
-                                        try:
-                                            ct = float(ct)
-                                            is_undetermined = False
-                                        except Exception as e:
-                                            print(e)
-                                            is_undetermined = True
-                                            ct = None
-
-                                        assay = models.PCRAssay.objects.create(
-                                            pcr=pcr,
-                                            assay=assay,
-                                            ct=ct,
-                                            is_undetermined=is_undetermined,
-                                            threshold=row_dict["threshold"]
-                                        )
+                                    assay = models.PCRAssay.objects.create(
+                                        pcr=pcr,
+                                        assay=assay,
+                                        ct=ct,
+                                        is_undetermined=is_undetermined,
+                                        threshold=row_dict["threshold"]
+                                    )
 
             # if we run into the first header of the assay table, turn off the "wait" flag
             if len(row) and row[0] == "extraction_number":

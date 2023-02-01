@@ -103,9 +103,11 @@ class Assay(UnilingualSimpleLookup, MetadataFields):
     b_coef = models.FloatField(blank=True, null=True, verbose_name=_("formula B coefficient"))
     is_ipc = models.BooleanField(default=False, verbose_name=_("is this assay being used as an IPC?"), choices=YES_NO_CHOICES)
     species = models.ManyToManyField(Species, verbose_name=_("species"), blank=True)
+    master_mix = models.ForeignKey(MasterMix, on_delete=models.DO_NOTHING, related_name="pcrs", verbose_name=_("master mix"), blank=False, null=True)
+    active = models.BooleanField(default=True, verbose_name="Is this assay in use?", choices=YES_NO_CHOICES)
 
     def __str__(self):
-        mystr = f"{self.name} ({self.alias})"
+        mystr = f"{self.name} ({self.alias}) {self.master_mix}"
         # if self.is_ipc:
         #     mystr += ' (IPC)'
         return mystr
@@ -356,7 +358,7 @@ class Filter(MetadataFields):
     filtration_batch = models.ForeignKey(FiltrationBatch, related_name='filters', on_delete=models.CASCADE, verbose_name=_("filtration batch"))
     sample = models.ForeignKey(Sample, related_name='filters', on_delete=models.DO_NOTHING, verbose_name=_("sample ID"), blank=True, null=True)
     collection = models.ForeignKey(Collection, related_name='filters', on_delete=models.DO_NOTHING, verbose_name=_("project"), blank=True, null=True)
-    tube_id = models.CharField(max_length=25, blank=True, null=True, verbose_name=_("tube ID"))
+    tube_id = models.CharField(max_length=25, blank=True, null=True, unique=True, verbose_name=_("tube ID"))
     filtration_type = models.ForeignKey(FiltrationType, on_delete=models.DO_NOTHING, related_name="filters", verbose_name=_("filtration type"), default=1)
     start_datetime = models.DateTimeField(verbose_name=_("start time"))
     end_datetime = models.DateTimeField(verbose_name=_("end time"), blank=True, null=True)
@@ -543,7 +545,6 @@ class PCR(MetadataFields):
     extract = models.ForeignKey(DNAExtract, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="pcrs", verbose_name=_("extraction ID"))
     collection = models.ForeignKey(Collection, related_name='pcrs', on_delete=models.DO_NOTHING, verbose_name=_("project"), blank=True, null=True)
     pcr_plate_well = models.CharField(max_length=25, blank=True, null=True, verbose_name=_(" qPCR plate well"))
-    master_mix = models.ForeignKey(MasterMix, on_delete=models.DO_NOTHING, related_name="pcrs", verbose_name=_("master mix"), blank=False, null=True)
 
     # calc
     pcr_plate_well_prefix = models.CharField(max_length=1, blank=True, null=True, editable=True)

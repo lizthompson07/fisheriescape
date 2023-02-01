@@ -250,7 +250,6 @@ class PCRSerializer(serializers.ModelSerializer):
     display = serializers.SerializerMethodField()
     assay_count = serializers.SerializerMethodField()
     extract_obj = serializers.SerializerMethodField()
-    master_mix_display = serializers.SerializerMethodField()
     batch_object = serializers.SerializerMethodField()
     pcr_assays = serializers.SerializerMethodField()
 
@@ -259,10 +258,6 @@ class PCRSerializer(serializers.ModelSerializer):
 
     def get_batch_object(self, instance):
         return PCRBatchSerializer(instance.pcr_batch).data
-
-    def get_master_mix_display(self, instance):
-        if instance.master_mix:
-            return str(instance.master_mix)
 
     def get_extract_obj(self, instance):
         if instance.extract:
@@ -279,12 +274,6 @@ class PCRSerializerLITE(serializers.ModelSerializer):
     class Meta:
         model = models.PCR
         fields = "__all__"
-
-    master_mix_display = serializers.SerializerMethodField()
-
-    def get_master_mix_display(self, instance):
-        if instance.master_mix:
-            return str(instance.master_mix)
 
 
 class PCRResultsSerializer(serializers.Serializer):
@@ -312,7 +301,10 @@ class PCRResultsSerializer(serializers.Serializer):
                                         pcr__pcr_batch=instance["pcr_batch"],
                                         pcr__extract=instance["extract"])
         data["replicate_results"] = result_qs.values("ct", "edna_conc")
-        data["mean_conc"] = result_qs.aggregate(Sum("edna_conc"))["edna_conc__sum"] / result_qs.count()
+        if result_qs.aggregate(Sum("edna_conc"))["edna_conc__sum"]:
+            data["mean_conc"] = result_qs.aggregate(Sum("edna_conc"))["edna_conc__sum"] / result_qs.count()
+        else:
+            data["mean_conc"] = 0
         data["threshold"] = result_qs.first().threshold
         lod = result_qs.first().assay.lod
         data["LOD"] = lod
@@ -436,10 +428,15 @@ class AssaySerializer(serializers.ModelSerializer):
         fields = "__all__"
 
     species_display = serializers.SerializerMethodField()
+    master_mix_display = serializers.SerializerMethodField()
     max_replicates = serializers.SerializerMethodField()
 
     def get_species_display(self, instance):
         return instance.species_display
+
+    def get_master_mix_display(self, instance):
+        if instance.master_mix:
+            return instance.master_mix.__str__()
 
     def get_max_replicates(self, instance):
         collection_id = self.context.get("collection_id")
