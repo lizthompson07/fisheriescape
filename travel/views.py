@@ -1248,10 +1248,9 @@ def export_request_list(request):
 
 
 @login_required(login_url='/accounts/login/')
-@user_passes_test(is_adm_or_admin, login_url='/accounts/denied/?app=travel')
 def export_upcoming_trips(request):
     site_url = my_envr(request)["SITE_FULL_URL"]
-    file_url = reports.generate_upcoming_trip_list(site_url)
+    file_url = reports.generate_upcoming_trip_list(site_url, query=request.GET)
     export_file_name = '{} {}.xlsx'.format(_("upcoming trips"), timezone.now().strftime("%Y-%m-%d"))
 
     if settings.AZURE_STORAGE_ACCOUNT_NAME:
@@ -1395,7 +1394,7 @@ class NJCRatesFormsetView(TravelADMAdminRequiredMixin, CommonFormsetView):
 
 class TripCategoryFormsetView(TravelADMAdminRequiredMixin, CommonFormsetView):
     template_name = 'travel/formset.html'
-    h1 = "Manage Trip Categories"
+    h1 = "Manage Trip Categories (TRAF Trip Purposes)"
     queryset = models.TripCategory.objects.all()
     formset_class = forms.TripCategoryFormset
     success_url = reverse_lazy("travel:manage_trip_categories")
@@ -1404,7 +1403,7 @@ class TripCategoryFormsetView(TravelADMAdminRequiredMixin, CommonFormsetView):
 
 class TripSubcategoryFormsetView(TravelADMAdminRequiredMixin, CommonFormsetView):
     template_name = 'travel/formset.html'
-    h1 = "Manage Trip Subcategories"
+    h1 = "Manage Trip Sub-categories"
     queryset = models.TripSubcategory.objects.all()
     formset_class = forms.TripSubcategoryFormset
     success_url = reverse_lazy("travel:manage_trip_subcategories")

@@ -1,7 +1,13 @@
 import django_filters
 from django import forms
+from django.db.models import F, DateTimeField, ExpressionWrapper
+from django.utils import timezone
+from datetime import datetime
+
 from . import models
 from django.utils.translation import gettext as _
+
+from .models import Maintenance
 
 attr_fp_date = {"class": "fp-date", "placeholder": "Click to select a date.."}
 
@@ -17,6 +23,7 @@ class SpecificItemFilter(django_filters.FilterSet):
         fields = {
             'item_name': ['icontains'],
             'size': ['exact'],
+            'owner': ['exact'],
             'suppliers': ['exact'],
 
         }
@@ -32,6 +39,23 @@ class SpecificItemFilter(django_filters.FilterSet):
 class TransactionFilter(django_filters.FilterSet):
     search_term = django_filters.CharFilter(field_name='search_term', label="Items (any part of any field...)",
                                             lookup_expr='icontains', widget=forms.TextInput())
+
+
+class LendingFilter(django_filters.FilterSet):
+    class Meta:
+        model = models.Transaction
+        fields = {
+            'comments': ['icontains'],
+            'created_by': ['exact'],
+
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.filters["item"] = django_filters.CharFilter(field_name='search_term',
+                                                         label="Items (any part of name...)",
+                                                         lookup_expr='icontains',
+                                                         widget=forms.TextInput())
 
 
 class BulkTransactionFilter(django_filters.FilterSet):
@@ -54,6 +78,26 @@ class BulkTransactionFilter(django_filters.FilterSet):
 class OrderFilter(django_filters.FilterSet):
     search_term = django_filters.CharFilter(field_name='search_term', label="Items (any part of name...)",
                                             lookup_expr='icontains', widget=forms.TextInput())
+
+
+class MaintenanceFilter(django_filters.FilterSet):
+
+    search_term = django_filters.CharFilter(field_name='search_term', label="Items (any part of name, comments...)",
+                                            lookup_expr='icontains', widget=forms.TextInput())
+
+    class Meta:
+        model = models.Maintenance
+        fields = {
+            'assigned_to': ['exact'],
+        }
+
+    # This has to be DateTimeFilter to work and not just DateFilter
+    maint_due = django_filters.DateTimeFilter(method='days_until_maint', widget=forms.DateInput(attrs=attr_fp_date), label=("Maintenance Due Before"))
+
+    def days_until_maint(self, queryset, name, value):
+        return Maintenance.objects.annotate(
+            maint=ExpressionWrapper((F('last_maint_date') + F('schedule')), output_field=DateTimeField())
+        ).filter(maint__lte=value)
 
 
 class LocationFilter(django_filters.FilterSet):

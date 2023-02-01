@@ -29,8 +29,9 @@ urlpatterns = [
     path('settings/fishing-areas/', views.FishingAreaFormsetView.as_view(), name="manage_fishing_areas"),
     path('settings/fishing-area/<int:pk>/delete/', views.FishingAreaHardDeleteView.as_view(), name="delete_fishing_area"),
 
+    path('settings/monitoring-programs/', views.MonitoringProgramFormsetView.as_view(), name="manage_monitoring_programs"),
+    path('settings/monitoring-program/<int:pk>/delete/', views.MonitoringProgramHardDeleteView.as_view(), name="delete_monitoring_program"),
 
-    
     # SPECIES #
     ###########
     path('species/', views.SpeciesListView.as_view(), name="species_list"),
@@ -84,30 +85,40 @@ urlpatterns = [
 
     # OBSERVATION #
     ###############
-    path('observations/', views.ObservationListView.as_view(), name="obs_list"),
-    path('observations/<int:pk>/view/', views.ObservationDetailView.as_view(), name="obs_detail"),
-    path('observations/<int:pk>/edit/', views.ObservationUpdateView.as_view(), name="obs_edit"),
-    path('observations/<int:pk>/delete/', views.ObservationDeleteView.as_view(), name="obs_delete"),
+    path('specimens/', views.SpecimenListView.as_view(), name="specimen_list"),
+    path('specimens/<int:pk>/view/', views.SpecimenDetailView.as_view(), name="specimen_detail"),
+    path('specimens/<int:pk>/edit/', views.SpecimenUpdateView.as_view(), name="specimen_edit"),
+    path('specimens/<int:pk>/delete/', views.SpecimenDeleteView.as_view(), name="specimen_delete"),
 
     # FILES #
     #########
-    path('observations/<int:obs>/new-file/', views.FileCreateView.as_view(), name='file_new'),
+    path('specimens/<int:specimen>/new-file/', views.FileCreateView.as_view(), name='file_new'),
     path('file/<int:pk>/edit/', views.FileUpdateView.as_view(), name='file_edit'),
     path('file/<int:pk>/delete/', views.FileDeleteView.as_view(), name='file_delete'),
+
+    # biological-detailing
+    path('biological-detailings/', views.BiologicalDetailingListView.as_view(), name="biological_detailing_list"),  # tested
+    # path('biological-detailings/edit/<int:pk>/', views.BiologicalDetailingUpdateView.as_view(), name="biological_detailing_edit"),  # tested
+    # path('biological-detailings/delete/<int:pk>/', views.BiologicalDetailingDeleteView.as_view(), name="biological_detailing_delete"),  # tested
+    path('biological-detailings/view/<int:pk>/', views.BiologicalDetailingDetailView.as_view(), name="biological_detailing_detail"),  # tested
 
     # Reports #
     ###########
     path('reports/', views.ReportSearchFormView.as_view(), name="reports"),
     path('reports/samples/', views.export_sample_data, name="sample_report"),
     path('reports/sweeps/', views.export_sweep_data, name="sweep_report"),
-    path('reports/observations/', views.export_obs_data, name="obs_report"),
-    path('reports/opendata1/<str:year>/<str:sites>/', views.export_open_data_ver1, name="od1_report"),
-    path('reports/opendata1/dictionary/', views.export_open_data_ver1_dictionary, name="od1_dictionary"),
-    path('reports/opendata1/species-list/', views.export_spp_list, name="od_spp_list"),
-    path('reports/opendata/wms/lang/<int:lang>/', views.export_open_data_ver1_wms, name="od1_wms"),
-    path('reports/observations/v1/', views.export_obs_data_v1, name="export_obs_data_v1"),
+    path('reports/specimens/', views.export_specimen_data, name="specimen_report"),
+    path('reports/river-sites/', views.river_site_report, name="river_site_report"),
+    path('reports/specimens/v1/', views.export_specimen_data_v1, name="export_specimen_data_v1"),
+    path('reports/biological-details/', views.export_biological_detailing_data, name="biological_detailing_report"),
 
-    #electro
+    # od - summary by site
+    path('reports/open-data/species-list/', views.od_sp_list, name="od_sp_list"),
+    path('reports/open-data/summary-by-site-dictionary/', views.od_summary_by_site_dict, name="od_summary_by_site_dict"),
+    path('reports/open-data/summary-by-site-report/', views.od_summary_by_site_report, name="od_summary_by_site_report"),
+    path('reports/open-data/summary-by-site-wms/', views.od_summary_by_site_wms, name="od_summary_by_site_wms"),
+
+    # electro
     path('reports/electrofishing/juv_salmon_report/', views.electro_juv_salmon_report, name="electro_juv_salmon_report"),
 
 ]

@@ -1,0 +1,44 @@
+{% load verbose_names %}
+{% load i18n %}
+<style media="screen">
+.email-table {
+    border: solid 1px black;
+    text-align: left;
+    margin-right: 15px;
+    padding-left: 5px;
+    padding-right: 2px;
+}
+
+</style>
+
+{% language 'en' %}
+
+  <p>
+    Hi,
+  </p>
+  <p>
+    A publication number for the document entitled <a href="{{ SITE_FULL_URL }}{% url 'csas2:document_detail' object.id %}">{{ object }}</a>
+    has been assigned the following publication number: {{ object.document_type }} {{ object.pub_number }}.
+  </p>
+  <p>
+    Thanks!
+  </p>
+
+{% endlanguage %}
+
+<hr>
+
+{% language 'fr' %}
+
+  <p>
+    Bonjour,
+  </p>
+  <p>
+    Un numéro de publication pour le document intitulé <a href="{{ SITE_FULL_URL }}{% url 'csas2:document_detail' object.id %}">{{ object }}</a>
+    a reçu le numéro de publication suivant: {{ object.document_type }} {{ object.pub_number }}.
+  </p>
+  <p>
+    Merci!
+  </p>
+
+{% endlanguage %}

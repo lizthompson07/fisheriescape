@@ -40,7 +40,7 @@ class TestAllFormsets(CommonTest):
             views.RelationshipRatingFormsetView,
         ]
         self.expected_template = 'ihub/formset.html'
-        self.user = self.get_and_login_user(in_group="ihub_admin")
+        self.user = self.get_and_login_user(is_admin=True)
 
     @tag('formsets', "view")
     def test_view_class(self):

@@ -114,11 +114,12 @@
           </tr>
           <tr>
             <th style="width: 40%">{% trans "Total DFO cost (excluding research scientists)" %}</th>
-            <td>${trip.non_res_total_cost_with_drafts|floatformat}  <span v-if="trip.non_res_total_cost_with_drafts">({% trans "excluding any non-DFO funding" %})</span></td>
+            <td>${trip.non_res_total_cost_with_drafts|floatformat} <span v-if="trip.non_res_total_cost_with_drafts">({% trans "excluding any non-DFO funding" %})</span>
+            </td>
           </tr>
           <tr>
             <th style="width: 40%">{% trans "Total Submitted DFO cost (excluding research scientists, excluding drafts)" %}</th>
-            <td>${trip.non_res_total_cost|floatformat}  <span v-if="trip.non_res_total_cost">({% trans "excluding any non-DFO funding" %})</span></td>
+            <td>${trip.non_res_total_cost|floatformat} <span v-if="trip.non_res_total_cost">({% trans "excluding any non-DFO funding" %})</span></td>
           </tr>
           <tr>
             <th style="width: 40%">${tripLabels.notes |nz}</th>
@@ -126,35 +127,39 @@
           </tr>
         </table>
 
-        <div v-if="(isNCRAdmin || isReview) && trip.requests.length" class="mb-5">
-          <p class="h5" style="width: 40%">{% trans "Associated Requests:" %}
-          </p>
-          <ul class="ml-5">
-            <li v-for="(r,i) in trip.requests" :key="r.id">
-              <a :href="`/travel-plans/requests/${r.id}/view/`" target="_blank" data-toggle="tooltip" title="{% trans "open in new window" %}">
-                <span class="mdi mdi-arrow-top-right text-primary table-bordered"></span> ${r.display}
-              </a> &rarr;
-              <span :class="r.status_class + ' px-1 py-0'">${r.status_display}</span>
-            </li>
-          </ul>
-        </div>
+        {# information about travellers only to be displayed when there is a review OR if they are permitted to view delegations  #}
+        <template v-if="canViewDelegations || isReview">
+          <div v-if="trip.requests.length" class="mb-5">
+            <p class="h5" style="width: 40%">{% trans "Associated Requests:" %}
+            </p>
+            <ul class="ml-5">
+              <li v-for="(r,i) in trip.requests" :key="r.id">
+                <a :href="`/travel-plans/requests/${r.id}/view/`" target="_blank" data-toggle="tooltip" title="{% trans "open in new window" %}">
+                  <span class="mdi mdi-arrow-top-right text-primary table-bordered"></span> ${r.display}
+                </a> &rarr;
+                <span :class="r.status_class + ' px-1 py-0'">${r.status_display}</span>
+              </li>
+            </ul>
+          </div>
 
-        <div v-if="(isNCRAdmin || isReview) && trip.travellers.length" class="mb-5">
-          <p class="h5" style="width: 40%">{% trans "Comparison of Traveller Costs:" %}
-          <span @mouseover="enablePopovers" class="mdi mdi-help-circle-outline pointy" data-toggle="popover"
-                  data-trigger="click" title="{% trans "Active Travellers Only" %}"
-                  data-content="{% trans "Travellers on 'Draft' or 'Cancelled' trips will not be shown below." %}"></span></p>
-          <table class="table table-sm table-bordered">
-            <tr v-for="(row, i) in trip.cost_comparison" :key="i">
-              <td v-for="(cell, j) in row" :key="j">
-                <span v-if="i===0"><b v-html="cell"></b></span>
-                <span v-else-if="j===0" v-html="cell"></span>
-                <span v-else-if="i===trip.cost_comparison.length-1"><em>${cell |floatformat}</em></span>
-                <span v-else>${cell |floatformat}</span>
-              </td>
-            </tr>
-          </table>
-        </div>
+          <div v-if="trip.travellers.length" class="mb-5">
+            <p class="h5" style="width: 40%">{% trans "Comparison of Traveller Costs:" %}
+              <span @mouseover="enablePopovers" class="mdi mdi-help-circle-outline pointy" data-toggle="popover"
+                    data-trigger="click" title="{% trans "Active Travellers Only" %}"
+                    data-content="{% trans "Travellers on 'Draft' or 'Cancelled' trips will not be shown below." %}"></span></p>
+            <table class="table table-sm table-bordered">
+              <tr v-for="(row, i) in trip.cost_comparison" :key="i">
+                <td v-for="(cell, j) in row" :key="j">
+                  <span v-if="i===0"><b v-html="cell"></b></span>
+                  <span v-else-if="j===0" v-html="cell"></span>
+                  <span v-else-if="i===trip.cost_comparison.length-1"><em>${cell |floatformat}</em></span>
+                  <span v-else>${cell |floatformat}</span>
+                </td>
+              </tr>
+            </table>
+          </div>
+        </template>
+
 
       </div>
     </div>

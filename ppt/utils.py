@@ -2,6 +2,8 @@ from datetime import timedelta
 
 import pandas as pd
 from django.db.models import Sum, Q
+from django.http import JsonResponse, HttpResponseRedirect
+from django.contrib.auth.models import User
 from django.utils.translation import gettext as _, gettext_lazy
 
 from lib.templatetags.custom_filters import nz
@@ -9,12 +11,67 @@ from shared_models import models as shared_models
 from . import models
 
 
-def get_help_text_dict():
+def get_help_text_dict(model=None):
     my_dict = {}
-    for obj in models.HelpText.objects.all():
-        my_dict[obj.field_name] = str(obj)
+    if not model:
+        for obj in models.HelpText.objects.all():
+            my_dict[obj.field_name] = str(obj)
+    else:
+        # If a model is supplied get the fields specific to that model
+        for obj in models.HelpText.objects.filter(model=str(model.__name__)):
+            my_dict[obj.field_name] = str(obj)
 
     return my_dict
+
+
+def ajax_get_fields(request):
+    model_name = request.GET.get('model', None)
+
+    # use the model name passed from the web page to find the model in the apps models file
+    model = models.__dict__[model_name]
+
+    # use the retrieved model and get the doc string which is a string in the format
+    # SomeModelName(id, field1, field2, field3)
+    # remove the trailing parentheses, split the string up based on ', ', then drop the first element
+    # which is the model name and the id.
+    match = str(model.__dict__['__doc__']).replace(")", "").split(", ")[1:]
+    fields = list()
+    for f in match:
+        label = "---"
+        attr = getattr(model, f).field
+        if hasattr(attr, 'verbose_name'):
+            label = attr.verbose_name
+
+        fields.append([f, label])
+
+    data = {
+        'fields': fields
+    }
+
+    return JsonResponse(data)
+
+
+def toggle_help_text_edit(request, user_id):
+    usr = User.objects.get(pk=user_id)
+
+    user_mode = None
+    # mode 1 is read only
+    mode = 1
+    if models.PPTAdminUser.objects.filter(user=usr):
+        user_mode = models.PPTAdminUser.objects.get(user=usr)
+        mode = user_mode.mode
+
+    # fancy math way of toggling between 1 and 2
+    mode = (mode % 2) + 1
+
+    if not user_mode:
+        user_mode = models.PPTAdminUser(user=usr)
+
+    user_mode.mode = mode
+    user_mode.save()
+
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+
 
 
 def in_ppt_regional_admin_group(user):
@@ -343,7 +400,7 @@ def financial_project_year_summary_data(project_year):
         for cost in project_year.capitalcost_set.filter(funding_source=fs):
             my_dict["capital"] += nz(cost.amount, 0)
 
-        my_dict["total"] = my_dict["salary"] + my_dict["om"] + my_dict["capital"]
+        my_dict["total_in_om"] = models.SALARY_TO_OM_FACTOR * my_dict["salary"] + my_dict["om"] + my_dict["capital"]
 
         my_list.append(my_dict)
 
@@ -352,18 +409,22 @@ def financial_project_year_summary_data(project_year):
 
 def financial_project_summary_data(project):
     my_list = []
-    if project.get_funding_sources():
-        for fs in project.get_funding_sources():
+    funding_source_list = project.get_funding_sources()
+    if funding_source_list:
+        for fs in funding_source_list:
             my_dict = dict()
             my_dict["type"] = fs.get_funding_source_type_display()
             my_dict["name"] = str(fs)
             my_dict["salary"] = 0
             my_dict["om"] = 0
             my_dict["capital"] = 0
+            my_dict["allocated_salary"] = 0
+            my_dict["allocated_om"] = 0
+            my_dict["allocated_capital"] = 0
 
             # first calc for staff
             for staff in models.Staff.objects.filter(funding_source=fs, project_year__project=project):
-                # exclude any employees that should be excluded. This is a fail safe since the form should prevent data entry
+                # Split staff based on om vs salary type
                 if not staff.employee_type.exclude_from_rollup:
                     if staff.employee_type.cost_type == 1:
                         my_dict["salary"] += nz(staff.amount, 0)
@@ -378,15 +439,82 @@ def financial_project_summary_data(project):
             for cost in models.CapitalCost.objects.filter(funding_source=fs, project_year__project=project):
                 my_dict["capital"] += nz(cost.amount, 0)
 
-            my_dict["total"] = my_dict["salary"] + my_dict["om"] + my_dict["capital"]
+            my_dict["total_in_om"] = models.SALARY_TO_OM_FACTOR * my_dict["salary"] + my_dict["om"] + my_dict["capital"]
+
+            # allocated funds:
+            for review in models.Review.objects.filter(project_year__project=project):
+                if project.default_funding_source == fs:
+                    my_dict["allocated_om"] += nz(review.allocated_budget, 0)
+            my_dict["allocated_total_in_om"] = my_dict["allocated_om"]
 
             my_list.append(my_dict)
 
     return my_list
 
 
+def get_py_funding_source_details(project_year, funding_source):
+    py_dict = dict()
+    py_dict["id"] = project_year.id
+    py_dict["project"] = {"id": project_year.project.id}
+    py_dict["has_fs"] = False
+    py_dict["capital"] = 0
+    py_dict["om"] = 0
+    py_dict["salary"] = 0
+    py_dict["allocated_capital"] = 0
+    py_dict["allocated_om"] = 0
+    py_dict["allocated_salary"] = 0
+    py_dict["allocated_om_allocations"] = 0
+    py_dict["status_display"] = project_year.formatted_status
+    py_dict["year_display"] = str(project_year.fiscal_year)
+    py_dict["title"] = project_year.project.title
+    py_dict["section"] = str(project_year.project.section)
+
+    if funding_source in project_year.get_funding_sources():
+        py_dict["has_fs"] = True
+
+    # Capital costs
+    for cost in models.CapitalCost.objects.filter(funding_source=funding_source, project_year=project_year):
+        py_dict["capital"] += nz(cost.amount, 0)
+
+    # Salary + OM costs:
+    for cost in models.OMCost.objects.filter(funding_source=funding_source, project_year=project_year):
+        py_dict["om"] += nz(cost.amount, 0)
+
+    for staff in models.Staff.objects.filter(funding_source=funding_source, project_year=project_year):
+        if not staff.employee_type.exclude_from_rollup:
+            if staff.employee_type.cost_type == 1:
+                py_dict["salary"] += nz(staff.amount, 0)
+            elif staff.employee_type.cost_type == 2:
+                py_dict["om"] += nz(staff.amount, 0)
+
+    for allocation in models.CapitalAllocation.objects.filter(funding_source=funding_source, project_year=project_year):
+        py_dict["allocated_capital"] += nz(allocation.amount, 0)
+
+    for allocation in models.OMAllocation.objects.filter(funding_source=funding_source, project_year=project_year):
+        # this is what will get used, once the allocated budget field is removed from approvals.
+        py_dict["allocated_om_allocations"] += nz(allocation.amount, 0)
+
+    for allocation in models.SalaryAllocation.objects.filter(funding_source=funding_source, project_year=project_year):
+        py_dict["allocated_salary"] += nz(allocation.amount, 0)
+
+    if hasattr(project_year, "review"):
+        if project_year.project.default_funding_source == funding_source:
+            py_dict["allocated_om"] += nz(project_year.review.allocated_budget, 0)
+
+    return py_dict
+
+
 def multiple_financial_project_year_summary_data(project_years):
     my_list = []
+
+    # select related fields:
+    project_years = project_years.select_related("project", "project__section", "fiscal_year")\
+        .prefetch_related('staff_set__funding_source',
+                          'omcost_set__funding_source',
+                          'capitalcost_set__funding_source',
+                          'salaryallocation_set__funding_source',
+                          'omallocation_set__funding_source',
+                          'capitalallocation_set__funding_source')
 
     fs_list = list()
     # first get funding source list
@@ -395,34 +523,43 @@ def multiple_financial_project_year_summary_data(project_years):
     funding_sources = models.FundingSource.objects.filter(id__in=fs_list)
 
     for fs in funding_sources:
-        my_dict = dict()
-        my_dict["type"] = fs.get_funding_source_type_display()
-        my_dict["name"] = str(fs)
-        my_dict["salary"] = 0
-        my_dict["om"] = 0
-        my_dict["capital"] = 0
+        fs_dict = dict()
+        fs_dict["type"] = fs.get_funding_source_type_display()
+        fs_dict["name"] = str(fs)
+        fs_dict["py_count"] = 0
+
+        fs_dict["salary"] = 0
+        fs_dict["allocated_salary"] = 0
+        fs_dict["salary_pys"] = []
+
+        fs_dict["om"] = 0
+        fs_dict["allocated_om"] = 0
+        fs_dict["om_pys"] = []
+
+        fs_dict["capital"] = 0
+        fs_dict["allocated_capital"] = 0
+        fs_dict["capital_pys"] = []
 
         for py in project_years:
-            # first calc for staff
-            for staff in models.Staff.objects.filter(funding_source=fs, project_year=py):
-                # exclude any employees that should be excluded. This is a fail safe since the form should prevent data entry
-                if not staff.employee_type.exclude_from_rollup:
-                    if staff.employee_type.cost_type == 1:
-                        my_dict["salary"] += nz(staff.amount, 0)
-                    elif staff.employee_type.cost_type == 2:
-                        my_dict["om"] += nz(staff.amount, 0)
+            py_financial_dict = get_py_funding_source_details(py, fs)
+            if py_financial_dict["has_fs"]:
+                fs_dict["py_count"] += 1
+                financial_categories = ["om", "capital", "salary"]
+                for financial_category in financial_categories:
+                    # sum finances from all project years, for each category
+                    if py_financial_dict[financial_category]:
+                        fs_dict[financial_category] += py_financial_dict[financial_category]
+                        if py_financial_dict not in fs_dict["{}_pys".format(financial_category)]:
+                            fs_dict["{}_pys".format(financial_category)].append(py_financial_dict)
+                    if py_financial_dict["allocated_{}".format(financial_category)]:
+                        fs_dict["allocated_{}".format(financial_category)] += py_financial_dict["allocated_{}".format(financial_category)]
+                        if py_financial_dict not in fs_dict["{}_pys".format(financial_category)]:
+                            fs_dict["{}_pys".format(financial_category)].append(py_financial_dict)
 
-            # O&M costs
-            for cost in models.OMCost.objects.filter(funding_source=fs, project_year=py):
-                my_dict["om"] += nz(cost.amount, 0)
+        fs_dict["total_in_om"] = models.SALARY_TO_OM_FACTOR * fs_dict["salary"] + fs_dict["om"] + fs_dict["capital"]
+        fs_dict["allocated_total_in_om"] = models.SALARY_TO_OM_FACTOR * fs_dict["allocated_salary"] + fs_dict["allocated_om"] + fs_dict["allocated_capital"]
 
-            # Capital costs
-            for cost in models.CapitalCost.objects.filter(funding_source=fs, project_year=py):
-                my_dict["capital"] += nz(cost.amount, 0)
-
-            my_dict["total"] = my_dict["salary"] + my_dict["om"] + my_dict["capital"]
-
-        my_list.append(my_dict)
+        my_list.append(fs_dict)
 
     return my_list
 
@@ -460,10 +597,11 @@ def get_project_field_list(project):
 
         # csrf fields
         'overview' if is_csrf else None,
+        'csrf_fiscal_year|{}'.format(_("CSRF Application Year")) if is_csrf else None,
         'csrf_theme|{}'.format(_("CSRF Research Area")) if is_csrf else None,
         'csrf_sub_theme|{}'.format(_("CSRF Research Field")) if is_csrf else None,
         'csrf_priority|{}'.format(_("CSRF Research priority")) if is_csrf else None,
-        'client_information_html|{}'.format(_("Additional info supplied by client")) if is_csrf else None,
+        'client_information_html|{}'.format(_("Specific Client Question")) if is_csrf else None,
         'second_priority' if is_csrf else None,
         'objectives_html|{}'.format(_("project objectives (CSRF)")) if is_csrf else None,
         'innovation_html|{}'.format(_("innovation (CSRF)")) if is_csrf else None,
@@ -475,6 +613,7 @@ def get_project_field_list(project):
         'future_funding_needs' if is_sara else None,
 
         'tags',
+        'dmas',
         'references',
         'csas_processes',
         'metadata|{}'.format(_("metadata")),
@@ -551,8 +690,7 @@ def get_review_field_list():
         'approval_level',
         'approver_comment',
         'allocated_budget',
-        'allocated_salary',
-        'allocated_capital',
+        'checklist_file',
         'metadata',
     ]
     return my_list
@@ -562,6 +700,7 @@ def get_staff_field_list():
     my_list = [
         'smart_name|{}'.format(_("name")),
         'funding_source',
+        'is_primary_lead',
         'is_lead',
         'employee_type',
         'level',
@@ -570,6 +709,7 @@ def get_staff_field_list():
         # 'overtime_description',
         # 'student_program',
         'amount',
+        'allocated_amount',
     ]
     return my_list
 
@@ -596,6 +736,8 @@ def get_om_field_list():
         'description',
         'funding_source',
         'amount',
+        'allocated_amount',
+
     ]
     return my_list
 
@@ -606,6 +748,17 @@ def get_capital_field_list():
         'description',
         'funding_source',
         'amount',
+        'allocated_amount',
+    ]
+    return my_list
+
+
+def get_allocation_field_list():
+    my_list = [
+        'description',
+        'funding_source',
+        'amount',
+        'distributed_amount',
     ]
     return my_list
 
@@ -644,6 +797,13 @@ def get_status_report_field_list():
         'major_accomplishments_html|{}'.format(_("major accomplishments")),
         'major_issues_html|{}'.format(_("major issues")),
         'target_completion_date',
+        'rationale_for_modified_completion_date',
+        'excess_funds',
+        'excess_funds_amt',
+        'excess_funds_comment_html|{}'.format(_("suggested uses for remaining funds")),
+        'insuficient_funds',
+        'insuficient_funds_amt',
+        'insuficient_funds_comment_html|{}'.format(_("additional funding requested description")),
         'general_comment',
         'supporting_resources|{}'.format(_("supporting resources")),
         'section_head_comment',
@@ -652,6 +812,21 @@ def get_status_report_field_list():
     ]
     return my_list
 
+def get_status_report_short_field_list():
+    my_list = [
+        'report_number|{}'.format("number"),
+        'status',
+        'target_completion_date',
+        'excess_funds',
+        'excess_funds_amt',
+        'insuficient_funds',
+        'insuficient_funds_amt',
+        'general_comment',
+        'supporting_resources|{}'.format(_("supporting resources")),
+        'section_head_reviewed',
+        'metadata',
+    ]
+    return my_list
 
 def get_dma_field_list():
     my_list = [
@@ -1067,6 +1242,9 @@ def get_staff_summary(staff_df, summary_type, summary_cols=None, na_value="---")
 
         # count occurences of summary type based off original df
         output_df = staff_df.copy()
+        # hideous drop duplicates to make Nan's distinct
+        output_df = output_df[(~output_df.duplicated(subset=['user', summary_type])) | (output_df[['user']].isnull().any(axis=1))]
+
         output_df.loc[:, summary_type] = output_df[summary_type].fillna(value=na_value)
         output_summary = pd.DataFrame(output_df[summary_type].value_counts())
 

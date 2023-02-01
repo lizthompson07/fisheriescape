@@ -1,5 +1,7 @@
 from django import forms
 from django.forms import modelformset_factory
+from django.utils.translation import gettext
+from durationwidget.widgets import TimeDurationWidget
 
 from . import models
 
@@ -25,10 +27,31 @@ class TransactionForm(forms.ModelForm):
         model = models.Transaction
         fields = "__all__"
         widgets = {
+            'return_tracker': forms.HiddenInput(),
+            'audits': forms.HiddenInput(),
             'tag': forms.SelectMultiple(attrs=chosen_js),
             'created_by': forms.HiddenInput(),
 
         }
+
+#TODO - doesnt work as intended yet to keep someone from going into negative inventory
+    # def clean(self):
+    #     cleaned_data = super().clean()
+    #
+    #     # we have to make sure
+    #     # 1) there is enough inventory available at the selected location in the case of a subtraction
+    #
+    #     item = cleaned_data.get("item")
+    #     quantity = cleaned_data.get("quantity")
+    #     category = cleaned_data.get("category")
+    #     location = cleaned_data.get("location")
+    #
+    #     oh_quantity = item.get_oh_quantity(location=location)
+    #
+    #     if category == 2 and quantity > oh_quantity:
+    #         self.add_error('quantity', gettext(
+    #                     "Not enough quantity available for this transaction"
+    #                 ))
 
 
 class TransactionForm1(forms.ModelForm):
@@ -37,6 +60,9 @@ class TransactionForm1(forms.ModelForm):
         fields = "__all__"
         widgets = {
             'item': forms.HiddenInput(),
+            'category': forms.HiddenInput(),
+            'return_tracker': forms.HiddenInput(),
+            'audits': forms.HiddenInput(),
             'tag': forms.SelectMultiple(attrs=chosen_js),
             'created_by': forms.HiddenInput(),
         }
@@ -49,6 +75,8 @@ class TransactionForm2(forms.ModelForm):
         widgets = {
             'item': forms.HiddenInput(),
             'category': forms.HiddenInput(),
+            'return_tracker': forms.HiddenInput(),
+            'audits': forms.HiddenInput(),
             'tag': forms.SelectMultiple(attrs=chosen_js),
             'created_by': forms.HiddenInput(),
 
@@ -62,7 +90,26 @@ class TransactionForm3(forms.ModelForm):
         widgets = {
             'item': forms.HiddenInput(),
             'category': forms.HiddenInput(),
+            'return_tracker': forms.HiddenInput(),
+            'audits': forms.HiddenInput(),
             'location': forms.HiddenInput(),
+            'tag': forms.SelectMultiple(attrs=chosen_js),
+            'created_by': forms.HiddenInput(),
+
+        }
+
+
+class TransactionTransferForm(forms.ModelForm):
+
+    class Meta:
+        model = models.Transaction
+        fields = "__all__"
+        widgets = {
+            'item': forms.HiddenInput(),
+            'category': forms.HiddenInput(),
+            'return_tracker': forms.HiddenInput(),
+            'audits': forms.HiddenInput(),
+            # 'location': forms.HiddenInput(),
             'tag': forms.SelectMultiple(attrs=chosen_js),
             'created_by': forms.HiddenInput(),
 
@@ -93,6 +140,43 @@ class OrderForm1(forms.ModelForm):
                 attrs={"class": "not-a-group-field fp-date", "placeholder": "Click to select a date.."}),
             'date_received': forms.HiddenInput(),
             'transaction': forms.HiddenInput(),
+        }
+
+
+class MaintenanceForm(forms.ModelForm):
+
+    schedule = forms.DurationField(widget=TimeDurationWidget(
+        show_days=True,
+        show_hours=True,
+        show_minutes=False,
+        show_seconds=False),
+        required=False)
+
+    class Meta:
+        model = models.Maintenance
+        fields = "__all__"
+        widgets = {
+            'last_maint_date': forms.DateInput(
+                attrs={"class": "not-a-group-field fp-date", "placeholder": "Click to select a date.."}),
+        }
+
+
+class MaintenanceForm1(forms.ModelForm):
+
+    schedule = forms.DurationField(widget=TimeDurationWidget(
+        show_days=True,
+        show_hours=True,
+        show_minutes=False,
+        show_seconds=False),
+        required=False)
+
+    class Meta:
+        model = models.Maintenance
+        fields = "__all__"
+        widgets = {
+            'item': forms.HiddenInput(),
+            'last_maint_date': forms.DateInput(
+                attrs={"class": "not-a-group-field fp-date", "placeholder": "Click to select a date.."}),
         }
 
 

@@ -24,7 +24,7 @@ from shared_models.models import Person, Language, Region, FiscalYear, SubjectMa
 from . import serializers
 from .pagination import StandardResultsSetPagination
 from .permissions import CanModifyRequestOrReadOnly, CanModifyProcessOrReadOnly, RequestNotesPermission, CanModifyRequestReviewOrReadOnly, \
-    CanModifyToROrReadOnly, CanModifyToRReviewerOrReadOnly
+    CanModifyToROrReadOnly, CanModifyToRReviewerOrReadOnly, CanModifyRequestReviewerOrReadOnly
 from .. import models, emails, model_choices, utils, filters
 # USER
 #######
@@ -49,8 +49,13 @@ class CurrentUserAPIView(APIView):
             data["regional_admin"] = [office.region_id for office in request.user.csas_offices.all()]
 
         if qp.get("request"):
-            data["can_modify"] = utils.can_modify_request(request.user, qp.get("request"), return_as_dict=True)
-            data["is_client"] = utils.is_client(request.user, qp.get("request"))
+            csas_request = get_object_or_404(models.CSASRequest, pk=qp.get("request"))
+            data["can_modify"] = utils.can_modify_request(request.user, csas_request.id, return_as_dict=True)
+            data["can_withdraw"] = utils.can_withdraw_request(request.user, csas_request.id, return_as_dict=True)
+            data["is_client"] = utils.is_client(request.user, csas_request.id)
+            data["can_unsubmit"] = utils.can_unsubmit_request(request.user, csas_request.id)
+            if csas_request.current_reviewer and csas_request.current_reviewer.user == request.user:
+                data["reviewer"] = serializers.RequestReviewerSerializer(csas_request.current_reviewer).data
         elif qp.get("process"):
             data["can_modify"] = utils.can_modify_process(request.user, qp.get("process"), return_as_dict=True)
         elif qp.get("document"):
@@ -65,6 +70,14 @@ class CurrentUserAPIView(APIView):
             data["can_unsubmit"] = utils.can_unsubmit_tor(request.user, tor.id)
             if tor.current_reviewer and tor.current_reviewer.user == request.user:
                 data["reviewer"] = serializers.ToRReviewerSerializer(tor.current_reviewer).data
+        elif qp.get("index"):
+            data["action_items"] = utils.get_action_items(request.user)["count"]
+        elif qp.get("actions"):
+            items = utils.get_action_items(request.user)
+            data["request_reviewers"] = serializers.RequestReviewerSerializerFull(items["request_reviewers"], many=True).data
+            data["tor_reviewers"] = serializers.ToRReviewerSerializerFull(items["tor_reviewers"], many=True).data
+            data["withdrawals"] = serializers.CSASRequestSerializer(items["withdrawals"], many=True).data
+            data["rescopings"] = serializers.CSASRequestSerializer(items["rescopings"], many=True).data
         return Response(data)
 
 
@@ -86,10 +99,27 @@ class CSASRequestViewSet(viewsets.ModelViewSet):
         qp = request.query_params
         csas_request = get_object_or_404(models.CSASRequest, pk=pk)
         if qp.get("withdraw"):
-            if utils.is_client(request.user, pk) or utils.can_modify_request(request.user, pk, True):
+            if utils.can_withdraw_request(request.user, pk):
                 csas_request.withdraw()
                 return Response(serializers.CSASRequestSerializer(csas_request).data, status.HTTP_200_OK)
             raise ValidationError(_("Sorry, you do not have permissions to withdraw this request"))
+        elif qp.get("approval_seeker"):
+            utils.request_approval_seeker(csas_request, request)
+            return Response(None, status.HTTP_204_NO_CONTENT)
+        elif qp.get("resume_review"):
+            # reset the decision of the current reviewer
+            current_reviewer = csas_request.current_reviewer
+            # there is a weird scenario where the reviewer who requested changes aas since been deleted :(
+            if current_reviewer:
+                current_reviewer.decision = None
+                current_reviewer.decision_date = None
+                current_reviewer.save()
+
+            # return the status of the request to UNDER REVIEW (20)
+            csas_request.status = 20
+            csas_request.save()
+            utils.request_approval_seeker(csas_request, request)
+            return Response(None, status.HTTP_204_NO_CONTENT)
         raise ValidationError(_("This endpoint cannot be used without a query param"))
 
 
@@ -621,7 +651,13 @@ class DocumentViewSet(viewsets.ModelViewSet):
                         num_list.sort()
                         p_num = '{:03d}'.format(num_list[-1] + 1)
                 pub_number = f"{year}/{p_num}"
-                return Response(dict(pub_number=pub_number), status=status.HTTP_200_OK)
+                tracking = doc.tracking
+                tracking.pub_number = pub_number
+                tracking.save()
+                # send email
+                email = emails.PublicationNumberConfirmationEmail(request, doc)
+                email.send()
+                return Response(serializers.DocumentTrackingSerializer(tracking).data, status=status.HTTP_200_OK)
             raise ValidationError(_("Cannot generate a pub number if there is no anticipated posting date."))
         elif qp.get("get_due_date"):
             # due date can be guessed based on the document type
@@ -886,8 +922,10 @@ class RequestReviewModelMetaAPIView(APIView):
         yes_no_choices.insert(0, dict(text="-----", value=None))
         yes_no_unsure_choices = [dict(text=c[1], value=c[0]) for c in model_choices.yes_no_unsure_choices_int]
         yes_no_unsure_choices.insert(0, dict(text="-----", value=None))
+        bool_choices = [dict(text=c[1], value=c[0]) for c in models.YES_NO_CHOICES]
         data['yes_no_choices'] = yes_no_choices
         data['yes_no_unsure_choices'] = yes_no_unsure_choices
+        data['bool_choices'] = bool_choices
         data['decision_choices'] = decision_choices
         return Response(data)
 
@@ -933,9 +971,11 @@ class ToRViewSet(viewsets.ModelViewSet):
         elif qp.get("resume_review"):
             # reset the decision of the current reviewer
             current_reviewer = tor.current_reviewer
-            current_reviewer.decision = None
-            current_reviewer.decision_date = None
-            current_reviewer.save()
+            # there is a weird scenario where the reviewer who requested changes aas since been deleted :(
+            if current_reviewer:
+                current_reviewer.decision = None
+                current_reviewer.decision_date = None
+                current_reviewer.save()
 
             # return the status of the ToR to UNDER REVIEW (20)
             tor.status = 20
@@ -982,6 +1022,12 @@ class ToRReviewerViewSet(viewsets.ModelViewSet):
             raise ValidationError(msg)
         super().perform_destroy(instance)
 
+        # if the status of the reviewer being deleted is 'pending' (30) we should be polite and inform them. Then we will have to move onto the next reviewer
+        if instance.status == 30:
+            email = emails.ToRReviewTerminatedEmail(self.request, instance)
+            email.send()
+            utils.tor_approval_seeker(tor, self.request)
+
     def perform_create(self, serializer):
         obj = serializer.save(created_by=self.request.user)
         # if the review is underway, the status should go directly to queued (20)!
@@ -994,4 +1040,40 @@ class ToRReviewerViewSet(viewsets.ModelViewSet):
         # if the decisions is to request changes, this would be the moment to send out an email!
         if obj.decision == 2:
             email = emails.ToRChangesRequestedEmail(self.request, obj)
+            email.send()
+
+
+class RequestReviewerViewSet(viewsets.ModelViewSet):
+    queryset = models.RequestReviewer.objects.all()
+    serializer_class = serializers.RequestReviewerSerializer
+    permission_classes = [CanModifyRequestReviewerOrReadOnly]
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ["csas_request"]
+
+    def perform_destroy(self, instance):
+        # don't delete if there are no other approvers and the tor is submitted
+        csas_request = instance.csas_request
+        if csas_request.submission_date and not csas_request.reviewers.filter(~Q(id=instance.id)).filter(role=1).exists():
+            msg = _('There has to be at least one approver in the queue!')
+            raise ValidationError(msg)
+        super().perform_destroy(instance)
+
+        # if the status of the reviewer being deleted is 'pending' (30) we should be polite and inform them. Then we will have to move onto the next reviewer
+        if instance.status == 30:
+            email = emails.RequestReviewTerminatedEmail(self.request, instance)
+            email.send()
+            utils.request_approval_seeker(csas_request, self.request)
+
+    def perform_create(self, serializer):
+        obj = serializer.save(created_by=self.request.user)
+        # if the client review is underway, the status should go directly to queued (20)!
+        if obj.csas_request.status == 20:
+            obj.status = 20
+            obj.save()
+
+    def perform_update(self, serializer):
+        obj = serializer.save(updated_by=self.request.user)
+        # if the decisions is to request changes, this would be the moment to send out an email!
+        if obj.decision == 2:
+            email = emails.RequestChangesRequestedEmail(self.request, obj)
             email.send()

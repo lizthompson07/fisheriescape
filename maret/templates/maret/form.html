@@ -19,8 +19,14 @@
 {% endblock %}
 
 {% block body %}
-    {{ block.super }}
+      {{ block.super }}
 {% endblock body %}
+
+{% block form_buttons %}
+    {{ block.super }}
+    <span style="color:red;">*</span>
+    <span> denotes a required field.</span>
+{% endblock form_buttons %}
 
 {% block left_auth %}
     {% include "maret/base/_nav_left_auth.html" %}

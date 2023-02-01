@@ -131,7 +131,8 @@
               </span>
       <div v-if="!r.reviewCollapse">
         <div class="row">
-          <div class="col-3">
+          <div class="col">
+
 
             <div class="mb-3">
               <span class="text-muted small">${reviewLabels.is_valid}</span>
@@ -163,6 +164,7 @@
               </v-select>
             </div>
 
+
             <div class="mb-3">
               <span class="text-muted small">${reviewLabels.decision}</span>
               <v-select
@@ -178,29 +180,63 @@
               >
               </v-select>
             </div>
+
+          </div>
+          <div class="col-1">
+
+
+          </div>
+          <div class="col">
+
+
             <div class="mb-3">
               <span class="text-muted small">${reviewLabels.advice_date}</span>
               <input v-model="r.review.advice_date" type="date" class="form-control" placeholder="{% trans "Click to select dates" %}"
                      @focusout="updateReview(r)" :disabled="!r.is_valid_request">
             </div>
 
+
+            <div class="mb-3">
+              <span class="text-muted small">${reviewLabels.ref_number}</span>
+              <input v-model="r.review.ref_number" type="text" class="form-control" @focusout="updateReview(r)">
+            </div>
+
+            <div class="form-group">
+              <span class="text-muted small">${reviewLabels.is_other_mandate}</span>
+              <v-select
+                style="width: 100%"
+                v-model="r.review.is_other_mandate"
+                @input="updateReview(r)"
+                :options="boolChoices"
+                :reduce="choice => choice.value"
+                label="text"
+                :clearable="false"
+                class="bg-light"
+                :disabled="r.review.decision!==2"
+              >
+              </v-select>
+            </div>
           </div>
+        </div>
+
+        <div class="row">
           <div class="col">
             <div class="mb-3">
                     <span class="text-muted small">{% trans "Recommendation rationale" %} (<span
                       class="text-success font-weight-bold">{% trans "VISIBLE TO CLIENT" %}</span>)</span>
-              <textarea rows="13" class="form-control" v-model="r.review.decision_text" @change="updateReview(r)"></textarea>
+              <textarea rows="10" class="form-control" v-model="r.review.decision_text" @change="updateReview(r)"></textarea>
             </div>
           </div>
+        </div>
+        <div class="row">
           <div class="col">
             <div class="mb-3">
                     <span class="text-muted small">${reviewLabels.deferred_text} (<span
                       class="text-success font-weight-bold">{% trans "VISIBLE TO CLIENT" %}</span>)</span>
-              <textarea rows="13" class="form-control" v-model="r.review.deferred_text" @change="updateReview(r)"
+              <textarea rows="3" class="form-control" v-model="r.review.deferred_text" @change="updateReview(r)"
                         :disabled="!r.is_rescheduled || !r.is_valid_request"></textarea>
             </div>
           </div>
-
         </div>
 
         {# email stuff #}

@@ -1,6 +1,8 @@
 import inspect
 
 from django import forms
+from django.db.models import Q
+
 from maret import models
 from masterlist import models as ml_models
 from shared_models import models as shared_models
@@ -22,6 +24,7 @@ class CommitteeForm(forms.ModelForm):
             'external_chair': forms.SelectMultiple(attrs=chosen_js),
             'dfo_liaison': forms.SelectMultiple(attrs=chosen_js),
             'last_modified_by': forms.HiddenInput(),
+            'lead_national_sector': forms.Select(attrs=chosen_js),
             'external_organization': forms.SelectMultiple(attrs=chosen_js),
             'external_contact': forms.SelectMultiple(attrs=chosen_js),
             'other_dfo_participants': forms.SelectMultiple(attrs=chosen_js)
@@ -29,10 +32,10 @@ class CommitteeForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.order_fields(['name', 'main_topic', 'species', 'lead_region', 'branch', 'division', 'area_office',
-                           'area_office_program', 'other_dfo_branch', 'other_dfo_areas', 'other_dfo_regions',
-                           'dfo_national_sectors', 'dfo_role', 'is_dfo_chair', 'external_chair', 'external_contact',
-                           'external_organization', 'dfo_liaison', 'other_dfo_participants',
+        self.order_fields(['name', 'main_topic', 'species', 'lead_region', 'lead_national_sector', 'branch', 'division',
+                           'area_office', 'area_office_program', 'other_dfo_branch', 'other_dfo_areas',
+                           'other_dfo_regions', 'dfo_national_sectors', 'dfo_role', 'is_dfo_chair', 'external_chair',
+                           'external_contact', 'external_organization', 'dfo_liaison', 'other_dfo_participants',
                            'first_nation_participation', 'municipal_participation', 'provincial_participation',
                            'other_federal_participation', 'meeting_frequency', 'are_tor', 'location_of_tor',
                            'main_actions', 'comments',
@@ -68,11 +71,11 @@ class InteractionForm(forms.ModelForm):
         self.fields['other_dfo_branch'].widget.attrs['size'] = '6'
         self.fields['other_dfo_regions'].widget.attrs['size'] = '6'
         self.fields['other_dfo_areas'].widget.attrs['size'] = '6'
-        self.order_fields(['description', 'interaction_type', 'committee', 'date_of_meeting', 'main_topic', 'species', 'lead_region',
-                           'branch', 'division', 'area_office', 'area_office_program', 'other_dfo_branch',
-                           'other_dfo_areas', 'other_dfo_regions', 'dfo_national_sectors', 'dfo_role',
-                           'external_contact', 'external_organization', 'dfo_liaison', 'other_dfo_participants',
-                           'action_items', 'comments'
+        self.order_fields(['description', 'interaction_type', 'is_committee', 'committee', 'date_of_meeting', 'main_topic', 'species',
+                           'lead_region', 'lead_national_sector', 'branch', 'division',  'area_office',
+                           'area_office_program', 'other_dfo_branch','other_dfo_areas', 'other_dfo_regions',
+                           'dfo_national_sectors', 'dfo_role', 'external_contact', 'external_organization',
+                           'dfo_liaison', 'other_dfo_participants', 'action_items', 'comments'
                            ])
 
     class Meta:
@@ -87,6 +90,7 @@ class InteractionForm(forms.ModelForm):
             'last_modified_by': forms.HiddenInput(),
             'committee': forms.Select(attrs=chosen_js),
             'dfo_role': forms.Select(attrs=chosen_js),
+            'lead_national_sector': forms.Select(attrs=chosen_js),
             'dfo_liaison': forms.SelectMultiple(attrs=chosen_js),
             'other_dfo_participants': forms.SelectMultiple(attrs=chosen_js),
             'external_organization': forms.SelectMultiple(attrs=chosen_js),
@@ -96,7 +100,6 @@ class InteractionForm(forms.ModelForm):
 
 class OrganizationForm(forms.ModelForm):
     asc_province = forms.MultipleChoiceField(required=False, label=_("Associated Province(s)"))
-    category = forms.MultipleChoiceField(required=False, label=_("Categories"))
     area = forms.MultipleChoiceField(required=False, label=_("Area(s)"))
     email = forms.EmailField(required=False, label=_("E-mail"))
     committee = forms.MultipleChoiceField(required=False, label=_("Committees/Working Groups"))
@@ -120,12 +123,11 @@ class OrganizationForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.order_fields(['name_eng', 'category', 'grouping', 'name_ind', 'abbrev', 'email', 'address', 'mailing_address', 'city',
+        self.order_fields(['name_eng', 'grouping', 'name_ind', 'abbrev', 'email', 'address', 'mailing_address', 'city',
                            'postal_code', 'province', 'phone', 'fax', 'notes',
                            'key_species', 'area', 'regions', 'asc_province', 'committee'])
 
         self.fields['area'].widget = forms.SelectMultiple(attrs=multi_select_js)
-        self.fields['category'].widget = forms.SelectMultiple(attrs=multi_select_js)
         self.fields['orgs'].widget = forms.SelectMultiple(attrs=multi_select_js)
         self.fields['asc_province'].widget = forms.SelectMultiple(attrs=multi_select_js)
         self.fields['committee'].widget = forms.SelectMultiple(attrs=chosen_js)
@@ -136,14 +138,18 @@ class OrganizationForm(forms.ModelForm):
         area_choices = [(a.id, a) for a in models.Area.objects.all()]
         self.fields['area'].choices = area_choices
 
-        category_choices = [(c.id, c) for c in models.OrgCategory.objects.all()]
-        self.fields['category'].choices = category_choices
-
         province_choices = [(p.id, p) for p in shared_models.Province.objects.all()]
         self.fields['asc_province'].choices = province_choices
 
         self.fields['committee'].choices = [(c.id, c) for c in models.Committee.objects.all()]
-
+        if self.initial:
+            self.fields['grouping'].queryset = ml_models.Grouping.objects.filter(
+                Q(in_maret=True) |
+                Q(id__in=[grouping.id for grouping in self.initial["grouping"]])
+            ).distinct()
+        else:
+            self.fields['grouping'].queryset = ml_models.Grouping.objects.filter(in_maret=True)
+            self.fields['grouping'].widget.attrs = multi_select_js
 
 
 class MemberForm(forms.ModelForm):
@@ -217,19 +223,6 @@ SpeciesFormSet = modelformset_factory(
 )
 
 
-class OrgCategoryForm(forms.ModelForm):
-    class Meta:
-        model = models.OrgCategory
-        fields = "__all__"
-
-
-OrgCategoriesFormSet = modelformset_factory(
-    model=models.OrgCategory,
-    form=OrgCategoryForm,
-    extra=3,
-)
-
-
 class AreaForm(forms.ModelForm):
     class Meta:
         model = models.AreaOffice
@@ -268,6 +261,18 @@ AreaOfficesProgramFormSet = modelformset_factory(
     extra=3,
 )
 
+
+class GroupingForm(forms.ModelForm):
+    class Meta:
+        model = ml_models.Grouping
+        fields = "__all__"
+
+
+GroupingFormSet = modelformset_factory(
+    model=ml_models.Grouping,
+    form=GroupingForm,
+    extra=1,
+)
 
 class HelpTextPopForm(forms.ModelForm):
 

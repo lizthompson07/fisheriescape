@@ -931,6 +931,7 @@ def verify(resource):
         'east_bounding',
         'north_bounding',
         'thumbnail_url',
+        'dma',
 
         # bilingual fields
         '?title_',
@@ -1017,11 +1018,16 @@ def verify(resource):
     for field in fields_to_check:
         # starting with the most simple case: unilingual fields of resource
         if "$" not in field and "|" not in field and "." not in field and "__" not in field and "?" not in field:
-            field_value = nz(getattr(resource, field), None)
-            verbose_name = resource._meta.get_field(field).verbose_name
-            if field_value is None:
-                checklist.append("A value for {} is missing.".format(verbose_name))
-                rating = rating - 1
+            if field == "dma":
+                if not hasattr(resource, "dma"):
+                    checklist.append(f"A <a href='{reverse('inventory:dma_new')+f'?resource={resource.id}'}' target='_blank'>data management agreement</a> has not been created for this record. This is optional but <b>highly recommended.</b>")
+                    rating = rating - 0  # make this optional
+            else:
+                field_value = nz(getattr(resource, field), None)
+                verbose_name = resource._meta.get_field(field).verbose_name
+                if field_value is None:
+                    checklist.append("A value for {} is missing.".format(verbose_name))
+                    rating = rating - 1
         # next lets deal with the simple bilingual fields
         elif field.startswith("?"):
             # for check to see if there is a value

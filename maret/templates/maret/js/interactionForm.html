@@ -1,113 +1,51 @@
 <script type="application/javascript">
 
     function updateFields() {
-        let int_type = parseInt($("#id_interaction_type :selected").val(), 10);
+        let committeeId = $("#id_committee").val();
 
+        let endpoint =  `/api/maret/committee/${committeeId}/`;
+        apiService(endpoint).then(outData => {
+          console.log(outData);
+          let fieldList = [
+              "main_topic",
+              "species",
+              "lead_region",
+              "branch",
+              "division",
+              "area_office",
+              "area_office_program",
+              "other_dfo_branch",
+              "other_dfo_regions",
+              "lead_national_sector",
+              "dfo_national_sectors",
+              "other_dfo_areas",
+
+              ]
+          for (var fieldName of fieldList) {
+              $("#id_" + fieldName).val(outData[fieldName]).change();
+          }
+          let chosenJsFields = [
+              "dfo_role",
+              "dfo_liaison",
+              "external_organization",
+              "other_dfo_participants",
+              "external_contact",
+          ]
+            for (var fieldName of chosenJsFields) {
+              $("#id_" + fieldName).val(outData[fieldName]).trigger('chosen:updated');
+          }
+
+        })
+    }
+    function toggleCommittee() {
+        let is_committee = $("#id_is_committee :selected").val() == "True";
         let $committee = $("#committee_div");
-        let $date_of_meeting = $("#date_of_meeting_div");
-        let $dfo_liaison = $("#dfo_liaison_div");
-        let $dfo_role = $("#dfo_role_div");
-        let lead_region = $("#lead_region_div");
-        let $other_dfo_participants = $("#other_dfo_participants_div");
-        let $external_contact = $("#external_contact_div");
-        let $external_organization = $("#external_organization_div");
-        let $main_topic = $("#main_topic_div");
-        let $species = $("#species_div");
-        let $branch = $("#branch_div");
-        let $division = $("#division_div");
-        let $area_office = $("#area_office_div");
-        let $area_office_program = $("#area_office_program_div");
-        let $other_dfo_branch = $("#other_dfo_branch_div");
-        let $other_dfo_regions = $("#other_dfo_regions_div");
-        let $other_dfo_areas = $("#other_dfo_areas_div");
 
         // Default hiden fields
         $committee.hide();
         $("#id_committee").prop("required", false);
 
-        // Default not hidden fields
-        $date_of_meeting.show();
-        $("#id_date_of_meeting").prop("required", false);
-        $dfo_liaison.show();
-        $("#id_dfo_liaison").prop("required", false);
-        $dfo_role.show();
-        $("#id_dfo_role").prop("required", false);
-        $other_dfo_participants.show();
-        $("#id_lead_region").prop("required", false);
-        lead_region.show();
-        $("#id_other_dfo_participants").prop("required", false);
-        $external_contact.show();
-        $("#id_external_contact").prop("required", false);
-        $external_organization.show();
-        $("#id_external_organization").prop("required", false);
-        $main_topic.show();
-        $("#id_main_topic").prop("required", false);
-        $species.show();
-        $("#id_species").prop("required", false);
-        $branch.show();
-        $("#id_branch").prop("required", false);
-        $area_office.show();
-        $("#id_area_office").prop("required", false);
-        $other_dfo_regions.show();
-        $("#id_other_dfo_regions").prop("required", false);
-        $other_dfo_branch.show();
-        $("#id_other_dfo_branch").prop("required", false);
-        $other_dfo_areas.show();
-        $("#id_other_dfo_areas").prop("required", false);
-
-        if (int_type === 1 || int_type === 2 || int_type === 3 || int_type === 4) {
-            $("#id_date_of_meeting").prop("required", true);
-        }
-
-        if (int_type === 4) {
-            $committee.show();
-            $("#id_committee").prop("required", true);
-
-            $dfo_role.show();
-            $("#id_dfo_role").prop("required", false);
-
-            lead_region.hide();
-            $("#id_lead_region").prop("required", false);
-
-            $dfo_liaison.hide();
-            $("#dfo_liaison").prop("required", false);
-
-            $other_dfo_participants.hide();
-            $("#id_other_dfo_participants").prop("required", false);
-
-            $external_contact.hide();
-            $("#id_external_contact").prop("required", false);
-
-            $external_organization.hide();
-            $("#id_external_organization").prop("required", false);
-
-            $main_topic.hide();
-            $("#id_main_topic").prop("required", false);
-
-            $species.hide();
-            $("#id_species").prop("required", false);
-
-            $branch.hide();
-            $("#id_branch").prop("required", false);
-
-            $division.hide();
-            $("#id_division").prop("required", false);
-
-            $area_office.hide();
-            $("#id_area_office").prop("required", false);
-
-            $area_office_program.hide();
-            $("#id_area_office_program").prop("required", false);
-
-            $other_dfo_regions.hide();
-            $("#id_other_dfo_regions").prop("required", false);
-
-            $other_dfo_branch.hide();
-            $("#id_other_dfo_branch").prop("required", false);
-
-            $other_dfo_areas.hide();
-            $("#id_other_dfo_areas").prop("required", false);
-        } else if (int_type === 5) {
+        if (is_committee) {
             $committee.show();
             $("#id_committee").prop("required", true);
         }
@@ -134,15 +72,23 @@
         let region_array = $("#id_other_dfo_regions :selected").map(function(i, el) {
             return $(el).text();
         }).get();
-        if (region_array.includes("National")) {
+        if (region_array.includes("National") || ($("#id_lead_region :selected").text() == "National")) {
             $('#dfo_national_sectors_div').show();
+            $('#lead_national_sector_div').show();
         } else {
             $('#dfo_national_sectors_div').hide();
+            $('#lead_national_sector_div').hide();
         }
+
+
     }
 
-    $("#id_interaction_type").change(function () {
-        updateFields();
+    $("#id_committee").change(function () {
+          updateFields();
+    });
+
+    $("#id_is_committee").change(function () {
+        toggleCommittee();
         toggleAreaOfficeProgram();
         toggleDivision();
     });
@@ -151,9 +97,14 @@
             toggleNHQSectors();
     });
 
+    $("#id_lead_region").change(function () {
+            toggleNHQSectors();
+    });
+
     $(document).ready(function () {
-        updateFields();
+        toggleCommittee();
         toggleAreaOfficeProgram();
         toggleNHQSectors();
     });
 </script>
+

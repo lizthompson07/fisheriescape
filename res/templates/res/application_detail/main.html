@@ -146,6 +146,7 @@
     el: '#app',
     delimiters: ["${", "}"],
     data: {
+      applicationId,
       currentUser: {},
       loadingApplication: false,
       loadingRecommendation: false,
@@ -251,18 +252,25 @@
               if (datum.date) datum.date = datum.date.split("T")[0];
             }
             this.achievements = data.results;
-            if (reload) this.loadingAchievements = false;
           }
+          this.loadingAchievements = false;
         });
       },
       getAchievementsSummary() {
         this.loadingAchievementsSummary = true;
-        let endpoint = `/api/res/achievements/?user=${this.application.applicant}&summary-table=true`;
+        let endpoint = `/api/res/achievements/?user=${this.application.applicant}&summary-table=true&application=${this.application.id}`;
         apiService(endpoint).then(data => {
           if (data) {
             this.achievementsSummary = data;
             this.loadingAchievementsSummary = false;
           }
+        });
+      },
+      updateStartingCounts(publicationType, count) {
+        let endpoint = `/api/res/applications/${this.applicationId}/?update-starting-counts=true`;
+        apiService(endpoint, "POST", {publication_type: publicationType, count: count}).then(data => {
+          if (!data.id) alert(groomJSON(data));
+          else this.getAchievementsSummary();
         });
       },
       newAchievement(achievement) {

@@ -34,7 +34,7 @@ LOGS_DIR = os.path.join(BASE_DIR, 'logs')
 # Django security key
 SECRET_KEY = config('SECRET_KEY', cast=str, default="fdsgfsdf3erdewf232343242fw#ERD$#F#$F$#DD")
 # session cookie expiration
-SESSION_COOKIE_AGE = config('SESSION_COOKIE_AGE', cast=int, default=86400)  # # 1 day in seconds
+SESSION_COOKIE_AGE = config('SESSION_COOKIE_AGE', cast=int, default=86400*5)  # # 1 day in seconds
 # should debug mode be turned on or off? default = False
 DEBUG = config("DEBUG", cast=bool, default=True)
 # should vuejs be vued in debug mode?
@@ -57,6 +57,8 @@ SHOW_TICKETING_APP = config("SHOW_TICKETING_APP", cast=bool, default=True)
 IS_LINUX = "win" not in sys.platform.lower()
 # should concurrent logins (different sessions) be prevented?
 PREVENT_CONCURRENT_LOGINS = config("PREVENT_CONCURRENT_LOGINS", cast=bool, default=True)
+# it is best to get this information direction from an HTTP request object however this is not always possible, e.g. in the context of a celery task.
+SITE_FULL_URL = config("SITE_FULL_URL", cast=str, default="")
 
 try:
     GIT_VERSION = subprocess.check_output(['git', "-C", BASE_DIR, 'rev-parse', '--short', 'HEAD']).decode()
@@ -150,7 +152,7 @@ INSTALLED_APPS = [
                      'rest_framework',
                      'rest_framework_gis',
                      'django_filters',
-                     'crispy_forms', #added for testing DRF filters
+                     'crispy_forms',  # added for testing DRF filters
                      'storages',
                      'django.contrib.humanize',
                      'bootstrap4',
@@ -164,6 +166,7 @@ INSTALLED_APPS = [
                      'lib',
                      'shared_models',
                      'tickets',
+                     'durationwidget',
                  ] + local_conf.MY_INSTALLED_APPS
 
 # # If the GEODJANGO setting is set to False, turn off any apps that require it
@@ -413,3 +416,21 @@ CELERY_BROKER_URL = config("CELERY_BROKER_URL", cast=str, default="redis://local
 CELERY_RESULT_BACKEND = config("CELERY_RESULT_BACKEND", cast=str, default="redis://localhost:6379")
 CELERY_RESULT_EXPIRES = 30
 CELERY_TIMEZONE = 'UTC'
+
+
+import sys
+
+if 'loaddata' in sys.argv:
+    # is database used sqlite3?
+    if 'sqlite3' in DATABASES['default']['ENGINE']:
+    # Ask for confirmation to disable foreign key checks
+        if input('Do you want to disable foreign key checks? [y/N] ').lower() == 'y':
+            print("...Disabling foreign key checks")
+            from django.db.backends.signals import connection_created
+            def disable_foreign_keys(sender, connection, **kwargs):
+                cursor = connection.cursor()
+                cursor.execute('PRAGMA foreign_keys=OFF;')
+            connection_created.connect(disable_foreign_keys)
+
+
+

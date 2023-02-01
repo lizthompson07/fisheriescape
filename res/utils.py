@@ -1,10 +1,12 @@
 from django.contrib.auth.models import Group
 # open basic access up to anybody who is logged in
-from django.db.models import Q
+from django.db.models import Q, Sum
 from django.shortcuts import get_object_or_404
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _, gettext
 from markdown import markdown
 
+from lib.functions.custom_functions import truncate
 from res import models
 from shared_models.models import Section, Division, Branch, Sector, Region
 
@@ -241,7 +243,7 @@ def connect_refs(txt, achievements_qs):
         pk = ref.lower().replace("ref", "").strip()
         try:
             a = achievements_qs.get(pk=pk)
-            tip = a.achievement_display_no_code
+            tip = a.achievement_display_text
             if a.category:
                 code = a.category.code
             text_class = "text-primary"
@@ -257,37 +259,49 @@ def connect_refs(txt, achievements_qs):
     return markdown(txt)
 
 
-def achievements_summary_table(user):
+def achievements_summary_table(user, application=None):
     payload = list()
     last_application = user.res_applications.filter(last_promotion__isnull=False).order_by("last_promotion").last()
     before_last_promotion = "---"
     since_last_promotion = "---"
     for publication_type in models.PublicationType.objects.all():
         qs = user.achievements.filter(publication_type=publication_type, category__is_publication=True)
+        starting_count = 0
+        if application:
+            starting_count = models.ApplicationPublicationStartingCounts.objects.get(application=application, publication_type=publication_type).starting_count
+
         if last_application:
             last_promotion = last_application.last_promotion
             before_last_promotion = qs.filter(date__lt=last_promotion).count()
             since_last_promotion = qs.filter(date__gte=last_promotion).count()
         payload.append(
             dict(
+                publication_type_id=publication_type.id,
                 publication_type=f"{publication_type.code}. {publication_type.tname}",
+                starting_count=starting_count,
                 before_last_promotion=before_last_promotion,
                 since_last_promotion=since_last_promotion,
-                total=qs.count(),
+                total=qs.count() + starting_count,
             )
         )
 
     qs = user.achievements.filter(category__is_publication=True)
+
+    starting_count = 0
+    if application:
+        starting_count = models.ApplicationPublicationStartingCounts.objects.filter(application=application).aggregate(sum=Sum("starting_count"))["sum"]
+
     if last_application:
         last_promotion = last_application.last_promotion
         before_last_promotion = qs.filter(date__lt=last_promotion).count()
         since_last_promotion = qs.filter(date__gte=last_promotion).count()
     payload.append(
         dict(
+            starting_count=starting_count,
             publication_type=_("TOTAL"),
             before_last_promotion=before_last_promotion,
             since_last_promotion=since_last_promotion,
-            total=qs.count(),
+            total=qs.count() + starting_count,
         )
     )
     return payload

@@ -3,7 +3,7 @@
 {% load custom_tags %}
 {% load bootstrap4 %}
 
-<div v-if="showApprovals" class="mt-5">
+<div v-if="showTab.approvals" class="mt-5">
 
   <div v-if="!projects_loading">
     <div class="text-center">
@@ -20,8 +20,12 @@
             <th @click="sort('{{ field }}')" class="clickable w-15">
               {% get_verbose_label random_project field %}
             </th>
-          {% elif "funding" in field or "functional" in field %}
-            <th @click="sort('{{ field }}')" class="clickable w150">
+          {% elif "funding" in field %}
+            <th @click="sort('{{ field }}')" style="width: 150px" class="clickable">
+              {% trans "Funding Sources" %}
+            </th>
+          {% elif "functional" in field %}
+            <th @click="sort('{{ field }}')" style="width: 150px" class="clickable">
               {% get_verbose_label random_project field %}
             </th>
           {% elif "fiscal" in field %}
@@ -47,9 +51,9 @@
         <th class="w150"> ${reviewLabels.approval_status}</th>
         <th class="w150"> ${reviewLabels.approval_level}</th>
         <th class="w150"> ${reviewLabels.funding_status}</th>
-        <th class="w150"> ${reviewLabels.allocated_budget}</th>
-        <th class="w150"> ${reviewLabels.allocated_salary}</th>
-        <th class="w150"> ${reviewLabels.allocated_capital}</th>
+        <th class="w150">{% trans "O&M Allocations" %}</th>
+        <th class="w150">{% trans "Salary Allocations" %}</th>
+        <th class="w150">{% trans "Capital Allocations" %}</th>
         <th class="w200"> ${reviewLabels.approver_comment}</th>
 
       </tr>
@@ -68,7 +72,7 @@
           </a>
         </td>
 
-        <td>${p.project.default_funding_source}</td>
+        <td>${p.funding_sources_list}</td>
         <td><span :class="p.status_class + ' p-1'" v-html="p.status_display"></span></td>
 
 
@@ -99,13 +103,22 @@
           </select>
         </td>
         <td v-if="p.review">
-          <input @change="updateReview(p)" type="number" v-model="p.review.allocated_budget" class="form-control">
+          <p>${p.om_allocations | nz(0) | currencyFormat | zero2NullMark}</p>
+          <button v-if="p.status==4" @click="openAllocationModal(null, p, 'om_allocation')" class="px-1 {{ btn_class }} btn btn-sm btn-primary">
+            {% trans "Add O&M" %}
+          </button>
         </td>
         <td v-if="p.review">
-          <input @change="updateReview(p)" type="number" v-model="p.review.allocated_salary" class="form-control">
+          <p>${p.salary_allocations | nz(0) | currencyFormat | zero2NullMark}</p>
+          <button v-if="p.status==4" @click="openAllocationModal(null, p, 'salary_allocation')" class="px-1 {{ btn_class }} btn btn-sm btn-primary">
+            {% trans "Add Salary" %}
+          </button>
         </td>
         <td v-if="p.review">
-          <input @change="updateReview(p)" type="number" v-model="p.review.allocated_capital" class="form-control">
+          <p>${p.capital_allocations | nz(0) | currencyFormat | zero2NullMark}</p>
+          <button v-if="p.status==4" @click="openAllocationModal(null, p, 'capital_allocation')" class="px-1 {{ btn_class }} btn btn-sm btn-primary">
+            {% trans "Add Capital" %}
+          </button>
         </td>
         <td v-if="p.review">
           <textarea v-model="p.review.approver_comment" class="form-control w-100" id="" rows="4" @change="updateReview(p)"></textarea>

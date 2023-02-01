@@ -1,5 +1,8 @@
+from datetime import timedelta
+
 from django.contrib.auth.models import User
 from django.db import models
+from django.db.models import Q
 # Create your models here.
 from django.templatetags.static import static
 from django.urls import reverse
@@ -9,7 +12,7 @@ from django.utils.translation import gettext_lazy as _, gettext
 from markdown import markdown
 
 from dm_apps.utils import get_timezone_time
-from shared_models.models import SimpleLookup, Region, MetadataFields, UnilingualSimpleLookup, LatLongFields
+from shared_models.models import SimpleLookup, Region, MetadataFields, UnilingualSimpleLookup, LatLongFields, Section
 
 YES_NO_CHOICES = [(True, _("Yes")), (False, _("No")), ]
 
@@ -94,6 +97,7 @@ def img_file_name(instance, filename):
 class Vehicle(MetadataFields):
     location = models.ForeignKey(Location, on_delete=models.DO_NOTHING, related_name="vehicles", verbose_name=_("location"))
     custodian = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="vehicles", verbose_name=_("custodian"))
+    section = models.ForeignKey(Section, on_delete=models.DO_NOTHING, related_name="vehicles", verbose_name=_("DFO section"), blank=False, null=True)
     vehicle_type = models.ForeignKey(VehicleType, on_delete=models.DO_NOTHING, related_name="vehicles", verbose_name=_("vehicle type"))
     reference_number = models.CharField(max_length=50, verbose_name=_("reference number"), unique=True)
     make = models.CharField(max_length=255, verbose_name=_("make"))
@@ -108,8 +112,14 @@ class Vehicle(MetadataFields):
     class Meta:
         ordering = ["reference_number"]
 
-    def __str__(self):
+    @property
+    def display(self):
         return f"{self.year} {self.make} {self.model} ({self.reference_number})"
+
+    def __str__(self):
+        if self.section and self.section.abbrev:
+            return f"{self.display} - {self.section.abbrev}"
+        return str(self.display)
 
     @property
     def smart_image(self):
@@ -130,7 +140,7 @@ class Reservation(MetadataFields):
         (30, "Field Season"),
     )
 
-    vehicle = models.ForeignKey(Vehicle, on_delete=models.DO_NOTHING, blank=True, verbose_name=_("vehicle"), related_name="reservations")
+    vehicle = models.ForeignKey(Vehicle, on_delete=models.CASCADE, blank=True, verbose_name=_("vehicle"), related_name="reservations")
     primary_driver = models.ForeignKey(User, on_delete=models.DO_NOTHING, verbose_name=_("primary driver"), related_name="vehicle_reservations", blank=True)
     start_date = models.DateTimeField(verbose_name=_("departure date"))
     end_date = models.DateTimeField(verbose_name=_("return date"))
@@ -162,6 +172,24 @@ class Reservation(MetadataFields):
             departure=get_timezone_time(self.end_date).strftime("%Y-%m-%d %H:%M"),
         ))
 
+    @property
+    def date_range(self):
+        return mark_safe(_("{arrival} to {departure}").format(
+            arrival=get_timezone_time(self.start_date).strftime("%Y-%m-%d"),
+            departure=get_timezone_time(self.end_date).strftime("%Y-%m-%d"),
+        ))
+    @property
+    def surrounding_rsvps(self):
+        from cars.utils import is_dt_intersection
+        # give a week buffer on each side of the current rsvp
+        start= self.start_date + timedelta(days=-10)
+        end= self.end_date + timedelta(days=+10)
+        good_ones = list()
+        for r in Reservation.objects.filter(vehicle=self.vehicle).filter(~Q(id=self.id)):
+            if is_dt_intersection(r.start_date, r.end_date, start, end):
+                good_ones.append(r.id)
+        return Reservation.objects.filter(id__in=good_ones).order_by("start_date")
+    
 
 class FAQ(models.Model):
     question_en = models.TextField(blank=True, null=True, verbose_name=_("question (en)"))

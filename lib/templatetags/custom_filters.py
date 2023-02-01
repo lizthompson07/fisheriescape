@@ -235,6 +235,24 @@ def timedelta_duration_days(td):
 
 
 @register.filter
+def timedelta_duration_days_hours(td):
+    total_seconds = int(td.total_seconds())
+    days = total_seconds // 86400
+    remaining_hours = total_seconds % 86400
+    remaining_minutes = remaining_hours % 3600
+    hours = remaining_hours // 3600
+    minutes = remaining_minutes // 60
+    seconds = remaining_minutes % 60
+
+    days_str = f'{days} days ' if days else '0 days'
+    hours_str = f'{hours}h ' if hours else ''
+    minutes_str = f'{minutes}m ' if minutes else ''
+    seconds_str = f'{seconds}s' if seconds and not hours_str else ''
+
+    return f'{days_str}, {hours_str}'
+
+
+@register.filter
 def text_wrap(text, width=70):
     """
     The used PDF libs don't allow CSS word-wrap, so to split long words (e.g. urls)
@@ -242,7 +260,10 @@ def text_wrap(text, width=70):
     https://github.com/nigma/django-easy-pdf/issues/65
     https://github.com/xhtml2pdf/xhtml2pdf/issues/379
     """
-    return ' '.join(wrap(text, width))
+    try:
+        return ' '.join(wrap(text, width))
+    except AttributeError:
+        pass
 
 
 @register.filter

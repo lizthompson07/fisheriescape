@@ -14,7 +14,7 @@
     {% trans "Filters" %}
   </h5>
   <hr>
-  <div v-if="projects_loading" class="loading mb-3 mt-3 text-center mt-5">
+  <div v-if="console_loading" class="loading mb-3 mt-3 text-center mt-5">
     <div class="spinner-border mb-3" style="width: 10rem; height: 10rem;" role="status">
       <span class="sr-only"></span>
     </div>
@@ -382,39 +382,6 @@
           {% trans "Columns" %}
         </h5>
         <hr>
-
-        <div class="form-check">
-          <input
-            v-model="showColumnAllocation"
-            class="form-check-input" type="checkbox"
-            id="col_allocation"
-          >
-          <label class="text-muted small" class="form-check-label" for="col_allocation">
-            {% trans "Allocated O&M" %}
-          </label>
-        </div>
-
-         <div class="form-check">
-          <input
-            v-model="showColumnSalaryAllocation"
-            class="form-check-input" type="checkbox"
-            id="col_salary_allocation"
-          >
-          <label class="text-muted small" class="form-check-label" for="col_salary_allocation">
-            {% trans "Allocated Salary" %}
-          </label>
-        </div>
-
-         <div class="form-check">
-          <input
-            v-model="showColumnCapitalAllocation"
-            class="form-check-input" type="checkbox"
-            id="col_capital_allocation"
-          >
-          <label class="text-muted small" class="form-check-label" for="col_capital_allocation">
-            {% trans "Allocated capital" %}
-          </label>
-        </div>
 
         <div class="form-check">
           <input

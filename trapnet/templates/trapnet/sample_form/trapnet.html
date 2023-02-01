@@ -1,0 +1,52 @@
+{% extends 'trapnet/sample_form/basic.html' %}
+
+{% load bootstrap4 %}
+{% load i18n %}
+{% load custom_tags %}
+
+
+{% block more_fields %}
+
+  <div class="card info-card mb-5">
+    <div class="card-header bg-primary text-light">
+      <h4 class="card-title">
+        {% trans "Trapnet Specific" %}
+      </h4>
+    </div>
+    <div class="card-body">
+      <div class="row">
+        <div class="col">
+          {% bootstrap_field sub_form.water_temp_trap_c placeholder="" %}
+        </div>
+        <div class="col">
+          {% bootstrap_field sub_form.air_temp_arrival placeholder="" %}
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col">
+          {% bootstrap_field sub_form.arrival_condition placeholder="" %}
+        </div>
+        <div class="col">
+          {% bootstrap_field sub_form.arrival_condition_comment placeholder="" %}
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col">
+          {% bootstrap_field sub_form.departure_condition placeholder="" %}
+        </div>
+        <div class="col">
+          {% bootstrap_field sub_form.departure_condition_comment placeholder="" %}
+        </div>
+      </div>
+
+      {% bootstrap_field sub_form.time_released placeholder="" %}
+      {% bootstrap_field sub_form.samplers placeholder="" %}
+    </div>
+  </div>
+
+
+
+{% endblock %}
+

@@ -26,13 +26,16 @@
     <div id="">
       <div>
         {% include "shared_models/_generic_breadcrumbs.html" %}
-        <div class="row mb-3">
-          <div class="col-sm-1">
-            <span class="mdi mdi-file-document h1"></span>
+        <div class="mb-3">
+          <div class="row">
+            <div class="col-sm-1">
+              <span class="mdi mdi-file-document h1"></span>
+            </div>
+            <div class="col">
+              <h2 class="">{{ h1|safe }}</h2>
+            </div>
           </div>
-          <div class="col">
-            <h2 class="">{{ h1|safe }}</h2>
-          </div>
+          <p class="lead text-muted mt-1 mb-0">{% trans "Document ID:" %} {{ object.id }}</p>
         </div>
         {% bootstrap_messages %}
         <div v-if="canModify" class="alert alert-primary no-print" role="alert" style="width: 100%">
@@ -70,10 +73,6 @@
           <button v-if="currentUser.is_staff" class="btn btn-sm btn-dark" @click="unconfirmDoc">
             <span class="mdi mdi-cancel text-light mr-1"></span> {% trans "Cancel Confirmation" %}
           </button>
-{#          <button v-else class="btn btn-sm btn-secondary" disabled data-toggle="tooltip"#}
-{#                  :title="'{% trans "Only NCR CSAS staff members can cancel the confirmation status of a document" %}'">#}
-{#            <span class="mdi mdi-cancel text-light mr-1"></span> {% trans "Remove Confirmation" %}#}
-{#          </button>#}
         </span>
 
 
@@ -105,6 +104,10 @@
               <td class="text-left" v-html="document.document_type"></td>
             </tr>
             <tr>
+              <th class="text-left" v-html="documentLabels.lead_office"></th>
+              <td class="text-left" v-html="document.lead_office_display"></td>
+            </tr>
+            <tr>
               <th class="text-left" v-html="documentLabels.due_date"></th>
               <td class="text-left" v-html="document.due_date_display"></td>
             </tr>
@@ -115,10 +118,6 @@
             <tr>
               <th class="text-left">{% trans "Translation Status" %}</th>
               <td class="text-left" v-html="document.tstatus_display"></td>
-            </tr>
-            <tr>
-              <th class="text-left" v-html="documentLabels.year"></th>
-              <td class="text-left">${document.year|nz}</td>
             </tr>
             <tr>
               <th class="text-left" v-html="documentLabels.pub_number"></th>
@@ -132,26 +131,30 @@
               </td>
             </tr>
             <tr>
-              <th class="text-left" v-html="documentLabels.pages"></th>
-              <td class="text-left">${document.pages|nz}</td>
+              <th class="text-left" v-html="documentLabels.pages_en"></th>
+              <td class="text-left">${document.pages_en|nz}</td>
             </tr>
             <tr>
-              <th class="text-left">{% trans "Attachments" %}</th>
-              <td v-if="document.file_en || document.file_fr" class="text-left">
-                <a v-if="document.file_en" :href="`${document.file_en}`" target="_blank"><span class="mdi mdi-file mr-1"></span>{% trans "English" %}
-                  (${document.file_en_size})</a><br>
-                <a v-if="document.file_fr" :href="`${document.file_fr}`" target="_blank"><span class="mdi mdi-file mr-1"></span>{% trans "French" %}</a>
-              </td>
-              <td v-else>---</td>
+              <th class="text-left" v-html="documentLabels.pages_fr"></th>
+              <td class="text-left">${document.pages_fr|nz}</td>
             </tr>
             <tr>
-              <th class="text-left">{% trans "URLs" %}</th>
-              <td v-if="document.url_en || document.url_fr" class="text-left">
-                <a v-if="document.url_en" :href="`${document.url_en}`" target="_blank"><span class="mdi mdi-link mr-1"></span>{% trans "English" %}</a><br>
-                <a v-if="document.url_fr" :href="`${document.url_fr}`" target="_blank"><span class="mdi mdi-link mr-1"></span>{% trans "French" %}</a>
-              </td>
-              <td v-else>---</td>
+              <th class="text-left" v-html="documentLabels.ekme_gcdocs_en"></th>
+              <td class="text-left">${document.ekme_gcdocs_en|nz}</td>
             </tr>
+            <tr>
+              <th class="text-left" v-html="documentLabels.ekme_gcdocs_fr"></th>
+              <td class="text-left">${document.ekme_gcdocs_fr|nz}</td>
+            </tr>
+            <tr>
+              <th class="text-left" v-html="documentLabels.pdf_size_kb_en"></th>
+              <td class="text-left">${document.pdf_size_kb_en|nz}</td>
+            </tr>
+            <tr>
+              <th class="text-left" v-html="documentLabels.pdf_size_kb_fr"></th>
+              <td class="text-left">${document.pdf_size_kb_fr|nz}</td>
+            </tr>
+
             <tr>
               <th class="text-left">{% trans "Dev Links" %}</th>
               <td v-if="document.dev_link_en || document.dev_link_fr" class="text-left">
@@ -164,15 +167,15 @@
               <td v-else>---</td>
             </tr>
             <tr>
-              <th class="text-left">{% trans "EKME / GC Docs" %}</th>
-              <td v-if="document.ekme_gcdocs_en || document.ekme_gcdocs_fr" class="text-left">
-                <a v-if="document.ekme_gcdocs_en" :href="`${document.ekme_gcdocs_en}`" target="_blank"><span
-                  class="mdi mdi-link mr-1"></span>{% trans "English" %}</a><br>
-                <a v-if="document.ekme_gcdocs_en" :href="`${document.ekme_gcdocs_fr}`" target="_blank"><span
-                  class="mdi mdi-link mr-1"></span>{% trans "French" %}</a>
+              <th class="text-left">{% trans "URLs" %}</th>
+              <td v-if="document.url_en || document.url_fr" class="text-left">
+                <a v-if="document.url_en" :href="`${document.url_en}`" target="_blank"><span class="mdi mdi-link mr-1"></span>{% trans "English" %}</a><br>
+                <a v-if="document.url_fr" :href="`${document.url_fr}`" target="_blank"><span class="mdi mdi-link mr-1"></span>{% trans "French" %}</a>
               </td>
               <td v-else>---</td>
             </tr>
+
+
             <tr>
               <th class="text-left">{% trans "DFO Library catelogue" %}</th>
               <td v-if="document.lib_cat_en || document.lib_cat_fr" class="text-left">
@@ -183,6 +186,17 @@
               </td>
               <td v-else>---</td>
             </tr>
+
+            <tr>
+              <th class="text-left">{% trans "Attachments" %}</th>
+              <td v-if="document.file_en || document.file_fr" class="text-left">
+                <a v-if="document.file_en" :href="`${document.file_en}`" target="_blank"><span class="mdi mdi-file mr-1"></span>{% trans "English" %}
+                  (${document.file_en_size})</a><br>
+                <a v-if="document.file_fr" :href="`${document.file_fr}`" target="_blank"><span class="mdi mdi-file mr-1"></span>{% trans "French" %}</a>
+              </td>
+              <td v-else>---</td>
+            </tr>
+
             <tr>
               <th class="text-left" v-html="documentLabels.meetings"></th>
               <td>
@@ -280,16 +294,20 @@
         });
       },
       getPubNumber() {
-        this.pubNumberError = null;
-        let endpoint = `/api/csas/documents/${this.documentId}/?get_pub_number=true`;
-        apiService(endpoint, "POST").then(data => {
-          if (data.pub_number) {
-            this.document.tracking.pub_number = data.pub_number;
-            this.updateTracking({})
-          } else {
-            this.pubNumberError = data[0];
-          }
-        });
+        let msg = "{% trans "Are you certain you want to generate a pub number for this document? \n\nA confirmation email will be sent to the generic inbox of the lead regional office." %}";
+        let userInput = confirm(msg);
+        if (userInput) {
+          this.pubNumberError = null;
+          let endpoint = `/api/csas/documents/${this.documentId}/?get_pub_number=true`;
+          apiService(endpoint, "POST").then(data => {
+            if (data.id) {
+              this.getDocument();
+            } else {
+              this.pubNumberError = data[0];
+            }
+          });
+        }
+
       },
       getDueDate() {
         this.dueDateError = null;
@@ -428,6 +446,10 @@
           }
         }
       },
+      cleanData(data) {
+        for (const dataKey in data) if (data[dataKey] === "") data[dataKey] = null;
+        return data;
+      },
       updateTracking(data) {
         if (!data.target) {
           if (data.is_date) {
@@ -437,9 +459,10 @@
           }
         } else {
           // data is an event
-          this._prepDates()
+          this._prepDates();
         }
-        data = this.document.tracking
+        data = this.document.tracking;
+        data = this.cleanData(data);
         this.errors = null;
         let endpoint = `/api/csas/doc-tracking/${this.document.tracking.id}/`;
         apiService(endpoint, "PATCH", data).then(data => {

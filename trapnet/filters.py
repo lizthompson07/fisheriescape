@@ -38,14 +38,16 @@ class SampleFilter(django_filters.FilterSet):
             'site__river': ['exact'],
             'site': ['exact'],
             'sample_type': ['exact'],
-            'observations__species': ['exact'],
+            'specimens__species': ['exact'],
+            'monitoring_program': ['exact'],
+            'site__river__fishing_area': ['exact'],
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         season = self.data.get("year")
-        if season:
+        if season and int(season) > 1:
             site_choices = [(obj.id, str(obj)) for obj in models.RiverSite.objects.filter(samples__arrival_date__year=season).distinct()]
             river_choices = [(obj.id, str(obj)) for obj in shared_models.River.objects.filter(sites__samples__arrival_date__year=season).distinct()]
         else:
@@ -54,16 +56,17 @@ class SampleFilter(django_filters.FilterSet):
 
         self.filters["site"] = django_filters.ChoiceFilter(field_name="site", choices=site_choices, label="Site", widget=forms.Select(attrs=chosen_js))
         self.filters["site__river"] = django_filters.ChoiceFilter(field_name="site__river", choices=river_choices, label="River")
-        self.filters["observations__species"].label = gettext("Species")
+        self.filters["specimens__species"].label = gettext("Species")
+        self.filters["site__river__fishing_area"].label = gettext("Fishing area")
 
 
-class ObservationFilter(django_filters.FilterSet):
+class SpecimenFilter(django_filters.FilterSet):
     year = django_filters.NumberFilter("sample__arrival_date__year", label=gettext_lazy("Year"))
     month = django_filters.NumberFilter("sample__arrival_date__month", label=gettext_lazy("Month"))
     day = django_filters.NumberFilter("sample__arrival_date__day", label=gettext_lazy("Day"))
 
     class Meta:
-        model = models.Observation
+        model = models.Specimen
         fields = {
             'id': ['exact'],
             'species': ['exact'],
@@ -83,3 +86,17 @@ class ObservationFilter(django_filters.FilterSet):
         self.filters["sample__sample_type"].label = gettext("Sample type")
         self.filters["sample__site__river"].label = gettext("River")
         self.filters["sample__site"].label = gettext("Site")
+
+
+class BiologicalDetailingFilter(django_filters.FilterSet):
+    class Meta:
+        model = models.BiologicalDetailing
+        fields = {
+            'id': ['exact'],
+            'old_id': ['exact'],
+            'species': ['exact'],
+            'sample__site__river': ['exact'],
+            'sample__site': ['exact'],
+            'sample__sample_type': ['exact'],
+            'sample_id': ['exact'],
+        }

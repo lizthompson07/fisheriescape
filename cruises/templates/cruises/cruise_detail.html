@@ -32,8 +32,14 @@
   {% endlocalize %}
   <table class="table table-sm table-striped">
     {% for field in field_list %}
-
-      {% verbose_td_display instance=object field_name=field date_format="%d-%b-%Y" %}
+      {% if field == "description" or field == "purpose" or field == "samplers" or field == "notes" or field == "research_projects_programs" or field == "references" %}
+        <tr>
+          <th class="w-25">{% get_verbose_label object field %}</th>
+          <td>{% get_field_value object field to_html=True nullmark="" %}</td>
+        </tr>
+      {% else %}
+        {% verbose_td_display instance=object field_name=field date_format="%d-%b-%Y" %}
+      {% endif %}
 
     {% endfor %}
 

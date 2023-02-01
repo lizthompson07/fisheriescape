@@ -91,6 +91,15 @@ if settings.INSTALLED_APPS.count("sar_search"):
     urlpatterns.append(
         path('api/', include('sar_search.api.urls')),
     )
+if settings.INSTALLED_APPS.count("maret"):
+    urlpatterns.append(
+        path('api/', include('maret.api.urls')),
+    )
+if settings.INSTALLED_APPS.count("herring"):
+    urlpatterns.append(
+        path('api/', include('herring.api.urls')),
+    )
+
 
 urlpatterns += i18n_patterns(
     path('', views.IndexView.as_view(), name="index"),
@@ -103,6 +112,11 @@ if settings.INSTALLED_APPS.count("inventory"):
     urlpatterns += i18n_patterns(path('inventory/', include('inventory.urls')), prefix_default_language=True)
 else:
     print("not connecting inventory app")
+
+if settings.INSTALLED_APPS.count("pssi"):
+    urlpatterns += i18n_patterns(path('pssi/', include('pssi.urls')), prefix_default_language=True)
+else:
+    print("not connecting PSSI - Pacific Salmon Data Hub app")
 
 if settings.INSTALLED_APPS.count("tickets"):
     urlpatterns += i18n_patterns(path('dm-tickets/', include('tickets.urls')), prefix_default_language=True)
@@ -247,7 +261,7 @@ else:
     print("not connecting res app")
 
 if settings.INSTALLED_APPS.count("cars"):
-    urlpatterns += i18n_patterns(path('cars/', include('cars.urls')),
+    urlpatterns += i18n_patterns(path('field-work/', include('cars.urls')),
                                  prefix_default_language=True)
 else:
     print("not connecting cars app")

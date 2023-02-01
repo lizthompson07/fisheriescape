@@ -1,34 +1,59 @@
-{% extends "herring/herring_base.html" %}
+{% extends "herring/base.html" %}
 
 {% load bootstrap4 %}
 {% load verbose_names %}
 
-{% block content %}
-<div class="nav-map">
-<br>
-  <p>
-    <a href="{% url 'herring:sample_list' %}">All Samples</a> >
-    <a href="{% url 'herring:sample_detail' object.sample.id %}">Sample {{object.sample.id}}</a> >
-    Fish {{object.id}}
-  </p>
-</div>
+{% block subcontent %}
 
-<div class="container">
 
-  <h1>Fish Detail {{object.id}}</h1>
-  <br>
-  <div class="btn-group">
-    <a class="btn btn-warning" href="{% url 'herring:fish_update' object.sample.id object.id %}">Edit</a>
-    <a class="btn btn-primary" href="{% url 'herring:lab_sample_form' object.sample.id object.id %}">Data Entry Mode</a>
-    <a class="btn btn-danger" href="{% url 'herring:fish_delete' object.sample.id object.id %}">Delete</a>
+  <div class="mb-3 ">
+    <a class="btn btn-warning" href="{% url 'herring:fish_update' object.id %}">Edit</a>
+    <a class="btn btn-primary" href="{% url 'herring:lab_sample_form' object.id %}">Data Entry Mode</a>
+    <a class="btn btn-danger" href="{% url 'herring:fish_delete' object.id %}">Delete</a>
+  </div>
+
+  {% load static %}
+  {% load verbose_names %}
+
+  <div class="row">
+
+    {# FIRST COLUMN #}
+    <div class="col">
+      {% verbose_field_display object "id" %}
+      {% verbose_field_display object "fish_number" %}
+      {% verbose_field_display object "fish_length" %}
+      {% verbose_field_display object "fish_weight" %}
+      {% verbose_field_display object "sex" %}
+    </div>
+
+    {# SECOND COLUMN #}
+    <div class="col">
+      {% verbose_field_display object "maturity" %}
+      {% verbose_field_display object "gonad_weight" %}
+      {% verbose_field_display object "parasite" %}
+      {% verbose_field_display object "lab_sampler" %}
+    </div>
+
+    {# THIRD COLUMN #}
+    <div class="col">
+      {% verbose_field_display object "otolith_sampler" %}
+      {% verbose_field_display object "lab_processed_date" %}
+      {% verbose_field_display object "annulus_count" %}
+      {% verbose_field_display object "otolith_season" %}
+      {% verbose_field_display object "otolith_image_remote_filepath" %}
+    </div>
+
+    {# FORTH COLUMN #}
+    <div class="col">
+      {% verbose_field_display object "otolith_processed_date" %}
+      {% verbose_field_display object "remarks" %}
+
+    </div>
   </div>
 
 
-  <br><br>
-  {% include "herring/_fish_detail.html" %}
+  <div class="">
+  <span class="text-muted">{{ object.metadata }}</span>
+  </div>
 
-
-<script type="text/javascript">
-  window.name = "fishDetail"
-</script>
-{% endblock content %}
+{% endblock %}

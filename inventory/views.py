@@ -5,7 +5,7 @@ from collections import OrderedDict
 from copy import deepcopy
 
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User
 from django.db.models import Value, TextField, Q, Count
 from django.db.models.functions import Concat
@@ -14,15 +14,16 @@ from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy, reverse
 from django.utils import timezone
 from django.utils.translation import gettext as _, gettext_lazy
-from django.views.generic import ListView, UpdateView, DeleteView, CreateView, DetailView, FormView, TemplateView
+from django.views.generic import UpdateView, DeleteView, CreateView, DetailView, FormView, TemplateView
 from django_filters.views import FilterView
 from easy_pdf.views import PDFTemplateView
 
+from dm_apps.context_processor import my_envr
 from dm_apps.utils import custom_send_mail
 from lib.functions.custom_functions import fiscal_year, listrify
 from shared_models import models as shared_models
-from shared_models.views import CommonTemplateView, CommonFormsetView, CommonHardDeleteView, CommonFilterView, CommonDetailView, CommonListView, \
-    CommonUpdateView, CommonCreateView, CommonPopoutCreateView, CommonPopoutDeleteView, CommonPopoutUpdateView, CommonDeleteView
+from shared_models.views import CommonTemplateView, CommonFormsetView, CommonHardDeleteView, CommonFilterView, CommonDetailView, CommonUpdateView, \
+    CommonCreateView, CommonPopoutCreateView, CommonPopoutDeleteView, CommonPopoutUpdateView, CommonDeleteView
 from . import emails
 from . import filters
 from . import forms
@@ -30,7 +31,7 @@ from . import models
 from . import reports
 from . import xml_export
 from .mixins import SuperuserOrAdminRequiredMixin, CanModifyRequiredMixin, AdminRequiredMixin, InventoryBasicMixin, InventoryLoginRequiredMixin
-from .utils import can_modify
+from .utils import can_modify, get_dma_field_list, get_dma_review_field_list, can_modify_dma
 
 
 # USER PERMISSIONS
@@ -56,20 +57,7 @@ class Index(InventoryBasicMixin, CommonTemplateView):
     template_name = 'inventory/index.html'
     h1 = gettext_lazy("DFO Science Data Inventory")
     active_page_name_crumb = gettext_lazy("Home")
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        published_records = models.Resource.objects.filter(fgp_publication_date__isnull=False).count()
-        context["published_records"] = published_records
-
-        flagged_4_deletion = models.Resource.objects.filter(flagged_4_deletion=True).count()
-        context["flagged_4_deletion"] = flagged_4_deletion
-
-        flagged_4_publication = models.Resource.objects.filter(flagged_4_publication=True).count()
-        context["flagged_4_publication"] = flagged_4_publication
-
-        return context
+    container_class = "container-fluid"
 
 
 class OpenDataDashboardTemplateView(InventoryBasicMixin, CommonTemplateView):
@@ -142,21 +130,15 @@ class OpenDataDashboardTemplateView(InventoryBasicMixin, CommonTemplateView):
 class ResourceListView(InventoryBasicMixin, CommonFilterView):
     filterset_class = filters.ResourceFilter
     template_name = 'inventory/resource_list.html'
-    queryset = models.Resource.objects.order_by("-status", "title_eng").annotate(
-        search_term=Concat('title_eng', Value(" "),
-                           'descr_eng', Value(" "),
-                           'purpose_eng', Value(" "),
-                           'uuid', Value(" "),
-                           'odi_id',
-                           output_field=TextField()))
     home_url_name = "inventory:index"
     container_class = "container-fluid"
-    row_object_url_name = "inventory:resource_detail"
+    # row_object_url_name = "inventory:resource_detail"
     new_object_url = reverse_lazy("inventory:resource_new")
     paginate_by = 25
     field_list = [
-        {"name": 'region', "class": "", "width": ""},
         {"name": 't_title|{}'.format(gettext_lazy("title")), "class": "w-30", "width": ""},
+        {"name": 'uuid', "class": "", "width": ""},
+        {"name": 'region', "class": "", "width": ""},
         {"name": 'resource_type', "class": "", "width": ""},
         {"name": 'status', "class": "", "width": ""},
         {"name": 'section', "class": "w-15", "width": ""},
@@ -165,33 +147,27 @@ class ResourceListView(InventoryBasicMixin, CommonFilterView):
         {"name": 'translation_needed', "class": "", "width": ""},
     ]
 
-
-class MyResourceListView(InventoryLoginRequiredMixin, CommonListView):
-    model = models.Resource
-    template_name = 'inventory/resource_list.html'
-    home_url_name = "inventory:index"
-    container_class = "container-fluid"
-    row_object_url_name = "inventory:resource_detail"
-    new_object_url = reverse_lazy("inventory:resource_new")
-    field_list = [
-        {"name": 't_title|Title', "class": ""},
-        {"name": 'status', "class": ""},
-        {"name": 'date_last_modified', "class": ""},
-        {"name": 'last_modified_by', "class": ""},
-        {"name": 'roles|Role(s)', "class": ""},
-        {"name": 'Previous time certified', "class": ""},
-        {"name": 'Completeness rating', "class": ""},
-        {"name": 'open_data|Published to Open Data', "class": ""},
-    ]
+    def is_personalized(self):
+        return bool(self.request.GET.get("personalized"))
 
     def get_queryset(self):
-        qs = models.Resource.objects.filter(resource_people__person_id=self.request.user.id).distinct().order_by("-date_last_modified")
+        qs = models.Resource.objects.order_by("-status", "title_eng").annotate(
+            search_term=Concat('title_eng', Value(" "),
+                               'descr_eng', Value(" "),
+                               'purpose_eng', Value(" "),
+                               'uuid', Value(" "),
+                               'odi_id',
+                               output_field=TextField()))
+
+        if self.is_personalized():
+            qs = qs.filter(Q(resource_people__person_id=self.request.user.id) | Q(favourited_by=self.request.user)).distinct().order_by("-date_last_modified")
         return qs
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["personal"] = True
-        return context
+    def get_h1(self):
+        h1 = super().get_h1()
+        if self.is_personalized():
+            h1 = f"Resources Favourited by or Attached to {self.request.user}"
+        return h1
 
 
 class ResourceDetailView(InventoryBasicMixin, CommonDetailView):
@@ -435,9 +411,25 @@ class ResourceDeleteFlagUpdateView(InventoryLoginRequiredMixin, CommonPopoutUpda
                 subject=email.subject,
                 html_message=email.message,
                 from_email=email.from_email,
-                recipient_list=email.to_list
+                recipient_list=email.to_list,
+                user=self.request.user
             )
         return super().form_valid(form)
+
+
+@login_required(login_url='/accounts/login/')
+def add_favourites(request, pk):
+    resource = get_object_or_404(models.Resource, pk=pk)
+    resource.favourited_by.add(request.user)
+    messages.info(request, f"This resource has been added to your favourites.")
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+@login_required(login_url='/accounts/login/')
+def remove_favourites(request, pk):
+    resource = get_object_or_404(models.Resource, pk=pk)
+    resource.favourited_by.remove(request.user)
+    messages.info(request, f"This resource has been removed from your favourites.")
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
 class ResourcePublicationFlagUpdateView(InventoryLoginRequiredMixin, CommonPopoutUpdateView):
@@ -476,7 +468,8 @@ class ResourcePublicationFlagUpdateView(InventoryLoginRequiredMixin, CommonPopou
                 subject=email.subject,
                 html_message=email.message,
                 from_email=email.from_email,
-                recipient_list=email.to_list
+                recipient_list=email.to_list,
+                user=self.request.user
             )
         return super().form_valid(form)
 
@@ -540,7 +533,8 @@ class ResourcePersonCreateView(CanModifyRequiredMixin, CreateView):
                 subject=email.subject,
                 html_message=email.message,
                 from_email=email.from_email,
-                recipient_list=email.to_list
+                recipient_list=email.to_list,
+                user=self.request.user
             )
             messages.success(self.request,
                              '{} has been added as {} and a notification email has been sent to them!'.format(
@@ -567,7 +561,8 @@ class ResourcePersonUpdateView(CanModifyRequiredMixin, UpdateView):
                 subject=email.subject,
                 html_message=email.message,
                 from_email=email.from_email,
-                recipient_list=email.to_list
+                recipient_list=email.to_list,
+                user=self.request.user
             )
             messages.success(self.request,
                              '{} has been added as {} and a notification email has been sent to them!'.format(
@@ -596,7 +591,8 @@ class ResourcePersonDeleteView(CanModifyRequiredMixin, DeleteView):
                 subject=email.subject,
                 html_message=email.message,
                 from_email=email.from_email,
-                recipient_list=email.to_list
+                recipient_list=email.to_list,
+                user=self.request.user
             )
             messages.success(self.request,
                              '{} has been removed as {} and a notification email has been sent to them!'.format(
@@ -1032,10 +1028,10 @@ def resource_citation_add(request, resource, citation):
     my_resource = models.Resource.objects.get(pk=resource)
 
     if my_resource.citations2.filter(pk=citation).count() > 0:
-        messages.warning(request, "'{}' has already been added as a citation.".format(my_citation.title))
+        messages.warning(request, "'{}' has already been added as a citation.".format(my_citation.tname))
     else:
         my_resource.citations2.add(citation)
-        messages.success(request, "'{}' has been added as a citation.".format(my_citation.title))
+        messages.success(request, "'{}' has been added as a citation.".format(my_citation.tname))
 
     return HttpResponseRedirect(reverse('inventory:resource_citation_filter', kwargs={'resource': resource}))
 
@@ -1045,7 +1041,7 @@ def resource_citation_delete(request, resource, citation):
     my_resource = models.Resource.objects.get(pk=resource)
 
     my_resource.citations2.remove(citation)
-    messages.success(request, "'{}' has been removed.".format(my_citation.title))
+    messages.success(request, "'{}' has been removed.".format(my_citation.tname))
 
     return HttpResponseRedirect(reverse('inventory:resource_detail', kwargs={'pk': resource}))
 
@@ -1096,7 +1092,6 @@ class CitationCreateView(InventoryLoginRequiredMixin, CreateView):
     def form_valid(self, form):
         self.object = form.save()
         my_resource = models.Resource.objects.get(pk=self.kwargs['resource']).citations2.add(self.object.id)
-        messages.success(self.request, "'{}' has been added as a citation.".format(self.object.title))
         return HttpResponseRedirect(reverse('inventory:resource_detail', kwargs={'pk': self.kwargs['resource']}))
 
 
@@ -1104,7 +1099,7 @@ class CitationCreateView(InventoryLoginRequiredMixin, CreateView):
 def citation_delete(request, resource, citation):
     my_citation = shared_models.Citation.objects.get(pk=citation)
     my_citation.delete()
-    messages.success(request, "'{}' has been removed from the database.".format(my_citation.title))
+    messages.success(request, "'{}' has been removed from the database.".format(my_citation.tname))
     return HttpResponseRedirect(reverse('inventory:resource_detail', kwargs={'pk': resource}))
 
 
@@ -1209,37 +1204,12 @@ def send_certification_request(request, person):
         subject=email.subject,
         html_message=email.message,
         from_email=email.from_email,
-        recipient_list=email.to_list
+        recipient_list=email.to_list,
+        user=request.user
     )
     my_person.user.correspondences.create(subject="Request for certification")
     messages.success(request, "the email has been sent and the correspondence has been logged!")
     return HttpResponseRedirect(reverse('inventory:dm_custodian_detail', kwargs={'pk': my_person.user_id}))
-
-
-class PublishedResourcesListView(AdminRequiredMixin, ListView):
-    template_name = "inventory/dm_published_resource.html"
-    queryset = models.Resource.objects.filter(fgp_publication_date__isnull=False)
-
-
-class FlaggedListView(AdminRequiredMixin, ListView):
-    template_name = "inventory/dm_flagged_list.html"
-
-    def get_queryset(self):
-        if self.kwargs["flag_type"] == "publication":
-            queryset = models.Resource.objects.filter(flagged_4_publication=True)
-        elif self.kwargs["flag_type"] == "deletion":
-            queryset = models.Resource.objects.filter(flagged_4_deletion=True)
-        return queryset
-
-
-class CertificationListView(AdminRequiredMixin, ListView):
-    template_name = "inventory/dm_certification_list.html"
-    queryset = models.ResourceCertification.objects.all().order_by("-certification_date")[:50]
-
-
-class ModificationListView(AdminRequiredMixin, ListView):
-    template_name = "inventory/dm_modification_list.html"
-    queryset = models.Resource.objects.all().order_by("-date_last_modified")[:50]
 
 
 class CustodianPersonUpdateView(AdminRequiredMixin, FormView):
@@ -1322,7 +1292,6 @@ class ResourceCertificationCreateView(CanModifyRequiredMixin, CommonPopoutCreate
         obj = form.save(commit=False)
         obj.certifying_user = self.request.user
         obj.resource_id = self.kwargs['resource']
-        obj.certification_date = timezone.now()
         obj.save()
         return super().form_valid(form)
 
@@ -1451,14 +1420,18 @@ class ReportSearchFormView(AdminRequiredMixin, FormView):
             return HttpResponseRedirect(reverse("inventory:export_batch_xml", kwargs={
                 'sections': sections,
             }))
-        if report == 2:
+        elif report == 2:
             return HttpResponseRedirect(reverse("inventory:export_odi_report"))
-        if report == 3:
+        elif report == 3:
             return HttpResponseRedirect(reverse("inventory:export_phyiscal_samples"))
-        if report == 4:
+        elif report == 4:
             return HttpResponseRedirect(reverse("inventory:export_resources") + f"?sections={sections}")
-        if report == 5:
+        elif report == 5:
             return HttpResponseRedirect(reverse("inventory:export_open_data_resources") + f"?regions={regions}")
+        elif report == 6:
+            return HttpResponseRedirect(reverse("inventory:export_custodians") + f"?regions={regions}")
+        elif report == 7:
+            return HttpResponseRedirect(reverse("inventory:export_dmas") + f"?regions={regions}")
         else:
             messages.error(self.request, "Report is not available. Please select another report.")
             return HttpResponseRedirect(reverse("inventory:report_search"))
@@ -1518,6 +1491,25 @@ def export_resources(request):
 
 
 @login_required()
+def export_custodians(request):
+    regions = request.GET.get("regions") if request.GET.get("regions") else None
+
+    qs = models.Resource.objects.all()
+    if regions:
+        regions = regions.split(",")
+        qs = qs.filter(section__division__branch__sector__region_id__in=regions)
+
+    file_url = reports.generate_custodian_report(qs)
+    if os.path.exists(file_url):
+        with open(file_url, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+            response['Content-Disposition'] = 'inline; filename="resources report {}.xlsx"'.format(
+                timezone.now().strftime("%Y-%m-%d"))
+            return response
+    raise Http404
+
+
+@login_required()
 def export_open_data_resources(request):
     regions = request.GET.get("regions") if request.GET.get("regions") else None
     file_url = reports.generate_open_data_resources_report(regions)
@@ -1528,6 +1520,25 @@ def export_open_data_resources(request):
                 timezone.now().strftime("%Y-%m-%d"))
             return response
     raise Http404
+
+
+@login_required()
+def export_dmas(request):
+    qs = models.DMA.objects.all()
+    regions = request.GET.get("regions") if request.GET.get("regions") else None
+    if regions:
+        regions = regions.split(",")
+        qs = qs.filter(section__division__branch__sector__region_id__in=regions)
+
+    site_url = my_envr(request)["SITE_FULL_URL"]
+    file_url = reports.generate_dma_report(qs, site_url)
+    if os.path.exists(file_url):
+        with open(file_url, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+            response['Content-Disposition'] = f'inline; filename="data management agreements.xlsx"'
+            return response
+    raise Http404
+
 
 #
 # # TEMP #
@@ -1560,3 +1571,201 @@ def export_open_data_resources(request):
 #     context['my_object'] = models.Resource.objects.first()
 #     context['field_list'] = ["title_eng", "section", "status", "descr_eng", "purpose_eng"]
 #     return render(request, 'inventory/temp_formset.html', context)
+
+
+# DMAs #
+########
+
+class DMAListView(InventoryBasicMixin, CommonFilterView):
+    template_name = 'inventory/dma_list.html'
+    filterset_class = filters.DMAFilter
+    home_url_name = "inventory:index"
+    new_object_url = reverse_lazy("inventory:dma_new")
+    # row_object_url_name = row_ = "inventory:dma_detail"
+    container_class = "container-fluid"
+    field_list = [
+        {"name": "title", "class": "w-30"},
+        {"name": "region", "class": ""},
+        {"name": "section", "class": ""},
+        {"name": "uuid|{}".format(_("Link to DM Apps Metadata Record")), "class": "w-15"},
+        {"name": "data_contact|{}".format(_("data steward")), "class": ""},
+        {"name": "metadata_contact|{}".format(_("metadata contact")), "class": ""},
+        {"name": "status_display|{}".format(_("status")), "class": ""},
+    ]
+    model = models.DMA
+
+
+class DMACreateView(InventoryBasicMixin, CommonCreateView):
+    model = models.DMA
+    form_class = forms.DMAForm
+    home_url_name = "inventory:index"
+    template_name = 'inventory/dma_form.html'
+    container_class = "container bg-light curvy"
+    parent_crumb = {"title": _("Data Management Agreements"), "url": reverse_lazy("inventory:dma_list")}
+
+    def get_initial(self):
+        qp = self.request.GET
+        if qp.get("resource"):
+            resource = get_object_or_404(models.Resource, pk=qp.get("resource"))
+            initial = dict(title=f"Data management agreement for {resource.title_eng}", resource=resource, section=resource.section)
+            custodians = resource.get_custodians()
+            pocs = resource.get_points_of_contact()
+            if pocs.exists():
+                initial["data_contact"] = custodians.first().person.user
+            if custodians.exists():
+                initial["metadata_contact"] = custodians.first().person.user
+            return initial
+
+    def form_valid(self, form):
+        dma = form.save(commit=False)
+        dma.created_by = self.request.user
+        dma.save()
+
+        # if there is a resource associated with the DMA, we know the URL and metadata_tool
+        if hasattr(dma, "resource") and dma.resource:
+            dma.metadata_tool = _("The metadata was created and is maintained in the DM Apps Data Inventory Tool.")
+            dma.metadata_url = my_envr(self.request)["SITE_FULL_URL"] + reverse("inventory:resource_detail_uuid", args=[dma.resource.uuid])
+            dma.save()
+
+        return super().form_valid(form)
+
+
+class DMADeleteView(AdminRequiredMixin, CommonDeleteView):
+    template_name = "inventory/confirm_delete.html"
+    model = models.DMA
+    container_class = "container bg-light curvy"
+    delete_protection = False
+    grandparent_crumb = {"title": _("Data Management Agreements"), "url": reverse_lazy("inventory:dma_list")}
+
+    def get_success_url(self, **kwargs):
+        return self.get_grandparent_crumb()["url"]
+
+    def get_parent_crumb(self):
+        return {"title": str(self.get_object()), "url": reverse_lazy("inventory:dma_detail", args=[self.get_object().id])}
+
+
+class DMADetailView(InventoryBasicMixin, CommonDetailView):
+    model = models.DMA
+    home_url_name = "inventory:index"
+    template_name = "inventory/dma_detail.html"
+    field_list = get_dma_field_list()
+    parent_crumb = {"title": _("Data Management Agreements"), "url": reverse_lazy("inventory:dma_list")}
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["dma_review_field_list"] = get_dma_review_field_list()
+        context['can_modify'] = can_modify_dma(self.request.user, self.get_object().id, as_dict=True)
+        context["fields_id"] = [
+            'title',
+            'section',
+            'data_contact',
+            'data_contact_text',
+            "status_display|{}".format(_("status")),
+            'comments',
+            'ppt',
+            'metadata',
+        ]
+        context["fields_metadata"] = [
+            'metadata_contact',
+            'metadata_contact_text',
+            'metadata_tool',
+            'metadata_url',
+            'metadata_update_freq',
+            'metadata_freq_text',
+        ]
+        context["fields_storage"] = [
+            'storage_solutions',
+            'storage_solution_text',
+            'storage_needed',
+            'raw_data_retention',
+            'data_retention',
+            'backup_plan',
+            'cloud_costs',
+        ]
+        context["fields_sharing"] = [
+            'had_sharing_agreements',
+            'sharing_agreements_text',
+            'publication_timeframe',
+            'publishing_platforms',
+        ]
+        return context
+
+
+class DMAUpdateView(InventoryBasicMixin, CommonUpdateView):
+    model = models.DMA
+    form_class = forms.DMAForm
+    home_url_name = "inventory:index"
+    template_name = "inventory/dma_form.html"
+    is_multipart_form_data = True
+    container_class = "container bg-light curvy"
+    grandparent_crumb = {"title": _("Data Management Agreements"), "url": reverse_lazy("inventory:dma_list")}
+
+    def get_parent_crumb(self):
+        return {"title": str(self.get_object()), "url": reverse_lazy("inventory:dma_detail", args=[self.get_object().id])}
+
+    def form_valid(self, form):
+        dma = form.save(commit=False)
+        dma.updated_by = self.request.user
+        dma.save()
+
+        # if there is a resource associated with the DMA, we know the URL and metadata_tool
+        if hasattr(dma, "resource") and dma.resource:
+            dma.metadata_tool = _("The metadata was created and is maintained in the DM Apps Data Inventory Tool.")
+            dma.metadata_url = my_envr(self.request)["SITE_FULL_URL"] + reverse("inventory:resource_detail_uuid", args=[dma.resource.uuid])
+            dma.save()
+        return super().form_valid(form)
+
+
+class DMACloneView(DMAUpdateView):
+
+    def get_h1(self):
+        return _("Cloning: ") + str(self.get_object())
+
+    def get_initial(self):
+        return dict(title=_("Clone of ") + self.get_object().title)
+
+    def form_valid(self, form):
+        new_obj = form.save(commit=False)
+        old_obj = get_object_or_404(models.DMA, pk=new_obj.pk)
+        new_obj.pk = None
+        new_obj.title = f"Data management agreement for {new_obj.project.title}"
+
+        new_obj.save()
+
+        # Now we need to replicate all the related records:
+        for item in old_obj.storage_solutions.all():
+            new_obj.storage_solutions.add(item)
+
+        return HttpResponseRedirect(reverse_lazy("inventory:dma_edit", args=[new_obj.id]))
+
+
+# DMA Reviews #
+###############
+
+class DMAReviewCreateView(AdminRequiredMixin, CommonPopoutCreateView):
+    model = models.DMAReview
+    form_class = forms.DMAReviewForm
+
+    def form_valid(self, form):
+        r = form.save(commit=False)
+        r.updated_by = self.request.user
+        r.dma_id = self.kwargs.get("dma")
+        r.save()
+        return super().form_valid(form)
+
+
+class DMAReviewDeleteView(AdminRequiredMixin, CommonPopoutDeleteView):
+    model = models.DMAReview
+    delete_protection = False
+
+
+class DMAReviewUpdateView(AdminRequiredMixin, CommonPopoutUpdateView):
+    model = models.DMAReview
+    form_class = forms.DMAReviewForm
+    home_url_name = "inventory:index"
+
+    def form_valid(self, form):
+        r = form.save(commit=False)
+        r.updated_by = self.request.user
+        r.save()
+        return super().form_valid(form)

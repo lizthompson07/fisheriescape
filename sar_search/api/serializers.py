@@ -13,19 +13,20 @@ class UserDisplaySerializer(serializers.ModelSerializer):
 class RecordDisplaySerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Record
-        fields = ["id", "species", "name", "source", "year", "notes", "species_name", "geometry"]
+        fields = ["id", "species", "name", "source", "year", "notes", "species_name", "record_type", "geometry"]
 
     species_name = serializers.SerializerMethodField()
+    record_type = serializers.SerializerMethodField()
     geometry = serializers.SerializerMethodField()
 
     def get_species_name(self, instance):
         return instance.species.full_name
 
+    def get_record_type(self, instance):
+        return instance.get_record_type_display()
+
     def get_geometry(self, instance):
-        if instance.record_type == 1:
-            return instance.all_points()
-        elif instance.record_type in [2, 3]:
-            return instance.all_points()
+        return instance.all_points()
 
 
 class SpeciesDisplaySerializer(serializers.ModelSerializer):

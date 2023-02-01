@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.utils.translation import gettext as _
 
 from dm_apps.emails import Email
@@ -59,6 +60,16 @@ class PublicationNumberRequestEmail(Email):
         return [csas_generic_email]
 
 
+class PublicationNumberConfirmationEmail(Email):
+    email_template_path = 'csas2/emails/pub_number_confirmation.html'
+    subject_en = "Publication number assigned"
+    subject_fr = "numéro de publication"
+
+    def get_recipient_list(self):
+        # should go to all emails associated with csas office
+        return self.instance.lead_office.generic_email  # where instance is a document
+
+
 class PostingRequestEmail(Email):
     email_template_path = 'csas2/emails/posting_request.html'
     subject_en = 'Request to post new CSAS meeting'
@@ -88,8 +99,8 @@ class SoMPEmail(Email):
 
 class NewRequestEmail(Email):
     email_template_path = 'csas2/emails/new_request.html'
-    subject_en = 'A new CSAS request has been submitted'
-    subject_fr = "Une nouvelle demande de SCAS a été soumise"
+    subject_en = 'CSAS request submitted for client approvals'
+    subject_fr = "Une demande de SCAS a été soumise pour approbation côté client"
 
     def get_recipient_list(self):
         # should go to all emails associated with csas office
@@ -128,7 +139,8 @@ class UpdatedMeetingEmail(Email):
         return [csas_generic_email]
 
     def __init__(self, request, meeting, old_meeting=None, new_expected_publications_en=None, old_expected_publications_en=None,
-                 new_expected_publications_fr=None, old_expected_publications_fr=None, new_chair=None, old_chair=None):
+                 new_expected_publications_fr=None, old_expected_publications_fr=None, new_chair=None, old_chair=None, new_lead_office=None,
+                 old_lead_office=None, new_other_offices=None, old_other_offices=None):
         super().__init__(request)
         self.request = request
         self.meeting = meeting
@@ -139,6 +151,10 @@ class UpdatedMeetingEmail(Email):
         self.old_expected_publications_fr = old_expected_publications_fr
         self.new_chair = new_chair
         self.old_chair = old_chair
+        self.new_lead_office = new_lead_office
+        self.old_lead_office = old_lead_office
+        self.new_other_offices = new_other_offices
+        self.old_other_offices = old_other_offices
 
     def get_context_data(self):
         context = super().get_context_data()
@@ -154,12 +170,16 @@ class UpdatedMeetingEmail(Email):
             'old_expected_publications_fr': self.old_expected_publications_fr,
             'new_chair': self.new_chair,
             'old_chair': self.old_chair,
+            "new_lead_office": self.new_lead_office,
+            "old_lead_office": self.old_lead_office,
+            "new_other_offices": self.new_other_offices,
+            "old_other_offices": self.old_other_offices,
         })
         return context
 
 
 class ToRReviewAwaitingEmail(Email):
-    email_template_path = 'csas2/emails/tor_review_awaiting.html'
+    email_template_path = 'csas2/emails/tor/review_awaiting.html'
 
     def get_subject_en(self):
         if self.instance.role == 1:
@@ -180,7 +200,7 @@ class ToRReviewAwaitingEmail(Email):
 
 
 class ToRChangesRequestedEmail(Email):
-    email_template_path = 'csas2/emails/tor_changes_requested.html'
+    email_template_path = 'csas2/emails/tor/changes_requested.html'
     subject_en = "Changes to Terms of Reference requested"
     subject_fr = "Modifications au cadre de référence sont nécessaires"
 
@@ -189,7 +209,7 @@ class ToRChangesRequestedEmail(Email):
 
 
 class ToRPostingRequestEmail(Email):
-    email_template_path = 'csas2/emails/tor_posting_request.html'
+    email_template_path = 'csas2/emails/tor/posting_request.html'
     subject_en = 'New request to post ToR !!'
 
     def get_recipient_list(self):
@@ -197,7 +217,7 @@ class ToRPostingRequestEmail(Email):
 
 
 class ToRReviewCompleteEmail(Email):
-    email_template_path = 'csas2/emails/tor_review_complete.html'
+    email_template_path = 'csas2/emails/tor/review_complete.html'
     subject_en = 'ToR approval is complete'
     subject_fr = "l'examen du cadre de référence est terminé"
 
@@ -206,9 +226,133 @@ class ToRReviewCompleteEmail(Email):
 
 
 class PostedToREmail(Email):
-    email_template_path = 'csas2/emails/tor_posted.html'
+    email_template_path = 'csas2/emails/tor/posted.html'
     subject_en = 'Your ToR has been posted to the CSAS website'
     subject_fr = "Votre cadre de référence a été publié sur le site Web du SCAS"
 
     def get_recipient_list(self):
         return self.instance.process.editor_email_list
+
+
+class ToRReviewTerminatedEmail(Email):
+    email_template_path = 'csas2/emails/tor/review_terminated.html'
+    subject_en = 'Your review has been withdrawn'
+    subject_fr = "Votre évaluation a été ignoré"
+
+    def get_recipient_list(self):
+        return [self.instance.user.email, ]
+
+
+class ToRReviewReminderEmail(Email):
+    email_template_path = 'csas2/emails/tor/review_reminder.html'
+
+    def get_subject_en(self):
+        if self.instance.role == 1:
+            mystr = "FOR APPROVAL (LATE): Terms of reference"
+        else:
+            mystr = "FOR REVIEW (LATE): Terms of reference"
+        return mystr
+
+    def get_subject_fr(self):
+        if self.instance.role == 1:
+            mystr = "POUR APPROBATION (EN RETARD) : Cadre de référence"
+        else:
+            mystr = "POUR ÉVALUATION (EN RETARD) : Cadre de référence"
+        return mystr
+
+    def get_recipient_list(self):
+        return [self.instance.user.email, ]
+
+    def __init__(self, instance=None, td=None):
+        self.instance = instance
+        self.td = td
+
+    def get_context_data(self):
+        context = dict()
+        context["object"] = self.instance
+        context["td"] = self.td
+        context["SITE_FULL_URL"] = settings.SITE_FULL_URL
+        return context
+
+
+class RequestReviewCompleteEmail(Email):
+    email_template_path = 'csas2/emails/csas_request_reviews/review_complete.html'
+    subject_en = 'CSAS Request approvals complete'
+    subject_fr = "Les approbations d'une demande de SCAS a été terminée"
+
+    def get_recipient_list(self):
+        payload = [self.instance.client.email]
+        if not self.instance.office.disable_request_notifications:
+            payload.extend(self.instance.office.all_emails)
+        return payload
+
+
+class RequestReviewAwaitingEmail(Email):
+    email_template_path = 'csas2/emails/csas_request_reviews/review_awaiting.html'
+
+    def get_subject_en(self):
+        if self.instance.role == 1:
+            mystr = "FOR APPROVAL: CSAS Request"
+        else:
+            mystr = "FOR RECOMMENDATION: CSAS Request"
+        return mystr
+
+    def get_subject_fr(self):
+        if self.instance.role == 1:
+            mystr = "POUR APPROBATION : Une demande de SCAS"
+        else:
+            mystr = "POUR RECOMMANDATION : Une demande de SCAS"
+        return mystr
+
+    def get_recipient_list(self):
+        return [self.instance.user.email, ]
+
+
+class RequestReviewTerminatedEmail(Email):
+    email_template_path = 'csas2/emails/csas_request_reviews/review_terminated.html'
+    subject_en = 'Your review has been withdrawn'
+    subject_fr = "Votre évaluation a été ignoré"
+
+    def get_recipient_list(self):
+        return [self.instance.user.email, ]
+
+
+class RequestChangesRequestedEmail(Email):
+    email_template_path = 'csas2/emails/csas_request_reviews/changes_requested.html'
+    subject_en = "Changes to CSAS request requested"
+    subject_fr = "Modifications à la demande de SCAS sont nécessaires"
+
+    def get_recipient_list(self):
+        return [self.instance.csas_request.client.email]
+
+
+class RequestReviewReminderEmail(Email):
+    email_template_path = 'csas2/emails/csas_request_reviews/review_reminder.html'
+
+    def get_subject_en(self):
+        if self.instance.role == 1:
+            mystr = "FOR APPROVAL (LATE): CSAS Request"
+        else:
+            mystr = "FOR RECOMMENDATION (LATE): CSAS Request"
+        return mystr
+
+    def get_subject_fr(self):
+        if self.instance.role == 1:
+            mystr = "POUR APPROBATION (EN RETARD) : Une demande de SCAS"
+        else:
+            mystr = "POUR RECOMMANDATION (EN RETARD) : Une demande de SCAS"
+        return mystr
+
+    def get_recipient_list(self):
+        return [self.instance.user.email, ]
+
+    def __init__(self, instance=None, td=None):
+        self.instance = instance
+        self.td = td
+
+    def get_context_data(self):
+        context = dict()
+        context["object"] = self.instance
+        context["td"] = self.td
+        context["SITE_FULL_URL"] = settings.SITE_FULL_URL
+        return context

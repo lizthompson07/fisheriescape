@@ -8,14 +8,17 @@ router.register(r'project-years', views.ProjectYearViewSet)
 router.register(r'staff', views.StaffViewSet)
 router.register(r'om-costs', views.OMCostViewSet)
 router.register(r'capital-costs', views.CapitalCostViewSet)
+router.register(r'salary-allocations', views.SalaryAllocationViewSet)
+router.register(r'om-allocations', views.OMAllocationViewSet)
+router.register(r'capital-allocations', views.CapitalAllocationViewSet)
 router.register(r'activities', views.ActivityViewSet)
+router.register(r'activities-full', views.ActivityExtendedViewSet)
 router.register(r'collaborations', views.CollaborationViewSet)
 router.register(r'status-reports', views.StatusReportViewSet)
 router.register(r'activity-updates', views.ActivityUpdateViewSet)
 router.register(r'citations', views.CitationViewSet)
 router.register(r'reviews', views.ReviewViewSet)
 router.register(r'files', views.FileViewSet)
-router.register(r'dmas', views.DMAViewSet)
 
 urlpatterns = [
     path("ppt/", include(router.urls)),  # tested
@@ -44,6 +47,5 @@ urlpatterns = [
     path("ppt/meta/models/project/", views.ProjectModelMetaAPIView.as_view(), name="projects-project-model-meta"),
     path("ppt/meta/models/projectyear/", views.ProjectYearModelMetaAPIView.as_view(), name="projects-projectyear-model-meta"),
     path("ppt/meta/models/review/", views.ReviewModelMetaAPIView.as_view(), name="projects-review-model-meta"),
-    path("ppt/meta/models/dma/", views.DMAModelMetaAPIView.as_view(), name="projects-dma-model-meta"),
 
 ]

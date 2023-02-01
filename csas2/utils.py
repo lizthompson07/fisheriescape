@@ -130,7 +130,7 @@ def is_editor(user, process_id):
 def is_client(user, request_id):
     if user.id:
         csas_request = get_object_or_404(models.CSASRequest, pk=request_id)
-        return csas_request.client == user
+        return csas_request.client == user or csas_request.editors.filter(id=user.id).exists()
 
 
 def is_creator(user, request_id):
@@ -154,23 +154,23 @@ def can_modify_request(user, request_id, return_as_dict=False):
         my_dict["reason"] = _("You do not have the permissions to modify this request")
         csas_request = get_object_or_404(models.CSASRequest, pk=request_id)
         # check to see if they are the client
-        if is_client(user, request_id=csas_request.id) and not csas_request.submission_date:
+        if is_client(user, request_id=csas_request.id) and (not csas_request.submission_date or csas_request.status == 25):
             my_dict["reason"] = _("You can modify this record because you are the request client")
             my_dict["can_modify"] = True
-        # check to see if they are the client
-        elif is_creator(user, request_id=csas_request.id) and not csas_request.submission_date:
+        # check to see if they are the creator
+        elif is_creator(user, request_id=csas_request.id) and (not csas_request.submission_date or csas_request.status == 25):
             my_dict["reason"] = _("You can modify this record because you are the record creator")
             my_dict["can_modify"] = True
-        # check to see if they are the coordinator
-        elif is_request_coordinator(user, request_id=csas_request.id):
+        # check to see if they are the coordinator and the request status is upstream of 70 (accepted)
+        elif is_request_coordinator(user, request_id=csas_request.id) and not csas_request.has_process:
             my_dict["reason"] = _("You can modify this record because you are the CSAS coordinator for this region")
             my_dict["can_modify"] = True
-        # check to see if they are an advisor
-        elif is_request_advisor(user, request_id=csas_request.id):
+        # check to see if they are an advisor and the request status is upstream of 70 (accepted)
+        elif is_request_advisor(user, request_id=csas_request.id) and not csas_request.has_process:
             my_dict["reason"] = _("You can modify this record because you a CSAS Science advisor in this region")
             my_dict["can_modify"] = True
-        # check to see if they are an administrator
-        elif is_request_administrator(user, request_id=csas_request.id):
+        # check to see if they are an administrator and the request status is upstream of 70 (accepted)
+        elif is_request_administrator(user, request_id=csas_request.id) and not csas_request.has_process:
             my_dict["reason"] = _("You can modify this record because you a CSAS Science administrator in this region")
             my_dict["can_modify"] = True
         # are they a national administrator?
@@ -186,6 +186,38 @@ def can_modify_request(user, request_id, return_as_dict=False):
         #     my_dict["reason"] = _("You can modify this record because you are a regional CSAS administrator") + f" ({user.csas_admin_user.region.tname})"
         #     my_dict["can_modify"] = True
         return my_dict if return_as_dict else my_dict["can_modify"]
+
+
+def can_withdraw_request(user, request_id, return_as_dict=False):
+    """
+    returns True if user has permissions to withdraw a request
+    The answer of this question will depend on the business rules...
+    """
+    my_dict = dict(is_allowed=False, reason=_("You are not logged in"))
+
+    if user.id:
+        my_dict["reason"] = _("You do not have the permissions to withdrawn this request")
+        csas_request = get_object_or_404(models.CSASRequest, pk=request_id)
+        # has it already been withdrawn?
+        if csas_request.status == 10:
+            my_dict["reason"] = _("cannot withdraw draft.")
+        elif csas_request.status == 70:
+            my_dict["reason"] = _("cannot withdraw accepted.")
+        elif csas_request.status == 80:
+            my_dict["reason"] = _("cannot withdraw fulfilled.")
+        elif csas_request.status == 99:
+            my_dict["reason"] = _("already withdrawn.")
+        else:
+            # check to see if they can already modify it
+            if can_modify_request(user, request_id):
+                my_dict["reason"] = _("You can withdraw this record because you can modify it.")
+                my_dict["is_allowed"] = True
+            # check to see if they are the client
+            elif is_client(user, request_id=csas_request.id) and (csas_request.status < 30 or csas_request.status == 42):
+                my_dict["reason"] = _("You are the client and the status is in the right place")
+                my_dict["is_allowed"] = True
+
+        return my_dict if return_as_dict else my_dict["is_allowed"]
 
 
 def can_modify_request_review(user, request_id, return_as_dict=False):
@@ -288,17 +320,6 @@ def can_modify_tor(user, tor_id, return_as_dict=False):
         return my_dict if return_as_dict else my_dict["can_modify"]
 
 
-# def can_modify_tor_reviewer(user, tor_reviewer_id):
-#     """
-#     if the tor is submitted, the only person who can modify the tor reviewer is the reviewer himself.
-#     Otherwise it is the same rules as can_modify_tor
-#     """
-#     if user.id:
-#         tor_reviewer = get_object_or_404(models.ToRReviewer, pk=tor_reviewer_id)
-#         tor = tor_reviewer.tor
-#         return can_modify_tor(user, tor.id) or tor_reviewer.user_id == user.id
-
-
 def can_unsubmit_tor(user, tor_id):
     if user.id:
         tor = get_object_or_404(models.TermsOfReference, pk=tor_id)
@@ -310,6 +331,22 @@ def can_unsubmit_tor(user, tor_id):
             return True
         # otherwise, the must be allowed to edit the process and the tor status must not be AWAITING POSTING (40) or POSTED (50)
         return bool(can_modify_process(user, tor.process.id) and tor.status not in [40, 50])
+
+
+def can_unsubmit_request(user, request_id):
+    if user.id:
+        r = get_object_or_404(models.CSASRequest, pk=request_id)
+        # nobody can unsubmit a request that has an associated process
+        if r.has_process:
+            return False
+        # if national admin, they can always un-submit
+        if in_csas_national_admin_group(user):
+            return True
+        # are they a national administrator?
+        elif in_csas_web_pub_group(user):
+            return True
+        # otherwise, the must be allowed to edit the process and the tor status must not be downstream (i.e., greater than) 30 ("Ready for CSAS review")
+        return bool(can_modify_request(user, request_id) and r.status <= 30)
 
 
 def get_request_field_list(csas_request, user):
@@ -528,10 +565,7 @@ def end_tor_review_process(tor):
 
     # set all reviewers to draft
     for reviewer in tor.reviewers.all():
-        reviewer.status = 10  # DRAFT
-        reviewer.decision = None
-        reviewer.decision_date = None
-        reviewer.save()
+        reviewer.reset()
 
 
 def start_tor_review_process(tor):
@@ -543,9 +577,7 @@ def start_tor_review_process(tor):
 
     # set everyone to being queued
     for reviewer in tor.reviewers.all():
-        reviewer.status = 20  # QUEUED
-        reviewer.decision_date = None
-        reviewer.save()
+        reviewer.queue()
 
 
 def tor_approval_seeker(tor, request):
@@ -575,3 +607,75 @@ def tor_approval_seeker(tor, request):
             tor.save()
             email = emails.ToRReviewCompleteEmail(request, tor)
             email.send()
+
+
+def end_request_review_process(request):
+    """this should be used when a project is unsubmitted. It will change over all reviewers' statuses to Pending"""
+    request.submission_date = None
+    request.status = 1  # set status to DRAFT
+    request.save()
+
+    # set all reviewers to draft
+    for reviewer in request.reviewers.all():
+        reviewer.reset()
+
+
+def start_request_review_process(request):
+    """this should be used when a tor is submitted. It will change over all reviewers' statuses to queued
+    """
+    request.submission_date = timezone.now()
+    request.status = 20  # under review
+    request.save()
+
+    # set everyone to being queued
+    for reviewer in request.reviewers.all():
+        reviewer.queue()
+
+
+def request_approval_seeker(csas_request, request):
+    """
+    This method is meant to seek approvals via email + set reviewer statuses.
+    """
+    # only look for a next reviewer if we are still UNDER CLIENT REVIEW (20)
+    if csas_request.status == 20:
+        next_reviewer = None
+        # look through all the reviewers... see if we can decide on who the next reviewer should be...
+        for reviewer in csas_request.reviewers.all():
+            # if the reviewer's status is set to QUEUED (20) or PENDING (30), they will be our next selection
+            # we should then exit the loop and set the next_reviewer var
+            if reviewer.status in [20, 30]:
+                next_reviewer = reviewer
+                break
+
+        # if there is a next reviewer, set their status to pending and send them an email
+        if next_reviewer:
+            next_reviewer.status = 30  # pending
+            next_reviewer.save()
+            email = emails.RequestReviewAwaitingEmail(request, next_reviewer)
+            email.send()
+
+        # if there is no next reviewer,
+        else:
+            csas_request.save()  # the save method should deal with setting the status.
+            email = emails.RequestReviewCompleteEmail(request, csas_request)
+            email.send()
+
+
+def get_action_items(user):
+    """ gimme a user and I'll return any outstanding item that require that user's action
+        Returns a dict object
+    """
+
+    tor_qs = user.torreviewer_reviews.filter(status=30)
+    request_qs = user.requestreviewer_reviews.filter(status=30)
+    withdraw_qs = user.csas_client_requests.filter(status=42)
+    rescoping_qs = models.CSASRequest.objects.filter(status=43).filter(Q(office__coordinator=user) | Q(office__advisors=user)).distinct()
+
+    payload = dict(
+        tor_reviewers=tor_qs,
+        request_reviewers=request_qs,
+        withdrawals=withdraw_qs,
+        rescopings=rescoping_qs,
+        count=tor_qs.count() + request_qs.count() + withdraw_qs.count() + rescoping_qs.count(),
+    )
+    return payload

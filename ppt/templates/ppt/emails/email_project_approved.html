@@ -2,7 +2,7 @@
 {% load custom_filters %}
 
 <em>
-  *** un message français suivra
+  *** un message français suit
 </em>
 <br><br>
 
@@ -26,18 +26,6 @@
     </p>
   {% endif %}
 
-  {% if object.allocated_salary %}
-    <p>
-      The amount of salary funding allocated to this project year is ${{ object.allocated_salary|currency }}.
-    </p>
-  {% endif %}
-
-  {% if object.allocated_capital %}
-    <p>
-      The amount of capital funding allocated to this project year is ${{ object.allocated_capital|currency }}.
-    </p>
-  {% endif %}
-
 
 {% elif object.approval_status == 2 %}
   <p>
@@ -58,20 +46,6 @@
       The amount of O&M funding allocated to this project year is ${{ object.allocated_budget|currency }}.
     </p>
   {% endif %}
-
-  {% if object.allocated_salary %}
-    <p>
-      The amount of salary funding allocated to this project year is ${{ object.allocated_salary|currency }}.
-    </p>
-  {% endif %}
-
-  {% if object.allocated_capital %}
-    <p>
-      The amount of capital funding allocated to this project year is ${{ object.allocated_capital|currency }}.
-    </p>
-  {% endif %}
-
-
 
 {% elif object.approval_status == 0 %}
 
@@ -140,16 +114,6 @@
       Le montant du exploitation et maintenance alloué à cette année du projet est de {{ object.allocated_budget|currency:True }}.
     </p>
   {% endif %}
-  {% if object.allocated_salary %}
-    <p>
-      Le montant du salaire alloué à cette année du projet est de {{ object.allocated_salary|currency:True }}.
-    </p>
-  {% endif %}
-  {% if object.allocated_capital %}
-    <p>
-      Le montant du captial alloué à cette année du projet est de {{ object.allocated_capital|currency:True }}.
-    </p>
-  {% endif %}
 
 {% elif object.approval_status == 2 %}
   <p>
@@ -170,17 +134,6 @@
       Le montant du exploitation et maintenance alloué à cette année du projet est de {{ object.allocated_budget|currency:True }}.
     </p>
   {% endif %}
-  {% if object.allocated_salary %}
-    <p>
-      Le montant du salaire alloué à cette année du projet est de {{ object.allocated_salary|currency:True }}.
-    </p>
-  {% endif %}
-  {% if object.allocated_capital %}
-    <p>
-      Le montant du captial alloué à cette année du projet est de {{ object.allocated_capital|currency:True }}.
-    </p>
-  {% endif %}
-
 
 {% elif object.approval_status == 0 %}
 

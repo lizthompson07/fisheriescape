@@ -99,7 +99,12 @@
           <tr href="{% url 'scuba:dive_detail' dive.id %}">
             {% for field in dive_field_list %}
               <td>
-                {% get_field_value dive field %}
+                {% get_field_value dive field as val %}
+                {% if "present" in field %}
+                  <span class="p-1 {% if dive.has_all_sections %} good {% else %} bad{% endif %}">{{ val }}</span>
+                {% else %}
+                  {{ val }}
+                {% endif %}
               </td>
             {% endfor %}
           </tr>
@@ -133,7 +138,7 @@
         }).addTo(map)
 
         let coords = [];
-        let tempCoords =[];
+        let tempCoords = [];
 
         {% if object.transect.has_coordinates %}
           tempCoords = [

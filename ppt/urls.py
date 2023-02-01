@@ -1,6 +1,6 @@
 from django.urls import path
 
-from . import views
+from . import views, utils
 
 app_name = 'ppt'
 
@@ -37,20 +37,6 @@ urlpatterns = [
     path('status-reports/<int:pk>/delete/', views.StatusReportDeleteView.as_view(), name="report_delete"),  # tested
     path('status-reports/<int:pk>/print/', views.StatusReportPrintDetailView.as_view(), name="report_pdf"),  # tested
 
-    # DMAs #
-    #################
-    path('projects/<int:project>/new-dma/', views.DMACreateView.as_view(), name="dma_new"),
-    path('dmas/<int:pk>/view/', views.DMADetailView.as_view(), name="dma_detail"),
-    path('dmas/<int:pk>/edit/', views.DMAUpdateView.as_view(), name="dma_edit"),
-    path('dmas/<int:pk>/delete/', views.DMADeleteView.as_view(), name="dma_delete"),
-    path('dmas/<int:pk>/clone/', views.DMACloneView.as_view(), name="dma_clone"),
-
-    # DMA Reviews #
-    #################
-    path('dmas/<int:dma>/new-review/', views.DMAReviewCreateView.as_view(), name="dma_review_new"),
-    path('dma-reviews/<int:pk>/edit/', views.DMAReviewUpdateView.as_view(), name="dma_review_edit"),
-    path('dmas-reviews/<int:pk>/delete/', views.DMAReviewDeleteView.as_view(), name="dma_review_delete"),
-
     # SETTINGS #
     ############
     # formsets
@@ -59,6 +45,9 @@ urlpatterns = [
 
     path('settings/activity-types/', views.ActivityTypeFormsetView.as_view(), name="manage_activity_types"),  # tested
     path('settings/activity-type/<int:pk>/delete/', views.ActivityTypeHardDeleteView.as_view(), name="delete_activity_type"),  # tested
+
+    path('settings/activity-classification/', views.ActivityClassificationFormsetView.as_view(), name="manage_activity_classifications"),  # tested
+    path('settings/activity-classification/<int:pk>/delete/', views.ActivityClassificationHardDeleteView.as_view(), name="delete_activity_classification"),  # tested
 
     path('settings/om-categories/', views.OMCategoryFormsetView.as_view(), name="manage_om_cats"),  # tested
     path('settings/om-category/<int:pk>/delete/', views.OMCategoryHardDeleteView.as_view(), name="delete_om_cat"),  # tested
@@ -69,7 +58,11 @@ urlpatterns = [
     path('settings/tags/', views.TagFormsetView.as_view(), name="manage_tags"),  # tested
     path('settings/tag/<int:pk>/delete/', views.TagHardDeleteView.as_view(), name="delete_tag"),  # tested
 
-    path('settings/help-texts/', views.HelpTextFormsetView.as_view(), name="manage_help_text"),  # tested
+    path('settings/help-texts/', views.HelpTextFormsetView.as_view(), name="manage_help_texts"),  # tested
+    path('settings/help-texts/<str:model_name>/<str:field_name>/', views.HelpTextPopView.as_view(),
+         name="manage_help_text"),
+    path('ajax/get_fields/', utils.ajax_get_fields, name='ajax_get_fields'),
+    path('settings/toggle-help-texts/<int:user_id>', utils.toggle_help_text_edit, name="toggle_edit_help_texts"),
     path('settings/help-text/<int:pk>/delete/', views.HelpTextHardDeleteView.as_view(), name="delete_help_text"),  # tested
 
     path('settings/levels/', views.LevelFormsetView.as_view(), name="manage_levels"),  # tested
@@ -139,7 +132,6 @@ urlpatterns = [
 
     path('reports/project-basic/', views.export_py_list, name="export_py_list"),  # TODO: test
     path('reports/cost-descriptions/', views.export_cost_descriptions, name="export_cost_descriptions"),  # TODO: test
-
 
     # special
     path('projects/<int:pk>/acrdp-application/', views.export_acrdp_application, name="export_acrdp_application"),

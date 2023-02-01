@@ -1,16 +1,9 @@
-import datetime
 from django.test import tag
 from django.urls import reverse_lazy
-from django.views.generic import FormView, DetailView
-from easy_pdf.views import PDFTemplateView
+from django.views.generic import FormView
 from faker import Faker
 
-from lib.functions.custom_functions import fiscal_year
-from shared_models.test.SharedModelsFactoryFloor import RegionFactory, UserFactory
-from travel.test import FactoryFloor
-
-from travel.test.common_tests import CommonTravelTest as CommonTest
-from .FactoryFloor import ResourceFactory
+from ..test.common_tests import CommonInventoryTest as CommonTest
 from .. import views
 
 faker = Faker()
@@ -29,7 +22,7 @@ class TestReportSearchFormView(CommonTest):
     @tag("inventory", 'report', "access")
     def test_view(self):
         self.assert_good_response(self.test_url)
-        my_user = self.get_and_login_user(in_group="inventory_dm")
+        my_user = self.get_and_login_user(is_regional_admin=True)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=my_user)
 
 
@@ -46,7 +39,6 @@ class TestODIReport(CommonTest):
         self.assert_non_public_view(test_url=self.test_urls[0])
         for url in self.test_urls:
             self.assert_good_response(url)
-
 
 
 class TestPhysicalSamplesReport(CommonTest):

@@ -1,19 +1,20 @@
 import math
 
+import numpy as np
 import unicodecsv as csv
+from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponse
 from django.template.defaultfilters import yesno
 from django.utils import timezone
-from django.core.exceptions import ObjectDoesNotExist
+
 from lib.functions.custom_functions import nz
 from lib.functions.verbose_field_name import verbose_field_name
 from . import models
-import numpy as np
 
 
-def generate_progress_report(year):
+def generate_progress_report(year, species):
     # create instance of mission:
-    qs = models.Sample.objects.filter(season=year)
+    qs = models.Sample.objects.filter(season=year, species=species)
 
     # Create the HttpResponse object with the appropriate CSV header.
     response = HttpResponse(content_type='text/csv')
@@ -28,8 +29,9 @@ def generate_progress_report(year):
     writer.writerow(["", ])
 
     writer.writerow([
+        "Sample Id",
         "Season",
-        "Sample no.",
+        "Species",
         "Type",
         "Sample date",
         "Sampler's reference no.",
@@ -56,8 +58,9 @@ def generate_progress_report(year):
 
         writer.writerow(
             [
-                sample.season,
                 sample.id,
+                sample.season,
+                sample.species,
                 sample.get_type_display(),
                 sample.sample_date.strftime('%Y-%m-%d'),
                 sample.sampler_ref_number,
@@ -71,9 +74,9 @@ def generate_progress_report(year):
     return response
 
 
-def generate_sample_report(year):
+def generate_sample_report(year, species):
     # create instance of mission:
-    qs = models.Sample.objects.filter(season=year)
+    qs = models.Sample.objects.filter(season=year, species=species)
 
     # Create the HttpResponse object with the appropriate CSV header.
     response = HttpResponse(content_type='text/csv')
@@ -81,8 +84,9 @@ def generate_sample_report(year):
     writer = csv.writer(response)
 
     writer.writerow([
-        verbose_field_name(qs.first(), "id"),
+        "Sample Id",
         verbose_field_name(qs.first(), 'season'),
+        verbose_field_name(qs.first(), 'species'),
         verbose_field_name(qs.first(), 'type'),
         verbose_field_name(qs.first(), 'sample_date'),
         verbose_field_name(qs.first(), 'sampler_ref_number'),
@@ -120,6 +124,7 @@ def generate_sample_report(year):
             [
                 sample.id,
                 sample.season,
+                sample.species,
                 sample.get_type_display(),
                 sample_date,
                 sample.sampler_ref_number,
@@ -145,25 +150,54 @@ def generate_sample_report(year):
     return response
 
 
-def generate_fish_detail_report(year):
+def generate_lf_report(year, species):
     # create instance of mission:
-    qs = models.FishDetail.objects.filter(sample__season=year)
+    qs = models.LengthFrequency.objects.filter(sample__season=year, sample__species=species).distinct().order_by("sample__sample_date")
+
+    # Create the HttpResponse object with the appropriate CSV header.
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="herring_length_frequency_report_{}.csv"'.format(year)
+    writer = csv.writer(response)
+
+    writer.writerow([
+        # from sample
+        "Sample Id",
+        verbose_field_name(qs.first().sample, 'season'),
+        verbose_field_name(qs.first().sample, 'species'),
+        verbose_field_name(qs.first().sample, 'type'),
+        verbose_field_name(qs.first().sample, 'sample_date'),
+
+        verbose_field_name(qs.first(), 'length_bin'),
+        verbose_field_name(qs.first(), 'count'),
+    ])
+
+    for obj in qs:
+        writer.writerow(
+            [
+                obj.sample.id,
+                obj.sample.season,
+                str(obj.sample.species),
+                obj.sample.get_type_display(),
+                obj.sample.sample_date,
+                str(obj.length_bin),
+                obj.count,
+            ])
+    return response
+
+
+def generate_fish_detail_report(year, species):
+    # create instance of mission:
+    qs = models.FishDetail.objects.filter(sample__season=year, sample__species=species)
 
     # Create the HttpResponse object with the appropriate CSV header.
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename="herring_fish_detail_report_{}.csv"'.format(year)
     writer = csv.writer(response)
 
-    # write the header information
-    # writer.writerow(['{} Fish Detail Export'.format(year), "", "", "", "", "",
-    #                  'Report generated on {}'.format(timezone.now().strftime('%Y-%m-%d %H:%M')), ])
-
-    # write the header for the bottle table
-    # writer.writerow(["", ])
-
     writer.writerow([
-        'sample',
+        'sample_id',
         'season',
+        'species',
         'sample_type',
         'sample_date',
         'sampler_ref_number',
@@ -193,49 +227,51 @@ def generate_fish_detail_report(year):
         'otolith_season',
         'otolith_image_remote_filepath',
         'otolith_processed_date',
+        'egg_sampler',
+        'gonad_sub_sample_weight',
+        'gonad_count',
+        'gonad_photo_id',
+        'gonad_photo_magnification',
     ])
 
     for fish_detail in qs:
+        sampler = None
         if fish_detail.sample.sampler:
-            sampler = "{} {}".format(fish_detail.sample.sampler.first_name, fish_detail.sample.sampler.last_name)
-        else:
-            sampler = None
+            sampler = str(fish_detail.sample.sampler)
 
+        lab_sampler = None
         if fish_detail.lab_sampler:
-            lab_sampler = "{} {}".format(fish_detail.lab_sampler.first_name, fish_detail.lab_sampler.last_name)
-        else:
-            lab_sampler = None
+            lab_sampler = str(lab_sampler)
 
+        otolith_sampler = None
         if fish_detail.otolith_sampler:
-            otolith_sampler = "{} {}".format(fish_detail.otolith_sampler.first_name,
-                                             fish_detail.otolith_sampler.last_name)
-        else:
-            otolith_sampler = None
+            otolith_sampler = str(fish_detail.otolith_sampler)
 
+        egg_sampler = None
+        if fish_detail.egg_sampler:
+            egg_sampler = str(fish_detail.egg_sampler)
+
+        sample_date = None
         if fish_detail.sample.sample_date:
             sample_date = fish_detail.sample.sample_date.strftime('%Y-%m-%d')
-        else:
-            sample_date = None
 
+        lab_processed_date = None
         if fish_detail.lab_processed_date:
             lab_processed_date = fish_detail.lab_processed_date.strftime('%Y-%m-%d')
-        else:
-            lab_processed_date = None
 
+        otolith_processed_date = None
         if fish_detail.otolith_processed_date:
             otolith_processed_date = fish_detail.otolith_processed_date.strftime('%Y-%m-%d')
-        else:
-            otolith_processed_date = None
 
+        district = None
         if fish_detail.sample.district:
             district = "{}{}".format(fish_detail.sample.district.province_id, fish_detail.sample.district.district_id)
-        else:
-            district = None
 
         writer.writerow(
             [
                 fish_detail.sample.id,
                 fish_detail.sample.season,
+                fish_detail.sample.species,
                 fish_detail.sample.get_type_display(),
                 sample_date,
                 fish_detail.sample.sampler_ref_number,
@@ -265,6 +301,11 @@ def generate_fish_detail_report(year):
                 fish_detail.otolith_season,
                 fish_detail.otolith_image_remote_filepath,
                 otolith_processed_date,
+                egg_sampler,
+                fish_detail.gonad_sub_sample_weight,
+                fish_detail.gonad_count,
+                fish_detail.gonad_photo_id,
+                fish_detail.gonad_photo_magnification,
             ])
 
     return response
@@ -272,7 +313,7 @@ def generate_fish_detail_report(year):
 
 def generate_hlen(year):
     # grab a list of samples for which there are length frequencies
-    sample_list = [s for s in models.Sample.objects.filter(season=year).order_by("sample_date") if s.length_frequencies.count() > 0]
+    sample_list = models.Sample.objects.filter(season=year, length_frequencies__isnull=False, species__aphia_id=126417).order_by("sample_date").distinct()
 
     # Create the HttpResponse object with the appropriate CSV header.
     response = HttpResponse(content_type='text/csv')
@@ -339,7 +380,7 @@ def generate_hlen(year):
 
 def generate_hlog(year):
     # grab a list of all samples for the year
-    sample_list = [s for s in models.Sample.objects.filter(season=year).order_by("sample_date")]
+    sample_list = models.Sample.objects.filter(season=year, species__aphia_id=126417).order_by("sample_date").distinct()
 
     # Create the HttpResponse object with the appropriate CSV header.
     response = HttpResponse(content_type='text/csv')
@@ -453,14 +494,14 @@ def generate_hlog(year):
 
         # o) lat
         if sample.latitude_n:
-            my_var = sample.latitude_n[:6]
+            my_var = str(round(sample.latitude_n,6))[:6]
         else:
             my_var = ""
         col_o = str(nz(my_var, "")).rjust(padding_lengths[14])
 
         # p) long
         if sample.longitude_w:
-            my_var = sample.longitude_w[:6]
+            my_var = str(round(sample.longitude_w,6))[:6]
         else:
             my_var = ""
         col_p = str(nz(my_var, "")).rjust(padding_lengths[15])
@@ -558,7 +599,7 @@ def generate_hlog(year):
 
 def generate_hdet(year):
     # grab a list of all fish details for the year, ordered by sample then fish number
-    fish_list = [f for f in models.FishDetail.objects.filter(sample__season=year).order_by("sample__sample_date", "fish_number")]
+    fish_list = models.FishDetail.objects.filter(sample__season=year, sample__species__aphia_id=126417).order_by("sample__sample_date", "fish_number")
 
     # Create the HttpResponse object with the appropriate CSV header.
     response = HttpResponse(content_type='text/csv')
@@ -576,7 +617,6 @@ def generate_hdet(year):
             # sample, day, month, year, fish_number,
             # fishlength, fishweight, sex (M,F,I),
             # maturity, gonadweight, otolith_season, annulus_count
-
 
             if fish.sex:
                 sex = fish.sex.oracle_code

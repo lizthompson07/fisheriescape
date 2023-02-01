@@ -1,4 +1,6 @@
+import sys
 from datetime import timedelta
+from math import floor
 from uuid import uuid4
 
 from django.contrib.auth.models import User
@@ -15,7 +17,7 @@ from markdown import markdown
 from textile import textile
 
 from csas2 import model_choices, utils
-from csas2.model_choices import tor_review_status_choices, tor_review_decision_choices, tor_review_role_choices
+from csas2.model_choices import tor_review_role_choices, request_review_role_choices, review_status_choices, review_decision_choices
 from csas2.utils import get_quarter
 from lib.functions.custom_functions import fiscal_year, listrify
 from lib.templatetags.custom_filters import percentage
@@ -104,13 +106,97 @@ class GenericNote(MetadataFields):
         return mark_safe(f"{date(self.updated_at)} &mdash; {by}")
 
 
+class GenericReviewer(MetadataFields):
+    order = models.IntegerField(null=True, verbose_name=_("process order"))
+    role = models.IntegerField(verbose_name=_("role"))
+    user = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="%(class)s_reviews", verbose_name=_("user"))
+    decision = models.IntegerField(verbose_name=_("decision"), choices=review_decision_choices, blank=True, null=True)
+    decision_date = models.DateTimeField(verbose_name=_("date"), blank=True, null=True)
+    comments = models.TextField(null=True, blank=True, verbose_name=_("comments"))
+    status = models.IntegerField(verbose_name=_("status"), default=10, choices=review_status_choices)
+
+    # non-editable
+    reminder_sent = models.DateTimeField(verbose_name=_("reminder sent date"), blank=True, null=True, editable=False)
+    review_started = models.DateTimeField(verbose_name=_("review started"), blank=True, null=True, editable=False)
+    review_completed = models.DateTimeField(verbose_name=_("review completed"), blank=True, null=True, editable=False)
+
+    def __str__(self):
+        return f"{self.user.get_full_name()} ({self.get_role_display()})"
+
+    def save(self, *args, **kwargs):
+        # if the decision is "approved" set the status of the reviewer to 'complete' (40)
+        if self.decision == 1:
+            self.status = 40
+            # populate a decision date if not already there. (this is a safeguard for losing decision dates in the case of post-approval saving)
+            if not self.decision_date:
+                self.decision_date = timezone.now()
+        # if the decision is "request changes" set the status of the TOR to "awaiting changes" (30); do not populate a decision date
+        elif self.decision == 2:  # review decision = request changes
+            self.update_parent_status_on_changes_requested()  # this will have to be defined by each reviewer model class
+        else:
+            self.decision_date = None
+
+        # if the reviewer status is "pending" (30) and there is no starting date, this is the starting moment!
+        if self.status == 30 and not self.review_started:
+            self.review_started = timezone.now()
+        # if the reviewer status is "complete" (40) and there is no completion date, this is the completion moment!
+        elif self.status == 40 and not self.review_completed:
+            self.review_completed = timezone.now()
+
+        super().save(*args, **kwargs)
+
+    class Meta:
+        abstract = True
+        ordering = ['order', ]
+
+    def update_parent_status_on_changes_requested(self):
+        # update the parent status (e.g., tor status or request status) to reflect the fact that there are changes awaiting
+        pass
+
+    def reset(self):
+        self.status = 10  # DRAFT
+        self.decision = None
+        self.decision_date = None
+        self.review_started = None
+        self.review_completed = None
+        self.reminder_sent = None
+        self.save()
+
+    def queue(self):
+        self.status = 20  # QUEUED
+        self.decision_date = None
+        self.save()
+
+    @property
+    def review_duration(self):
+        td = None
+        if self.review_started and self.review_completed:
+            td = self.review_completed - self.review_started
+        elif self.review_started:
+            td = timezone.now() - self.review_started
+        if td:
+            # return the total number of days
+            return floor((td.seconds + (td.days * 24 * 60 * 60)) / (24 * 60 * 60))
+
+    @property
+    def comments_html(self):
+        if self.comments:
+            return textile(self.comments)
+        else:
+            return "---"
+
+    @property
+    def can_be_modified(self):
+        return self.status in [10, 20]
+
+
 class CSASOffice(models.Model):
     region = models.ForeignKey(Region, blank=True, on_delete=models.DO_NOTHING, related_name="csas_offices", verbose_name=_("region"))
     coordinator = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="csas_offices", verbose_name=_("coordinator / CSA"))
     advisors = models.ManyToManyField(User, blank=True, verbose_name=_("science advisors"), related_name="csas_offices_advisors")
     administrators = models.ManyToManyField(User, blank=True, verbose_name=_("administrators"), related_name="csas_offices_administrators")
-    generic_email = models.EmailField(verbose_name=_("generic email address"), blank=True, null=True)
-    disable_request_notifications = models.BooleanField(default=False, verbose_name=_("disable notifications of new requests?"), choices=YES_NO_CHOICES)
+    generic_email = models.EmailField(verbose_name=_("generic email address"))
+    disable_request_notifications = models.BooleanField(default=False, verbose_name=_("disable notifications from new requests?"), choices=YES_NO_CHOICES)
     no_staff_emails = models.BooleanField(default=False, verbose_name=_("do not send emails directly to office staff?"), choices=YES_NO_CHOICES)
     ppt_default_section = models.ForeignKey(Section, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="csas_offices",
                                             verbose_name=_("default section for PPT"),
@@ -185,9 +271,11 @@ class CSASRequest(MetadataFields):
                                          choices=model_choices.prioritization_choices)
     prioritization_text = models.TextField(blank=True, null=True, verbose_name=_("What is the rationale behind the prioritization?"))
     tags = models.ManyToManyField(SubjectMatter, blank=True, verbose_name=_("keyword tags"), limit_choices_to={"is_csas_request_tag": True})
+    editors = models.ManyToManyField(User, blank=True, verbose_name=_("request editors"), related_name="request_editors",
+                                     help_text=_("A list of DFO staff, in addition to the primary client, who has permission to edit the draft CSAS request."))
 
     # non-editable fields
-    status = models.IntegerField(default=1, verbose_name=_("status"), choices=model_choices.request_status_choices, editable=False)
+    status = models.IntegerField(default=10, verbose_name=_("status"), choices=model_choices.request_status_choices, editable=False)
     submission_date = models.DateTimeField(null=True, blank=True, verbose_name=_("submission date"), editable=False)
     old_id = models.IntegerField(blank=True, null=True, editable=False)
     uuid = models.UUIDField(editable=False, unique=True, blank=True, null=True, default=uuid4, verbose_name=_("unique identifier"))
@@ -208,8 +296,14 @@ class CSASRequest(MetadataFields):
         return self.title
 
     def withdraw(self):
-        self.status = 6
+        self.status = 99
         self.save()
+
+    def unsubmit(self):
+        utils.end_request_review_process(self)
+
+    def submit(self):
+        utils.start_request_review_process(self)
 
     def save(self, *args, **kwargs):
 
@@ -236,29 +330,27 @@ class CSASRequest(MetadataFields):
         # if there is a process, the request the request MUST have been approved.
         if self.id and self.processes.exists():
             if self.processes.filter(status=100).count() == self.processes.all().count():
-                self.status = 5  # fulfilled
+                self.status = 80  # fulfilled
             elif self.processes.filter(status=90).count() == self.processes.all().count():
-                self.status = 6  # withdrawn
+                self.status = 99  # withdrawn
             else:
-                self.status = 11  # accepted
+                self.status = 70  # accepted
         else:
             # if the request is not submitted, it should automatically be in draft
             if not self.submission_date:
-                self.status = 1  # draft
+                self.status = 10  # draft
             else:
                 # if the status is set to withdrawn, we do nothing more.
-                if self.status != 6:
+                if self.status not in [99, 25]:
                     # look at the review to help determine the status
-                    self.status = 1  # draft
-                    if self.submission_date:
-                        self.status = 2  # submitted
-                    if self.files.filter(is_approval=True).exists():
-                        self.status = 3  # approved
+                    self.status = 20  # under review by client
+                    # if all the client reviewers have approved the request AND there is at least one approval, it is ready for csas team
+                    if self.reviewers.filter(status=40, role=1).exists() and self.reviewers.filter(status=40).count() == self.reviewers.all().count():
+                        self.status = 30  # Ready for CSAS review
                     if hasattr(self, "review") and self.review.id:
-                        self.status = 4  # under review
+                        self.status = 40  # under review
                         if self.review.decision:
-                            self.status = self.review.decision + 10
-
+                            self.status = self.review.decision + 40
         super().save(*args, **kwargs)
 
     def get_absolute_url(self):
@@ -376,6 +468,11 @@ class CSASRequest(MetadataFields):
     def coordinator(self):
         return self.office.coordinator
 
+    @property
+    def current_reviewer(self):
+        """Send back the first reviewer whose status is 'pending' """
+        return self.reviewers.filter(status=30).first()
+
 
 class CSASRequestNote(GenericNote):
     ''' a note pertaining to a csas request'''
@@ -393,6 +490,7 @@ class CSASRequestReview(MetadataFields):
     decision_date = models.DateTimeField(null=True, blank=True, verbose_name=_("recommendation date"))
     advice_date = models.DateTimeField(verbose_name=_("advice required by (final)"), blank=True, null=True)
     deferred_text = models.TextField(null=True, blank=True, verbose_name=_("rationale for alternate scheduling"))
+    is_other_mandate = models.BooleanField(default=False, verbose_name=_("does this fall under another scientific mandate?"), choices=YES_NO_CHOICES)
     notes = models.TextField(blank=True, null=True, verbose_name=_("administrative notes"))
 
     # non-editable
@@ -401,6 +499,9 @@ class CSASRequestReview(MetadataFields):
     def save(self, *args, **kwargs):
         if self.is_valid == 0 or self.is_feasible == 0:
             self.decision = 2  # the decision MUST be to withdraw
+
+        if self.decision != 2:
+            self.is_other_mandate = False  # the only time this can ever be true is when it has been returned to client
 
         # if there is a decision, but no decision date, it should be populated
         if self.decision and not self.decision_date:
@@ -428,6 +529,20 @@ class CSASRequestFile(GenericFile):
     file = models.FileField(upload_to=request_directory_path)
 
 
+class RequestReviewer(GenericReviewer):
+    csas_request = models.ForeignKey(CSASRequest, related_name="reviewers", on_delete=models.CASCADE)
+    role = models.IntegerField(verbose_name=_("role"), choices=request_review_role_choices)
+
+    @property
+    def can_be_modified(self):
+        return self.status in [10, 20] and self.csas_request.status <= 30
+
+    def update_parent_status_on_changes_requested(self):
+        r = self.csas_request
+        r.status = 25
+        r.save()
+
+
 class Process(SimpleLookupWithUUID, MetadataFields):
     name = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("title (en)"))
     nom = models.CharField(max_length=1000, blank=True, null=True, verbose_name=_("title (fr)"))
@@ -442,7 +557,7 @@ class Process(SimpleLookupWithUUID, MetadataFields):
                                      help_text=_("A list of non-CSAS staff with permissions to edit the process, meetings and documents"))
 
     csas_requests = models.ManyToManyField(CSASRequest, blank=True, related_name="processes", verbose_name=_("Connected CSAS requests"))
-    advice_date = models.DateTimeField(verbose_name=_("Target date for to provide Science advice"), blank=True, null=True)
+    advice_date = models.DateTimeField(verbose_name=_("Target date to provide Science advice"), blank=True, null=True)
     projects = models.ManyToManyField(Project, blank=True, related_name="csas_processes", verbose_name=_("Links to PPT Projects"))
 
     # non-editable
@@ -563,6 +678,12 @@ class Process(SimpleLookupWithUUID, MetadataFields):
             mystr = f"<b><u>{mystr}</u></b>"
             mystr += f", {listrify([o for o in self.other_offices.all()])}"
         return mystr
+
+    @property
+    def regions_qs(self):
+        region_ids =[self.lead_office.region.id] + [o.region.id for o in self.other_offices.all()]
+        qs = Region.objects.filter(id__in=region_ids)
+        return qs
 
     @property
     def formatted_notes(self):
@@ -732,44 +853,18 @@ class TermsOfReference(MetadataFields):
         return self.reviewers.filter(status=30).first()
 
 
-class ToRReviewer(MetadataFields):
+class ToRReviewer(GenericReviewer):
     tor = models.ForeignKey(TermsOfReference, on_delete=models.CASCADE, related_name="reviewers")
-    order = models.IntegerField(null=True, verbose_name=_("process order"))
     role = models.IntegerField(verbose_name=_("role"), choices=tor_review_role_choices)
-    user = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="tor_reviews", verbose_name=_("user"))
-    decision = models.IntegerField(verbose_name=_("decision"), choices=tor_review_decision_choices, blank=True, null=True)
-    decision_date = models.DateTimeField(verbose_name=_("date"), blank=True, null=True)
-    comments = models.TextField(null=True, blank=True, verbose_name=_("comments"))
-    status = models.IntegerField(verbose_name=_("status"), default=10, choices=tor_review_status_choices)
-
-    def save(self, *args, **kwargs):
-        if self.decision:
-            self.decision_date = timezone.now()
-            if self.decision == 1:  # review decision = approve
-                self.status = 40
-            elif self.decision == 2:  # review decision = request changes
-                tor = self.tor
-                tor.status = 30
-                tor.save()
-        else:
-            self.decision_date = None
-        super().save(*args, **kwargs)
-
-    class Meta:
-        # unique_together = ['tor', 'user', ]
-        ordering = ['tor', 'order', ]
-        verbose_name = _("ToR reviewer")
-
-    @property
-    def comments_html(self):
-        if self.comments:
-            return textile(self.comments)
-        else:
-            return "---"
 
     @property
     def can_be_modified(self):
         return self.status in [10, 20] and self.tor.status != 50
+
+    def update_parent_status_on_changes_requested(self):
+        tor = self.tor
+        tor.status = 30
+        tor.save()
 
 
 class ProcessNote(GenericNote):
@@ -1127,24 +1222,28 @@ class Document(MetadataFields):
     title_en = models.CharField(max_length=255, verbose_name=_("title (English)"), blank=True, null=True)
     title_fr = models.CharField(max_length=255, verbose_name=_("title (French)"), blank=True, null=True)
     title_in = models.CharField(max_length=255, verbose_name=_("title (Inuktitut)"), blank=True, null=True)
-    year = models.PositiveIntegerField(null=True, blank=True, validators=[MaxValueValidator(9999)], verbose_name=_("Publication Year"))
-    pages = models.IntegerField(null=True, blank=True, verbose_name=_("pages"))
 
-    # file (should be able to get size as well!
-    file_en = models.FileField(upload_to=doc_directory_path, blank=True, null=True, verbose_name=_("file attachment (en)"))
-    file_fr = models.FileField(upload_to=doc_directory_path, blank=True, null=True, verbose_name=_("file attachment (fr)"))
-
-    url_en = models.URLField(verbose_name=_("document url (en)"), blank=True, null=True, max_length=2000)
-    url_fr = models.URLField(verbose_name=_("document url (fr)"), blank=True, null=True, max_length=2000)
-
-    dev_link_en = models.URLField(_("dev link (en)"), max_length=2000, blank=True, null=True)
-    dev_link_fr = models.URLField(_("dev link (fr)"), max_length=2000, blank=True, null=True)
+    pages_en = models.IntegerField(null=True, blank=True, verbose_name=_("pages (en)"))
+    pages_fr = models.IntegerField(null=True, blank=True, verbose_name=_("pages (fr)"))
 
     ekme_gcdocs_en = models.CharField(blank=True, null=True, max_length=255, verbose_name=_("EKME# / GCDocs (en)"))
     ekme_gcdocs_fr = models.CharField(blank=True, null=True, max_length=255, verbose_name=_("EKME# / GCDocs (fr)"))
 
+    dev_link_en = models.URLField(_("dev link (en)"), max_length=2000, blank=True, null=True)
+    dev_link_fr = models.URLField(_("dev link (fr)"), max_length=2000, blank=True, null=True)
+
+    url_en = models.URLField(verbose_name=_("document url (en)"), blank=True, null=True, max_length=2000)
+    url_fr = models.URLField(verbose_name=_("document url (fr)"), blank=True, null=True, max_length=2000)
+
+    pdf_size_kb_en = models.IntegerField(blank=True, null=True, verbose_name=_("size of PDF (en)"))
+    pdf_size_kb_fr = models.IntegerField(blank=True, null=True, verbose_name=_("size of PDF (fr)"))
+
     lib_cat_en = models.CharField(blank=True, null=True, max_length=255, verbose_name=_("library catalogue # (en)"))
     lib_cat_fr = models.CharField(blank=True, null=True, max_length=255, verbose_name=_("library catalogue # (fr)"))
+
+    # file (should be able to get size as well!
+    file_en = models.FileField(upload_to=doc_directory_path, blank=True, null=True, verbose_name=_("file attachment (en)"))
+    file_fr = models.FileField(upload_to=doc_directory_path, blank=True, null=True, verbose_name=_("file attachment (fr)"))
 
     # non-editable
     due_date = models.DateTimeField(null=True, blank=True, verbose_name=_("document due date"), editable=False)
@@ -1197,16 +1296,21 @@ class Document(MetadataFields):
     def lead_authors(self):
         return self.authors.filter(is_lead=True)
 
+    @property
+    def other_authors(self):
+        return self.authors.filter(is_lead=False)
+
     class Meta:
         ordering = ["process", _("title_en")]
 
     def save(self, *args, **kwargs):
-        # set status
-        self.status = 0  # unconfirmed
+        # set status if not set
+        if not self.status:
+            self.status = 0  # unconfirmed
 
-        if self.is_confirmed:
-            # self.status = 20  # confirmed
-            self.status = 1  # tracking started
+            if self.is_confirmed:
+                # self.status = 20  # confirmed
+                self.status = 1  # tracking started
 
         if hasattr(self, "tracking"):
             self.pub_number = self.tracking.pub_number
@@ -1260,6 +1364,24 @@ class Document(MetadataFields):
     def tstatus_class(self):
         return model_choices.get_translation_status_lookup().get(self.translation_status).get("stage")
 
+    @property
+    def last_meeting(self):
+        """most recent peer reviewed meeting"""
+        return self.meetings.filter(is_planning=False).order_by("-start_date").first()
+
+    @property
+    def other_regions(self):
+        """pulls in the offices from the process and excludes the lead as per the document"""
+        if not self.lead_office:
+            return self.process.regions_qs.all()
+        return self.process.regions_qs.filter(~Q(id=self.lead_office.region_id))
+
+    @property
+    def is_past_due(self):
+        """decided at whether the document is past due"""
+        if self.due_date:
+            return timezone.now() > self.tracking.due_date
+        return gettext("No due date assigned")
 
 class DocumentNote(GenericNote):
     ''' a note pertaining to a meeting'''
@@ -1340,3 +1462,6 @@ class Author(models.Model):
     class Meta:
         ordering = ['-is_lead', 'person__first_name', "person__last_name"]
         unique_together = (("document", "person"),)
+
+    def __str__(self):
+        return str(self.person)

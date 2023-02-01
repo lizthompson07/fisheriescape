@@ -120,12 +120,12 @@ class Committee(models.Model):
                                related_name="committee_branch", verbose_name=_("Lead DFO Maritimes Region branch"),
                                limit_choices_to=Q(region__name="Maritimes") & Q_HIDE_BRANCHES)
     division = models.ForeignKey(shared_models.Division, blank=True, null=True, on_delete=models.DO_NOTHING,
-                                 verbose_name=_("Division"))
+                                 verbose_name=_("Division within the specified lead branch"))
     area_office = models.ForeignKey(AreaOffice, blank=True, null=True, related_name="committee_area_office",
                                     on_delete=models.DO_NOTHING, verbose_name=_("Lead Maritimes Region area office"))
     area_office_program = models.ForeignKey(AreaOfficeProgram, blank=True, null=True,
                                             related_name="committee_area_office_program", on_delete=models.DO_NOTHING,
-                                            verbose_name=_("Program"))
+                                            verbose_name=_("Program within the specified lead area office"))
 
     # leaving this out for now because it may be a redundant filed included in the interactions model
     # role_dfo = models.IntegerField(choices=ROLE_DFO_CHOICES)
@@ -151,8 +151,12 @@ class Committee(models.Model):
                                                   verbose_name=_("Participating National Headquarters sectors"),
                                                   limit_choices_to={"region__name": "National"}
                                                   )
+    lead_national_sector = models.ForeignKey(shared_models.Sector, related_name="committee_lead_sector",
+                                             blank=True, null=True, verbose_name=_("Lead National sector"),
+                                             limit_choices_to={"region__name": "National"}, on_delete=models.DO_NOTHING,
+                                             )
     dfo_role = models.IntegerField(choices=ROLE_DFO_CHOICES, default=12,
-                                   verbose_name="Role of highest level DFO participant")
+                                   verbose_name="Highest level DFO participant")
     first_nation_participation = models.BooleanField(default=False,
                                                      verbose_name=_("Indigenous community/organization participation?"))
     municipal_participation = models.BooleanField(default=False,
@@ -172,7 +176,7 @@ class Committee(models.Model):
                                             default=1)
     are_tor = models.BooleanField(default=False, verbose_name=_("Are there terms of reference?"))
     location_of_tor = models.TextField(blank=True, null=True, verbose_name=_("Location of terms of reference"))
-    main_actions = models.TextField(default="-----", verbose_name=_("Main actions"))
+    main_actions = models.TextField(default="-----", verbose_name=_("Role of committee / working group"))
     comments = models.TextField(blank=True, null=True, verbose_name=_("Comments"))
     last_modified = models.DateTimeField(auto_now=True, blank=True, null=True,
                                          verbose_name=_("date last modified"))
@@ -185,23 +189,30 @@ class Committee(models.Model):
 
 class Interaction(models.Model):
     interaction_type_choices = (
-        (1, "Minister meeting"),
-        (2, "Deputy Minister meeting"),
-        (3, "Maritimes Region ad hoc meeting"),
-        (4, "Committee / Working Group meeting"),
+        # (1, "Minister meeting"), # Removed 2022-08-02
+        # (2, "Deputy Minister meeting"), # Removed 2022-08-02
+        # (3, "Maritimes Region ad hoc meeting"), # Removed 2022-08-02
+        # (4, "Committee / Working Group meeting"), # Removed 2022-08-02
         # (5, "Committee / Working Group correspondence"), # Removed 2021-11-16
-        (6, "Ministerial correspondence"),
-        (7, "Deputy Minister correspondence"),
-        (8, "Maritimes Region correspondence "),
-        (9, "Conference or workshop "),
+        # (6, "Ministerial correspondence"), # Removed 2022-08-02
+        # (7, "Deputy Minister correspondence"), # Removed 2022-08-02
+        # (8, "Maritimes Region correspondence "), # Removed 2022-08-02
+        # (9, "Conference or workshop "), # Removed 2022-08-02
+        (10, "Email or other written correspondence "),
+        (11, "In-person meeting"),
+        (12, "Hybrid meeting"),
+        (13, "Virtual or phone meeting "),
+        (14, "Conference or workshop "),
+
     )
 
-    description = models.CharField(max_length=255, default="N/A", verbose_name="Short Description")
-    interaction_type = models.IntegerField(choices=interaction_type_choices, default=None)
+    description = models.CharField(max_length=255, default="N/A", verbose_name="Title of Interaction")
+    interaction_type = models.IntegerField(choices=interaction_type_choices, blank=True, null=True, default=None)
+    is_committee = models.BooleanField(default=False, verbose_name=_("Committee or Working Group"), choices=YES_NO_CHOICES)
     committee = models.ForeignKey(Committee, blank=True, null=True, on_delete=models.DO_NOTHING,
                                   verbose_name="Committee / Working Group", related_name="committee_interactions")
     dfo_role = models.IntegerField(choices=ROLE_DFO_CHOICES, default=None,
-                                   verbose_name="Role of highest level DFO participant")
+                                   verbose_name="Highest level DFO participant")
     dfo_liaison = models.ManyToManyField(User, blank=True, related_name="interaction_dfo_liaison",
                                          verbose_name=_("DFO Maritimes Region liaison"))
     other_dfo_participants = models.ManyToManyField(User, blank=True, related_name="interaction_dfo_participants",
@@ -213,9 +224,9 @@ class Interaction(models.Model):
                                     on_delete=models.DO_NOTHING, verbose_name=_("Lead DFO Maritimes Region area office"))
     area_office_program = models.ForeignKey(AreaOfficeProgram, blank=True, null=True,
                                             related_name="interaction_area_office_program", on_delete=models.DO_NOTHING,
-                                            verbose_name=_("Program"))
+                                            verbose_name=_("Program within the specified lead area office"))
     division = models.ForeignKey(shared_models.Division, blank=True, null=True, on_delete=models.DO_NOTHING,
-                                 verbose_name=_("Division"))
+                                 verbose_name=_("Division within the specified lead branch"))
     other_dfo_branch = models.ManyToManyField(shared_models.Branch, related_name="interaction_dfo_branch",
                                               blank=True, limit_choices_to=Q(region__name="Maritimes") & Q_HIDE_BRANCHES,
                                               verbose_name=_("Other participating DFO Maritimes Region branches")
@@ -232,7 +243,10 @@ class Interaction(models.Model):
                                                   blank=True, verbose_name=_("Participating National Headquarters sectors"),
                                                   limit_choices_to={"region__name": "National"}
                                                   )
-
+    lead_national_sector = models.ForeignKey(shared_models.Sector, related_name="interaction_lead_sector",
+                                             blank=True, null=True, verbose_name=_("Lead National sector"),
+                                             limit_choices_to={"region__name": "National"}, on_delete=models.DO_NOTHING
+                                             )
     other_dfo_areas = models.ManyToManyField(AreaOffice, related_name="interaction_dfo_area",
                                              blank=True, verbose_name=_("Other participating DFO Maritimes Region area offices")
                                              )
@@ -246,7 +260,7 @@ class Interaction(models.Model):
                                         verbose_name=_("Main Topic(s) of discussion"))
     species = models.ManyToManyField(Species, blank=True, related_name="species",
                                      verbose_name=_("Main species of discussion"))
-    action_items = models.TextField(default="-----", verbose_name=_("Main actions"))
+    action_items = models.TextField(default="-----", verbose_name=_("Main results"))
     comments = models.TextField(blank=True, null=True, verbose_name=_("Comments"))
     last_modified = models.DateTimeField(auto_now=True, blank=True, null=True,
                                          verbose_name=_("date last modified"))
@@ -254,7 +268,7 @@ class Interaction(models.Model):
                                          verbose_name=_("last modified by"))
 
     def __str__(self):
-        return "{}: {}".format(self.pk, self.description)
+        return "{}".format(self.description)
 
 
 class OrganizationExtension(models.Model):
@@ -282,7 +296,7 @@ class HelpText(models.Model):
     fra_text = models.TextField(blank=True, null=True, verbose_name=_("French text"))
 
     def __str__(self):
-        # check to see if a french value is given
+        # check to see if a French value is given
         if getattr(self, str(_("eng_text"))):
             return "{}".format(getattr(self, str(_("eng_text"))))
         # if there is no translated term, just pull from the english field

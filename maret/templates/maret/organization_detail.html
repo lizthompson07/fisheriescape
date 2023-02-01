@@ -57,26 +57,7 @@
                     <table class="table table-sm ">
                         {% for field in field_list %}
 
-                            {% if field == "name_ind" %}
-                               <tr>
-                                    <th class="w-25"> {%  trans "Categories" %} </th>
-                                    <td>
-                                        {% for ext_org in object.ext_org.all %}
-                                            {{ ext_org.category.all|join:", " }}
-                                        {% endfor %}
-                                    </td>
-                                </tr>
-                                {% verbose_td_display object field %}
-                            {% elif field == "category" %}
-                                <tr>
-                                    <th class="w-25"> {% get_verbose_label instance=object field_name=field %} </th>
-                                    <td>
-                                        {% for ext_org in object.ext_org.all %}
-                                            {{ ext_org.category.all|join:", " }}
-                                        {% endfor %}
-                                    </td>
-                                </tr>
-                            {% elif field == "email" %}
+                            {% if field == "email" %}
                                 <tr>
                                     <th class="w-25"> {% get_verbose_label instance=object field_name=field %} </th>
                                     <td>
@@ -103,6 +84,15 @@
                                         {% endfor %}
                                     </td>
                                 </tr>
+                            {% elif field == "last_modified_by" %}
+                              <tr>
+                                <th>{% get_verbose_label object field %}</th>
+                                <td>
+                                    {% if object.last_modified_by.id %}
+                                        <a href="{% url 'maret:user_detail' object.last_modified_by.id %}">{% get_field_value object field %}</a>
+                                    {% endif %}
+                                </td>
+                              </tr>
                             {% else %}
                                 {% verbose_td_display object field %}
                             {% endif %}
@@ -115,6 +105,9 @@
             {% include "maret/_members.html" %}
             {% include "maret/_interactions.html" %}
             {% include "maret/_committees.html" %}
+            {% if entries %}
+              {% include "ihub/_entries.html" %}
+            {% endif %}
         </div>
     </div>
 

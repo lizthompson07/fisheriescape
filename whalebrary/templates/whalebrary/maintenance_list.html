@@ -1,0 +1,60 @@
+{% extends "whalebrary/list.html" %}
+{% load static %}
+{% load verbose_names %}
+{% load humanize %}
+{% load i18n %}
+{% load custom_filters %}
+
+<!--This is a custom block to add formatting to one field in the table-->
+
+{% block head %}
+    {% for field in field_list %}
+        <th class="{{ field.class }}" {% if field.width %}style="width: {{ field.width }}"{% endif %}>
+            {% get_verbose_label random_object field.name %}
+        </th>
+    {% endfor %}
+    <th style="text-align:center;">
+    {% trans "Maintenance Completed" %}
+{% endblock %}
+
+{% block table_body_0 %}
+    <tbody>
+    {% for object in list %}
+        {% block table_tr %}
+            {% url row_object_url_name object.id as my_url %}
+            <tr {% if row_object_url_name %}href="{{ my_url }}"{% endif %}
+                {% if open_row_in_new_tab %}newtab{% endif %}>
+                {% for field in field_list %}
+                    <td class="{{ field.class }}">
+                        {% get_field_value object field.name safe=True %}
+                    </td>
+                {% endfor %}
+                <td style="text-align:center;">
+                    <a href="{% url 'whalebrary:mark_maintenance_done' object.id %}" class="maintDoneBtn">
+                        {% if object.overdue %}
+                            <img src="{% static "img/whalebrary/work-needed-icon.svg" %}" data-toggle="tooltip"
+                                 title="Mark Maintenance Done">
+                        {% else %}
+                            <img src="{% static 'img/whalebrary/work-started-icon.svg' %}" data-toggle="tooltip"
+                                 title="Mark Maintenance Done">
+                        {% endif %}
+                    </a>
+                </td>
+            </tr>
+        {% endblock %}
+    {% endfor %}
+    </tbody>
+{% endblock %}
+
+{% block body_js %}
+    <script>
+        $(".maintDoneBtn").click(function (e) {
+            e.stopPropagation() /* Keeps from following the tr href link when clicking in this area */
+            e.preventDefault()
+            userInput = confirm("Are you certain you want to do this? I could be a GINORMOUS error!!! ;)")
+            if (userInput) popitup($(this).attr("href"))
+        })
+    </script>
+
+
+{% endblock body_js %}

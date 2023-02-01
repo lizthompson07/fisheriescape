@@ -8,7 +8,7 @@
       <div class="modal-container" style="width: 50%; height: 1000px">
         <div class="modal-header">
           <h4 v-if="!multipleMode">
-            {% trans "New Observations" %}
+            {% trans "New Specimens" %}
           </h4>
           <h4 v-else="">
             {% trans "Multiple on Which Basis?" %}
@@ -30,7 +30,7 @@
                   <td>
                     <v-select
                       ref="start"
-                      v-model="observation.species"
+                      v-model="specimen.species"
                       :options="choices.speciesChoices"
                       :reduce="choice => choice.value"
                       label="text"
@@ -44,7 +44,7 @@
                   <th><label for="" class="text-danger">${labels.status} (*)</label></th>
                   <td>
                     <v-select
-                      v-model="observation.status"
+                      v-model="specimen.status"
                       :options="choices.statusChoices"
                       :reduce="choice => choice.value"
                       label="text"
@@ -58,7 +58,7 @@
                   <th><label for="">${labels.life_stage}</label></th>
                   <td>
                     <v-select
-                      v-model="observation.life_stage"
+                      v-model="specimen.life_stage"
                       :options="choices.lifeStageChoices"
                       :reduce="choice => choice.value"
                       label="text"
@@ -72,7 +72,7 @@
                   <th><label for="">${labels.reproductive_status}</label></th>
                   <td>
                     <v-select
-                      v-model="observation.reproductive_status"
+                      v-model="specimen.reproductive_status"
                       :options="choices.reproductiveStatusChoices"
                       :reduce="choice => choice.value"
                       label="text"
@@ -82,11 +82,11 @@
                   </td>
                 </tr>
                 <tr>
-                  <th><label for="">${labels.origin}</label></th>
+                  <th><label for="">${labels.adipose_condition}</label></th>
                   <td>
                     <v-select
-                      v-model="observation.origin"
-                      :options="choices.originChoices"
+                      v-model="specimen.adipose_condition"
+                      :options="choices.adiposeConditionChoices"
                       :reduce="choice => choice.value"
                       label="text"
                       class=""
@@ -98,7 +98,7 @@
                   <th><label for="">${labels.sex}</label></th>
                   <td>
                     <v-select
-                      v-model="observation.sex"
+                      v-model="specimen.sex"
                       :options="choices.sexChoices"
                       :reduce="choice => choice.value"
                       label="text"
@@ -110,29 +110,29 @@
 
                 <tr>
                   <th><label for="">${labels.fork_length}</label></th>
-                  <td><input type="number" step="any" v-model="observation.fork_length" class="form-control w-100"/></td>
+                  <td><input type="number" step="any" v-model="specimen.fork_length" class="form-control w-100"/></td>
                 </tr>
                 <tr>
                   <th><label for="">${labels.total_length}</label></th>
-                  <td><input type="number" step="any" v-model="observation.total_length" class="form-control w-100"/></td>
+                  <td><input type="number" step="any" v-model="specimen.total_length" class="form-control w-100"/></td>
                 </tr>
 
 
                 <tr>
                   <th><label for="">${labels.weight}</label></th>
-                  <td><input type="number" step="any" v-model="observation.weight" class="form-control"/></td>
+                  <td><input type="number" step="any" v-model="specimen.weight" class="form-control"/></td>
                 </tr>
                 <tr v-if="!is_electro">
                   <th><label for="">${labels.tag_number}</label></th>
-                  <td><input type="text" v-model="observation.tag_number" class="form-control"/></td>
+                  <td><input type="text" v-model="specimen.tag_number" class="form-control"/></td>
                 </tr>
                 <tr>
                   <th><label for="">${labels.scale_id_number}</label></th>
-                  <td><input type="text" v-model="observation.scale_id_number" class="form-control"/></td>
+                  <td><input type="text" v-model="specimen.scale_id_number" class="form-control"/></td>
                 </tr>
                 <tr>
                   <th><label for="">${labels.notes}</label></th>
-                  <td><input type="text" v-model="observation.notes" class="form-control"/></td>
+                  <td><input type="text" v-model="specimen.notes" class="form-control"/></td>
                 </tr>
                 </tbody>
               </table>
@@ -148,11 +148,11 @@
             <div v-if="!scenario">
               <div class="mb-3 text-center">
                 <button type="button" class="btn btn-primary" @click="scenario=1;">
-                  {% trans "Total Observations" %}
+                  {% trans "Total Specimens" %}
                 </button>
               </div>
               <div class="mb-3 text-center">
-                <button type="button" class="btn btn-primary" @click="scenario=2;" :disabled="!observation.tag_number">
+                <button type="button" class="btn btn-primary" @click="scenario=2;" :disabled="!specimen.tag_number">
                   {% trans "End Tag #" %}
                 </button>
               </div>
@@ -162,8 +162,8 @@
             <div v-if="scenario===1">
               <form @submit.prevent="addMultiple">
                 <div class="form-group">
-                  <label for="">{% trans "How many observations would you like to add?" %}</label>
-                  <input v-model="totalObservations" type="number" class="form-control" required>
+                  <label for="">{% trans "How many specimens would you like to add?" %}</label>
+                  <input v-model="totalSpecimens" type="number" class="form-control" required>
                 </div>
                 <div class="form-group" v-if="this.shouldIncrement">
                   <p class="text-muted">
@@ -238,7 +238,7 @@ Vue.component("overlay", {
       type: Object,
       required: true
     },
-    primed_observation: {
+    primed_specimen: {
       type: Object,
       required: true
     },
@@ -254,18 +254,16 @@ Vue.component("overlay", {
       scenario: null,
       endTag: null,
       shouldIncrement: false,
-      totalObservations: null,
-      observation: {},
+      totalSpecimens: null,
+      specimen: {},
       multipleMode: false,
     };
   },
   methods: {
-
-
     openDialog() {
       this.error = null;
       this.overlay = true;
-      this.shouldIncrement = !!this.obs.tag_number;
+      this.shouldIncrement = !!this.specimen.tag_number;
     },
     closeDialog() {
       this.$emit("close");
@@ -273,21 +271,21 @@ Vue.component("overlay", {
     goBack() {
       this.multipleMode = false;
       this.scenario = null;
-      this.totalObservations = null;
+      this.totalSpecimens = null;
     },
     add() {
-      this.$emit("add", this.observation);
+      this.$emit("add", this.specimen);
       this.closeDialog();
     },
     addMultiple() {
-      let msg = '{% trans 'Warning: by proceeding you will be creating more than 10 observations. Are you sure you want to continue?' %}'
+      let msg = '{% trans 'Warning: by proceeding you will be creating more than 10 specimens. Are you sure you want to continue?' %}'
       let proceed = true;
-      if (this.totalObservations && this.totalObservations > 10) proceed = confirm(msg);
+      if (this.totalSpecimens && this.totalSpecimens > 10) proceed = confirm(msg);
       if (proceed) {
         this.error = null;
         instructions = {
           shouldIncrement: this.shouldIncrement,
-          totalObservations: this.totalObservations,
+          totalSpecimens: this.totalSpecimens,
           tagPrefix: this.tagPrefix,
         }
         if (this.startTagNumber) {
@@ -295,19 +293,19 @@ Vue.component("overlay", {
           instructions.padding = this.startTagNumber.padding
         }
         if (this.endTag) {
-          // we have to figure out the total number of observations based on the endTag number
+          // we have to figure out the total number of specimens based on the endTag number
           let startNumber = this.startTagNumber.number;
           let endNumber = extractNumber(this.endTag).number;
           if (endNumber < startNumber) this.error = '{% trans 'The end tag number is smaller than the start tag number' %}'
           else {
             instructions.shouldIncrement = true; // always for this scenario!
-            instructions.totalObservations = endNumber - startNumber + 1;
+            instructions.totalSpecimens = endNumber - startNumber + 1;
           }
         }
         if (!this.error) {
-          for (var i = 0; i < instructions.totalObservations; i++) {
+          for (var i = 0; i < instructions.totalSpecimens; i++) {
             if (instructions.shouldIncrement && instructions.tagPrefix !== null && instructions.startTagNumber) {
-              this.observation.tag_number = instructions.tagPrefix + String(i + instructions.startTagNumber).padStart(instructions.padding, "0")
+              this.specimen.tag_number = instructions.tagPrefix + String(i + instructions.startTagNumber).padStart(instructions.padding, "0")
             }
             this.add();
           }
@@ -317,23 +315,23 @@ Vue.component("overlay", {
 
   },
   created() {
-    this.observation = this.primed_observation;
+    this.specimen = this.primed_specimen;
     this.$nextTick(() => {
       this.$refs.start.$refs.search.focus();
     })
   },
   computed: {
     formIsComplete() {
-      return this.observation.species && this.observation.status;
+      return this.specimen.species && this.specimen.status;
     },
     tagPrefix() {
-      if (this.observation.tag_number) {
-        return extractPrefix(this.observation.tag_number)
+      if (this.specimen.tag_number) {
+        return extractPrefix(this.specimen.tag_number)
       }
     },
     startTagNumber() {
-      if (this.observation.tag_number) {
-        return extractNumber(this.observation.tag_number)
+      if (this.specimen.tag_number) {
+        return extractNumber(this.specimen.tag_number)
       }
     },
     paddedStartTagNumber() {

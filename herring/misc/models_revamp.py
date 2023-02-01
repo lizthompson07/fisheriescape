@@ -151,6 +151,7 @@ class Sample(models.Model):
     season =  models.IntegerField(null=True, blank=True)
     length_frequencies = models.ManyToManyField(to=LengthBin, through='LengthFrequency')
     lab_processing_complete = models.BooleanField(default=False)
+    egg_processing_complete = models.BooleanField(default=False)
     otolith_processing_complete = models.BooleanField(default=False)
     creation_date = models.DateTimeField(blank=True, null=True, default=timezone.now)
     created_by = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="created_by_samples")

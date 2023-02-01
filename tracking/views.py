@@ -4,21 +4,25 @@ import os
 from datetime import timedelta
 from shutil import rmtree
 
+import django_filters
 from bokeh import palettes
 from bokeh.io import output_file, save
 from bokeh.models import HoverTool, ColumnDataSource, Legend
 from bokeh.plotting import figure
 from django import forms
 from django.contrib.auth.decorators import permission_required
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
 from django.db.models import Sum
-from django.http import StreamingHttpResponse
+from django.http import StreamingHttpResponse, HttpResponseRedirect
 from django.shortcuts import render
+from django.urls import reverse_lazy
 from django.utils import timezone
 from django.utils.timezone import now
 
+from shared_models.views import CommonFilterView
 from tracking import reports
-from tracking.models import Visitor, Pageview, VisitSummary
+from tracking.models import Visitor, Pageview, VisitSummary, Email
 from tracking.settings import TRACK_PAGEVIEWS
 
 log = logging.getLogger(__file__)
@@ -393,3 +397,50 @@ def user_summary_report(request):
     )
     response['Content-Disposition'] = f'attachment;filename={filename}'
     return response
+
+
+class SuperuserRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
+
+    def test_func(self):
+        return self.request.user.is_superuser
+
+    def dispatch(self, request, *args, **kwargs):
+        user_test_result = self.get_test_func()()
+        if not user_test_result and self.request.user.is_authenticated:
+            return HttpResponseRedirect('/accounts/denied/?app=tracking')
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+
+class EmailFilter(django_filters.FilterSet):
+    class Meta:
+        model = Email
+        fields = {
+            'subject': ['icontains'],
+            'sent_by': ['exact'],
+            'from_email': ['icontains'],
+            'recipient_list': ['icontains'],
+        }
+
+
+class EmailLogListView(SuperuserRequiredMixin, CommonFilterView):
+    model = Email
+    h1 = "Email Log"
+    filterset_class = EmailFilter
+    template_name = 'shared_models/generic_filter.html'
+    home_url_name = "index"
+    parent_crumb = {"title": "tracking dashboard", "url": reverse_lazy("tracking:tracking-dashboard")}
+    container_class = "container-fluid small"
+    paginate_by = 100
+    field_list = [
+        {"name": 'from_email', "class": ""},
+        {"name": 'recipient_list', "class": ""},
+        {"name": 'subject', "class": ""},
+        {"name": 'sent_at', "class": ""},
+        {"name": 'sent_by', "class": ""},
+        {"name": 'send_method', "class": ""},
+        {"name": 'msg_id', "class": ""},
+    ]

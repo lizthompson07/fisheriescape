@@ -1,4 +1,6 @@
 import os
+from datetime import timedelta, datetime
+from pathlib import Path
 
 from django.contrib.auth.models import User
 from django.contrib.auth.models import User as AuthUser
@@ -8,6 +10,7 @@ from django.dispatch import receiver
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
+from lib.templatetags.custom_filters import timedelta_duration_days_hours as td
 
 from shared_models.models import LatLongFields, SimpleLookup
 
@@ -104,6 +107,7 @@ class Item(models.Model):
 
     class Meta:
         unique_together = (('item_name', 'size'),)
+        ordering = ["item_name"]
 
     def __str__(self):
         # check to see if a french value is given
@@ -125,20 +129,20 @@ class Item(models.Model):
     @property
     def lent_out_quantities(self):
         """find all category=3 (lent out) transactions"""
-        return self.transactions.filter(category=3)
+        return self.transactions.filter(category=3, return_tracker=False)
         # same as:
         # return Transaction.objects.filter(item=self, category=3)
 
     def get_oh_quantity(self, location=None):
         """find total quantity for item regardless of location"""
         if not location:
-            purchase_qty = sum([item.quantity for item in self.transactions.filter(category=1)])
-            removed_quantity = sum([item.quantity for item in self.transactions.filter(category__in=[2, 3])])
+            purchase_qty = sum([item.quantity for item in self.transactions.filter(category__in=[1, 4, 6])])
+            removed_quantity = sum([item.quantity for item in self.transactions.filter(category__in=[2, 3, 5])])
             qty = purchase_qty - removed_quantity
         else:
-            purchase_qty = sum([item.quantity for item in self.transactions.filter(category=1, location=location)])
+            purchase_qty = sum([item.quantity for item in self.transactions.filter(category__in=[1, 4, 6], location=location)])
             removed_quantity = sum(
-                [item.quantity for item in self.transactions.filter(category__in=[2, 3], location=location)])
+                [item.quantity for item in self.transactions.filter(category__in=[2, 3, 5], location=location)])
             qty = purchase_qty - removed_quantity
         return qty
 
@@ -422,6 +426,25 @@ class Incident(LatLongFields):
             my_str += f' (inc.ID #{self.id})'
         return my_str
 
+    @property
+    def data_folder_path(self):
+        my_path = ""
+
+        if self.data_folder:
+            try:
+                my_path += fr'{self.data_folder}'
+                new_path = my_path.split(':\\')[1]
+                drive_path = r'\\glfscidm002\cetacean'
+                final_path = drive_path + '\\' + new_path
+                return final_path
+            except IndexError:
+                my_path = "Re-enter drive path"
+
+            # \\glfscidm002\cetacean\MM_DATA_COLLECTION\2021\plane\DFO_SASAIR_CGZWF_ScienceCessna\sGSL_BroadscaleMMSurvey_20210705_ZWF20210705
+        else:
+            my_path += "N/A"
+        return my_path
+
     def __str__(self):
         if self.incident_id:
             return self.incident_id
@@ -506,6 +529,51 @@ class Audit(models.Model):
             return "{}".format(self.date)
 
 
+class Maintenance(models.Model):
+
+    MAINT_CHOICES = (
+        (1, "Charging"),
+        (2, "Book Inspection"),
+        (3, "Other"),
+    )
+
+    item = models.ForeignKey(Item, on_delete=models.DO_NOTHING, related_name="maintenances", verbose_name=_("item"))
+    maint_type = models.IntegerField(choices=MAINT_CHOICES, verbose_name=_("maintenance type"))
+    schedule = models.DurationField(default=timedelta(days=30), verbose_name=_("maintenance schedule"))
+    assigned_to = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, related_name="assigneds", verbose_name=_("assigned to"))
+    comments = models.TextField(blank=True, null=True, verbose_name=_("comments/details"))
+    last_maint_by = models.ForeignKey(AuthUser, on_delete=models.DO_NOTHING, related_name="maintainers", verbose_name=_("last maintained by"))
+    last_maint_date = models.DateTimeField(blank=True, null=True, verbose_name="date last maintained")
+
+    class Meta:
+        ordering = ["last_maint_date"]
+
+    def __str__(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("item"))):
+
+            return "{}".format(getattr(self, str(_("item"))))
+        # if there is no translated term, just pull from the english field
+        else:
+            return "{}".format(self.item.item_name)
+
+    @property
+    def days_until_maint(self):
+        date_scheduled = self.last_maint_date + self.schedule
+        today = datetime.now(timezone.utc)
+        time_remaining = date_scheduled - today
+        return td(time_remaining)
+
+    @property
+    def overdue(self):
+        date_scheduled = self.last_maint_date + self.schedule
+        today = datetime.now(timezone.utc)
+        if date_scheduled >= today:
+            return False
+        else:
+            return True
+
+
 class Tag(models.Model):
     tag = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("tag"))
     description = models.TextField(blank=True, null=True, verbose_name=_("description"))
@@ -521,24 +589,29 @@ class Tag(models.Model):
 
 
 class TransactionCategory(models.Model):
-    type = models.CharField(max_length=255, blank=True, null=True, verbose_name=_("tag"))
+    CATEGORY_CHOICES = (
+        (1, "Purchase"),
+        (2, "Use"),
+        (3, "Lend"),
+        (4, "Return"),
+        (5, "Transfer Out"),
+        (6, "Transfer In"),
+    )
+
+    type = models.IntegerField(choices=CATEGORY_CHOICES, verbose_name=_("type"))
     description = models.CharField(max_length=255, null=True, verbose_name=_("description"))
 
     def __str__(self):
-        # check to see if a french value is given
-        if getattr(self, str(_("type"))):
-
-            return "{}".format(getattr(self, str(_("type"))))
-        # if there is no translated term, just pull from the english field
-        else:
-            return "{}".format(self.type)
+        return "{}".format(self.get_type_display())
 
 
 class Transaction(models.Model):
     item = models.ForeignKey(Item, on_delete=models.DO_NOTHING, related_name="transactions", verbose_name=_("item"))
-    quantity = models.FloatField(null=True, blank=True, verbose_name=_("quantity"), validators=[MinValueValidator(0)])
+    quantity = models.FloatField(verbose_name=_("quantity"), validators=[MinValueValidator(1)])
     category = models.ForeignKey(TransactionCategory, on_delete=models.DO_NOTHING, related_name="transactions",
                                  verbose_name=_("transaction category"))
+    # track which 'lent' transactions have been voided/returned
+    return_tracker = models.BooleanField(default=False, verbose_name=_("Returned"))
     # can use for who lent to, etc
     comments = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("comments"))
     # auditing
@@ -565,8 +638,8 @@ class Transaction(models.Model):
         if self.quantity:
             return '{} - {}'.format(self.quantity, my_str)
 
-        if self.tag:
-            return '{}'.format(self.id)
+        else:
+            return '{}'.format(my_str)
 
     def get_absolute_url(self):
         return reverse("whalebrary:transaction_detail", kwargs={"pk": self.id})
@@ -601,6 +674,9 @@ class Order(models.Model):
     transaction = models.OneToOneField(Transaction, blank=True, null=True, on_delete=models.DO_NOTHING,
                                        related_name="orders",
                                        verbose_name=_("transaction"))
+
+    class Meta:
+        ordering = ["-date_ordered"]
 
     def __str__(self):
         # check to see if a french value is given

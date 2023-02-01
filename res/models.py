@@ -5,6 +5,7 @@ from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _, gettext, get_language, activate
+from html2text import html2text
 from markdown import markdown
 
 from lib.functions.custom_functions import fiscal_year, truncate
@@ -247,7 +248,16 @@ class Application(MetadataFields):
 
     @property
     def achievement_summary_table(self):
-        return achievements_summary_table(self.applicant)
+        return achievements_summary_table(self.applicant, self)
+
+
+class ApplicationPublicationStartingCounts(MetadataFields):
+    application = models.ForeignKey(Application, on_delete=models.CASCADE, related_name="starting_counts")
+    publication_type = models.ForeignKey(PublicationType, on_delete=models.CASCADE, related_name="starting_counts")
+    starting_count = models.IntegerField(default=0, verbose_name=_("starting count"))
+
+    class Meta:
+        unique_together = (("application", "publication_type"),)
 
 
 class Recommendation(MetadataFields):
@@ -360,7 +370,7 @@ class Achievement(MetadataFields):
             mystr += f"{self.date.year}."
         if self.detail:
             mystr += f" {self.detail}"
-        return mystr
+        return connect_refs(mystr, self.user.achievements.all())
 
     @property
     def achievement_display_no_code(self):
@@ -378,7 +388,12 @@ class Achievement(MetadataFields):
         if self.detail:
             mystr += f" {self.detail}"
 
-        return truncate(mystr, max_length=1000)
+        mystr = truncate(mystr, max_length=1000)
+        return connect_refs(mystr, self.user.achievements.all())
+
+    @property
+    def achievement_display_text(self):
+        return html2text(self.achievement_display_no_code).replace("'", "").replace("\n", "")
 
     @property
     def is_publication(self):

@@ -12,6 +12,7 @@ urlpatterns = [
     path('organization/', views.OrganizationListView.as_view(), name="org_list"),
     path('organization/new/', views.OrganizationCreateView.as_view(), name="org_new"),
     path('organization/<int:pk>/view/', views.OrganizationDetailView.as_view(), name="org_detail"),
+    path('organization/report/', views.OrganizationReportView.as_view(), name="org_report"),
     path('organization/<int:pk>/edit/', views.OrganizationUpdateView.as_view(), name="org_edit"),
     path('organization/<int:pk>/delete/', views.OrganizationDeleteView.as_view(), name="org_delete"),
 
@@ -21,9 +22,12 @@ urlpatterns = [
     path('person/new/', views.PersonCreateView.as_view(), name="person_new"),
     path('person/new/popout/', views.PersonCreateViewPopout.as_view(), name="person_new_pop"),
     path('person/<int:pk>/view/', views.PersonDetailView.as_view(), name="person_detail"),
+    path('person/report/', views.PersonReportView.as_view(), name="person_report"),
     path('person/<int:pk>/edit/', views.PersonUpdateView.as_view(), name="person_edit"),
     path('person/<int:pk>/edit/popout/', views.PersonUpdateViewPopout.as_view(), name="person_edit_pop"),
     path('person/<int:pk>/delete/', views.PersonDeleteView.as_view(), name="person_delete"),
+
+    path('user/<int:pk>/view/', views.UserDetailView.as_view(), name="user_detail"),
 
     # ORGANIZATIONPERSON #
     ######################
@@ -34,12 +38,15 @@ urlpatterns = [
     path('interaction/', views.InteractionListView.as_view(), name="interaction_list"),
     path('interaction/new/', views.InteractionCreateView.as_view(), name="interaction_new"),
     path('interaction/<int:pk>/view/', views.InteractionDetailView.as_view(), name="interaction_detail"),
+    path('interaction/report/', views.InteractionReportView.as_view(), name="interaction_report"),
     path('interaction/<int:pk>/edit/', views.InteractionUpdateView.as_view(), name="interaction_edit"),
     path('interaction/<int:pk>/delete/', views.InteractionDeleteView.as_view(), name="interaction_delete"),
 
     path('committee/', views.CommitteeListView.as_view(), name="committee_list"),
     path('committee/new/', views.CommitteeCreateView.as_view(), name="committee_new"),
     path('committee/<int:pk>/view/', views.CommitteeDetailView.as_view(), name="committee_detail"),
+    path('committee/report/', views.CommitteeReportView.as_view(), name="committee_report"),
+
     path('committee/<int:pk>/edit/', views.CommitteeUpdateView.as_view(), name="committee_edit"),
     path('committee/<int:pk>/delete/', views.CommitteeDeleteView.as_view(), name="committee_delete"),
 
@@ -54,7 +61,8 @@ urlpatterns = [
     path('manage/areas/', views.AreaFormsetView.as_view(), name="manage_areas"),
     path('manage/topics/', views.TopicFormsetView.as_view(), name="manage_topics"),
     path('manage/species/', views.SpeciesFormsetView.as_view(), name="manage_species"),
-    path('manage/org_categories/', views.OrgCategoriesFormsetView.as_view(), name="manage_org_categories"),
+    path('manage/groupings/', views.GroupingFormsetView.as_view(), name="manage_groupings"),
+    path('manage/groupings/<int:pk>/delete/', views.GroupingHardDeleteView.as_view(), name="delete_grouping"),
 
     path('ajax/get_divisions/', utils.ajax_get_divisions, name='ajax_get_divisions'),
     path('ajax/get_aops/', utils.ajax_get_aops, name='ajax_get_aops'),

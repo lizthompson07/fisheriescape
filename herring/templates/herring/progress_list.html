@@ -1,0 +1,127 @@
+{% extends "herring/list.html" %}
+{% load static %}
+{% load bootstrap4 %}
+{% load custom_tags %}
+{% load custom_filters %}
+
+
+{% block table_class %}
+  table table-sm table-hover sortable
+{% endblock %}
+
+{% block new_object_button %}
+  <a href="{% url 'herring:export_progress_report' %}?year={{ request.GET.year }}&species={{ request.GET.species }}" class="btn btn-success btn-sm">Export
+    Spreadsheet</a>
+{% endblock %}
+
+{% block table_body_0 %}
+  {% for sample in object_list %}
+    <tr newtab href="{% url 'herring:sample_detail' sample.id %}">
+      <td>{{ sample.season }}</td>
+      <td>{{ sample.id }}</td>
+      <td>{{ sample.get_type_display }}</td>
+      <td>{{ sample.sample_date|date:'F d, Y' }}</td>
+      <td>{{ sample.sampler_ref_number }}</td>
+      <td>{{ sample.sampler }}</td>
+
+
+      <td class="{% if sample.total_fish_measured|nz:0 == sample.lf_count %}good{% else %}bad{% endif %}">
+        {{ sample.lf_count }} vs. {{ sample.total_fish_measured|nz:0 }}
+      </td>
+
+
+      {# lab #}
+
+      <td>
+        {% if sample.fish_details.last.lab_processed_date %}
+          {{ sample.fish_details.last.lab_processed_date|date:"Y-m-d" }}
+        {% endif %}
+      </td>
+      <td class="{% if sample.lab_processing_complete %}good{% else %}bad{% endif %}">
+        {{ sample.lab_complete_fish.count }} of {{ sample.total_fish_preserved|nz:0 }}
+      </td>
+
+
+      {# eggs #}
+
+      {% if sample.total_egg_fish.exists %}
+        <td>
+          {% if sample.total_egg_fish.last.egg_processed_date %}
+            {{ sample.total_egg_fish.last.egg_processed_date|date:"Y-m-d" }}
+          {% endif %}
+        </td>
+        <td class="{% if sample.egg_processing_complete %}good{% else %}bad{% endif %}">
+          {{ sample.egg_complete_fish.count }} of {{ sample.total_egg_fish.count }}
+        </td>
+      {% else %}
+        <td></td>
+        <td></td>
+      {% endif %}
+
+      {# oto #}
+
+      <td>
+        {% if sample.fish_details.last.otolith_processed_date %}
+          {{ sample.fish_details.last.otolith_processed_date|date:"Y-m-d" }}
+        {% endif %}
+      </td>
+      <td class="{% if sample.otolith_processing_complete %}good{% else %}bad{% endif %}">
+        {{ sample.oto_complete_fish.count }} of {{ sample.total_fish_preserved|nz:0 }}
+      </td>
+
+
+    </tr>
+  {% endfor %}
+
+
+{% endblock %}
+
+
+{% block post_table %}
+  <h4>Summary:</h4>
+  <table class="table table-bordered" style="width: 500px;">
+    <thead>
+    <th></th>
+    <th colspan="2">Samples</th>
+    <th colspan="2">Fish Detail</th>
+    </thead>
+    <thead>
+    <th></th>
+    <th>Count</th>
+    <th>Percent</th>
+    <th>Count</th>
+    <th>Percent</th>
+    </thead>
+    <tbody>
+
+    <tr>
+      <td>Lab complete</td>
+      <td>{{ sample_sum_lab_complete|nz:0 }} of {{ sample_sum|nz:0 }}</td>
+      <td>{{ sample_sum_lab_complete|divide:sample_sum|percentage:1 }}</td>
+      <td>{{ fish_sum_lab_complete|nz:0 }} of {{ fish_sum|nz:0 }}</td>
+      <td>{{ fish_sum_lab_complete|divide:fish_sum|percentage:1 }}</td>
+    </tr>
+
+    <tr>
+      <td>Egg complete</td>
+      <td>{{ sample_sum_egg_complete|nz:0 }} of {{ sample_sum_with_eggs|nz:0 }} </td>
+      <td>{{ sample_sum_egg_complete|divide:sample_sum_with_eggs|percentage:1 }}</td>
+      <td>{{ fish_sum_egg_complete|nz:0 }} of {{ fish_egg_sum|nz:0 }}</td>
+      <td>{{ fish_sum_egg_complete|divide:fish_egg_sum|percentage:1 }}</td>
+      {#      <td>{{ fish_egg_sum }}</td>#}
+    </tr>
+
+    <tr>
+      <td>Otolith complete</td>
+      <td>{{ sample_sum_oto_complete|nz:0 }} of {{ sample_sum|nz:0 }} </td>
+      <td>{{ sample_sum_oto_complete|divide:sample_sum|percentage:1 }}</td>
+      <td>{{ fish_sum_oto_complete|nz:0 }} of {{ fish_sum|nz:0 }}</td>
+      <td>{{ fish_sum_oto_complete|divide:fish_sum|percentage:1 }}</td>
+    </tr>
+
+
+    </tbody>
+
+
+  </table>
+{% endblock %}

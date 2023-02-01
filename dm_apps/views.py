@@ -37,6 +37,7 @@ def get_app_dict(request):
     except NoReverseMatch:
         pass
 
+
     if settings.SHOW_TICKETING_APP or request.user.is_staff:
         try:
             app_dict["tickets"] = {
@@ -133,12 +134,12 @@ def get_app_dict(request):
 
     try:
         app_dict["cars"] = {
-            "title": _("Vehicle RSVP"),
-            "description": _("Science Vehicle Reservation System"),
+            "title": _("Gulf Science Field Planning Tool"),
+            "description": _("Tool used for the planning and coordination of field work"),
             "status": "dev",
             "access": "login-required",
             "url": reverse('cars:index'),
-            "icon_path": 'img/icons/vehicle.png',
+            "icon_path": 'img/icons/calendar.png',
             "region": "regional",
         }
     except NoReverseMatch:
@@ -173,7 +174,7 @@ def get_app_dict(request):
     try:
         app_dict["herring"] = {
             "title": _("HERMAN"),
-            "description": _("The Herring Program for Data Entry."),
+            "description": _("The Herring and Gaspereau Program for Data Entry."),
             "status": "production",
             "access": "permission-required",
             "url": reverse('herring:index'),
@@ -223,6 +224,21 @@ def get_app_dict(request):
         pass
 
     try:
+        app_dict["pssi"] = {
+            "title": _("PSSI - Pacific Salmon Data Hub"),
+            "description": _("Query Tool to Search for Departmental Data Assets"),
+            "status": "dev",
+            "access": "open",
+            "url": reverse('pssi:index'),
+            "icon_path": 'img/icons/pssi.svg',
+            "region": "all",
+
+        }
+    except NoReverseMatch:
+        pass
+
+
+    try:
         app_dict["shiny"] = {
             "title": _("R Shiny Apps"),
             "description": _("Collection of Shiny Apps hosted on the DM Apps server"),
@@ -269,19 +285,6 @@ def get_app_dict(request):
             "access": "login-required",
             "url": reverse('publications:index'),
             "icon_path": 'img/icons/publications.svg',
-            "region": "regional",
-        }
-    except NoReverseMatch:
-        pass
-
-    try:
-        app_dict["staff"] = {
-            "title": _("Staff Planning Tool"),
-            "description": _("Tool for staff planning."),
-            "status": "dev",
-            "access": "login-required",
-            "url": reverse('staff:index'),
-            "icon_path": 'img/icons/staff.svg',
             "region": "regional",
         }
     except NoReverseMatch:
@@ -439,19 +442,6 @@ def get_app_dict(request):
             "url": reverse('maret:index'),
             "icon_path": 'img/icons/plug.svg',
             "region": "regional",
-        }
-    except NoReverseMatch:
-        pass
-
-    try:
-        app_dict["projects"] = {
-            "title": _("Project Planning (ARCHIVE ONLY)"),
-            "description": _("Tool for the tracking, development and coordination of science project workplans."),
-            "status": "production",
-            "access": "login-required",
-            "url": reverse('projects:index'),
-            "icon_path": 'img/icons/scope.svg',
-            "region": "all",
         }
     except NoReverseMatch:
         pass

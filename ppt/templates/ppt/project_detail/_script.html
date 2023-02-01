@@ -2,6 +2,12 @@
 {% include "ppt/project_detail/components/staff_modal.html" %}
 {% include "ppt/project_detail/components/om_cost_modal.html" %}
 {% include "ppt/project_detail/components/capital_cost_modal.html" %}
+{% include "ppt/project_detail/components/salary_allocation_modal.html" %}
+{% include "ppt/project_detail/components/om_allocation_modal.html" %}
+{% include "ppt/project_detail/components/capital_allocation_modal.html" %}
+{% include "ppt/project_detail/components/capital_distribution_modal.html" %}
+{% include "ppt/project_detail/components/om_distribution_modal.html" %}
+{% include "ppt/project_detail/components/salary_distribution_modal.html" %}
 {% include "ppt/project_detail/components/activity_modal.html" %}
 {% include "ppt/project_detail/components/collaboration_modal.html" %}
 {% include "ppt/project_detail/components/file_modal.html" %}
@@ -18,6 +24,8 @@ var app = new Vue({
     showSidebar: true,
     showOverview: true,
     collapseProjectYears: false,
+    collapseProjectYearCosts: false,
+    collapseProjectYearAllocations: true,
     collapseOverview: false,
     collapseFinancials: true,
     collapseSubmit: true,
@@ -38,20 +46,28 @@ var app = new Vue({
     project_financials: [],
     project_financials_loading: false,
 
+    //modals
     objectToEdit: {},
+    allocation2Distribute: {},
+    costs2Fund: [],
+    omStaff2Fund: [],
+    modalAllocation: {},
+    modalErrors: null,
     showModal: {
       staff: false,
       om_cost: false,
-      capital_cost: false,
+      capital_cost: false, 
+      salary_allocation: false,
+      om_allocation: false,
+      capital_allocation: false,
+      capital_distribution: false,
+      om_distribution: false,
+      salary_distribution: false,
       activity: false,
       collaboration: false,
       status_report: false,
       file: false,
     },
-
-    // dmas
-    dma_loading: false,
-    dmas: [],
 
     // staff
     staff_loading: false,
@@ -72,6 +88,27 @@ var app = new Vue({
     capitalCostToEdit: {},
     showNewCapitalCostModal: false,
     showOldCapitalCostModal: false,
+
+    // salary allocations
+    salary_allocation_loading: false,
+    salary_allocations: [], 
+    salaryAllocationToEdit: {},
+    showNewSalaryAllocationModal: false,
+    showOldSalaryAllocationModal: false,
+      
+    // om allocations
+    om_allocation_loading: false,
+    om_allocations: [], 
+    omAllocationToEdit: {},
+    showNewOMAllocationModal: false,
+    showOldOMAllocationModal: false,
+      
+    // capital allocations
+    capital_allocation_loading: false,
+    capital_allocations: [], 
+    capitalAllocationToEdit: {},
+    showNewCapitalAllocationModal: false,
+    showOldCapitalAllocationModal: false,
 
     // activities
     activity_loading: false,
@@ -142,6 +179,9 @@ var app = new Vue({
             this.getStaff(yearId)
             this.getOMCosts(yearId)
             this.getCapitalCosts(yearId)
+            this.getSalaryAllocations(yearId)
+            this.getOMAllocations(yearId)
+            this.getCapitalAllocations(yearId)
             this.getActivities(yearId)
             this.getCollaborations(yearId)
             this.getStatusReports(yearId)
@@ -163,9 +203,6 @@ var app = new Vue({
             } else if (response.id && response.default_funding_source && response.default_funding_source.toLowerCase().search("sara") > -1) {
               this.isSARA = true;
             }
-
-            // load the DMAs
-            this.getDMAs();
 
             // check to see if we are being asked to open the page to a specific year
             // from https://stackoverflow.com/questions/35914069/how-can-i-get-query-parameters-from-a-url-in-vue-js
@@ -237,6 +274,87 @@ var app = new Vue({
       this.showModal[which] = true;
     },
 
+    openAllocationModal(existingAllocation, which) {
+      this.modalAllocation = existingAllocation;
+      this.modalErrors = null;
+      this.showModal[which] = true;
+    },
+
+    submitModalAllocation(allocationOptions) {
+      let childAllocation = allocationOptions.allocation;
+      let which = allocationOptions.which;
+      let type = allocationOptions.type;
+      let distribute = allocationOptions.distrubute;
+      let distrubutionCosts = allocationOptions.distrubutionCosts;
+
+      if (this.modalAllocation) {
+        let endpoint = `/api/ppt/${type}/${this.modalAllocation.id}/`;
+        apiService(endpoint, "PATCH", childAllocation).then(response => {
+          if (response.id) {
+              this.modalAllocation = response;
+              if (distribute){
+                  this.showModal[which] = false;
+                  this.openDistributionModal(this.modalAllocation, distrubutionCosts);
+              } else {
+                this.closeModals(this.projectYear);
+              }
+          }
+          else {
+            this.modalErrors = groomJSON(response);
+          }
+        })
+      } else {
+        let endpoint = `/api/ppt/${type}/`;
+        childAllocation.project_year = this.projectYear.id
+        apiService(endpoint, "POST", childAllocation).then(response => {
+          if (response.id) {
+            this.modalAllocation = response;
+            if (distribute){
+              this.showModal[which] = false;
+              this.openDistributionModal(this.modalAllocation, distrubutionCosts);
+            } else {
+              this.closeModals(this.projectYear);
+            }
+          }
+          else {
+            this.modalErrors = groomJSON(response);
+          }
+        })
+      }
+    },
+
+    openDistributionModal(allocation, type) {
+        this.allocation2Distribute = allocation;
+        if (type === "staff") {
+            let endpoint = `/api/ppt/${type}/?project_year=${allocation.project_year}`;
+            apiService(endpoint)
+                .then(response => {
+                    this.costs2Fund = response;
+                })
+            this.showModal['salary_distribution'] = true;
+        } else if (type === "capital-costs") {
+            let endpoint = `/api/ppt/${type}/?project_year=${allocation.project_year}`;
+            apiService(endpoint)
+                .then(response => {
+                    this.costs2Fund = response.results;
+                })
+            this.showModal['capital_distribution'] = true;
+
+        } else if (type === "om-costs") {
+            let omEndpoint = `/api/ppt/${type}/?project_year=${allocation.project_year}`;
+            apiService(omEndpoint)
+                .then(response => {
+                    this.costs2Fund = response.results;
+                })
+            let staffEndpoint = `/api/ppt/staff/?project_year=${allocation.project_year}`;
+            apiService(staffEndpoint)
+                .then(response => {
+                    this.omStaff2Fund = response;
+                })
+            this.showModal['om_distribution'] = true;
+        }
+    },
+
     // O&M
     getOMCosts(yearId) {
       this.om_cost_loading = true;
@@ -298,15 +416,37 @@ var app = new Vue({
         this.showOldCapitalCostModal = true;
       }
     },
-
-    // DMAs
-    getDMAs() {
-      this.dma_loading = true;
-      let endpoint = `/api/ppt/dmas/?project=${projectId}`;
+      
+    // Salary Allocations
+    getSalaryAllocations(yearId) {
+      this.salary_allocation_loading = true;
+      let endpoint = `/api/ppt/salary-allocations/?project_year=${yearId}&page_size=5000`;
       apiService(endpoint)
           .then(response => {
-            this.dma_loading = false;
-            this.dmas = response;
+            this.salary_allocation_loading = false;
+            this.salary_allocations = response.results;
+          })
+    },
+
+    // O&M Allocations
+    getOMAllocations(yearId) {
+      this.om_allocation_loading = true;
+      let endpoint = `/api/ppt/om-allocations/?project_year=${yearId}&page_size=5000`;
+      apiService(endpoint)
+          .then(response => {
+            this.om_allocation_loading = false;
+            this.om_allocations = response.results;
+          })
+    },
+
+    // Capital Allocations
+    getCapitalAllocations(yearId) {
+      this.capital_allocation_loading = true;
+      let endpoint = `/api/ppt/capital-allocations/?project_year=${yearId}&page_size=5000`;
+      apiService(endpoint)
+          .then(response => {
+            this.capital_allocation_loading = false;
+            this.capital_allocations = response.results;
           })
     },
 
@@ -317,10 +457,10 @@ var app = new Vue({
       apiService(endpoint)
           .then(response => {
             this.activity_loading = false;
-            for (const responseElement of response) {
+            for (const responseElement of response.results) {
               responseElement.show_children = !!this.canModify;
             }
-            this.activities = response;
+            this.activities = response.results;
           })
     },
     cloneActivity(activity) {
@@ -407,23 +547,25 @@ var app = new Vue({
         this.showModal[showModalKey] = false;
       }
       this.objectToEdit = {}
+      this.modalAllocation = {}
+      this.modalErrors = null
+      this.allocation2Distribute = {}
+      this.costs2Fund = []
+      this.omStaff2Fund = []
       if (projectYear) {
         this.$nextTick(() => {
           this.getProjectYear(projectYear.id)
           this.getProjectFinancials(projectYear.project.id)
           this.getCurrentUser(projectYear.project.id)
-
         })
       }
     },
+
     goProjectYearEdit(projectYearId) {
       window.location.href = `/ppt/project-years/${projectYearId}/edit/`
     },
     goDMADetail(dma) {
-      window.location.href = `/ppt/dmas/${dma.id}/view/`
-    },
-    goDMANew() {
-      window.location.href = `/ppt/projects/${projectId}/new-dma/`
+      window.location.href = `/inventory/dmas/${dma.id}/view/`
     },
     goProjectYearGantt(projectYearId) {
       url = `/ppt/project-years/${projectYearId}/gantt/`;
@@ -495,14 +637,14 @@ var app = new Vue({
         salary: 0,
         om: 0,
         capital: 0,
-        total: 0,
+        total_in_om: 0,
       }
       if (this.financials) {
         for (var i = 0; i < this.financials.length; i++) {
           myObj.salary += this.financials[i].salary
           myObj.om += this.financials[i].om
           myObj.capital += this.financials[i].capital
-          myObj.total += this.financials[i].total
+          myObj.total_in_om += this.financials[i].total_in_om
         }
       }
       return myObj
@@ -512,14 +654,14 @@ var app = new Vue({
         salary: 0,
         om: 0,
         capital: 0,
-        total: 0,
+        total_in_om: 0,
       }
       if (this.project_financials) {
         for (var i = 0; i < this.project_financials.length; i++) {
           myObj.salary += this.project_financials[i].salary
           myObj.om += this.project_financials[i].om
           myObj.capital += this.project_financials[i].capital
-          myObj.total += this.project_financials[i].total
+          myObj.total_in_om += this.project_financials[i].total_in_om
         }
       }
       return myObj

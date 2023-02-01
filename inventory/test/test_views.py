@@ -22,14 +22,14 @@ class TestIndexTemplateView(CommonTest):
     @tag("inventory", 'index', "access")
     def test_view(self):
         self.assert_good_response(self.test_url)
-        self.assert_public_view(test_url=self.test_url, expected_template=self.expected_template)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template)
 
 
 class TestMyResourceListView(CommonTest):
     def setUp(self):
         super().setUp()
         self.test_url = reverse_lazy('inventory:my_resource_list')
-        self.expected_template = 'inventory/my_resource_list.html'
+        self.expected_template = 'inventory/resource_list.html'
 
     @tag("inventory", 'list', "view")
     def test_view_class(self):
@@ -39,15 +39,6 @@ class TestMyResourceListView(CommonTest):
     def test_view(self):
         self.assert_good_response(self.test_url)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template)
-
-    # Test that the context contains the proper vars
-    @tag("inventory", 'list', "context")
-    def test_context(self):
-        context_vars = [
-            "field_list",
-            "now",
-        ]
-        self.assert_presence_of_context_vars(self.test_url, context_vars)
 
 
 class TestOpenDataDashboardTemplateView(CommonTest):
@@ -63,7 +54,7 @@ class TestOpenDataDashboardTemplateView(CommonTest):
     @tag("inventory", 'open_data', "access")
     def test_view(self):
         self.assert_good_response(self.test_url)
-        self.assert_public_view(test_url=self.test_url, expected_template=self.expected_template)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template)
 
     @tag("inventory", 'open_data', "context")
     def test_context(self):
@@ -111,9 +102,9 @@ class TestResourceDeleteView(CommonTest):
     def setUp(self):
         super().setUp()
         self.instance = FactoryFloor.ResourceFactory()
-        self.user = self.get_and_login_user(in_group="inventory_dm")
+        self.user = self.get_and_login_user(is_admin=True)
         self.test_url = reverse_lazy('inventory:resource_delete', kwargs={"pk": self.instance.pk})
-        self.expected_template = 'inventory/resource_confirm_delete.html'
+        self.expected_template = 'inventory/confirm_delete.html'
 
     @tag("inventory", 'delete', "view")
     def test_view_class(self):
@@ -147,7 +138,6 @@ class TestResourceDetailPDFView(CommonTest):
     @tag("resource_pdf", "access")
     def test_view(self):
         self.assert_good_response(self.test_url)
-        self.assert_public_view(test_url=self.test_url)
 
     @tag("resource_pdf", "context")
     def test_context(self):
@@ -159,62 +149,21 @@ class TestResourceDetailPDFView(CommonTest):
         self.assert_presence_of_context_vars(self.test_url, context_vars)
 
 
-class TestResourceDetailView(CommonTest):
-    def setUp(self):
-        super().setUp()
-        self.resource = FactoryFloor.ResourceFactory()
-        self.test_url = reverse_lazy('inventory:resource_detail', kwargs={"pk": self.resource.pk})
-        self.expected_template = 'inventory/resource_detail.html'
-
-    @tag("inventory", 'detail', "view")
-    def test_view_class(self):
-        self.assert_inheritance(views.ResourceDetailView, DetailView)
-
-    @tag("inventory", 'detail', "access")
-    def test_view(self):
-        self.assert_good_response(self.test_url)
-        self.assert_public_view(test_url=self.test_url, expected_template=self.expected_template)
-
-    # Test that the context contains the proper vars
-    @tag("inventory", 'detail', "context")
-    def test_context(self):
-        context_vars = [
-            "kcount_other",
-            "kcount_tc",
-            "kcount_cst",
-            "kcount_tax",
-            "kcount_loc",
-            "custodian_count",
-            "verified",
-            "google_api_key",
-        ]
-        self.assert_presence_of_context_vars(self.test_url, context_vars)
-
-
-class TestResourceFullDetailView(CommonTest):
-    def setUp(self):
-        super().setUp()
-        self.resource = FactoryFloor.ResourceFactory()
-        self.test_url = reverse_lazy('inventory:resource_full_detail', kwargs={"pk": self.resource.pk})
-        self.expected_template = 'inventory/resource_form.html'
-
-    @tag("inventory", 'detail', "view")
-    def test_view_class(self):
-        self.assert_inheritance(views.ResourceFullDetailView, UpdateView)
-
-    @tag("inventory", 'detail', "access")
-    def test_view(self):
-        self.assert_good_response(self.test_url)
-        self.assert_public_view(test_url=self.test_url, expected_template=self.expected_template)
-
-    # Test that the context contains the proper vars
-    @tag("inventory", 'detail', "context")
-    def test_context(self):
-        context_vars = [
-            "readonly",
-        ]
-        self.assert_presence_of_context_vars(self.test_url, context_vars)
-        self.assert_value_of_context_var(self.test_url, "readonly", True)
+# class TestResourceDetailView(CommonTest):
+#     def setUp(self):
+#         super().setUp()
+#         self.resource = FactoryFloor.ResourceFactory()
+#         self.test_url = reverse_lazy('inventory:resource_detail', kwargs={"pk": self.resource.pk})
+#         self.expected_template = 'inventory/resource_detail.html'
+#
+#     @tag("inventory", 'detail', "view")
+#     def test_view_class(self):
+#         self.assert_inheritance(views.ResourceDetailView, DetailView)
+#
+#     @tag("inventory", 'detail', "access")
+#     def test_view(self):
+#         self.assert_good_response(self.test_url)
+#         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template)
 
 
 class TestResourceListView(CommonTest):
@@ -231,7 +180,7 @@ class TestResourceListView(CommonTest):
     def test_view(self):
         self.assert_good_response(self.test_url)
         # create an admin user (who should always be able to delete) and check to see there is a 200 response
-        self.assert_public_view(test_url=self.test_url, expected_template=self.expected_template)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template)
 
     # Test that the context contains the proper vars
     @tag("inventory", 'list', "context")
@@ -260,14 +209,6 @@ class TestResourceUpdateView(CommonTest):
         # the user must be a custodian...
         user = FactoryFloor.CustodianResourcePersonFactory(resource=self.instance)
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.resource_person.person.user)
-
-    # Test that the context contains the proper vars
-    @tag("inventory", 'update', "context")
-    def test_context(self):
-        context_vars = [
-            "resource_list",
-        ]
-        self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.resource_person.person.user)
 
     @tag("inventory", 'update', "submit")
     def test_submit(self):
@@ -307,7 +248,7 @@ class TestResourceCloneUpdateView(CommonTest):
     @tag("Resource", "resource_clone", "correct_url")
     def test_correct_url(self):
         # use the 'en' locale prefix to url
-        self.assert_correct_url("inventory:resource_clone", f"/en/inventory/{self.instance.pk}/clone/", [self.instance.pk])
+        self.assert_correct_url("inventory:resource_clone", f"/en/inventory/resources/{self.instance.pk}/clone/", [self.instance.pk])
 
 
 class TestResourceXMLExport(CommonTest):

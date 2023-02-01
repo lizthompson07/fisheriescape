@@ -1,5 +1,7 @@
 import csv
+import json
 from copy import deepcopy
+from datetime import datetime
 from io import StringIO
 from urllib.request import urlretrieve, urlopen
 
@@ -13,9 +15,10 @@ from django.utils import timezone
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy
 
+from dm_apps.utils import compare_strings
 from shared_models import models as shared_models
 from shared_models.views import CommonFilterView, CommonCreateView, CommonDetailView, CommonTemplateView, CommonUpdateView, \
-    CommonPopoutCreateView, CommonPopoutUpdateView, CommonPopoutDeleteView, CommonHardDeleteView, CommonFormsetView, CommonDeleteView
+    CommonPopoutCreateView, CommonPopoutUpdateView, CommonPopoutDeleteView, CommonHardDeleteView, CommonFormsetView, CommonDeleteView, CommonFormView
 from . import filters
 from . import forms
 from . import models
@@ -84,11 +87,11 @@ class CanModifyRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
             return can_modify(self.request.user, self.get_object())
         else:
             if self.kwargs.get("cruise"):
-                cruise = get_object_or_404(shared_models.Cruise, pk = self.kwargs.get("cruise"))
+                cruise = get_object_or_404(shared_models.Cruise, pk=self.kwargs.get("cruise"))
                 return can_modify(self.request.user, cruise)
 
             if self.kwargs.get("instrument"):
-                instrument = get_object_or_404(models.Instrument, pk = self.kwargs.get("instrument"))
+                instrument = get_object_or_404(models.Instrument, pk=self.kwargs.get("instrument"))
                 return can_modify(self.request.user, instrument)
 
     def dispatch(self, request, *args, **kwargs):
@@ -132,6 +135,11 @@ class CruiseListView(OceanographyAccessRequiredMixin, CommonFilterView):
     new_object_url = reverse_lazy("cruises:cruise_new")
     row_object_url_name = "cruises:cruise_detail"
     home_url_name = "cruises:index"
+    extra_button_dict1 = {
+        "name": gettext_lazy("Import from CSV"),
+        "url": reverse_lazy("cruises:cruise_import"),
+        "class": "btn-dark",
+    }
 
 
 class CruiseCreateView(OceanographyAccessRequiredMixin, CommonCreateView):
@@ -141,10 +149,98 @@ class CruiseCreateView(OceanographyAccessRequiredMixin, CommonCreateView):
     parent_crumb = {"title": gettext_lazy("Cruises"), "url": reverse_lazy("cruises:cruise_list")}
     home_url_name = "cruises:index"
 
+    def get_initial(self):
+        init_dict = dict()
+        for key in self.request.GET:
+            init_dict[key] = self.request.GET[key]
+        # must convert start and end dates
+        start_dts = str(init_dict.get("start_date"))
+        end_dts = str(init_dict.get("end_date"))
+
+        vessel_str = str(init_dict.get("vessel"))
+        institute_str = str(init_dict.get("institute"))
+
+        if start_dts and start_dts != "None":
+            print(start_dts)
+            parts = start_dts.split(" ")
+            start_dts = parts[0] + " " + parts[1] + "+" + parts[2].replace(":", "")
+            init_dict["start_date"] = datetime.strptime(start_dts, "%Y-%m-%d %H:%M:%S%z")
+
+        if end_dts and end_dts != "None":
+            parts = end_dts.split(" ")
+            end_dts = parts[0] + " " + parts[1] + "+" + parts[2].replace(":", "")
+            init_dict["end_date"] = datetime.strptime(end_dts, "%Y-%m-%d %H:%M:%S%z")
+
+        if vessel_str and vessel_str != "None":
+            vessels = shared_models.Vessel.objects.all()
+            best_fit = {"vessel": None, "dist": 9999}
+            for v in vessels:
+                dist = compare_strings(vessel_str, v.name)
+                if not best_fit["vessel"]:
+                    best_fit["vessel"] = v
+                    best_fit["dist"] = dist
+                elif dist < best_fit["dist"]:
+                    best_fit["vessel"] = v
+                    best_fit["dist"] = dist
+            init_dict["vessel"] = best_fit["vessel"]
+
+        if institute_str:
+            institutes = shared_models.Institute.objects.all()
+            best_fit = {"institute": None, "dist": 9999}
+            for v in institutes:
+                dist = compare_strings(institute_str, v.name)
+                if not best_fit["institute"]:
+                    best_fit["institute"] = v
+                    best_fit["dist"] = dist
+                elif dist < best_fit["dist"]:
+                    best_fit["institute"] = v
+                    best_fit["dist"] = dist
+            init_dict["institute"] = best_fit["institute"]
+
+        return init_dict
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['help_text_dict'] = get_help_text_dict()
         return context
+
+
+class CruiseImportTemplateView(OceanographyAccessRequiredMixin, CommonFormView):
+    template_name = 'cruises/import.html'
+    parent_crumb = {"title": gettext_lazy("Cruises"), "url": reverse_lazy("cruises:cruise_list")}
+    home_url_name = "cruises:index"
+    form_class = forms.FileImportForm
+    h1 = gettext_lazy("Import Mission from CSV")
+    is_multipart_form_data = True
+
+    def form_valid(self, form):
+        mission_dict = dict()
+        temp_file = form.files['temp_file']
+        temp_file.seek(0)
+        csv_reader = csv.DictReader(StringIO(temp_file.read().decode('utf-8')))
+
+        for row in csv_reader:
+            mission_dict["mission_number"] = row["mission_number"]
+            mission_dict["mission_name"] = row["mission_name"]
+            mission_dict["description"] = row["description"]
+            mission_dict["chief_scientist"] = row["chief_scientist"]
+            mission_dict["samplers"] = row["samplers"]
+            mission_dict["start_date"] = row["start_date"]
+            mission_dict["end_date"] = row["end_date"]
+            mission_dict["area_of_operation"] = row["area_of_operation"]
+            mission_dict["west_bound_longitude"] = row["west_bound_longitude"]
+            mission_dict["east_bound_longitude"] = row["east_bound_longitude"]
+            mission_dict["north_bound_latitude"] = row["north_bound_latitude"]
+            mission_dict["south_bound_latitude"] = row["south_bound_latitude"]
+            mission_dict["notes"] = row["notes"]
+            mission_dict["vessel"] = row["vessel"]
+            mission_dict["institute"] = row["institute"]
+
+        init_str = str()
+        for key in mission_dict:
+            init_str += f"{key}={mission_dict[key]}&"
+
+        return HttpResponseRedirect(reverse("cruises:cruise_new") + f"?{init_str}")
 
 
 class CruiseDetailView(OceanographyAccessRequiredMixin, CommonDetailView):
@@ -160,7 +256,6 @@ class CruiseDetailView(OceanographyAccessRequiredMixin, CommonDetailView):
         'samplers',
         'time_period|{}'.format(gettext_lazy("time period")),
         'end_date',
-        'probe',
         'area_of_operation',
         'number_of_profiles',
         'meds_id',
@@ -183,19 +278,22 @@ class CruiseDetailView(OceanographyAccessRequiredMixin, CommonDetailView):
         track_list = list()
 
         # check for any track files
-        for file in cruise.files.filter(caption__icontains="track"):
-            csv_reader = csv.DictReader(StringIO(file.file.read().decode('utf-8')))
-            for row in csv_reader:
-                latitude = None
-                longitude = None
-                for key in row:
-                    if "lat" in key:
-                        latitude = row[key]
-                    if "lng" in key or "long" in key:
-                        longitude = row[key]
-                if latitude and longitude:
-                    track_list.append([latitude, longitude])
-            file.file.close()
+        try:
+            for file in cruise.files.filter(caption__icontains="track"):
+                csv_reader = csv.DictReader(StringIO(file.file.read().decode('utf-8')))
+                for row in csv_reader:
+                    latitude = None
+                    longitude = None
+                    for key in row:
+                        if "lat" in key:
+                            latitude = row[key]
+                        if "lng" in key or "long" in key:
+                            longitude = row[key]
+                    if latitude and longitude:
+                        track_list.append([latitude, longitude])
+                file.file.close()
+        except:
+            pass
         context["track_list"] = track_list
         return context
 

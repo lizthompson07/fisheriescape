@@ -15,7 +15,6 @@ urlpatterns = [
     ############
     path('resources/', views.ResourceListView.as_view(), name="resource_list"),
     path('resources/new/', views.ResourceCreateView.as_view(), name="resource_new"),
-    path('my-resources/', views.MyResourceListView.as_view(), name="my_resource_list"),
     path('resources/<int:pk>/view/', views.ResourceDetailView.as_view(), name="resource_detail"),
     path('resources/<str:uuid>/', views.ResourceDetailView.as_view(), name="resource_detail_uuid"),
     path('resources/<int:pk>/pdf/', views.ResourceDetailPDFView.as_view(), name="resource_pdf"),
@@ -24,6 +23,8 @@ urlpatterns = [
     path('resources/<int:pk>/delete/', views.ResourceDeleteView.as_view(), name="resource_delete"),
     path('resources/<int:pk>/flag-for-deletion/', views.ResourceDeleteFlagUpdateView.as_view(), name="resource_flag_delete"),
     path('resources/<int:pk>/flag-for-publication/', views.ResourcePublicationFlagUpdateView.as_view(), name="resource_flag_publication"),
+    path('resources/<int:pk>/add-to-favourites/', views.add_favourites, name="add_favourites"),
+    path('resources/<int:pk>/remove-from-favourites/', views.remove_favourites, name="remove_favourites"),
 
     # Open Data
     path('open-data-dashboard/', views.OpenDataDashboardTemplateView.as_view(), name="open_data_dashboard"),
@@ -92,10 +93,6 @@ urlpatterns = [
     path('dm-admin/custodian/<int:person>/send-request-for-certification/', views.send_certification_request,
          name="send_certification_email"),
     path('dm-admin/custodian/<int:person>/', views.CustodianPersonUpdateView.as_view(), name="dm_person_edit"),
-    path('dm-admin/published-resource-list/', views.PublishedResourcesListView.as_view(), name="dm_published_list"),
-    path('dm-admin/flagged/<str:flag_type>/', views.FlaggedListView.as_view(), name="dm_flagged_list"),
-    path('dm-admin/certifications/', views.CertificationListView.as_view(), name="dm_certification_list"),
-    path('dm-admin/modifications/', views.ModificationListView.as_view(), name="dm_modification_list"),
 
     # RESOURCE CERTIFICATION #
     ##########################
@@ -123,6 +120,21 @@ urlpatterns = [
     path('web-service/<int:pk>/delete/', views.WebServiceDeleteView.as_view(), name='web_service_delete'),
     path('web-service/<int:pk>/clone/', views.web_service_clone, name='web_service_clone'),
 
+    # DMAs #
+    #################
+    path('dmas/', views.DMAListView.as_view(), name="dma_list"),
+    path('dmas/new/', views.DMACreateView.as_view(), name="dma_new"),
+    path('dmas/<int:pk>/view/', views.DMADetailView.as_view(), name="dma_detail"),
+    path('dmas/<int:pk>/edit/', views.DMAUpdateView.as_view(), name="dma_edit"),
+    path('dmas/<int:pk>/delete/', views.DMADeleteView.as_view(), name="dma_delete"),
+    path('dmas/<int:pk>/clone/', views.DMACloneView.as_view(), name="dma_clone"),
+
+    # DMA Reviews #
+    #################
+    path('dmas/<int:dma>/new-review/', views.DMAReviewCreateView.as_view(), name="dma_review_new"),
+    path('dma-reviews/<int:pk>/edit/', views.DMAReviewUpdateView.as_view(), name="dma_review_edit"),
+    path('dmas-reviews/<int:pk>/delete/', views.DMAReviewDeleteView.as_view(), name="dma_review_delete"),
+
     # Reports #
     ###########
     path('reports/search/', views.ReportSearchFormView.as_view(), name="report_search"),
@@ -131,6 +143,8 @@ urlpatterns = [
     path('reports/physical-samples/', views.export_phyiscal_samples, name="export_phyiscal_samples"),
     path('reports/general-export/', views.export_resources, name="export_resources"),
     path('reports/open-data/', views.export_open_data_resources, name="export_open_data_resources"),
+    path('reports/custodians/', views.export_custodians, name="export_custodians"),
+    path('reports/dmas/', views.export_dmas, name="export_dmas"),
 
     # TEMP #
     ########

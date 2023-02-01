@@ -6,6 +6,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _, gettext
+from django.core.exceptions import ValidationError
 from markdown import markdown
 from textile import textile
 
@@ -18,18 +19,31 @@ from shared_models import models as shared_models
 # Choices for language
 from shared_models.models import SimpleLookup, Lookup, HelpTextLookup, MetadataFields, Region
 from shared_models.utils import get_metadata_string
+from inventory import models as inventory_models
+
 
 YES_NO_CHOICES = (
     (True, gettext("Yes")),
     (False, gettext("No")),
 )
 
+# This factor is how many OM dollars 1 dollar of salary is worth.  So Total (in OM) = OM + SALARY * FACTOR
+SALARY_TO_OM_FACTOR = 1.27
+
 
 class PPTAdminUser(models.Model):
+    mode_choices = (
+        (1, "read"),
+        (2, "edit"),
+    )
+
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="ppt_admin_user", verbose_name=_("DM Apps user"))
     region = models.ForeignKey(Region, verbose_name=_("regional administrator?"), related_name="projects_admin_user", on_delete=models.CASCADE, blank=True,
                                null=True)
     is_national_admin = models.BooleanField(default=False, verbose_name=_("national administrator?"), choices=YES_NO_CHOICES)
+
+    # admin users can toggle helptext edit mode on and off
+    mode = models.IntegerField(choices=mode_choices, default=1)
 
     def __str__(self):
         return self.user.get_full_name()
@@ -171,6 +185,10 @@ class FundingSource(SimpleLookup):
         unique_together = [('funding_source_type', 'name'), ]
 
 
+class ActivityClassification(SimpleLookup):
+    pass
+
+
 class Tag(SimpleLookup):
     pass
 
@@ -216,8 +234,11 @@ class Project(models.Model):
     experimental_protocol = models.TextField(blank=True, null=True, verbose_name=_("experimental protocol (ACRDP)"))
 
     # CSRF fields
+    csrf_fiscal_year = models.ForeignKey(shared_models.FiscalYear, on_delete=models.DO_NOTHING, blank=True, null=True,
+                                         verbose_name=_("CSRF application fiscal year (CSRF)"),  related_name="csrf_projects")
+
     client_information = models.ForeignKey(CSRFClientInformation, on_delete=models.DO_NOTHING, blank=True, null=True,
-                                           verbose_name=_("Additional info supplied by client (#1) (CSRF)"), related_name="projects")
+                                           verbose_name=_("Specific Client Question (CSRF)"), related_name="projects")
     second_priority = models.ForeignKey(CSRFPriority, on_delete=models.DO_NOTHING, blank=True, null=True,
                                         verbose_name=_("Linkage to second priority (CSRF)"), related_name="projects")
 
@@ -228,6 +249,11 @@ class Project(models.Model):
     # SARA Fields
     reporting_mechanism = models.TextField(blank=True, null=True, verbose_name=_("quarterly reporting mechanisms (SARA)"))  # SARA
     future_funding_needs = models.TextField(blank=True, null=True, verbose_name=_("description of future funding needs, if any (SARA)"))  # SARA
+
+    # DMA - link to inventory app
+    dmas = models.ManyToManyField(inventory_models.DMA, blank=True, verbose_name=_("Data management agreements (linked to Science Data Inventory)"))
+
+
 
     # calculated fields
     start_date = models.DateTimeField(blank=True, null=True, verbose_name=_("Start date of project"), editable=False)
@@ -353,21 +379,37 @@ class Project(models.Model):
             return mark_safe(textile(self.client_information.tdescription))
 
     def get_funding_sources(self):
-        # look through all expenses and compile a unique list of funding sources (for all years of project)
-        my_list = []
+        # look through all expenses and allocations and compile a unique list of funding sources (for all years of project)
+        my_dict = {}
         for year in self.years.all():
             for item in year.staff_set.all():
                 if item.funding_source and item.amount and item.amount > 0:
-                    my_list.append(item.funding_source)
-
+                    my_dict[item.funding_source] = my_dict.get(item.funding_source, 0) + item.amount
             for item in year.omcost_set.all():
                 if item.funding_source and item.amount and item.amount > 0:
-                    my_list.append(item.funding_source)
+                    my_dict[item.funding_source] = my_dict.get(item.funding_source, 0) + item.amount
 
             for item in year.capitalcost_set.all():
                 if item.funding_source and item.amount and item.amount > 0:
-                    my_list.append(item.funding_source)
-            return FundingSource.objects.filter(id__in=[fs.id for fs in my_list])
+                    my_dict[item.funding_source] = my_dict.get(item.funding_source, 0) + item.amount
+
+            for item in year.salaryallocation_set.all():
+                if item.funding_source and item.amount and item.amount > 0:
+                    my_dict[item.funding_source] = my_dict.get(item.funding_source, 0) + item.amount
+
+            for item in year.omallocation_set.all():
+                if item.funding_source and item.amount and item.amount > 0:
+                    my_dict[item.funding_source] = my_dict.get(item.funding_source, 0) + item.amount
+
+            for item in year.capitalallocation_set.all():
+                if item.funding_source and item.amount and item.amount > 0:
+                    my_dict[item.funding_source] = my_dict.get(item.funding_source, 0) + item.amount
+
+        sorted_list = sorted(my_dict.items(), key=lambda item: item[1], reverse=True)
+        sorted_list = [tup[0] for tup in sorted_list]
+        if self.default_funding_source not in sorted_list and self.default_funding_source is not None:
+            sorted_list.append(self.default_funding_source)
+        return sorted_list
 
     @property
     def is_acrdp(self):
@@ -391,6 +433,13 @@ class Project(models.Model):
             return listrify([str(y) for y in self.years.all()])
         else:
             return "<em>{}</em>".format(_("This project has no fiscal years added yet."))
+
+    def year_status(self, fiscal_year):
+        if fiscal_year:
+            py_qs = ProjectYear.objects.filter(fiscal_year_id=fiscal_year, project=self)
+            if py_qs:
+                return py_qs.get().get_status_display()
+        return None
 
 
 class ProjectYear(models.Model):
@@ -533,6 +582,20 @@ class ProjectYear(models.Model):
         return my_list
 
     @property
+    def allocations(self):
+        om_qry = self.omallocation_set
+        capital_qry = self.capitalallocation_set
+        staff_qry = self.salaryallocation_set
+        my_list = []
+        if om_qry.exists():
+            my_list.extend([c for c in om_qry.all()])
+        if capital_qry.exists():
+            my_list.extend([c for c in capital_qry.all()])
+        if staff_qry.exists():
+            my_list.extend([c for c in staff_qry.all()])
+        return my_list
+
+    @property
     def om_costs(self):
         return nz(self.omcost_set.aggregate(dsum=Sum("amount"))["dsum"], 0)
 
@@ -543,6 +606,18 @@ class ProjectYear(models.Model):
     @property
     def capital_costs(self):
         return nz(self.capitalcost_set.aggregate(dsum=Sum("amount"))["dsum"], 0)
+
+    @property
+    def om_allocations(self):
+        return nz(self.omallocation_set.aggregate(dsum=Sum("amount"))["dsum"], 0)
+
+    @property
+    def salary_allocations(self):
+        return nz(self.salaryallocation_set.aggregate(dsum=Sum("amount"))["dsum"], 0)
+
+    @property
+    def capital_allocations(self):
+        return nz(self.capitalallocation_set.aggregate(dsum=Sum("amount"))["dsum"], 0)
 
     def add_all_om_costs(self):
         for obj in OMCategory.objects.all():
@@ -601,20 +676,37 @@ class ProjectYear(models.Model):
             return listrify(self.existing_project_codes.all())
 
     def get_funding_sources(self):
-        # look through all expenses and compile a unique list of funding sources
-        my_list = []
+        # look through all expenses and allocations and compile a unique list of funding sources
+        my_dict = {}
         for item in self.staff_set.all():
             if item.funding_source and item.amount and item.amount > 0:
-                my_list.append(item.funding_source)
+                my_dict[item.funding_source] = my_dict.get(item.funding_source, 0) + item.amount
 
         for item in self.omcost_set.all():
             if item.funding_source and item.amount and item.amount > 0:
-                my_list.append(item.funding_source)
+                my_dict[item.funding_source] = my_dict.get(item.funding_source, 0) + item.amount
 
         for item in self.capitalcost_set.all():
             if item.funding_source and item.amount and item.amount > 0:
-                my_list.append(item.funding_source)
-        return FundingSource.objects.filter(id__in=[fs.id for fs in my_list])
+                my_dict[item.funding_source] = my_dict.get(item.funding_source, 0) + item.amount
+
+        for item in self.salaryallocation_set.all():
+            if item.funding_source and item.amount and item.amount > 0:
+                my_dict[item.funding_source] = my_dict.get(item.funding_source, 0) + item.amount
+
+        for item in self.omallocation_set.all():
+            if item.funding_source and item.amount and item.amount > 0:
+                my_dict[item.funding_source] = my_dict.get(item.funding_source, 0) + item.amount
+
+        for item in self.capitalallocation_set.all():
+            if item.funding_source and item.amount and item.amount > 0:
+                my_dict[item.funding_source] = my_dict.get(item.funding_source, 0) + item.amount
+
+        sorted_list = sorted(my_dict.items(), key=lambda item: item[1], reverse=True)
+        sorted_list = [tup[0] for tup in sorted_list]
+        if self.project.default_funding_source not in sorted_list and self.project.default_funding_source is not None:
+            sorted_list.append(self.project.default_funding_source)
+        return sorted_list
 
     @property
     def formatted_status(self):
@@ -651,14 +743,6 @@ class ProjectYear(models.Model):
         return self.review.allocated_budget if hasattr(self, "review") else None
 
     @property
-    def allocated_salary(self):
-        return self.review.allocated_salary if hasattr(self, "review") else None
-
-    @property
-    def allocated_capital(self):
-        return self.review.allocated_capital if hasattr(self, "review") else None
-
-    @property
     def review_score_percentage(self):
         if hasattr(self, "review"):
             return percentage(self.review.score_as_percent, 0)
@@ -675,12 +759,45 @@ class GenericCost(models.Model):
     amount = models.FloatField(default=0, verbose_name=_("amount (CAD)"), blank=True, null=True)
 
     def save(self, *args, **kwargs):
-        if not self.amount: self.amount = 0
-
+        if not self.amount:
+            self.amount = 0
         super().save(*args, **kwargs)
 
     class Meta:
         abstract = True
+
+
+class GenericAllocation(GenericCost):
+    # not actually a cost, but uses same fields
+    description = models.TextField(blank=True, null=True, verbose_name=_("description"))
+
+    def __str__(self):
+        return f"{self.funding_source}"
+
+    class Meta:
+        abstract = True
+        ordering = ['funding_source', ]
+
+
+class OMAllocation(GenericAllocation):
+    @property
+    def distributed_amount(self):
+        amt_dict = OMCost.objects.filter(allocated_source=self).aggregate(Sum('allocated_amount'))
+        return amt_dict["allocated_amount__sum"]
+
+
+class CapitalAllocation(GenericAllocation):
+    @property
+    def distributed_amount(self):
+        amt_dict = CapitalCost.objects.filter(allocated_source=self).aggregate(Sum('allocated_amount'))
+        return amt_dict["allocated_amount__sum"]
+
+
+class SalaryAllocation(GenericAllocation):
+    @property
+    def distributed_amount(self):
+        amt_dict = Staff.objects.filter(allocated_source=self).aggregate(Sum('allocated_amount'))
+        return amt_dict["allocated_amount__sum"]
 
 
 class EmployeeType(SimpleLookup):
@@ -703,6 +820,7 @@ class Staff(GenericCost):
     ]
     employee_type = models.ForeignKey(EmployeeType, on_delete=models.DO_NOTHING, verbose_name=_("employee type"))
     is_lead = models.BooleanField(default=False, verbose_name=_("project lead"), choices=((True, _("yes")), (False, _("no"))))
+    is_primary_lead = models.BooleanField(default=False, verbose_name=_("primary project contact"), choices=((True, _("yes")), (False, _("no"))))
     user = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, verbose_name=_("User"),
                              related_name="staff_instances2")
     name = models.CharField(max_length=255, verbose_name=_("Person name (leave blank if user is selected)"), blank=True, null=True)
@@ -715,11 +833,21 @@ class Staff(GenericCost):
     role = models.TextField(blank=True, null=True, verbose_name=_("role in the project"))  # CSRF
     expertise = models.TextField(blank=True, null=True, verbose_name=_("key expertise"))  # CSRF
 
+    allocated_amount = models.FloatField(default=0, verbose_name=_("amount allocated (CAD)"), blank=True, null=True)
+    allocated_source = models.ForeignKey(SalaryAllocation, on_delete=models.DO_NOTHING, blank=True, null=True,
+                                         verbose_name=_("Allocation Source"))
+
+    def save(self, *args, **kwargs):
+        if not self.allocated_amount:
+            self.allocated_amount = 0
+            self.allocated_source = None
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return self.smart_name
 
     class Meta:
-        ordering = ['-is_lead', 'employee_type', 'level']
+        ordering = ['-is_primary_lead', '-is_lead', 'employee_type', 'level']
         unique_together = [('project_year', 'user'), ]
 
     @property
@@ -742,6 +870,12 @@ class Staff(GenericCost):
             return self.user.get_full_name() if self.user else self.name
         else:
             return "---"
+
+    def clean(self, *args, **kwargs):
+        if self.is_primary_lead:
+            if Staff.objects.filter(is_primary_lead=True, project_year=self.project_year).count():
+                raise ValidationError("There can only be one primary lead per project year.")
+        super(Staff, self).clean(*args, **kwargs)
 
     def save(self, *args, **kwargs):
         if self.user:
@@ -777,9 +911,18 @@ class OMCost(GenericCost):
     om_category = models.ForeignKey(OMCategory, on_delete=models.DO_NOTHING, related_name="om_costs", verbose_name=_("category"))
     description = models.TextField(blank=True, null=True, verbose_name=_("description"))
 
+    allocated_amount = models.FloatField(default=0, verbose_name=_("amount allocated (CAD)"), blank=True, null=True)
+    allocated_source = models.ForeignKey(OMAllocation, on_delete=models.DO_NOTHING, blank=True, null=True,
+                                         verbose_name=_("Allocation Source"))
     @property
     def category_type(self):
         return self.om_category.get_group_display()
+
+    def save(self, *args, **kwargs):
+        if not self.allocated_amount:
+            self.allocated_amount = 0
+            self.allocated_source = None
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.om_category}"
@@ -798,13 +941,22 @@ class CapitalCost(GenericCost):
     category = models.IntegerField(choices=category_choices, verbose_name=_("category"))
     description = models.TextField(blank=True, null=True, verbose_name=_("description"))
 
+    allocated_amount = models.FloatField(default=0, verbose_name=_("amount allocated (CAD)"), blank=True, null=True)
+    allocated_source = models.ForeignKey(CapitalAllocation, on_delete=models.DO_NOTHING, blank=True, null=True,
+                                         verbose_name=_("Allocation Source"))
+
+    def save(self, *args, **kwargs):
+        if not self.allocated_amount:
+            self.allocated_amount = 0
+            self.allocated_source = None
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return self.display
 
     @property
     def display(self):
         return f"{self.get_category_display()}"
-
 
     class Meta:
         ordering = ['category', ]
@@ -940,6 +1092,12 @@ class StatusReport(models.Model):
     status = models.IntegerField(default=3, editable=True, choices=status_choices)
     major_accomplishments = models.TextField(blank=True, null=True, verbose_name=_("major accomplishments"))
     major_issues = models.TextField(blank=True, null=True, verbose_name=_("major issues encountered"))
+    excess_funds = models.BooleanField(default=False, verbose_name=_("do you expect to have unspent funds remaining at the end of the fiscal year?"))
+    excess_funds_amt = models.IntegerField(default=0, blank=True, null=True, verbose_name=_("expected amount of unspent funds remaining"))
+    excess_funds_comment = models.TextField(blank=True, null=True, verbose_name=_("suggested uses for remaining funds"))
+    insuficient_funds = models.BooleanField(default=False, verbose_name=_("do you wish to request additional funding?"))
+    insuficient_funds_amt = models.IntegerField(default=0, blank=True, null=True, verbose_name=_("additional funding request amount"))
+    insuficient_funds_comment = models.TextField(blank=True, null=True, verbose_name=_("additional funding request description"))
     target_completion_date = models.DateTimeField(blank=True, null=True, verbose_name=_("target completion date"))
     rationale_for_modified_completion_date = models.TextField(blank=True, null=True, verbose_name=_(
         "rationale for a modified completion date"))
@@ -983,6 +1141,22 @@ class StatusReport(models.Model):
     def major_issues_html(self):
         if self.major_issues:
             return mark_safe(markdown(self.major_issues))
+
+    @property
+    def excess_funds_comment_html(self):
+        if self.excess_funds_comment:
+            return mark_safe(markdown(self.excess_funds_comment))
+
+    @property
+    def insuficient_funds_comment_html(self):
+        if self.insuficient_funds_comment:
+            return mark_safe(markdown(self.insuficient_funds_comment))
+
+
+
+def ref_mat_directory_path(instance, filename):
+    # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
+    return f'projects/{filename}'
 
 
 class Review(models.Model):
@@ -1032,12 +1206,13 @@ class Review(models.Model):
     approval_level = models.IntegerField(choices=approval_level_choices, blank=True, null=True, verbose_name=_("level of approval"))
     funding_status = models.IntegerField(choices=funding_status_choices, blank=True, null=True, verbose_name=_("funding status"))
 
-    allocated_budget = models.FloatField(blank=True, null=True, verbose_name=_("Allocated O&M"))
-    allocated_salary = models.FloatField(blank=True, null=True, verbose_name=_("Allocated salary"))
-    allocated_capital = models.FloatField(blank=True, null=True, verbose_name=_("Allocated capital"))
+    allocated_budget = models.FloatField(blank=True, null=True, verbose_name=_("Allocated budget"))
     approval_notification_email_sent = models.DateTimeField(blank=True, null=True, verbose_name=_("Notification Email Sent"), editable=False)
     review_notification_email_sent = models.DateTimeField(blank=True, null=True, verbose_name=_("Notification Email Sent"), editable=False)
     approver_comment = models.TextField(blank=True, null=True, verbose_name=_("Approver comments (shared with project leads)"))
+
+    checklist_file = models.FileField(upload_to=ref_mat_directory_path, verbose_name=_("Feedback Checklist"),
+                                      blank=True, null=True)
 
     # metadata
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
@@ -1085,7 +1260,8 @@ class Review(models.Model):
             subject=email.subject,
             html_message=email.message,
             from_email=email.from_email,
-            recipient_list=email.to_list
+            recipient_list=email.to_list,
+            user=request.user
         )
         self.approval_notification_email_sent = timezone.now()
         self.save()
@@ -1160,7 +1336,8 @@ class Activity(models.Model):
     )
 
     project_year = models.ForeignKey(ProjectYear, related_name="activities", on_delete=models.CASCADE)
-    type = models.IntegerField(choices=type_choices)
+    type = models.IntegerField(choices=type_choices, verbose_name="Milestone or Deliverable?")
+    classification = models.ForeignKey(ActivityClassification, blank=True, null=True, on_delete=models.DO_NOTHING, verbose_name=_("Type"))
     name = models.CharField(max_length=500, verbose_name=_("name"))
     target_start_date = models.DateTimeField(blank=True, null=True, verbose_name=_("Target start date (optional)"))
     target_date = models.DateTimeField(blank=True, null=True, verbose_name=_("Target end date (optional)"))
@@ -1232,11 +1409,6 @@ class ActivityUpdate(MetadataFields):
             return mark_safe(markdown(self.notes))
 
 
-def ref_mat_directory_path(instance, filename):
-    # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
-    return f'projects/{filename}'
-
-
 class ReferenceMaterial(SimpleLookup):
     file_en = models.FileField(upload_to=ref_mat_directory_path, verbose_name=_("file attachment (English)"))
     file_fr = models.FileField(upload_to=ref_mat_directory_path, verbose_name=_("file attachment (French)"), blank=True, null=True)
@@ -1271,6 +1443,7 @@ class DMA(MetadataFields):
         (2, _("Complete")),
         (3, _("Encountering issues")),
         (4, _("Aborted / cancelled")),
+        (5, _("Pending new evaluation")),
     )
     frequency_choices = (
         (1, _("Daily")),
@@ -1347,6 +1520,11 @@ class DMA(MetadataFields):
                 self.status = 2  # complete
             elif last_review.decision == 1:  # compliant
                 self.status = 1  # on-track
+                # but wait, what if this is an old evaluation?
+                # if the review was more than six months old, set the status to 5
+                if (timezone.now() - last_review.created_at).days > (28*6):
+                    self.status = 5  # pending evaluation
+
             elif last_review.decision == 2:  # non-compliant
                 self.status = 3  # encountering issues
 

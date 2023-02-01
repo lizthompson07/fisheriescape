@@ -14,13 +14,15 @@ chosen_js = {"class": "chosen-select-contains"}
 
 
 class InteractionFilter(django_filters.FilterSet):
-    search_term = django_filters.CharFilter(field_name='search_term', label=_("Search (Description, Comments)"),
+    search_term = django_filters.CharFilter(field_name='search_term', label=_("Search (Title of Interaction, Main results, Comments)"),
                                             lookup_expr='icontains', widget=forms.TextInput())
 
     class Meta:
         model = models.Interaction
         fields = ["search_term", "interaction_type", "dfo_liaison", "main_topic", "external_organization",
-                  "external_contact", "committee", "dfo_role", "other_dfo_participants", "species"]
+                  "external_contact", "is_committee", "committee", "dfo_role", "other_dfo_participants", "species",
+                  "lead_region", "dfo_national_sectors", "branch", "division", "area_office", "area_office_program",
+                  "other_dfo_branch", "other_dfo_regions", "dfo_national_sectors", "other_dfo_areas"]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -64,7 +66,7 @@ class InteractionFilter(django_filters.FilterSet):
 
 
 class CommitteeFilter(django_filters.FilterSet):
-    search_term = django_filters.CharFilter(field_name='search_term', label=_("Search Committee Name"),
+    search_term = django_filters.CharFilter(field_name='search_term', label=_("Search (committee/working group name, role, and comments)"),
                                             lookup_expr='icontains', widget=forms.TextInput())
 
     external_chair_contact = django_filters.ModelMultipleChoiceFilter(
@@ -92,7 +94,7 @@ class CommitteeFilter(django_filters.FilterSet):
             field_name='dfo_role', lookup_expr='exact',
             choices=models.ROLE_DFO_CHOICES,
             widget=forms.SelectMultiple(attrs=chosen_js),
-            label=_("Role of highest level DFO participant"),
+            label=_("Highest level DFO participant"),
         )
         self.filters['dfo_liaison'] = django_filters.ModelMultipleChoiceFilter(
             queryset=models.User.objects.all(),
@@ -112,7 +114,7 @@ class CommitteeFilter(django_filters.FilterSet):
 
     def external_chair_contact_filter(self, queryset, name, value):
         if value:
-            qureyset = queryset.filter(
+            queryset = queryset.filter(
                 Q(external_chair__in=value) | Q(external_contact__in=value)
             )
         return queryset
@@ -140,16 +142,14 @@ class OrganizationFilter(django_filters.FilterSet):
             field_name='ext_org__area',
             widget=forms.SelectMultiple(attrs=chosen_js),
         )
-
         self.filters['ext_org__category'] = django_filters.ModelMultipleChoiceFilter(
             queryset=models.OrgCategory.objects.all(),
             label=_("Category(s)"),
             field_name='ext_org__category',
             widget=forms.SelectMultiple(attrs=chosen_js),
         )
-
         self.filters['grouping'] = django_filters.ModelMultipleChoiceFilter(
-            queryset=ml_models.Grouping.objects.all(),
+            queryset=ml_models.Grouping.objects.filter(in_maret=True),
             field_name='grouping',
             widget=forms.SelectMultiple(attrs=chosen_js),
         )

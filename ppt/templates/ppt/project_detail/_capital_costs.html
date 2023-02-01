@@ -55,6 +55,10 @@
             </td>
           {% elif "category" in field %}
             <td>${item.category_display | nz }</td>
+          {% elif "allocated_amount" in field %}
+            <td v-if="canModify">
+              <span>${item.allocated_amount | currencyFormat}</span>
+            </td>
           {% elif "amount" in field %}
             <td>
               <span v-if="item.amount == 0||!item.amount" class="major-error py-1 px-1">${item.amount | currencyFormat}</span>

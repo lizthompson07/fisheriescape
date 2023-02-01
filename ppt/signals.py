@@ -3,7 +3,7 @@ import os
 from django.db import models
 from django.dispatch import receiver
 
-from .models import ReferenceMaterial, File, Staff, ProjectYear, Review, Project, DMAReview
+from .models import ReferenceMaterial, File, Staff, ProjectYear, Review, Project
 
 
 @receiver(models.signals.post_delete, sender=File)
@@ -87,6 +87,38 @@ def auto_delete_ReferenceMaterial_on_change(sender, instance, **kwargs):
             os.remove(old_file_fr.path)
 
 
+@receiver(models.signals.post_delete, sender=Review)
+def auto_delete_review_file_on_delete(sender, instance, **kwargs):
+    """
+    Deletes file from filesystem
+    when corresponding `MediaFile` object is deleted.
+    """
+    if instance.checklist_file:
+        if os.path.isfile(instance.checklist_file.path):
+            os.remove(instance.checklist_file.path)
+
+
+@receiver(models.signals.pre_save, sender=Review)
+def auto_delete_review_file_on_change(sender, instance, **kwargs):
+    """
+    Deletes old file from filesystem
+    when corresponding `MediaFile` object is updated
+    with new file.
+    """
+    if not instance.pk:
+        return False
+
+    try:
+        old_checklist_file = Review.objects.get(pk=instance.pk).checklist_file
+    except Review.DoesNotExist:
+        return False
+
+    new_checklist_file = instance.checklist_file
+    if old_checklist_file and old_checklist_file != new_checklist_file:
+        if os.path.isfile(old_checklist_file.path):
+            os.remove(old_checklist_file.path)
+
+
 # @receiver(models.signals.post_delete, sender=Staff)
 # def save_project_on_staff_delete(sender, instance, **kwargs):
 #     print(instance)
@@ -154,13 +186,3 @@ def save_project_year_on_review_creation(sender, instance, created, **kwargs):
 @receiver(models.signals.pre_delete, sender=Project)
 def delete_project_years_before_deleting_project(sender, instance, **kwargs):
     Staff.objects.filter(project_year__project=instance).delete()
-
-
-@receiver(models.signals.post_save, sender=DMAReview)
-def save_project_year_on_review_save(sender, instance, created, **kwargs):
-    instance.dma.save()
-
-
-@receiver(models.signals.post_delete, sender=DMAReview)
-def save_dma_on_review_delete(sender, instance, **kwargs):
-    instance.dma.save()

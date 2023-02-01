@@ -307,7 +307,7 @@ class SampleListView(ScubaBasicMixin, CommonFilterView):
         {"name": 'datetime|{}'.format("date"), "class": "", "width": ""},
         {"name": 'transect.region|region', "class": "", "width": ""},
         {"name": 'transect', "class": "", "width": ""},
-        {"name": 'is_upm', "class": "", "width": ""},
+        {"name": 'is_data_entry_complete|{}'.format("data entry complete?"), "class": "", "width": ""},
         {"name": 'dive_count|{}'.format(_("dive count")), "class": "", "width": ""},
     ]
 
@@ -346,7 +346,7 @@ class SampleDetailView(ScubaBasicMixin, CommonDetailView):
         'ending_coordinates_ddmm|{}'.format(_("ending coordinates")),
         'distance|{}'.format(_("transect distance (m)")),
         'weather_notes',
-        'is_upm',
+        # 'is_upm',
         'comment',
     ]
 
@@ -362,6 +362,7 @@ class SampleDetailView(ScubaBasicMixin, CommonDetailView):
             'was_seeded',
             'comment',
             'observation_count|{}'.format(_("observation count")),
+            "has_all_sections|{}".format(_("All sections present")),
         ]
         context["dive_field_list"] = dive_field_list
         return context
@@ -469,6 +470,7 @@ class DiveDetailView(ScubaBasicMixin, CommonDetailView):
         'side',
         'width_m',
         'comment',
+        "has_all_sections|{}".format(_("All sections present")),
         'metadata',
     ]
 

@@ -143,7 +143,7 @@ class ProjectSerializer(serializers.ModelSerializer):
     years = ProjectYearSerializerLITE(many=True, read_only=True)
     has_unsubmitted_years = serializers.SerializerMethodField()
     section = serializers.StringRelatedField()
-    functional_group = serializers.StringRelatedField()
+    functional_group = serializers.SerializerMethodField()
     default_funding_source = serializers.StringRelatedField()
     lead_staff = serializers.SerializerMethodField()
     start_year_display = serializers.SerializerMethodField()
@@ -152,7 +152,16 @@ class ProjectSerializer(serializers.ModelSerializer):
     section_display = serializers.SerializerMethodField()
 
     def get_section_display(self, instance):
-        return instance.section.full_name
+        if instance.section:
+            return instance.section.full_name
+        else:
+            return ""
+
+    def get_functional_group(self, instance):
+        if instance.functional_group:
+            return instance.functional_group.__str__()
+        else:
+            return ""
 
     def get_funding_sources_display(self, instance):
         if instance.funding_sources.exists():
@@ -202,17 +211,20 @@ class ProjectYearSerializer(serializers.ModelSerializer):
     other_lab_support_needs_html = serializers.SerializerMethodField()
     it_needs_html = serializers.SerializerMethodField()
     default_funding_source_id = serializers.SerializerMethodField()
+    funding_sources_list = serializers.SerializerMethodField()
     formatted_status = serializers.SerializerMethodField()
     allocated_budget = serializers.SerializerMethodField()
-    allocated_salary = serializers.SerializerMethodField()
-    allocated_capital = serializers.SerializerMethodField()
     review_score_percentage = serializers.SerializerMethodField()
     review_score_fraction = serializers.SerializerMethodField()
     status_display = serializers.SerializerMethodField()
     status_class = serializers.SerializerMethodField()
+    primary_contact_email = serializers.SerializerMethodField()
     om_costs = serializers.SerializerMethodField()
     salary_costs = serializers.SerializerMethodField()
     capital_costs = serializers.SerializerMethodField()
+    om_allocations = serializers.SerializerMethodField()
+    salary_allocations = serializers.SerializerMethodField()
+    capital_allocations = serializers.SerializerMethodField()
     project_codes = serializers.SerializerMethodField()
     project_user_choices = serializers.SerializerMethodField()
     parent_activity_choices = serializers.SerializerMethodField()
@@ -242,6 +254,22 @@ class ProjectYearSerializer(serializers.ModelSerializer):
     def get_om_costs(self, instance):
         return instance.om_costs
 
+    def get_capital_allocations(self, instance):
+        return instance.capital_allocations
+
+    def get_salary_allocations(self, instance):
+        return instance.salary_allocations
+
+    def get_om_allocations(self, instance):
+        return instance.om_allocations
+
+    def get_primary_contact_email(self, instance):
+        primary_contact = instance.staff_set.filter(is_primary_lead=True).first()
+        if primary_contact:
+            if primary_contact.user:
+                return primary_contact.user.email
+        return None
+
     def get_status_class(self, instance):
         return slugify(instance.get_status_display())
 
@@ -256,12 +284,6 @@ class ProjectYearSerializer(serializers.ModelSerializer):
 
     def get_allocated_budget(self, instance):
         return instance.allocated_budget
-
-    def get_allocated_salary(self, instance):
-        return instance.allocated_salary
-
-    def get_allocated_capital(self, instance):
-        return instance.allocated_capital
 
     def get_display_name(self, instance):
         return str(instance.fiscal_year)
@@ -338,6 +360,9 @@ class ProjectYearSerializer(serializers.ModelSerializer):
     def get_default_funding_source_id(self, instance):
         return instance.project.default_funding_source_id
 
+    def get_funding_sources_list(self, instance):
+        return ", ".join([fs.__str__() for fs in instance.get_funding_sources()])
+
     def get_formatted_status(self, instance):
         return instance.formatted_status
 
@@ -353,6 +378,7 @@ class StaffSerializer(serializers.ModelSerializer):
     funding_source_display = serializers.SerializerMethodField()
     student_program_display = serializers.SerializerMethodField()
     project_year_obj = serializers.SerializerMethodField()
+    cost_type_choice = serializers.SerializerMethodField()
 
     def get_project_year_obj(self, instance):
         return ProjectYearSerializerLITE(instance.project_year).data
@@ -372,6 +398,9 @@ class StaffSerializer(serializers.ModelSerializer):
     def get_student_program_display(self, instance):
         return instance.get_student_program_display()
 
+    def get_cost_type_choice(self, instance):
+        return instance.employee_type.cost_type if instance.employee_type else None
+
 
 class OMCostSerializer(serializers.ModelSerializer):
     class Meta:
@@ -379,7 +408,7 @@ class OMCostSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
     funding_source_display = serializers.SerializerMethodField()
-    om_category_display = serializers.SerializerMethodField()
+    category_display = serializers.SerializerMethodField()
     project_year_id = serializers.SerializerMethodField()
     category_type = serializers.SerializerMethodField()
     project_id = serializers.SerializerMethodField()
@@ -390,7 +419,7 @@ class OMCostSerializer(serializers.ModelSerializer):
     def get_funding_source_display(self, instance):
         return str(instance.funding_source)
 
-    def get_om_category_display(self, instance):
+    def get_category_display(self, instance):
         return instance.om_category.tname
 
     def get_project_year_id(self, instance):
@@ -419,6 +448,39 @@ class CapitalCostSerializer(serializers.ModelSerializer):
         return instance.project_year_id
 
 
+class AllocationSerializer(serializers.ModelSerializer):
+    funding_source_display = serializers.SerializerMethodField()
+    project_year_id = serializers.SerializerMethodField()
+    distributed_amount = serializers.SerializerMethodField()
+
+    def get_funding_source_display(self, instance):
+        return str(instance.funding_source)
+
+    def get_project_year_id(self, instance):
+        return instance.project_year_id
+
+    def get_distributed_amount(self, instance):
+        return instance.distributed_amount
+
+
+class SalaryAllocationSerializer(AllocationSerializer):
+    class Meta:
+        model = models.SalaryAllocation
+        fields = "__all__"
+
+
+class OMAllocationSerializer(AllocationSerializer):
+    class Meta:
+        model = models.OMAllocation
+        fields = "__all__"
+
+
+class CapitalAllocationSerializer(AllocationSerializer):
+    class Meta:
+        model = models.CapitalAllocation
+        fields = "__all__"
+
+
 class ActivitySerializer(serializers.ModelSerializer):
     target_date = serializers.DateField(format=None, input_formats=None, required=False, allow_null=True)
     target_start_date = serializers.DateField(format=None, input_formats=None, required=False, allow_null=True)
@@ -431,6 +493,7 @@ class ActivitySerializer(serializers.ModelSerializer):
     target_date_display = serializers.SerializerMethodField()
     project_year_id = serializers.SerializerMethodField()
     type_display = serializers.SerializerMethodField()
+    classification_display = serializers.SerializerMethodField()
     risk_rating_display = serializers.SerializerMethodField()
     dates = serializers.SerializerMethodField()
     responsible_parties_display = serializers.SerializerMethodField()
@@ -459,6 +522,10 @@ class ActivitySerializer(serializers.ModelSerializer):
 
     def get_type_display(self, instance):
         return instance.get_type_display()
+
+    def get_classification_display(self, instance):
+        if instance.classification:
+            return instance.classification.__str__()
 
     def get_risk_rating_display(self, instance):
         return instance.get_risk_rating_display()
@@ -498,6 +565,13 @@ class ActivitySerializer(serializers.ModelSerializer):
         return attrs
 
 
+class ActivityFullSerializer(ActivitySerializer):
+    project_year_obj = serializers.SerializerMethodField()
+
+    def get_project_year_obj(self, instance):
+        return ProjectYearSerializerLITE(instance.project_year).data
+
+
 class CollaborationSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Collaboration
@@ -525,11 +599,14 @@ class StatusReportSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
     target_completion_date_display = serializers.SerializerMethodField()
+    created_at_display = serializers.SerializerMethodField()
     report_number = serializers.SerializerMethodField()
     status_display = serializers.SerializerMethodField()
     supporting_resources = serializers.SerializerMethodField()
     major_accomplishments_html = serializers.SerializerMethodField()
     major_issues_html = serializers.SerializerMethodField()
+    excess_funds_comment_html = serializers.SerializerMethodField()
+    insuficient_funds_comment_html = serializers.SerializerMethodField()
 
     def get_major_accomplishments_html(self, instance):
         return instance.major_accomplishments_html
@@ -537,9 +614,19 @@ class StatusReportSerializer(serializers.ModelSerializer):
     def get_major_issues_html(self, instance):
         return instance.major_issues_html
 
+    def get_excess_funds_comment_html(self, instance):
+        return instance.excess_funds_comment_html
+
+    def get_insuficient_funds_comment_html(self, instance):
+        return instance.insuficient_funds_comment_html
+
     def get_target_completion_date_display(self, instance):
         if instance.target_completion_date:
             return instance.target_completion_date.strftime("%Y-%m-%d")
+
+    def get_created_at_display(self, instance):
+        if instance.created_at:
+            return instance.created_at.strftime("%Y-%m-%d")
 
     def get_report_number(self, instance):
         return instance.report_number
@@ -702,26 +789,3 @@ class PublicationSerializer(serializers.ModelSerializer):
     class Meta:
         model = shared_models.Publication
         fields = "__all__"
-
-
-class DMASerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.DMA
-        fields = "__all__"
-
-    metadata = serializers.SerializerMethodField()
-    status_display = serializers.SerializerMethodField()
-    region_display = serializers.SerializerMethodField()
-    section_display = serializers.SerializerMethodField()
-
-    def get_section_display(self, instance):
-        return str(instance.project.section)
-
-    def get_region_display(self, instance):
-        return str(instance.project.section.division.branch.sector.region)
-
-    def get_status_display(self, instance):
-        return instance.get_status_display()
-
-    def get_metadata(self, instance):
-        return instance.metadata

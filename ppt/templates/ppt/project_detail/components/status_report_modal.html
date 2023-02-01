@@ -3,6 +3,7 @@
 {% load custom_filters %}
 {% load project_filters %}
 {% load static %}
+
 <!-- template for the modal component -->
 <script type="text/x-template" id="status-report-modal-template">
 <transition name="modal">
@@ -30,13 +31,17 @@
               {% for field in status_report_form %}
                 {% if field.name|is_markdown_field %}
 
-                  <label for="id_priorities">{{ field.label }}</label>
+                  <label>{{ field.label }}</label>
                   <a href="{% static 'markdown-cheatsheet-online.pdf' %}" data-toggle="tooltip" target="_blank" tabindex="-1"
                      title="{% trans "Markdown syntax is supported in this field" %}">
                     <span class="mdi mdi-language-markdown ml-1 py-0" style="font-size: 20px; color: blue"></span>
                   </a>
                   {% bootstrap_field field placeholder="" show_label=False size='small' %}
 
+                {% elif 'insuficient_funds_amt' in field.name %}
+                  {% bootstrap_label field.label label_for="id_"|add:field.name %}
+                  <span class="mdi mdi-help-circle-outline h6"  title=" {% trans "Requested funds not guarenteed" %}"></span>
+                  {% bootstrap_field field placeholder="" show_label=False size='small' %}
                 {% else %}
                   {% bootstrap_field field placeholder="" size='small' %}
                 {% endif %}
@@ -85,6 +90,12 @@ Vue.component("status-report-modal", {
       // status reports
       status_report: {
         status: null,
+        excess_funds: false,
+        excess_funds_amt: 0,
+        excess_funds_comment: null,
+        insuficient_funds: false,
+        insuficient_funds_amt: 0,
+        insuficient_funds_comment: null,
         major_accomplishments: null,
         major_issues: null,
         target_completion_date: null,

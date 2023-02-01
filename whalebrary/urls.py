@@ -52,15 +52,23 @@ urlpatterns = [
 
     path('transaction_list/', views.TransactionListView.as_view(), name="transaction_list"),
     path('transaction_detail/<int:pk>/view/', views.TransactionDetailView.as_view(), name="transaction_detail"),
-    path('item/<int:pk>/transaction/new/', views.TransactionCreateView.as_view(), name="transaction_new"),
-    path('transaction/new/', views.TransactionCreateView.as_view(), name="transaction_new"),
+    path('item/<int:pk>/transaction/new/', views.TransactionUseCreateView.as_view(), name="transaction_new"),
+    path('item/<int:pk>/transaction/add_new/', views.TransactionAddCreateView.as_view(), name="transaction_add_new"),
+    path('transaction/new/', views.TransactionUseCreateView.as_view(), name="transaction_new"),
     path('transaction/<int:pk>/edit/', views.TransactionUpdateView.as_view(), name="transaction_edit"),
     # path('transaction/<int:pk>/edit/pop/<int:pop>/', views.TransactionUpdatePopoutView.as_view(), name="transaction_edit"),
     path('transaction/<int:pk>/receive/order/<int:pop>/', views.OrderReceivedTransactionUpdateView.as_view(), name="transaction_edit"),
+    path('transaction/<int:pk>/transfer/', views.TransactionTransferView.as_view(), name="transaction_transfer"),
+    path('transaction/<int:pk>/transfer/in/', views.TransactionTransferInView.as_view(), name="transaction_transfer_in"),
     path('transaction/<int:pk>/delete/pop/<int:pop>/', views.TransactionDeletePopoutView.as_view(), name="transaction_delete"),
     path('transaction/<int:pk>/delete/', views.TransactionDeleteView.as_view(), name="transaction_delete"),
     path('transaction/return/item/<int:transaction>/', views.lending_return_item, name="lending_return_item"),
     path('transaction/lend/item/<int:pk>/', views.TransactionLendCreateView.as_view(), name="transaction_lend"),
+    # path('transaction/transfer/item/<int:pk>/', views.TransactionTransferCreateView.as_view(), name="transaction_transfer"),
+
+    # LENDING #
+
+    path('lending_list/', views.LendingListView.as_view(), name="lending_list"),
 
     # BULK TRANSACTIONS #
 
@@ -81,6 +89,17 @@ urlpatterns = [
     path('order/<int:order>/received/', views.mark_order_received,
          name="mark_order_received"),
 
+    # MAINTENANCE #
+
+    path('maintenance_list/', views.MaintenanceListView.as_view(), name="maintenance_list"),
+    path('maintenance_detail/<int:pk>/view/', views.MaintenanceDetailView.as_view(), name="maintenance_detail"),
+    path('maintenance/new/', views.MaintenanceCreateView.as_view(), name="maintenance_new"),
+    path('item/<int:pk>/maintenance/new/', views.MaintenanceCreateView.as_view(), name="maintenance_new"),
+    path('maintenance/<int:pk>/edit/', views.MaintenanceUpdateView.as_view(), name="maintenance_edit"),
+    path('maintenance/<int:pk>/edit/pop/<int:pop>/', views.MaintenanceUpdatePopoutView.as_view(), name="maintenance_edit"),
+    path('maintenance/<int:pk>/delete/pop/<int:pop>/', views.MaintenanceDeletePopoutView.as_view(), name="maintenance_delete"),
+    path('maintenance/<int:pk>/delete/', views.MaintenanceDeleteView.as_view(), name="maintenance_delete"),
+    path('maintenance/<int:maintenance>/complete/', views.mark_maintenance_done, name="mark_maintenance_done"),
 
     # LOCATION #
 

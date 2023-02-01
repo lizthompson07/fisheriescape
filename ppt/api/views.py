@@ -17,12 +17,13 @@ from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 
 from dm_apps.utils import custom_send_mail
+from inventory.models import DMA
 from shared_models import models as shared_models
 from shared_models.utils import get_labels
 from . import permissions, pagination
 from . import serializers
 from .. import models, stat_holidays, emails
-from ..filters import ProjectYearChildFilter, ProjectYearFilter, DMAFilter
+from ..filters import ProjectYearChildFilter, ProjectYearFilter, DMAFilter, StatusReportFilter, ActivityFilter
 from ..utils import financial_project_year_summary_data, financial_project_summary_data, get_user_fte_breakdown, can_modify_project, \
     get_manageable_sections, multiple_financial_project_year_summary_data, is_section_head, get_staff_summary
 from ..utils import is_management_or_admin
@@ -197,7 +198,15 @@ class ProjectViewSet(ModelViewSet):
 
 
 class ProjectYearViewSet(ModelViewSet):
-    queryset = models.ProjectYear.objects.all().order_by("start_date")
+    queryset = models.ProjectYear.objects.all().order_by("start_date")\
+        .select_related("project", "project__section", "fiscal_year", "project__functional_group",
+                        "project__default_funding_source", "project__activity_type")\
+        .prefetch_related('staff_set__funding_source',
+                          'omcost_set__funding_source',
+                          'capitalcost_set__funding_source',
+                          'salaryallocation_set__funding_source',
+                          'omallocation_set__funding_source',
+                          'capitalallocation_set__funding_source')
     serializer_class = serializers.ProjectYearSerializer
     permission_classes = [permissions.CanModifyOrReadOnly]
     pagination_class = pagination.StandardResultsSetPagination
@@ -231,7 +240,8 @@ class ProjectYearViewSet(ModelViewSet):
                 subject=email.subject,
                 html_message=email.message,
                 from_email=email.from_email,
-                recipient_list=email.to_list
+                recipient_list=email.to_list,
+                user=request.user
             )
             return Response(serializers.ProjectYearSerializer(project_year).data, status.HTTP_200_OK)
         elif qp.get("unsubmit"):
@@ -267,48 +277,77 @@ class StaffingAPIView(APIView):
         if not request.query_params.get("year"):
             return Response({"error": "must supply a fiscal year"}, status.HTTP_400_BAD_REQUEST)
 
-        si_data = list()
-        ids = request.query_params.get("ids").split(",")
-        py_qs = models.ProjectYear.objects.filter(id__in=ids)
-        year = request.query_params.get("year")
-        fiscal_year = shared_models.FiscalYear.objects.get(pk=year)
-        staff_instances = models.Staff.objects.filter(project_year_id__in=ids).distinct() \
+        staff_instances = models.Staff.objects \
             .select_related("user", "employee_type", "level", "funding_source", "project_year",
                             "project_year__project", "project_year__fiscal_year",
                             "project_year__project__section")
+        ids = []
+        if request.query_params.get("ids"):
+            ids = request.query_params.get("ids").split(",")
+            staff_instances = staff_instances.filter(project_year_id__in=ids).distinct()
+        py_qs = models.ProjectYear.objects.filter(id__in=ids)
+        year = request.query_params.get("year")
+        fiscal_year = shared_models.FiscalYear.objects.get(pk=year)
 
-        staff_df = pd.DataFrame.from_records(staff_instances.values("funding_source__funding_source_type", "level_id__name",
+        staff_df = pd.DataFrame.from_records(staff_instances.values("funding_source__funding_source_type", "level__name",
                                                                     "employee_type__name", "duration_weeks",
                                                                     "project_year__status", "user"))
-        # convert choice to string
-        staff_df["funding_source"] = staff_df["funding_source__funding_source_type"].map(dict(
-            models.FundingSource.funding_source_type_choices)).apply(''.join)
 
-        staff_df["draft"] = np.where(staff_df["project_year__status"] == 1, staff_df["duration_weeks"], np.nan)
-        staff_df["submitted_unapproved"] = np.where(staff_df["project_year__status"].isin([2, 3, 6]),
-                                                    staff_df["duration_weeks"], np.nan)
-        staff_df["approved"] = np.where(staff_df["project_year__status"] == 4, staff_df["duration_weeks"], np.nan)
+        type_summary = []
+        level_summary = []
+        funding_summary = []
+        if len(staff_df):
+            # convert choice fields to strings
+            staff_df["funding_source"] = staff_df["funding_source__funding_source_type"].map(dict(
+                models.FundingSource.funding_source_type_choices)).apply(''.join)
 
-        type_summary = get_staff_summary(staff_df, "employee_type__name")
-        level_summary = get_staff_summary(staff_df, "level_id__name")
-        funding_summary = get_staff_summary(staff_df, "funding_source")
-        user_df = pd.DataFrame(get_staff_summary(staff_df, "user", na_value="TDB"))
+            staff_df["draft"] = np.where(staff_df["project_year__status"] == 1, staff_df["duration_weeks"], np.nan)
+            staff_df["submitted_unapproved"] = np.where(staff_df["project_year__status"].isin([2, 3, 6]),
+                                                        staff_df["duration_weeks"], np.nan)
+            staff_df["approved"] = np.where(staff_df["project_year__status"] == 4, staff_df["duration_weeks"], np.nan)
+
+            type_summary = get_staff_summary(staff_df, "employee_type__name")
+            level_summary = get_staff_summary(staff_df, "level__name")
+            funding_summary = get_staff_summary(staff_df, "funding_source")
 
         # now we need a user list for any users in the above list
         users = User.objects.filter(staff_instances2__project_year_id__in=ids).distinct().order_by("last_name") \
             .select_related("profile", "profile__section")
         data = []
         for u in users:
-            staff_instances = models.Staff.objects.filter(user=u, project_year__fiscal_year_id=year).distinct() \
+            user_si = models.Staff.objects.filter(user=u, project_year__fiscal_year_id=year).distinct() \
                 .select_related("user", "employee_type", "level", "funding_source", "project_year",
                                 "project_year__project", "project_year__fiscal_year",
                                 "project_year__project__section")
-            filtered_si = staff_instances.filter(project_year__in=py_qs).distinct()
-            my_dict = get_user_fte_breakdown(u, fiscal_year_id=year, staff_instance_qs=staff_instances,
+            filtered_si = user_si.filter(project_year__in=py_qs).distinct()
+            my_dict = get_user_fte_breakdown(u, fiscal_year_id=year, staff_instance_qs=user_si,
                                              fiscal_year=fiscal_year, filtered_si_qs=filtered_si)
 
-            my_dict["staff_instances"] = serializers.StaffSerializer(staff_instances, many=True).data
+            my_dict["staff_instances"] = serializers.StaffSerializer(user_si, many=True).data
             my_dict["filtered_staff_instances"] = serializers.StaffSerializer(filtered_si, many=True).data
+            data.append(my_dict)
+        # need to add on the empty positions:
+        empty_si = staff_instances.filter(user__isnull=True)
+        for si in empty_si:
+            draft_weeks = si.duration_weeks if si.project_year.status == 1 else 0
+            submitted_weeks = si.duration_weeks if si.project_year.status in [2, 3, 6] else 0
+            approved_weeks = si.duration_weeks if si.project_year.status == 4 else 0
+            my_dict = {
+                "name": "---",
+                "employee_type": si.employee_type.name if si.employee_type else "",
+                "level": si.level.name if si.level else "",
+                "funding": si.funding_source.name if si.funding_source else "",
+                "section": "",
+                "fiscal_year": year,
+                "draft": draft_weeks,
+                "submitted_unapproved": submitted_weeks,
+                "approved": approved_weeks,
+                "filtered_draft": draft_weeks,
+                "filtered_submitted_unapproved": submitted_weeks,
+                "filtered_approved": approved_weeks,
+                "staff_instances": serializers.StaffSerializer([si], many=True).data,
+                "filtered_staff_instances": serializers.StaffSerializer([si], many=True).data,
+            }
             data.append(my_dict)
 
         response_dict = {
@@ -345,7 +384,8 @@ class StaffViewSet(ModelViewSet):
                 subject=email.subject,
                 html_message=email.message,
                 from_email=email.from_email,
-                recipient_list=email.to_list
+                recipient_list=email.to_list,
+                user=self.request.user,
             )
         super().perform_update(serializer)
 
@@ -358,58 +398,62 @@ class StaffViewSet(ModelViewSet):
                 subject=email.subject,
                 html_message=email.message,
                 from_email=email.from_email,
-                recipient_list=email.to_list
+                recipient_list=email.to_list,
+                user=self.request.user
             )
 
 
-class OMCostViewSet(ModelViewSet):
+class CostAllocationViewSet(ModelViewSet):
+    permission_classes = [permissions.CanModifyOrReadOnly]
+    pagination_class = pagination.StandardResultsSetPagination
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = ProjectYearChildFilter
+
+    def perform_create(self, serializer):
+        obj = serializer.save()
+        obj.project_year.update_modified_by(self.request.user)
+
+    def perform_destroy(self, instance):
+        super().perform_destroy(instance)
+        instance.project_year.update_modified_by(self.request.user)
+
+    def perform_update(self, serializer):
+        obj = serializer.save()
+        obj.project_year.update_modified_by(self.request.user)
+
+
+class OMCostViewSet(CostAllocationViewSet):
     serializer_class = serializers.OMCostSerializer
-    permission_classes = [permissions.CanModifyOrReadOnly]
     queryset = models.OMCost.objects.all()
-    pagination_class = pagination.StandardResultsSetPagination
-    filter_backends = (DjangoFilterBackend,)
-    filterset_class = ProjectYearChildFilter
-
-    def perform_create(self, serializer):
-        obj = serializer.save()
-        obj.project_year.update_modified_by(self.request.user)
-
-    def perform_destroy(self, instance):
-        super().perform_destroy(instance)
-        instance.project_year.update_modified_by(self.request.user)
-
-    def perform_update(self, serializer):
-        obj = serializer.save()
-        obj.project_year.update_modified_by(self.request.user)
 
 
-class CapitalCostViewSet(ModelViewSet):
+class CapitalCostViewSet(CostAllocationViewSet):
     serializer_class = serializers.CapitalCostSerializer
-    permission_classes = [permissions.CanModifyOrReadOnly]
     queryset = models.CapitalCost.objects.all()
-    pagination_class = pagination.StandardResultsSetPagination
-    filter_backends = (DjangoFilterBackend,)
-    filterset_class = ProjectYearChildFilter
 
-    def perform_create(self, serializer):
-        obj = serializer.save()
-        obj.project_year.update_modified_by(self.request.user)
 
-    def perform_destroy(self, instance):
-        super().perform_destroy(instance)
-        instance.project_year.update_modified_by(self.request.user)
+class SalaryAllocationViewSet(CostAllocationViewSet):
+    serializer_class = serializers.SalaryAllocationSerializer
+    queryset = models.SalaryAllocation.objects.all()
 
-    def perform_update(self, serializer):
-        obj = serializer.save()
-        obj.project_year.update_modified_by(self.request.user)
+
+class OMAllocationViewSet(CostAllocationViewSet):
+    serializer_class = serializers.OMAllocationSerializer
+    queryset = models.OMAllocation.objects.all()
+
+
+class CapitalAllocationViewSet(CostAllocationViewSet):
+    serializer_class = serializers.CapitalAllocationSerializer
+    queryset = models.CapitalAllocation.objects.all()
 
 
 class ActivityViewSet(ModelViewSet):
     queryset = models.Activity.objects.all()
     serializer_class = serializers.ActivitySerializer
     permission_classes = [permissions.CanModifyOrReadOnly]
+    pagination_class = pagination.StandardResultsSetPagination
     filter_backends = (DjangoFilterBackend,)
-    filterset_class = ProjectYearChildFilter
+    filterset_class = ActivityFilter
 
     def perform_create(self, serializer):
         obj = serializer.save()
@@ -468,6 +512,16 @@ class ActivityViewSet(ModelViewSet):
             new_activity.save()
             return Response(serializers.ActivitySerializer(new_activity).data, status=status.HTTP_200_OK)
         raise ValidationError("sorry, I am missing the query param for 'action' or 'clone'")
+
+
+
+class ActivityExtendedViewSet(ModelViewSet):
+    queryset = models.Activity.objects.all()
+    serializer_class = serializers.ActivityFullSerializer
+    permission_classes = [permissions.CanModifyOrReadOnly]
+    pagination_class = pagination.StandardResultsSetPagination
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = ActivityFilter
 
 
 class CollaborationViewSet(ModelViewSet):
@@ -537,7 +591,7 @@ class StatusReportViewSet(ModelViewSet):
     serializer_class = serializers.StatusReportSerializer
     permission_classes = [permissions.CanModifyOrReadOnly]
     filter_backends = (DjangoFilterBackend,)
-    filterset_class = ProjectYearChildFilter
+    filterset_class = StatusReportFilter
 
     def perform_update(self, serializer):
         obj = serializer.save()
@@ -615,20 +669,6 @@ class ReviewViewSet(ModelViewSet):
             obj.send_approval_email(self.request)
         elif data.get("review_email_update"):
             obj.send_review_email(self.request)
-
-
-class DMAViewSet(ModelViewSet):
-    queryset = models.DMA.objects.all()
-    serializer_class = serializers.DMASerializer
-    permission_classes = [permissions.CanModifyOrReadOnly]
-    filter_backends = (DjangoFilterBackend,)
-    filterset_class = DMAFilter
-
-    def perform_update(self, serializer):
-        obj = serializer.save(updated_by=self.request.user)
-
-    def perform_create(self, serializer):
-        obj = serializer.save(updated_by=self.request.user, created_by=self.request.user)
 
 
 # LOOKUPS

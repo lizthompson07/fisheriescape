@@ -46,7 +46,8 @@ urlpatterns = [
 
 
     # # reports
-    # path('reports/', views.ReportSearchFormView.as_view(), name="reports"),  # tested
+    path('reports/', views.ReportSearchFormView.as_view(), name="reports"),  # tested
+    path('reports/vehicles', views.vehicle_report, name="vehicle_report"),  # tested
 
 ]
 

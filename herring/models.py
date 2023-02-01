@@ -1,20 +1,65 @@
-import os
-
 from django.contrib import auth
 from django.contrib.auth.models import User
+from django.core.validators import MinValueValidator
 from django.db import models
-from django.dispatch import receiver
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
+from herring import flag_definitions
+from lib.templatetags.custom_filters import nz
 from shared_models import models as shared_models
+from shared_models.models import MetadataFields, SimpleLookup
+from shared_models.utils import get_metadata_string
 
 # Choices for YesNo
 YESNO_CHOICES = (
     (1, "Yes"),
     (0, "No"),
 )
+YES_NO_CHOICES = [(True, _("Yes")), (False, _("No")), ]
+
+
+class HerringUser(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="herring_user", verbose_name=_("DM Apps user"))
+    is_admin = models.BooleanField(default=False, verbose_name=_("app administrator?"), choices=YES_NO_CHOICES)
+    is_crud_user = models.BooleanField(default=False, verbose_name=_("CRUD permissions?"), choices=YES_NO_CHOICES)
+
+    def __str__(self):
+        return self.user.get_full_name()
+
+    class Meta:
+        ordering = ["-is_admin", "user__first_name", ]
+
+
+class Species(SimpleLookup):
+    length_type_choices = (
+        (1, "total"),
+        (2, "fork"),
+    )
+    aphia_id = models.IntegerField(verbose_name="WoRMS AphiaID", unique=True)
+    scientific_name = models.CharField(max_length=255, blank=True, null=True)
+    length_type = models.IntegerField(verbose_name="length type", choices=length_type_choices, default=1)
+    a = models.FloatField(blank=True, null=True, verbose_name=_("length-weight A"),
+                          help_text=_("The A regression coefficient in the relationship between length and weight for unspecified sex."), )
+    b = models.FloatField(blank=True, null=True, verbose_name=_("length-weight B"),
+                          help_text=_("The A regression coefficient in the relationship between length and weight for unspecified sex."), )
+    max_length = models.IntegerField(verbose_name="maximum length", help_text=_("Any observations beyond this mark will prompt a warning"), blank=True,
+                                     null=True)
+    max_weight = models.IntegerField(verbose_name="maximum fish weight", help_text=_("Any observations beyond this mark will prompt a warning"), blank=True,
+                                     null=True)
+    max_gonad_weight = models.IntegerField(verbose_name="maximum gonad weight", help_text=_("Any observations beyond this mark will prompt a warning"),
+                                           blank=True, null=True)
+    max_annulus_count = models.IntegerField(verbose_name="maximum annulus count", help_text=_("Any observations beyond this mark will prompt a warning"),
+                                            blank=True, null=True)
+    use_fmb = models.BooleanField(default=False, verbose_name=_("use fish measuring board by default"))
+
+    class Meta:
+        ordering = ['name']
+        verbose_name_plural = _("species")
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
 
 
 class Sampler(models.Model):
@@ -34,6 +79,10 @@ class Sampler(models.Model):
     @property
     def full_name(self):
         return str(self)
+
+    @property
+    def sample_count(self):
+        return self.samples.count()
 
 
 class District(models.Model):
@@ -138,52 +187,86 @@ class Test(models.Model):
 
 class Sample(models.Model):
     # Choices for sample_type
-    PORT = 1
-    SEA = 2
-
     SAMPLE_TYPE_CHOICES = (
-        (PORT, 'Port sample'),
-        (SEA, 'Sea sample'),
+        (1, 'Port'),
+        (2, 'Sea'),
+        (3, 'Trap'),
     )
-
     season_type_choices = (
         (1, "spring"),
         (2, "fall"),
     )
 
-    type = models.IntegerField(blank=True, null=True, choices=SAMPLE_TYPE_CHOICES)
+    type = models.IntegerField(blank=True, null=True, choices=SAMPLE_TYPE_CHOICES, verbose_name=_("Sample type"))
+
+    # TODO this should be made mandatory ASAP !!!
+    species = models.ForeignKey(Species, related_name="samples", on_delete=models.DO_NOTHING, blank=True, null=True)
     sample_date = models.DateTimeField()
-    sampler_ref_number = models.IntegerField(verbose_name="Sampler's reference number / set number", blank=True, null=True)
+    sampler_ref_number = models.IntegerField(verbose_name="field reference number", blank=True, null=True,
+                                             help_text="This might be a sampler's reference number or a set number from a survey")
     sampler = models.ForeignKey(Sampler, related_name="samples", on_delete=models.DO_NOTHING, null=True, blank=True)
-    district = models.ForeignKey(District, related_name="samples", on_delete=models.DO_NOTHING, null=True, blank=True)
+
     port = models.ForeignKey(shared_models.Port, related_name="herring_samples", on_delete=models.DO_NOTHING, null=True, blank=True)
-    survey_id = models.CharField(max_length=50, null=True, blank=True, verbose_name="survey identifier")
-    latitude_n = models.CharField(max_length=50, null=True, blank=True, verbose_name="Latitude (N)")
-    longitude_w = models.CharField(max_length=50, null=True, blank=True, verbose_name="Longitude (W)")
+    survey_id = models.CharField(max_length=50, null=True, blank=True, verbose_name="survey identifier",
+                                 help_text="Usually the mission number of the survey from which the sample came.")
+    latitude_n = models.FloatField(null=True, blank=True, verbose_name="Latitude", help_text="In decimal degrees, e.g., 48.67789")
+    longitude_w = models.FloatField(null=True, blank=True, verbose_name="Longitude", help_text="In decimal degrees, e.g., -64.57819")
     fishing_area = models.ForeignKey(FishingArea, related_name="samples", on_delete=models.DO_NOTHING, null=True, blank=True)
     gear = models.ForeignKey(Gear, related_name="samples", on_delete=models.DO_NOTHING, null=True, blank=True)
     experimental_net_used = models.IntegerField(choices=YESNO_CHOICES, null=True, blank=True)
-    vessel_cfvn = models.IntegerField(null=True, blank=True)
+    vessel_cfvn = models.IntegerField(null=True, blank=True, verbose_name=_("vessel CFVN"))
     mesh_size = models.ForeignKey(MeshSize, related_name="samples", on_delete=models.DO_NOTHING, null=True, blank=True)
-    catch_weight_lbs = models.FloatField(null=True, blank=True, verbose_name="Catch weight (lbs)")
-    sample_weight_lbs = models.FloatField(null=True, blank=True, verbose_name="Sample weight (lbs)")
-    total_fish_measured = models.IntegerField(null=True, blank=True)
-    total_fish_preserved = models.IntegerField(null=True, blank=True)
+    catch_weight_lbs = models.FloatField(null=True, blank=True, verbose_name="Catch weight (lbs)",
+                                         help_text="Total weight of the catch from which the sample was collected")
+    sample_weight_lbs = models.FloatField(null=True, blank=True, verbose_name="Sample weight (lbs)", help_text="Total weight of the sample collected")
+    total_fish_measured = models.IntegerField(null=True, blank=True, help_text="How many specimens were measured?")
+    total_fish_preserved = models.IntegerField(null=True, blank=True, help_text="How many specimens were collected?")
     remarks = models.TextField(null=True, blank=True)
-    old_id = models.CharField(max_length=100, null=True, blank=True)
-    season = models.IntegerField(null=True, blank=True, verbose_name=_("year"))
-    season_type = models.IntegerField(null=True, blank=True, choices=season_type_choices, editable=False, verbose_name=_("season"))
-    length_frequencies = models.ManyToManyField(to=LengthBin, through='LengthFrequency')
-    lab_processing_complete = models.BooleanField(default=False)
-    otolith_processing_complete = models.BooleanField(default=False)
-    creation_date = models.DateTimeField(blank=True, null=True, default=timezone.now)
-    created_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True,
-                                   related_name="created_by_samples")
-    last_modified_date = models.DateTimeField(blank=True, null=True, default=timezone.now)
-    last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True,
-                                         related_name="last_modified_by_samples")
 
-    # uuid = models.UUIDField(blank=True, null=True, verbose_name="UUID")
+    # not editable
+    district = models.ForeignKey(District, related_name="samples", on_delete=models.DO_NOTHING, null=True, blank=True,
+                                 editable=False)  # this field should be deleted
+    old_id = models.CharField(max_length=100, null=True, blank=True, editable=False)
+    season = models.IntegerField(null=True, blank=True, verbose_name=_("year"), editable=False)
+    season_type = models.IntegerField(null=True, blank=True, choices=season_type_choices, editable=False, verbose_name=_("season"))
+    length_frequencies = models.ManyToManyField(to=LengthBin, through='LengthFrequency', editable=False)
+    lab_processing_complete = models.BooleanField(default=False, editable=False)
+    otolith_processing_complete = models.BooleanField(default=False, editable=False)
+    egg_processing_complete = models.BooleanField(default=False, editable=False)
+
+    created_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="created_by_samples", editable=False)
+    last_modified_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="last_modified_by_samples", editable=False)
+    creation_date = models.DateTimeField(auto_now_add=True, editable=False)
+    last_modified_date = models.DateTimeField(auto_now=True, editable=False)
+
+    @property
+    def lab_complete_fish(self):
+        return self.fish_details.filter(lab_processed_date__isnull=False)
+
+    @property
+    def oto_complete_fish(self):
+        return self.fish_details.filter(otolith_processed_date__isnull=False)
+
+    @property
+    def egg_complete_fish(self):
+        return self.fish_details.filter(egg_processed_date__isnull=False)
+
+    @property
+    def total_egg_fish(self):
+        return self.fish_details.filter(will_count_eggs=True)
+
+    @property
+    def is_complete(self):
+
+        if not (self.type and self.sample_date and self.sampler and self.sampler_ref_number and self.total_fish_measured and self.total_fish_preserved):
+            return False
+        else:
+            # port sample
+            if self.type == 1:
+                return self.port is not None
+            # sea sample
+            else:
+                return self.survey_id is not None
 
     @property
     def lf_count(self):
@@ -206,35 +289,30 @@ class Sample(models.Model):
         self.last_modified_date = timezone.now()
 
         # set lab_processing_complete
-        ## first test if there are enough or two many fish...
-        if not self.fish_details.count() == self.total_fish_preserved:
-            # then there is no chance for being comeplete
+        ## first test if there are enough or too many fish...
+        fish_count = self.fish_details.all().count()
+
+        if fish_count < nz(self.total_fish_preserved, 0):
+            # then there is no chance for being complete
             self.lab_processing_complete = False
             self.otolith_processing_complete = False
+            self.egg_processing_complete = False
         else:
-            count = 0
-            for fish in self.fish_details.all():
-                if fish.lab_processed_date:
-                    count = count + 1
-            if count == self.total_fish_preserved:
-                self.lab_processing_complete = True
-            else:
-                self.lab_processing_complete = False
-
+            lab_processed_count = self.fish_details.filter(lab_processed_date__isnull=False).count()
+            oto_processed_count = self.fish_details.filter(otolith_processed_date__isnull=False).count()
+            egg_processed_count = self.fish_details.filter(egg_processed_date__isnull=False).count()
+            # set lab_processing_complete
+            self.lab_processing_complete = lab_processed_count == fish_count
             # set otolith_processing_complete
-            count = 0
-            for fish in self.fish_details.all():
-                if fish.otolith_processed_date:
-                    count = count + 1
-            if count == self.total_fish_preserved:
-                self.otolith_processing_complete = True
-            else:
-                self.otolith_processing_complete = False
+            self.otolith_processing_complete = oto_processed_count == fish_count
+            # set egg_processing_complete
+            fish_egg_count = self.fish_details.filter(will_count_eggs=True).count()
+            self.egg_processing_complete = egg_processed_count == fish_egg_count
 
         return super().save(*args, **kwargs)
 
     def __str__(self):
-        return "{} {}".format(_("Sample"), self.id)
+        return "{} {} {} - {}".format(self.get_type_display(), _("Sample"), self.id, self.species)
 
 
 class Maturity(models.Model):
@@ -270,23 +348,25 @@ def img_file_name(instance, filename):
 class FishDetail(models.Model):
     sample = models.ForeignKey(Sample, related_name="fish_details", on_delete=models.CASCADE)
     fish_number = models.IntegerField()
-    fish_length = models.FloatField(null=True, blank=True)
-    fish_weight = models.FloatField(null=True, blank=True)
+    fish_length = models.FloatField(null=True, blank=True, verbose_name=_("length (mm)"), validators=(MinValueValidator(0),))
+    fish_weight = models.FloatField(null=True, blank=True, verbose_name=_("fish weight (g)"), validators=(MinValueValidator(0),))
     sex = models.ForeignKey(Sex, related_name="fish_details", on_delete=models.DO_NOTHING, null=True, blank=True)
-    maturity = models.ForeignKey(Maturity, related_name="fish_details", on_delete=models.DO_NOTHING, null=True,
-                                 blank=True)
-    gonad_weight = models.FloatField(null=True, blank=True)
+    maturity = models.ForeignKey(Maturity, related_name="fish_details", on_delete=models.DO_NOTHING, null=True, blank=True)
+    gonad_weight = models.FloatField(null=True, blank=True, verbose_name=_("gonad weight (g)"), validators=(MinValueValidator(0),))
     parasite = models.IntegerField(choices=YESNO_CHOICES, null=True, blank=True)
-    lab_sampler = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True,
-                                    related_name="lab_sampler_fish_details")
-    otolith_sampler = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True,
-                                        related_name="otolith_sampler_fish_details")
-    lab_processed_date = models.DateTimeField(blank=True, null=True)
+    will_count_eggs = models.IntegerField(choices=YESNO_CHOICES, null=True, blank=True)
+
+    # otolith
     annulus_count = models.IntegerField(null=True, blank=True)
     otolith_season = models.ForeignKey(OtolithSeason, related_name="fish_details", on_delete=models.DO_NOTHING,
                                        null=True, blank=True)
     otolith_image_remote_filepath = models.CharField(max_length=2000, blank=True, null=True)
-    otolith_processed_date = models.DateTimeField(blank=True, null=True)
+
+    # eggs
+    gonad_sub_sample_weight = models.FloatField(null=True, blank=True, verbose_name=_("gonad sub-sample weight (g)"))
+    gonad_count = models.IntegerField(blank=True, null=True, verbose_name=_("gonad count"))
+    gonad_photo_id = models.CharField(max_length=2000, blank=True, null=True, verbose_name=_("photo ID (20 eggs)"))
+    gonad_photo_magnification = models.FloatField(blank=True, null=True, verbose_name=_("photo magnification"))
 
     test_204_accepted = models.CharField(max_length=5, null=True, blank=True)  # ligh_length:fish_weight
     test_207_accepted = models.CharField(max_length=5, null=True,
@@ -300,12 +380,41 @@ class FishDetail(models.Model):
     test_311_accepted = models.CharField(max_length=5, null=True, blank=True)  # annulus count within probable range
 
     remarks = models.TextField(null=True, blank=True)
-    creation_date = models.DateTimeField(blank=True, null=True, default=timezone.now)
-    created_by = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True,
-                                   related_name="created_by_details")
-    last_modified_date = models.DateTimeField(blank=True, null=True, default=timezone.now)
-    last_modified_by = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True,
-                                         related_name="last_modified_by_details")
+
+    # non-editable
+    otolith_sampler = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="otolith_sampler_fish_details",
+                                        editable=False)
+    lab_sampler = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="lab_sampler_fish_details",
+                                    editable=False)
+    egg_sampler = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="egg_sampler_fish_details",
+                                    editable=False)
+    creation_date = models.DateTimeField(auto_now_add=True, editable=False)
+    last_modified_date = models.DateTimeField(auto_now=True, editable=False)
+
+    created_by = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="created_by_details", editable=False)
+    last_modified_by = models.ForeignKey(auth.models.User, on_delete=models.DO_NOTHING, blank=True, null=True, related_name="last_modified_by_details",
+                                         editable=False)
+
+    # calc
+    is_empty = models.BooleanField(default=True, editable=False)
+    lab_processed_date = models.DateTimeField(blank=True, null=True)
+    otolith_processed_date = models.DateTimeField(blank=True, null=True)
+    egg_processed_date = models.DateTimeField(blank=True, null=True)
+
+    @property
+    def get_is_empty(self):
+        return not (
+                self.fish_length or self.fish_weight or self.sex or self.maturity or self.gonad_weight or self.parasite
+                or self.annulus_count or self.otolith_season
+                or self.gonad_sub_sample_weight or self.will_count_eggs or self.gonad_photo_id or self.gonad_count
+        )
+
+    @property
+    def metadata(self):
+        return get_metadata_string(self.creation_date, self.created_by, self.last_modified_date, self.last_modified_by)
+
+    def __str__(self):
+        return f"Fish detail {self.id}"
 
     class Meta:
         unique_together = (('sample', 'fish_number'),)
@@ -316,16 +425,31 @@ class FishDetail(models.Model):
 
     def save(self, *args, **kwargs):
         self.last_modified_date = timezone.now()
-        if self.fish_length and self.fish_weight and self.sex and self.maturity and self.gonad_weight != None and self.lab_sampler:
-            if self.lab_processed_date == None:
+        # lab
+        required_fields = [self.fish_length, self.fish_weight, self.sex, self.maturity, self.gonad_weight, self.lab_sampler]
+        if self.sample.type == 2:
+            required_fields.append(self.parasite)
+        if None not in required_fields:
+            if not self.lab_processed_date:
                 self.lab_processed_date = timezone.now()
         else:
             self.lab_processed_date = None
-        if self.otolith_sampler and self.annulus_count is not None and self.otolith_season:
-            if self.otolith_processed_date == None:
+
+        # otoliths
+        if None not in (self.otolith_sampler, self.annulus_count, self.otolith_season):
+            if not self.otolith_processed_date:
                 self.otolith_processed_date = timezone.now()
         else:
             self.otolith_processed_date = None
+
+        # egg
+        if None not in (self.egg_sampler, self.gonad_sub_sample_weight, self.gonad_count, self.gonad_photo_id, self.gonad_photo_magnification):
+            if not self.egg_processed_date:
+                self.egg_processed_date = timezone.now()
+        else:
+            self.egg_processed_date = None
+
+        self.is_empty = self.get_is_empty
         super().save(*args, **kwargs)
 
 
@@ -344,37 +468,11 @@ def file_directory_path(instance, filename):
     return 'temp_file/{0}'.format(filename)
 
 
-class File(models.Model):
-    file = models.FileField(upload_to=file_directory_path, null=True, blank=True)
+class FishDetailFlag(MetadataFields):
+    fish_detail = models.ForeignKey(FishDetail, on_delete=models.CASCADE, related_name='flags')
+    flag_definition = models.IntegerField(choices=flag_definitions.as_choices())
+    is_accepted = models.BooleanField(default=False)
 
-
-@receiver(models.signals.post_delete, sender=File)
-def auto_delete_file_on_delete(sender, instance, **kwargs):
-    """
-    Deletes file from filesystem
-    when corresponding `MediaFile` object is deleted.
-    """
-    if instance.file:
-        if os.path.isfile(instance.file.path):
-            os.remove(instance.file.path)
-
-
-@receiver(models.signals.pre_save, sender=File)
-def auto_delete_file_on_change(sender, instance, **kwargs):
-    """
-    Deletes old file from filesystem
-    when corresponding `MediaFile` object is updated
-    with new file.
-    """
-    if not instance.pk:
-        return False
-
-    try:
-        old_file = File.objects.get(pk=instance.pk).file
-    except File.DoesNotExist:
-        return False
-
-    new_file = instance.file
-    if not old_file == new_file:
-        if os.path.isfile(old_file.path):
-            os.remove(old_file.path)
+    class Meta:
+        unique_together = (('fish_detail', 'flag_definition'),)
+        ordering = ('fish_detail', 'flag_definition')

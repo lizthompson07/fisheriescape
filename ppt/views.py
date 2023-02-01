@@ -30,7 +30,7 @@ from .utils import get_help_text_dict, \
     get_division_choices, get_section_choices, get_project_field_list, get_project_year_field_list, \
     is_management_or_admin, \
     get_review_score_rubric, get_status_report_field_list, get_review_field_list, get_user_fte_breakdown, \
-    get_dma_field_list, get_dma_review_field_list, get_project_year_queryset
+    get_dma_field_list, get_dma_review_field_list, get_project_year_queryset, in_ppt_admin_group
 
 
 class IndexTemplateView(PPTLoginRequiredMixin, CommonTemplateView):
@@ -72,6 +72,80 @@ class IndexTemplateView(PPTLoginRequiredMixin, CommonTemplateView):
 
         return context
 
+# HELPTEXT
+class CommonCreateViewHelp(CommonCreateView):
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['help_text_dict'] = get_help_text_dict(self.model)
+
+        # if the UserMode table has this user in "edit" mode provide the
+        # link to the dialog to manage help text via the manage_help_url
+        # and provide the model name the help text will be assigned to.
+        # The generic_form_with_help_text.html from the shared_models app
+        # will provide the field name and together you have the required
+        # model and field needed to make an entry in the Help Text table.
+        if in_ppt_admin_group(self.request.user):
+            if self.request.user.ppt_admin_user.mode == 2:
+                context['manage_help_url'] = "ppt:manage_help_text"
+                context['model_name'] = self.model.__name__
+        return context
+
+
+class CommonUpdateViewHelp(CommonUpdateView):
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['help_text_dict'] = get_help_text_dict(self.model)
+        # if the UserMode table has this user in "edit" mode provide the
+        # link to the dialog to manage help text via the manage_help_url
+        # and provide the model name the help text will be assigned to.
+        # The generic_form_with_help_text.html from the shared_models app
+        # will provide the field name and together you have the required
+        # model and field needed to make an entry in the Help Text table.
+        if in_ppt_admin_group(self.request.user):
+            if self.request.user.ppt_admin_user.mode == 2:
+                context['manage_help_url'] = "ppt:manage_help_text"
+                context['model_name'] = self.model.__name__
+        return context
+
+
+# This is the dialog presented to the user to enter help text for a given model/field
+# it uses the Create View to both create entries and update them. Accessed via the manage_help_url.
+#
+# A point of failure may be if the (model, field_name) pair is not unique in the help text table.
+class HelpTextPopView(AdminRequiredMixin, CommonCreateView):
+    model = models.HelpText
+    form_class = forms.HelpTextPopForm
+    success_url = reverse_lazy("shared_models:close_me")
+    title = gettext_lazy("Update Help Text")
+
+    def get_initial(self):
+        if self.model.objects.filter(model=self.kwargs['model_name'], field_name=self.kwargs['field_name']):
+            obj = self.model.objects.get(model=self.kwargs['model_name'], field_name=self.kwargs['field_name'])
+            return {
+                'model': self.kwargs['model_name'],
+                'field_name': self.kwargs['field_name'],
+                'eng_text': obj.eng_text,
+                'fra_text': obj.fra_text
+            }
+
+        return {
+            'model': self.kwargs['model_name'],
+            'field_name': self.kwargs['field_name'],
+        }
+
+    def form_valid(self, form):
+        if self.model.objects.filter(model=self.kwargs['model_name'], field_name=self.kwargs['field_name']):
+            data = form.cleaned_data
+            obj = self.model.objects.get(model=self.kwargs['model_name'], field_name=self.kwargs['field_name'])
+            obj.eng_text = data['eng_text']
+            obj.fra_text = data['fra_text']
+            obj.save()
+            return HttpResponseRedirect(reverse_lazy("shared_models:close_me"))
+        else:
+            return super().form_valid(form)
+
 
 # PROJECTS #
 ############
@@ -98,6 +172,12 @@ class ExploreProjectsTemplateView(PPTLoginRequiredMixin, CommonTemplateView):
         context = super().get_context_data(**kwargs)
         context["random_project"] = models.Project.objects.first()
         context["status_choices"] = [dict(label=item[1], value=item[0]) for item in models.ProjectYear.status_choices]
+        context["activity_status_choices"] = [dict(label=f"{item[1]}", value=item[0]) for item in
+                                              models.ActivityUpdate.status_choices]
+        context["activity_type_choices"] = [dict(label=f"{item[1]}", value=item[0]) for item in
+                                            models.Activity.type_choices]
+        context["activity_classification_choices"] = [dict(label=f"{item.__str__()}", value=item.id) for item in
+                                                      models.ActivityClassification.objects.all()]
         return context
 
 
@@ -112,18 +192,18 @@ class ManageProjectsTemplateView(ManagerOrAdminRequiredMixin, CommonTemplateView
         'fiscal year',
         'title',
         # 'section',
-        'default_funding_source',
+        'funding_sources_list',
         'functional_group',
         'lead_staff',
         'status',
-        'allocated_budget',
-        'allocated_salary',
-        'allocated_capital',
         'review_score_percentage',
         'last_modified',
         'om_costs',
+        'om_allocations',
         'salary_costs',
+        'salary_allocations',
         'capital_costs',
+        'capital_allocations',
     ]
 
     def get_context_data(self, **kwargs):
@@ -135,15 +215,21 @@ class ManageProjectsTemplateView(ManagerOrAdminRequiredMixin, CommonTemplateView
         context["funding_status_choices"] = [dict(label=item[1], value=item[0]) for item in models.Review.funding_status_choices]
         context["om_cost_categories"] = [dict(label=f"{item.get_group_display()} - {item}", value=item.id) for item in models.OMCategory.objects.all()]
         context["activity_types"] = [dict(label=f"{item}", value=item.id) for item in models.ActivityType.objects.all()]
+        context["status_report_status_choices"] = [dict(label=f"{item[1]}", value=item[0]) for item in models.StatusReport.status_choices]
+        context["activity_status_choices"] = [dict(label=f"{item[1]}", value=item[0]) for item in models.ActivityUpdate.status_choices]
+        context["activity_type_choices"] = [dict(label=f"{item[1]}", value=item[0]) for item in models.Activity.type_choices]
+        context["activity_classification_choices"] = [dict(label=f"{item.__str__()}", value=item.id) for item in models.ActivityClassification.objects.all()]
         context["review_form"] = forms.ReviewForm
         context["approval_form"] = forms.ApprovalForm
+        context["capital_allocation_form"] = forms.CapitalAllocationForm
+        context["salary_allocation_form"] = forms.SalaryAllocationForm
+        context["om_allocation_form"] = forms.OMAllocationForm
         context["review_score_rubric"] = json.dumps(get_review_score_rubric())
-        context["short_fie"] = json.dumps(get_review_score_rubric())
         context["short_field_list"] = [
             'id',
             'fiscal year',
             'title',
-            'default_funding_source',
+            'funding_sources_list',
             'status',
         ]
         return context
@@ -164,6 +250,7 @@ class MyProjectListView(PPTLoginRequiredMixin, CommonFilterView):
         {"name": 'start_date', "class": "", "width": "150px"},
         {"name": 'lead_staff', "class": "", "width": ""},
         {"name": 'fiscal_years_display|{}'.format(_("fiscal years")), "class": "", "width": ""},
+        {"name": 'status', "class": "", "width": ""},
         {"name": 'has_unsubmitted_years|{}'.format("has unsubmitted years?"), "class": "", "width": ""},
         {"name": 'is_hidden|{}'.format(_("hidden?")), "class": "", "width": ""},
         {"name": 'updated_at', "class": "", "width": "150px"},
@@ -183,11 +270,19 @@ class MyProjectListView(PPTLoginRequiredMixin, CommonFilterView):
         context = super().get_context_data(**kwargs)
         orphens = models.Project.objects.filter(years__isnull=True, modified_by=self.request.user)
         context["orphens"] = orphens
-
+        status_dict = {}
+        context["fiscal_year"] = ""
+        fiscal_year = self.request.GET.get("fiscal_years")
+        if fiscal_year:
+            context["fiscal_year"] = shared_models.FiscalYear.objects.filter(pk=fiscal_year).get().__str__()
+        qs = self.get_queryset()
+        for proj in qs:
+            status_dict[proj.id] = proj.year_status(fiscal_year)
+        context["status_data"] = status_dict
         return context
 
 
-class ProjectCreateView(PPTLoginRequiredMixin, CommonCreateView):
+class ProjectCreateView(PPTLoginRequiredMixin, CommonCreateViewHelp):
     model = models.Project
     form_class = forms.NewProjectForm
     home_url_name = "ppt:index"
@@ -270,6 +365,15 @@ class ProjectDetailView(PPTLoginRequiredMixin, CommonDetailView):
         context["capital_cost_form"] = forms.CapitalCostForm
         context["random_capital_cost"] = models.CapitalCost.objects.first()
 
+        context["salary_allocation_form"] = forms.SalaryAllocationForm
+        context["random_salary_allocation"] = models.SalaryAllocation.objects.first()
+
+        context["om_allocation_form"] = forms.OMAllocationForm
+        context["random_om_allocation"] = models.OMAllocation.objects.first()
+
+        context["capital_allocation_form"] = forms.CapitalAllocationForm
+        context["random_capital_allocation"] = models.CapitalAllocation.objects.first()
+
         context["activity_form"] = forms.ActivityForm(initial=dict(project=project))
         context["random_activity"] = models.Activity.objects.first()
 
@@ -292,7 +396,7 @@ class ProjectDetailView(PPTLoginRequiredMixin, CommonDetailView):
         return context
 
 
-class ProjectUpdateView(CanModifyProjectRequiredMixin, CommonUpdateView):
+class ProjectUpdateView(CanModifyProjectRequiredMixin, CommonUpdateViewHelp):
     model = models.Project
     form_class = forms.ProjectForm
     template_name = 'ppt/project_form.html'
@@ -305,6 +409,18 @@ class ProjectUpdateView(CanModifyProjectRequiredMixin, CommonUpdateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['help_text_dict'] = get_help_text_dict()
+
+        client_information_dict = {}
+        for ci in models.CSRFClientInformation.objects.all().order_by("name", ):
+            client_information_dict[ci.id] = {}
+            client_information_dict[ci.id]["display"] = str(ci)
+            if ci.fiscal_year:
+                client_information_dict[ci.id]["fiscal_year"] = ci.fiscal_year.id
+            else:
+                client_information_dict[ci.id]["fiscal_year"] = None
+
+        context['client_information_json'] = json.dumps(client_information_dict)
+
         return context
 
     def get_initial(self):
@@ -437,7 +553,7 @@ class ProjectReferencesDetailView(PPTLoginRequiredMixin, CommonDetailView):
 ################
 
 
-class ProjectYearCreateView(CanModifyProjectRequiredMixin, CommonCreateView):
+class ProjectYearCreateView(CanModifyProjectRequiredMixin, CommonCreateViewHelp):
     model = models.ProjectYear
     form_class = forms.ProjectYearForm
     home_url_name = "ppt:index"
@@ -473,7 +589,7 @@ class ProjectYearCreateView(CanModifyProjectRequiredMixin, CommonCreateView):
         )
 
 
-class ProjectYearUpdateView(CanModifyProjectRequiredMixin, CommonUpdateView):
+class ProjectYearUpdateView(CanModifyProjectRequiredMixin, CommonUpdateViewHelp):
     model = models.ProjectYear
     form_class = forms.ProjectYearForm
     home_url_name = "ppt:index"
@@ -645,7 +761,7 @@ class FunctionalGroupListView(AdminRequiredMixin, CommonFilterView):
             search_term=Concat('name', Value(" "), 'nom', Value(" "), output_field=TextField()))
 
 
-class FunctionalGroupUpdateView(AdminRequiredMixin, CommonUpdateView):
+class FunctionalGroupUpdateView(AdminRequiredMixin, CommonUpdateViewHelp):
     model = models.FunctionalGroup
     form_class = forms.FunctionalGroupForm
     template_name = 'ppt/form.html'
@@ -654,7 +770,7 @@ class FunctionalGroupUpdateView(AdminRequiredMixin, CommonUpdateView):
     container_class = "container bg-light curvy"
 
 
-class FunctionalGroupCreateView(AdminRequiredMixin, CommonCreateView):
+class FunctionalGroupCreateView(AdminRequiredMixin, CommonCreateViewHelp):
     model = models.FunctionalGroup
     form_class = forms.FunctionalGroupForm
     success_url = reverse_lazy('ppt:group_list')
@@ -740,15 +856,15 @@ class TagFormsetView(AdminRequiredMixin, CommonFormsetView):
 
 class HelpTextHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
     model = models.HelpText
-    success_url = reverse_lazy("ppt:manage_help_text")
+    success_url = reverse_lazy("ppt:manage_help_texts")
 
 
 class HelpTextFormsetView(AdminRequiredMixin, CommonFormsetView):
-    template_name = 'ppt/formset.html'
+    template_name = 'ppt/helptext_formset.html'
     h1 = "Manage Help Text"
     queryset = models.HelpText.objects.all()
     formset_class = forms.HelpTextFormset
-    success_url = reverse_lazy("ppt:manage_help_text")
+    success_url = reverse_lazy("ppt:manage_help_texts")
     home_url_name = "ppt:index"
     delete_url_name = "ppt:delete_help_text"
     container_class = "container bg-light curvy"
@@ -783,6 +899,21 @@ class ActivityTypeFormsetView(AdminRequiredMixin, CommonFormsetView):
     success_url = reverse_lazy("ppt:manage_activity_types")
     home_url_name = "ppt:index"
     delete_url_name = "ppt:delete_activity_type"
+    container_class = "container bg-light curvy"
+
+class ActivityClassificationHardDeleteView(AdminRequiredMixin, CommonHardDeleteView):
+    model = models.ActivityClassification
+    success_url = reverse_lazy("ppt:manage_activity_classifications")
+
+
+class ActivityClassificationFormsetView(AdminRequiredMixin, CommonFormsetView):
+    template_name = 'ppt/formset.html'
+    h1 = "Manage Activity Classifications"
+    queryset = models.ActivityClassification.objects.all()
+    formset_class = forms.ActivityClassificationFormset
+    success_url = reverse_lazy("ppt:manage_activity_classifications")
+    home_url_name = "ppt:index"
+    delete_url_name = "ppt:delete_activity_classification"
     container_class = "container bg-light curvy"
 
 
@@ -949,7 +1080,7 @@ class ReferenceMaterialListView(AdminRequiredMixin, CommonListView):
     container_class = "container bg-light curvy"
 
 
-class ReferenceMaterialUpdateView(AdminRequiredMixin, CommonUpdateView):
+class ReferenceMaterialUpdateView(AdminRequiredMixin, CommonUpdateViewHelp):
     model = models.ReferenceMaterial
     form_class = forms.ReferenceMaterialForm
     home_url_name = "ppt:index"
@@ -962,7 +1093,7 @@ class ReferenceMaterialUpdateView(AdminRequiredMixin, CommonUpdateView):
         return reverse("ppt:ref_mat_delete", args=[self.get_object().id])
 
 
-class ReferenceMaterialCreateView(AdminRequiredMixin, CommonCreateView):
+class ReferenceMaterialCreateView(AdminRequiredMixin, CommonCreateViewHelp):
     model = models.ReferenceMaterial
     form_class = forms.ReferenceMaterialForm
     home_url_name = "ppt:index"
@@ -1018,7 +1149,7 @@ class AdminStaffListView(AdminRequiredMixin, CommonFilterView):
         return qs
 
 
-class AdminStaffUpdateView(AdminRequiredMixin, CommonUpdateView):
+class AdminStaffUpdateView(AdminRequiredMixin, CommonUpdateViewHelp):
     '''This is really just for the admin view'''
     model = models.Staff
     template_name = 'ppt/admin_staff_form.html'
@@ -1136,7 +1267,7 @@ class StatusReportDetailView(PPTLoginRequiredMixin, CommonDetailView):
         return context
 
 
-class StatusReportUpdateView(CanModifyProjectRequiredMixin, CommonUpdateView):
+class StatusReportUpdateView(CanModifyProjectRequiredMixin, CommonUpdateViewHelp):
     model = models.StatusReport
     form_class = forms.StatusReportForm
     home_url_name = "ppt:index"
@@ -1192,180 +1323,6 @@ class StatusReportPrintDetailView(PPTLoginRequiredMixin, CommonDetailView):
 
         return context
 
-
-# DMAs #
-########
-
-
-class DMACreateView(CanModifyProjectRequiredMixin, CommonCreateView):
-    model = models.DMA
-    form_class = forms.DMAForm
-    home_url_name = "ppt:index"
-    template_name = 'ppt/dma_form.html'
-    container_class = "container bg-light curvy"
-
-    def get_initial(self):
-        return dict(title=f"Data management agreement for {self.get_project().title}")
-
-    def get_project(self):
-        return models.Project.objects.get(pk=self.kwargs["project"])
-
-    def get_parent_crumb(self):
-        return {"title": self.get_project(), "url": reverse_lazy("ppt:project_detail", args=[self.get_project().id])}
-
-    def form_valid(self, form):
-        dma = form.save(commit=False)
-        dma.updated_by = self.request.user
-        dma.project = self.get_project()
-        dma.save()
-        return super().form_valid(form)
-
-
-class DMADeleteView(CanModifyProjectRequiredMixin, CommonDeleteView):
-    template_name = "ppt/confirm_delete.html"
-    model = models.DMA
-    container_class = "container bg-light curvy"
-    delete_protection = False
-
-    def get_project(self):
-        return self.get_object().project
-
-    def get_success_url(self, **kwargs):
-        return self.get_grandparent_crumb()["url"]
-
-    def get_parent_crumb(self):
-        return {"title": str(self.get_object()), "url": reverse_lazy("ppt:dma_detail", args=[self.get_object().id])}
-
-    def get_grandparent_crumb(self):
-        project = self.get_project()
-        return {"title": str(project), "url": reverse_lazy("ppt:project_detail", args=[project.id])}
-
-
-class DMADetailView(PPTLoginRequiredMixin, CommonDetailView):
-    model = models.DMA
-    home_url_name = "ppt:index"
-    template_name = "ppt/dma_detail.html"
-    field_list = get_dma_field_list()
-
-    def get_project(self):
-        return self.get_object().project
-
-    def get_parent_crumb(self):
-        return {"title": str(self.get_project()), "url": reverse_lazy("ppt:project_detail", args=[self.get_project().id])}
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["dma_review_field_list"] = get_dma_review_field_list()
-
-        context["fields_id"] = [
-            'title',
-            'data_contact',
-            'status',
-            'comments',
-            'metadata',
-        ]
-        context["fields_metadata"] = [
-            'metadata_contact',
-            'metadata_tool',
-            'metadata_url',
-            'metadata_update_freq',
-            'metadata_freq_text',
-        ]
-        context["fields_storage"] = [
-            'storage_solutions',
-            'storage_solution_text',
-            'storage_needed',
-            'raw_data_retention',
-            'data_retention',
-            'backup_plan',
-            'cloud_costs',
-        ]
-        context["fields_sharing"] = [
-            'had_sharing_agreements',
-            'sharing_agreements_text',
-            'publication_timeframe',
-            'publishing_platforms',
-        ]
-        return context
-
-
-class DMAUpdateView(CanModifyProjectRequiredMixin, CommonUpdateView):
-    model = models.DMA
-    form_class = forms.DMAForm
-    home_url_name = "ppt:index"
-    template_name = "ppt/dma_form.html"
-    is_multipart_form_data = True
-    container_class = "container bg-light curvy"
-
-    def get_project(self):
-        return self.get_object().project
-
-    def get_parent_crumb(self):
-        return {"title": str(self.get_object()), "url": reverse_lazy("ppt:dma_detail", args=[self.get_object().id])}
-
-    def get_grandparent_crumb(self):
-        project = self.get_project()
-        return {"title": str(project), "url": reverse_lazy("ppt:project_detail", args=[project.id])}
-
-    def form_valid(self, form):
-        obj = form.save(commit=False)
-        obj.updated_by = self.request.user
-        obj.save()
-        return super().form_valid(form)
-
-
-class DMACloneView(DMAUpdateView):
-    template_name = 'ppt/form.html'
-    form_class = forms.DMACloneForm
-
-    def get_h1(self):
-        return _("Cloning: ") + str(self.get_object())
-
-    def form_valid(self, form):
-        new_obj = form.save(commit=False)
-        old_obj = get_object_or_404(models.DMA, pk=new_obj.pk)
-        new_obj.pk = None
-        new_obj.title = f"Data management agreement for {new_obj.project.title}"
-
-        new_obj.save()
-
-        # Now we need to replicate all the related records:
-        for item in old_obj.storage_solutions.all():
-            new_obj.storage_solutions.add(item)
-
-        return HttpResponseRedirect(reverse_lazy("ppt:dma_edit", args=[new_obj.id]))
-
-
-# DMA Reviews #
-###############
-
-class DMAReviewCreateView(ManagerOrAdminRequiredMixin, CommonPopoutCreateView):
-    model = models.DMAReview
-    form_class = forms.DMAReviewForm
-
-    def form_valid(self, form):
-        r = form.save(commit=False)
-        r.updated_by = self.request.user
-        r.dma_id = self.kwargs.get("dma")
-        r.save()
-        return super().form_valid(form)
-
-
-class DMAReviewDeleteView(ManagerOrAdminRequiredMixin, CommonPopoutDeleteView):
-    model = models.DMAReview
-    delete_protection = False
-
-
-class DMAReviewUpdateView(ManagerOrAdminRequiredMixin, CommonPopoutUpdateView):
-    model = models.DMAReview
-    form_class = forms.DMAReviewForm
-    home_url_name = "ppt:index"
-
-    def form_valid(self, form):
-        r = form.save(commit=False)
-        r.updated_by = self.request.user
-        r.save()
-        return super().form_valid(form)
 
 
 # REPORTS #
@@ -1908,3 +1865,7 @@ def export_project_summary(request):
 
             return response
     raise Http404
+
+
+
+

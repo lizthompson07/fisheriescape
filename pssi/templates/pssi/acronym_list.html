@@ -1,0 +1,81 @@
+<title>PSSI - Pacific Salmon Data Hub</title>
+
+{% extends "pssi/base.html" %} <!-- Extention of base.html page -->
+{% load bootstrap4 %}
+{% load i18n %}
+{% load custom_filters %}
+{% load custom_tags %}
+{% load el_pagination_tags %}
+{% load verbose_names %}
+
+<!-- 
+    Purpose: Display list of Acronyms used in the Data Assets
+    Input: Requires the acronyms used in the Acronym Excel Sheet
+    Output: Displays the acronyms in an organised format.
+ -->
+
+{% block subcontent %}
+<!-- Styling for elements in the page -->
+{% include "pssi/glossary/_glossary_style.html" %}
+<style>
+  .line {
+    display: flex;
+  }
+
+  td {
+    padding-bottom: 20px;
+  }
+
+  .term {
+    width: 30%;
+  }
+
+  .description {
+    float: left;
+    padding-left: 10px;
+    width: 200%;
+  }
+</style>
+{% include "pssi/glossary/_glossary_navigation.html" %}
+
+<!-- Loops through each letter/character in Catagories variable to create sections -->
+{% for category in categories %}
+
+<div class="container py-5 px-10" id="{{ category }}">
+    <!-- Title of Catagory -->
+    <h1 class="letter-anchor">{{ category }}</h1>
+
+    <!-- Table where the list of acronyms are going to be in -->
+    <table class="container py-2 px-10 line">
+    {% for object in object_list %}
+        <!-- Goes through each acronym and checks if its first character is that specific character -->
+        {% if object.acronym_letters|first|upper == category %}
+            {% block table_tr %}        
+            <tr>
+                <!-- If so, then gets all the fields -->
+                {% for field in field_list %}
+                    <!-- Add any styling for specific class -->
+                    <td class="{{field.class}}">
+                    {% block table_td %}
+                        <!-- Checks if theres a source/link for acronym -->
+                        {% if field.name == "acronym_Letters" and object.acronym_URL != null %}
+                            <!-- If so, make acronym a hyperlink that contains the link to its source -->
+                            <a href="{{object.acronym_URL}}">{% get_field_value object field.name safe=True %}</a>
+                        {% else %}
+                            <!-- If not, then display the acronym normally -->
+                            {% get_field_value object field.name safe=True %}
+                        {% endif %}
+                    {% endblock %}
+                    </td>
+                
+                {% endfor %}
+            </tr>
+            {% endblock %}
+        {% endif %}
+    {% endfor %}
+    </table>
+</div>
+<hr width="80%;"/>
+
+{% endfor %}
+{% endblock %}

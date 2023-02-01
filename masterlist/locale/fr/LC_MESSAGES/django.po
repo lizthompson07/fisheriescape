@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: iHub - traduction 3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-06-22 11:33-0300\n"
+"POT-Creation-Date: 2023-01-10 15:26-0400\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -23,272 +23,280 @@ msgstr "nom"
 msgid "indigenous?"
 msgstr "autochtone?"
 
-#: .\masterlist\models.py:54
+#: .\masterlist\models.py:38
+msgid "Include in iHub?"
+msgstr ""
+
+#: .\masterlist\models.py:39
+msgid "Include in Maret?"
+msgstr ""
+
+#: .\masterlist\models.py:56
 msgid "level"
 msgstr "niveau"
 
-#: .\masterlist\models.py:65
+#: .\masterlist\models.py:67
 msgid "None"
 msgstr "n/a"
 
-#: .\masterlist\models.py:65
+#: .\masterlist\models.py:67
 msgid "On-Reserve"
 msgstr "Sur réserve"
 
-#: .\masterlist\models.py:65
+#: .\masterlist\models.py:67
 msgid "Off-Reserve"
 msgstr "Hors réserve"
 
-#: .\masterlist\models.py:65
+#: .\masterlist\models.py:67
 msgid "Both"
 msgstr "Total"
 
-#: .\masterlist\models.py:67
+#: .\masterlist\models.py:69
 msgid "legal name"
 msgstr "raison sociale"
 
-#: .\masterlist\models.py:68
+#: .\masterlist\models.py:70
 msgid "indigenous Name"
 msgstr "nom de la communauté"
 
-#: .\masterlist\models.py:69
+#: .\masterlist\models.py:71
 msgid "abbreviation"
 msgstr "abréviation"
 
-#: .\masterlist\models.py:70
+#: .\masterlist\models.py:72
 msgid "street address"
 msgstr "adresse civique"
 
-#: .\masterlist\models.py:71
+#: .\masterlist\models.py:73
 msgid "mailing address"
 msgstr "adresse postale"
 
-#: .\masterlist\models.py:72
+#: .\masterlist\models.py:74
 msgid "city"
 msgstr "ville"
 
-#: .\masterlist\models.py:73
+#: .\masterlist\models.py:75
 msgid "postal code"
 msgstr "code postal"
 
-#: .\masterlist\models.py:74
+#: .\masterlist\models.py:76
 #, fuzzy
 #| msgid "province"
 msgid "province/territory"
 msgstr "province"
 
-#: .\masterlist\models.py:75
+#: .\masterlist\models.py:77
 msgid "phone"
 msgstr "téléphone"
 
-#: .\masterlist\models.py:76 .\masterlist\models.py:201
+#: .\masterlist\models.py:78 .\masterlist\models.py:203
 msgid "fax"
 msgstr "fax"
 
-#: .\masterlist\models.py:77
+#: .\masterlist\models.py:79
 msgid "DFO contacts"
 msgstr "Contacts du MPO"
 
-#: .\masterlist\models.py:78 .\masterlist\models.py:204
+#: .\masterlist\models.py:80 .\masterlist\models.py:206
 msgid "notes"
 msgstr "notes"
 
-#: .\masterlist\models.py:79
+#: .\masterlist\models.py:81
 msgid "key species"
 msgstr "espèces pêchées"
 
-#: .\masterlist\models.py:80
+#: .\masterlist\models.py:82
 msgid "grouping"
 msgstr "regroupement"
 
-#: .\masterlist\models.py:81
+#: .\masterlist\models.py:83
 msgid "regions"
 msgstr "région(s)"
 
-#: .\masterlist\models.py:82
+#: .\masterlist\models.py:84
 msgid "DFO sector"
 msgstr "division du MPO"
 
-#: .\masterlist\models.py:86
+#: .\masterlist\models.py:88
 msgid "relationship rating"
 msgstr "évaluation de la relation"
 
-#: .\masterlist\models.py:87
+#: .\masterlist\models.py:89
 msgid "Associated organizations"
 msgstr "Organisations associées"
 
-#: .\masterlist\models.py:89
+#: .\masterlist\models.py:91
 msgid "Nation"
 msgstr "Nation"
 
-#: .\masterlist\models.py:90
+#: .\masterlist\models.py:92
 msgid "former name"
 msgstr "ancien nom"
 
-#: .\masterlist\models.py:91
+#: .\masterlist\models.py:93
 msgid "website"
 msgstr "site web"
 
-#: .\masterlist\models.py:92
+#: .\masterlist\models.py:94
 msgid "council quorum"
 msgstr "quorum du conseil"
 
-#: .\masterlist\models.py:93
+#: .\masterlist\models.py:95
 msgid "next election"
 msgstr "prochaine élection"
 
-#: .\masterlist\models.py:94
+#: .\masterlist\models.py:96
 msgid "election term"
 msgstr "durée du mandat"
 
-#: .\masterlist\models.py:95
+#: .\masterlist\models.py:97
 msgid "date that the new council holds office"
 msgstr "date d'entrée en fonction du nouveau conseil"
 
-#: .\masterlist\models.py:96
+#: .\masterlist\models.py:98
 msgid "population on reserve"
 msgstr "population dans la réserve"
 
-#: .\masterlist\models.py:97
+#: .\masterlist\models.py:99
 msgid "population off reserve"
 msgstr "population hors réserve"
 
-#: .\masterlist\models.py:98
+#: .\masterlist\models.py:100
 msgid "population on other reserve"
 msgstr "population dans une autre réserve"
 
-#: .\masterlist\models.py:99
+#: .\masterlist\models.py:101
 msgid "FIN"
 msgstr "FIN"
 
-#: .\masterlist\models.py:100
+#: .\masterlist\models.py:102
 msgid "processing plant?"
 msgstr "usine de transformation?"
 
-#: .\masterlist\models.py:101
+#: .\masterlist\models.py:103
 msgid "wharf?"
 msgstr "quai?"
 
-#: .\masterlist\models.py:102
+#: .\masterlist\models.py:104
 msgid "Associated reserves"
 msgstr "Réserves associées"
 
-#: .\masterlist\models.py:103
+#: .\masterlist\models.py:105
 msgid "audio file"
 msgstr "fichier audio"
 
-#: .\masterlist\models.py:109 .\masterlist\models.py:212
-#: .\masterlist\models.py:306 .\masterlist\models.py:349
-#: .\masterlist\models.py:403
+#: .\masterlist\models.py:111 .\masterlist\models.py:214
+#: .\masterlist\models.py:308 .\masterlist\models.py:351
+#: .\masterlist\models.py:405
 msgid "date last modified"
 msgstr "dernière modification"
 
-#: .\masterlist\models.py:110 .\masterlist\models.py:213
-#: .\masterlist\models.py:307 .\masterlist\models.py:350
-#: .\masterlist\models.py:404
+#: .\masterlist\models.py:112 .\masterlist\models.py:215
+#: .\masterlist\models.py:309 .\masterlist\models.py:352
+#: .\masterlist\models.py:406
 msgid "last modified by"
 msgstr "modifié par"
 
-#: .\masterlist\models.py:193
+#: .\masterlist\models.py:195
 msgid "title"
 msgstr "titre"
 
-#: .\masterlist\models.py:194
+#: .\masterlist\models.py:196
 msgid "first name"
 msgstr "prénom"
 
-#: .\masterlist\models.py:195
+#: .\masterlist\models.py:197
 msgid "last name"
 msgstr "nom de famille"
 
-#: .\masterlist\models.py:196
+#: .\masterlist\models.py:198
 msgid "work phone"
 msgstr "téléphone de travail"
 
-#: .\masterlist\models.py:197
+#: .\masterlist\models.py:199
 msgid "work phone 2"
 msgstr "téléphone de travail (autre)"
 
-#: .\masterlist\models.py:198
+#: .\masterlist\models.py:200
 msgid "work email"
 msgstr "courriel de travail"
 
-#: .\masterlist\models.py:199
+#: .\masterlist\models.py:201
 msgid "work email 2"
 msgstr "courriel de travail (autre)"
 
-#: .\masterlist\models.py:200
+#: .\masterlist\models.py:202
 msgid "work phone (mobile)"
 msgstr "téléphone de travail (cellulaire)"
 
-#: .\masterlist\models.py:203
+#: .\masterlist\models.py:205
 msgid "language preference"
 msgstr "préférence linguistique"
 
-#: .\masterlist\models.py:205
+#: .\masterlist\models.py:207
 msgid "email block"
 msgstr "courriel 1"
 
-#: .\masterlist\models.py:206
+#: .\masterlist\models.py:208
 msgid "membership"
 msgstr "appartenance"
 
-#: .\masterlist\models.py:264 .\masterlist\models.py:279
+#: .\masterlist\models.py:266 .\masterlist\models.py:281
 msgid "Phone 1"
 msgstr "téléphone personnel"
 
-#: .\masterlist\models.py:266 .\masterlist\models.py:281
+#: .\masterlist\models.py:268 .\masterlist\models.py:283
 msgid "Phone 2"
 msgstr "téléphone personnel (autre)"
 
-#: .\masterlist\models.py:268 .\masterlist\models.py:283
+#: .\masterlist\models.py:270 .\masterlist\models.py:285
 msgid "Fax"
 msgstr "Fax"
 
-#: .\masterlist\models.py:270 .\masterlist\models.py:285
+#: .\masterlist\models.py:272 .\masterlist\models.py:287
 msgid "E-mail 1"
 msgstr "Courriel personnel"
 
-#: .\masterlist\models.py:272 .\masterlist\models.py:287
+#: .\masterlist\models.py:274 .\masterlist\models.py:289
 msgid "E-mail 2"
 msgstr "Courriel personnel (autre)"
 
-#: .\masterlist\models.py:299
+#: .\masterlist\models.py:301
 msgid "role"
 msgstr "rôle"
 
-#: .\masterlist\models.py:341
+#: .\masterlist\models.py:343
 msgid "TO"
 msgstr "À"
 
-#: .\masterlist\models.py:342
+#: .\masterlist\models.py:344
 msgid "CC"
 msgstr "C.c."
 
-#: .\masterlist\models.py:343
+#: .\masterlist\models.py:345
 msgid "CC (Commercial Only)"
 msgstr "C.c. (commercial)"
 
-#: .\masterlist\models.py:347
+#: .\masterlist\models.py:349
 msgid "TO / CC"
 msgstr "À / CC"
 
-#: .\masterlist\models.py:386
+#: .\masterlist\models.py:388
 msgid "EMAIL MISSING"
 msgstr "COURRIEL MANQUANT"
 
-#: .\masterlist\models.py:391
+#: .\masterlist\models.py:393
 msgid "MISSING ROLE"
 msgstr "RÔLE MANQUANT"
 
-#: .\masterlist\models.py:398
+#: .\masterlist\models.py:400
 msgid "address letter to:"
 msgstr "Envoyer un lettre papier à :"
 
-#: .\masterlist\models.py:399
+#: .\masterlist\models.py:401
 msgid "include on cc (letter)"
 msgstr "Mettre en C.c. dans la lettre :"
 
-#: .\masterlist\models.py:400
+#: .\masterlist\models.py:402
 msgid "paper copy to"
 msgstr "copie papier à"

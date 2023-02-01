@@ -435,7 +435,8 @@ class EntryCreateView(iHubEditRequiredMixin, CommonCreateView):
             subject=email.subject,
             html_message=email.message,
             from_email=email.from_email,
-            recipient_list=email.to_list
+            recipient_list=email.to_list,
+            user=self.request.user
         )
         messages.success(self.request,
                          _("The entry has been submitted and an email has been sent to the Indigenous Hub Coordinator!"))
@@ -631,7 +632,7 @@ class ReportSearchFormView(iHubBasicMixin, FormView):
     form_class = forms.ReportSearchForm
 
     def get_initial(self):
-        return {"report_title": _("Engagement Update Log – Government of Canada")}
+        return {"report_title": _("Activity Log – Government of Canada")}
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -1197,6 +1198,21 @@ class ReserveFormsetView(iHubAdminRequiredMixin, CommonFormsetView):
 class ReserveHardDeleteView(iHubAdminRequiredMixin, CommonHardDeleteView):
     model = ml_models.Reserve
     success_url = reverse_lazy("ihub:manage_reserves")
+
+
+class GroupingFormsetView(iHubAdminRequiredMixin, CommonFormsetView):
+    template_name = 'ihub/formset.html'
+    h1 = "Manage Groupings"
+    queryset = ml_models.Grouping.objects.all()
+    formset_class = forms.GroupingFormSet
+    success_url_name = "ihub:manage_groupings"
+    home_url_name = "ihub:index"
+    delete_url_name = "ihub:delete_grouping"
+
+
+class GroupingHardDeleteView(iHubAdminRequiredMixin, CommonHardDeleteView):
+    model = ml_models.Grouping
+    success_url = reverse_lazy("ihub:manage_groupings")
 
 
 class NationFormsetView(iHubAdminRequiredMixin, CommonFormsetView):

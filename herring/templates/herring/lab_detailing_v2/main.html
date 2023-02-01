@@ -1,0 +1,426 @@
+{% extends "herring/base.html" %}
+{% load bootstrap4 %}
+{% load static %}
+{% block title_area %}
+
+{% endblock %}
+
+{% block header %}
+  {{ block.super }}
+
+  <style>
+
+  {% if not is_last %}
+      body {
+          background-color: wheat;
+      }
+  {% endif %}
+  </style>
+{% endblock %}
+
+
+{% block subcontent %}
+
+  <div id="app" v-cloak
+       @keydown.page-down.prevent="goNext"
+       @keydown.page-up.prevent="goPrev"
+       @keydown.up.prevent="goUp"
+       @keydown.down.prevent="goDown"
+       @keydown.esc.prevent="goBack"
+       @keydown.home.prevent="goBack"
+       @keydown.f2.prevent="toggleMode"
+  >
+
+    <div class="mb-3">
+      <div v-if="fish.lab_processed_date" class="float-right">
+        <img src="{% static "/admin/img/icon-yes.svg" %}" alt="" width="100px">
+      </div>
+      <h1>
+        Detailing of Fish #{{ object.fish_number }}
+      </h1>
+    </div>
+
+
+    <div v-if="isLoading" class="loading mb-3 mt-3 mt-5">
+      <div class="spinner-border mb-3" style="width: 5rem; height: 5rem;" role="status">
+        <span class="sr-only"></span>
+      </div>
+    </div>
+    <div v-else>
+
+
+      <div class="mb-3">
+        {% if prev_url %}
+          <a ref="prev" href="{{ prev_url }}" class="btn btn-primary">Previous (Page Up)</a>
+        {% else %}
+          <a ref="prev" disabled href="#" class="btn btn-primary disabled">Previous (Page Up)</a>
+        {% endif %}
+        <a ref="next" href="{{ next_url }}" class="btn btn-primary">{% if is_last %}New{% else %}Next{% endif %} (Page Down)</a>
+        <a ref="back" href="{% url 'herring:sample_detail' object.sample.id %}" class="btn btn-secondary">Back (Esc)</a>
+
+
+        <a v-if="mode!=='fmb'" ref="modeToggle" href="?mode=fmb" class="btn btn-warning">FMB Mode (F2)</a>
+        <a v-else ref="modeToggle" href="?mode=normal" class="btn btn-warning">Normal Mode (F2)</a>
+
+      </div>
+
+      <div class="row">
+        <div class="col-6">
+          <table class="table table-sm">
+
+            <tbody>
+
+            <tr>
+              <th class="w-25"> Fish unique Id</th>
+              <td> {{ object.id }} </td>
+            </tr>
+            <tr>
+              <th> Sample Id</th>
+              <td> {{ object.sample.id }} </td>
+            </tr>
+            <tr>
+              <th> Collected by</th>
+              <td> {{ object.sample.sampler.first_name }} {{ object.sample.sampler.last_name }} </td>
+            </tr>
+            <tr>
+              <th> Collected on</th>
+              <td> {{ object.sample.sample_date|date:"F d, Y" }} </td>
+            </tr>
+            <tr>
+              <th> Field reference number</th>
+              <td> {{ object.sample.sampler_ref_number }} </td>
+            </tr>
+            <template v-if="mode==='fmb'">
+              <tr>
+                <th class="text-primary">Fish Measuring Board Input</th>
+                <td>
+                  <input @change="fmbUpdate()" class="form-control" :ref="`cell_fmb_input`" v-model="fmbInput">
+                </td>
+              </tr>
+              <tr v-for="field, index in fields">
+                <th class="text-primary">${labels[field]}</th>
+                <td v-if="!selectFields.includes(field)">
+                  <input @change="update(field)" class="form-control" disabled :ref="`cell_${field}`" v-model="fish[field]" @focusin="currentField=field">
+                </td>
+                <td v-else>
+                  <select class="form-control" disabled :ref="`cell_${field}`" v-model="fish[field]" @change="update(field)" @focusin="currentField=field">
+                    <option :value="null">-----</option>
+                    <option v-for="c, index in choices[field]" :value="c.value" :key="`choice_${field}_${index}`">${c.text}</option>
+                  </select>
+                </td>
+              </tr>
+            </template>
+
+            <template v-else>
+              <tr v-for="field, index in fields">
+                <th class="text-primary">${labels[field]}</th>
+                <td v-if="!selectFields.includes(field)">
+                  <input @change="update(field)" class="form-control" :ref="`cell_${field}`" v-model="fish[field]" @focusin="currentField=field">
+                </td>
+                <td v-else>
+                  <select class="form-control" :ref="`cell_${field}`" v-model="fish[field]" @change="update(field)" @focusin="currentField=field">
+                    <option :value="null">-----</option>
+                    <option v-for="c, index in choices[field]" :value="c.value" :key="`choice_${field}_${index}`">${c.text}</option>
+                  </select>
+                </td>
+              </tr>
+            </template>
+            </tbody>
+          </table>
+        </div>
+        <div class="col">
+
+          <div v-if="fish.id && fish.flags.length" class="mb-5">
+            <h3>Flags</h3>
+            <table>
+              <tr v-for="f, index in fish.flags" :key="`flag_${f.id}`">
+                <td class="lead py-3">
+                  <span v-if="f.is_accepted" class="mdi mdi-flag mr-3"></span>
+                  <span v-else class="mdi mdi-flag mr-3 text-danger"></span>
+                </td>
+                <td>
+                  <div v-if="f.is_accepted" class="lead">
+                    ${f.flag_definition_display}
+                  </div>
+                  <div v-else class="text-danger lead">
+                    ${f.flag_definition_display}
+                  </div>
+                  <div class="text-muted">
+                    ${f.custom_message}
+                  </div>
+                </td>
+              </tr>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+{% endblock %}
+
+
+
+{% block body_js %}
+  {% include "_vuejs_import.html" %}
+
+  <script type="application/javascript">
+
+  let audio = new Audio("{% static "/sounds/success.wav" %}");
+  let fishId = {{ object.id }};
+  let isLast = {{is_last|yesno:"true;false"|lower}};
+
+  var app = new Vue({
+    el: '#app',
+    delimiters: ["${", "}"],
+    data: {
+      fishId,
+      isLast,
+      loading: {
+        meta: true,
+        fish: true,
+      },
+      fish: {},
+      fmbInput: null,
+      labels: {},
+      fields: [
+        "fish_length",
+        "fish_weight",
+        "sex",
+        "maturity",
+        "gonad_weight",
+        "parasite",
+        "will_count_eggs",
+        "remarks",
+      ],
+      currentField: "fish_length",
+      choices: {
+        sex: [],
+        maturity: [],
+        parasite: [],
+        will_count_eggs: [],
+      },
+      mode: "normal"
+    },
+    methods: {
+      goNext() {
+        this.update(null);
+        this.$refs.next.click()
+      },
+      goPrev() {
+        this.$refs.prev.click()
+      },
+      toggleMode() {
+        this.$refs.modeToggle.click()
+      },
+      goBack() {
+        this.$refs.back.click()
+      },
+      goUp() {
+        prevField = this.fields[this.fields.indexOf(this.currentField) - 1]
+        var prevFieldRef = this.$refs[`cell_${prevField}`]
+        if (prevFieldRef) this.focusElement(prevFieldRef[0]);
+      },
+      goDown() {
+        nextField = this.fields[this.fields.indexOf(this.currentField) + 1]
+        var nextFieldRef = this.$refs[`cell_${nextField}`]
+        if (nextFieldRef) this.focusElement(nextFieldRef[0]);
+      },
+      focusElement(el) {
+        if (el.type === "select-one") el.focus()
+        else el.select()
+      },
+      get() {
+        this.loading.fish = true;
+        apiService(`/api/herman/fish-details/${this.fishId}`, "GET")
+            .then(response => {
+              this.fish = response;
+              this.loading.fish = false
+              this.$nextTick(() => {
+              })
+              this.dealWithFlags();
+
+            })
+      },
+      update(field) {
+        if (!field) {
+          apiService(`/api/herman/fish-details/${this.fishId}/`, "PUT", this.fish)
+        } else {
+          var data = {};
+          data[field] = this.fish[field]
+          apiService(`/api/herman/fish-details/${this.fishId}/`, "PATCH", data)
+              .then(response => {
+                if (!response.id) {
+                  alert(groomJSON(response));
+                  this.$refs[`cell_${field}`][0].select()
+                } else {
+                  this.fish = response;
+                  var contiune = this.dealWithFlags();
+                  if (contiune) {
+                    audio.play();
+                    var nextFieldRef = this.$refs[`cell_${this.fields[this.fields.indexOf(field) + 1]}`]
+                    if (nextFieldRef) this.focusElement(nextFieldRef[0]);
+                    // Deal with the flags
+                  }
+                }
+              })
+        }
+      },
+      fmbUpdate() {
+        let data = {};
+        let field;
+        // this is where we will have to do some very ugly hardcoding...
+        // if we are using a special fish measuring board, there will be prefixes that accompany the values being passed
+        if (this.fmbInput.match(/ruler1/gi)) {
+          field = "fish_length";
+          data[field] = this.fmbInput.toLowerCase().replace("ruler1", "").trim();
+        } else if (this.fmbInput.match(/sex/gi)) {
+          field = "sex";
+          let strSex = this.fmbInput.toLowerCase().replace("sex", "").trim();
+          if (strSex === 'male') data[field] = 1;
+          else if (strSex === 'female') data[field] = 2;
+        } else if (this.fmbInput.toLocaleString() === "u" || this.fmbInput.toLocaleString() === "h") {
+          field = "sex";
+          let strSex = this.fmbInput.toLowerCase().trim();
+          if (strSex === 'h') data[field] = 3;
+          else if (strSex === 'u') data[field] = 9;
+        } else if (this.fmbInput.match(/parasites/gi)) {
+          field = "parasite";
+          let strParasite = this.fmbInput.toLowerCase().replace("parasites", "").trim();
+          if (strParasite === 'y') data[field] = 1;
+          else if (strParasite === 'n') data[field] = 0;
+        } else if (this.fmbInput.match(/gonad/gi) || this.fmbInput.match(/scale_2/gi)) {
+          field = "gonad_weight";
+          // 'EXAMPLE:  Enter Gonad wt 50.1 || Scale_2 50.0001 g
+          data[field] = this.fmbInput.toLowerCase().trim().replace("enter gonad wt", "").replace("scale_2", "").replace("g", "");
+        } else if (this.fmbInput.match(/fish wt/gi) || this.fmbInput.match(/scale_1/gi)) {
+          // 'EXAMPLE:  Scale_1 1000.000 g __OR__ Enter Fish wt 1000
+          field = "fish_weight";
+          data[field] = this.fmbInput.toLowerCase().trim().replace("enter fish wt", "").replace("scale_1", "").replace("g", "");
+        } else if (this.fmbInput.match(/enter maturity/gi)) {
+          // 'EXAMPLE:  Enter Maturity 1
+          field = "maturity";
+          data[field] = this.fmbInput.toLowerCase().trim().replace("enter maturity", "");
+        } else if (this.fmbInput.match(/egg/gi)) {
+          // 'EXAMPLE:  egg
+          field = "will_count_eggs";
+          if (!this.fish[field]) data[field] = 1;
+          else data[field] = 0;
+        }
+
+        let proceed = true;
+        // check to see if this will overwrite something already there!
+        if (this.fish[field]) {
+          let msg = "Do you want to overwrite the existing data in this field? Press [y] for YES or [n] for NO.";
+          let msgLite = "do you want to overwrite?";
+          let userInput;
+          speak(msgLite);
+          while (userInput !== "y" && userInput !== "n") userInput = prompt(msg).toLocaleLowerCase();
+          proceed = userInput !== 'n';
+        }
+
+        if (proceed) {
+          apiService(`/api/herman/fish-details/${this.fishId}/`, "PATCH", data)
+              .then(response => {
+                this.fmbInput = null;
+                if (!response.id) alert(groomJSON(response));
+                else {
+                  this.fish = response;
+                  var contiune = this.dealWithFlags();
+                  if (contiune) audio.play();
+                  if (!this.fish.lab_processed_date) speak("ready.");
+                  else speak("fish complete.");
+                }
+                this.$refs.cell_fmb_input.select()
+              })
+        } else this.fmbInput = null;
+
+      },
+      dealWithFlags() {
+        if (this.unacceptedFlags.length) {
+          if (this.unacceptedFlags.length === 1) speak("Warning!" + this.unacceptedFlags[0].flag_definition_display)
+          else speak("Warning!")
+          for (const flag of this.unacceptedFlags) {
+            msg = flag.flag_definition_display + "\n\n" + flag.custom_message + "\n\nAre you confident in your measurements? \n\nPress [y] for YES or [n] for NO."
+            var reply = prompt(msg)
+            if (reply && reply.toLowerCase().includes("y")) {
+              apiService(`/api/herman/flags/${flag.id}/`, "PATCH", {is_accepted: true}).then(response => {
+                this.$set(this.fish.flags, this.fish.flags.indexOf(flag), response);
+              })
+            } else {
+              var currentFieldRef = this.$refs[`cell_${this.currentField}`];
+              if (currentFieldRef) this.focusElement(currentFieldRef[0]);
+              return false
+            }
+          }
+        }
+        return true
+      },
+
+      getMetadata() {
+        apiService(`/api/herman/model-metas/?app_name=herring&model_name=FishDetail`).then(data => {
+          console.log(data)
+          this.labels = data.labels;
+          this.choices.parasite = data.parasite_choices;
+          this.choices.sex = data.sex_choices;
+          this.choices.maturity = data.maturity_choices;
+          this.choices.will_count_eggs = data.will_count_eggs_choices;
+          this.loading.meta = false;
+        });
+      },
+    },
+    filters: {
+      nz: vueFiltersObject["nz"],
+      yesNo: vueFiltersObject["yesNo"],
+      floatformat: vueFiltersObject["floatformat"],
+    },
+    computed: {
+      isLoading() {
+        for (const loadingKey in this.loading) {
+          if (this.loading[loadingKey]) return true;
+        }
+        return false;
+      },
+      selectFields() {
+        var payload = [];
+        for (const choicesKey in this.choices) {
+          payload.push(choicesKey);
+        }
+        return payload
+      },
+      unacceptedFlags() {
+        var payload = [];
+        if (this.fish.id) {
+          for (const flag of this.fish.flags) {
+            if (!flag.is_accepted) payload.push(flag);
+          }
+        }
+        return payload
+      }
+    },
+    created() {
+      let uri = window.location.search.substring(1);
+      let params = new URLSearchParams(uri);
+      this.mode = params.get("mode");
+      this.getMetadata();
+      this.get();
+
+
+    },
+    watch: {
+      isLoading(newState, oldState) {
+        if (!newState) {
+          this.$nextTick(() => {
+            if (this.mode === 'fmb') this.$refs.cell_fmb_input.select();
+            else this.$refs.cell_fish_length[0].select();
+            if (this.isLast) speak("ready.");
+          })
+        }
+      },
+    }
+  });
+  </script>
+
+{% endblock %}

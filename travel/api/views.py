@@ -22,6 +22,7 @@ from . import serializers
 from .pagination import StandardResultsSetPagination
 from .permissions import CanModifyOrReadOnly, TravelAdminOrReadOnly
 from .. import models, utils, emails
+from ..filters import TripFilter
 
 
 def validate_file_size(filesize, max_size=15 * 1000 * 1000):
@@ -40,6 +41,7 @@ class CurrentTravelUserAPIView(CurrentUserAPIView):
     def get(self, request):
         data = super().get(request).data
         data["is_regional_admin"] = utils.in_travel_regional_admin_group(request.user)
+        data["can_view_delegations"] = utils.can_view_delegations(request.user)
         data["is_ncr_admin"] = utils.in_travel_nat_admin_group(request.user)
         data["is_cfo"] = utils.in_cfo_group(request.user)
         data["is_admin"] = utils.is_admin(request.user)
@@ -74,7 +76,7 @@ class TripViewSet(viewsets.ModelViewSet):
     pagination_class = StandardResultsSetPagination
     filter_backends = [filters.SearchFilter, DjangoFilterBackend]
     search_fields = ['name', 'nom', 'location']
-    filterset_fields = ['fiscal_year', 'status', 'lead', "is_adm_approval_required", "trip_subcategory"]
+    filterset_class = TripFilter
 
     def post(self, request, pk):
         qp = request.query_params
@@ -487,7 +489,7 @@ class TravelUserViewSet(UserViewSet):
 class FiscalYearTravelListAPIView(FiscalYearListAPIView):
 
     def get_queryset(self):
-        qs = FiscalYear.objects.filter(requests__isnull=False)
+        qs = FiscalYear.objects.filter(Q(requests__isnull=False)|Q(trips__isnull=False))
         return qs.distinct()
 
 

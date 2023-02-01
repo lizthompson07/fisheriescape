@@ -191,6 +191,12 @@
     animation: blinker 1s linear infinite;
 }
 
+
+.blink-me-slow {
+    animation: blinker 2s linear infinite;
+}
+
+
 @keyframes blinker {
     50% {
         opacity: 0;
@@ -393,7 +399,6 @@
 .w-90 {
     width: 90%;
 }
-
 
 
 .w25px {

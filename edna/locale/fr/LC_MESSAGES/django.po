@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-06-22 11:33-0300\n"
+"POT-Creation-Date: 2023-01-10 15:26-0400\n"
 "PO-Revision-Date: \n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -1039,11 +1039,11 @@ msgstr ""
 msgid "Are you sure you want to delete this filter?"
 msgstr ""
 
-#: .\edna\templates\edna\form.html:31
+#: .\edna\templates\edna\form.html:30
 msgid "Degrees (DD)"
 msgstr "Degrés (DD)"
 
-#: .\edna\templates\edna\form.html:32
+#: .\edna\templates\edna\form.html:31
 msgid "Minutes (MM.mmmmm)"
 msgstr "Minutes (MM.mmmmm)"
 
