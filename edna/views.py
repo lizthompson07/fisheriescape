@@ -704,6 +704,10 @@ class FiltrationBatchDetailView(eDNAAdminRequiredMixin, CommonDetailView):
             # 'observation_count|{}'.format(_("lobster count")),
         ]
         context["sample_field_list"] = sample_field_list
+        prefix = "{}F".format(self.object.datetime.strftime("%y"))
+        context["prefix"] = prefix
+        max_tube_id =  models.Filter.objects.filter(tube_id__startswith=prefix).order_by('-tube_id').first().tube_id[len(prefix)+1:]
+        context["next_tube_id"] = int(max_tube_id) + 1
         return context
 
 

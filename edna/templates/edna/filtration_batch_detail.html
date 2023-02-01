@@ -7,8 +7,10 @@
   <div class="btns mb-3">
     <a href="{% url 'edna:filtration_batch_edit' object.id %}" class="btn btn-warning btn-sm">{% trans "Edit" %}</a>
     <a href="{% url 'edna:filtration_batch_delete' object.id %}" class="btn btn-danger btn-sm">{% trans "Delete" %}</a>
+    <a href="" class="btn btn-info btn-sm disabled">{%  trans "Next Tube ID: "%} {{ prefix }}-{{ next_tube_id }} </a>
 
   </div>
+
   {% include 'edna/_table_navigation.html' %}
   <table class="table table-sm w-50">
     {% for field in field_list %}
@@ -321,10 +323,10 @@
         }
       },
       calcDown() {
-        let prefix = prompt("{% trans 'What is the tube prefix? (e.g. prefix-###) ' %}")
+        let prefix = prompt("{% trans 'What is the tube prefix? (e.g. prefix-###) ' %}", "{{ prefix }}")
         if (prefix) {
           prefix = prefix.toUpperCase();
-          let starting = prompt(`{% trans 'What is the starting tube number?' %} (e.g. ${prefix}-###)`)
+          let starting = prompt(`{% trans 'What is the starting tube number?' %} (e.g. ${prefix}-###)`, {{ next_tube_id }} )
           if (starting) {
             this.unsavedChanges = true;
             // copy the value for the field into the next row
