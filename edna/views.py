@@ -706,7 +706,10 @@ class FiltrationBatchDetailView(eDNAAdminRequiredMixin, CommonDetailView):
         context["sample_field_list"] = sample_field_list
         prefix = "{}F".format(self.object.datetime.strftime("%y"))
         context["prefix"] = prefix
-        max_tube_id =  models.Filter.objects.filter(tube_id__startswith=prefix).order_by('-tube_id').first().tube_id[len(prefix)+1:]
+        largest_tube = models.Filter.objects.filter(tube_id__startswith=prefix).order_by('-tube_id').first()
+        max_tube_id = 0
+        if largest_tube:
+            max_tube_id =  largest_tube.tube_id[len(prefix)+1:]
         context["next_tube_id"] = int(max_tube_id) + 1
         return context
 
@@ -788,6 +791,13 @@ class ExtractionBatchDetailView(eDNAAdminRequiredMixin, CommonDetailView):
             # 'observation_count|{}'.format(_("lobster count")),
         ]
         context["sample_field_list"] = sample_field_list
+        prefix = "{}E".format(self.object.datetime.strftime("%y"))
+        context["prefix"] = prefix
+        largest_extraction = models.DNAExtract.objects.filter(extraction_number__startswith=prefix).order_by('-extraction_number').first()
+        max_extraction_number = 0
+        if largest_extraction:
+            max_extraction_number =  largest_extraction.extraction_number[len(prefix)+1:]
+        context["next_max_extraction_number"] = int(max_extraction_number) + 1
         return context
 
 
