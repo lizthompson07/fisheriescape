@@ -168,7 +168,7 @@ class AchievementForm(forms.ModelForm):
         model = models.Achievement
         exclude = ("user",)
         widgets = {
-            'date': forms.DateTimeInput(attrs=dict(type="date")),
+            'date': forms.DateInput(attrs=dict(type="date")),
         }
 
 
