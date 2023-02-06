@@ -30,11 +30,6 @@ class Migration(migrations.Migration):
             field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.DO_NOTHING, related_name='pcrs', to='edna.mastermix', verbose_name='master mix'),
         ),
         migrations.AlterField(
-            model_name='filter',
-            name='tube_id',
-            field=models.CharField(blank=True, max_length=25, null=True, unique=True, verbose_name='tube ID'),
-        ),
-        migrations.AlterField(
             model_name='pcrassay',
             name='result',
             field=models.IntegerField(choices=[(8, 'in progress'), (1, 'positive'), (0, 'negative'), (90, 'no assay :('), (91, 'LOD missing :('), (92, 'Inconclusive'), (93, 'Suspected')], default=8, editable=False, verbose_name='result'),
