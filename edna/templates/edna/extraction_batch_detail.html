@@ -43,7 +43,7 @@
       </div>
     </div>
 
-    <div v-if="loading0" class="loading mb-3 mt-3 mt-5">
+    <div v-if="loading" class="loading mb-3 mt-3 mt-5">
       <div class="spinner-border mb-3" style="width: 5rem; height: 5rem;" role="status">
         <span class="sr-only"></span>
       </div>
@@ -68,7 +68,6 @@
               @move-down="updateOrder('down')"
             ></select-tools>
           </th>
-          <th class="px-1 py-1 w75px">{% trans "Extraction" %}</th>
           <th class="px-1 py-1 w75px">{% trans "Sample" %}</th>
           <th class="px-1 py-1 w75px">{% trans "Filter" %}</th>
           <th class="px-1 py-1 w100px">{% trans "Type" %}</th>
@@ -104,13 +103,12 @@
           <td class="p-1" tabindex="-1">
             ${index + 1} &mdash; <input v-model='obj.selected' type="checkbox">
           </td>
-          <td class="px-1 text-muted" tabindex="-1">${obj.display}</td>
           <td class="px-1  py-0 text-muted" tabindex="-1">
-            <span v-if="obj.sample_obj">${obj.sample_obj.display}</span>
+            <span v-if="obj.sample_display">${obj.sample_display}</span>
             <span v-else>-----</span>
           </td>
           <td class="px-1 text-muted">
-            <span v-if="obj.filter_obj">${obj.filter_obj.display}</span>
+            <span v-if="obj.filter_display">${obj.filter_display}</span>
             <span v-else>-----</span>
           </td>
           <td class="px-1  py-0 text-muted" tabindex="-1">
@@ -238,7 +236,6 @@
           extracts: [],
           labels: [],
           loading: false,
-          loading0: false,
           filterChoices: [],
           dnaExtractionProtocolChoices: [],
           unsavedChanges: false
@@ -445,11 +442,10 @@
           getExtracts(selectedItems) {
             this.loading = true;
             if (!selectedItems) selectedItems = [];
-            endpoint = `/api/edna/extracts/?batch=${extractBatchId}`;
+            endpoint = `/api/edna/extracts/?batch=${extractBatchId}&lite=true`;
             apiService(endpoint)
                 .then(response => {
                   this.loading = false;
-                  this.loading0 = false;
                   if (response.length && response[0].id) {
                     for (var i = 0; i < response.length; i++) {
                       response[i].selected = !!selectedItems.includes(response[i].id);
@@ -517,7 +513,7 @@
           },
           updateExtract(extract) {
             this.extractErrorMsg = null;
-            endpoint = `/api/edna/extracts/${extract.id}/`;
+            endpoint = `/api/edna/extracts/${extract.id}/?lite=true`;
             extract.start_datetime = extract.datetime_display
             apiService(endpoint, "PUT", extract)
                 .then(response => {

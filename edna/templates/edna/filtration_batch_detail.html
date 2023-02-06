@@ -7,8 +7,10 @@
   <div class="btns mb-3">
     <a href="{% url 'edna:filtration_batch_edit' object.id %}" class="btn btn-warning btn-sm">{% trans "Edit" %}</a>
     <a href="{% url 'edna:filtration_batch_delete' object.id %}" class="btn btn-danger btn-sm">{% trans "Delete" %}</a>
+    <a href="" class="btn btn-info btn-sm disabled">{%  trans "Next Tube ID: "%} {{ prefix }}-{{ next_tube_id }} </a>
 
   </div>
+
   {% include 'edna/_table_navigation.html' %}
   <table class="table table-sm w-50">
     {% for field in field_list %}
@@ -70,7 +72,6 @@
             ></select-tools>
 
           </th>
-          <th rowspan="2" class="p-1 w100px">{% trans "Filter ID" %}</th>
           <th rowspan="2" class="p-1 w150px">{% trans "Sample ID" %}</th>
           <th rowspan="2" class="p-1 w125px">{% trans "Bottle ID" %}</th>
           <th rowspan="2" class="p-1 w150px">{% trans "Collection time" %}</th>
@@ -107,18 +108,15 @@
             ${obj.order} &mdash; <input v-model='obj.selected' type="checkbox">
           </td>
           <td class="px-1  py-0 text-muted" tabindex="-1">
-            ${obj.display}
-          </td>
-          <td class="px-1  py-0 text-muted" tabindex="-1">
-            <span v-if="obj.sample_obj">${obj.sample_obj.display}</span>
+            <span v-if="obj.sample_display">${obj.sample_display}</span>
             <span v-else>------</span>
           </td>
           <td class="px-1  py-0 text-muted" tabindex="-1">
-            <span v-if="obj.sample_obj">${obj.sample_obj.bottle_id}</span>
+            <span v-if="obj.sample__bottle_id">${obj.sample__bottle_id}</span>
             <span v-else>-----</span>
           </td>
           <td class="px-1  py-0 text-muted" tabindex="-1">
-            <span v-if="obj.sample_obj" v-html="obj.sample_obj.collection_time_display"></span>
+            <span v-if="obj.sample__time_display" v-html="obj.sample__time_display"></span>
             <span v-else>-----</span>
           </td>
           <td class="px-1  py-0 text-muted" tabindex="-1">
@@ -325,10 +323,10 @@
         }
       },
       calcDown() {
-        let prefix = prompt("{% trans 'What is the tube prefix? (e.g. prefix-###) ' %}")
+        let prefix = prompt("{% trans 'What is the tube prefix? (e.g. prefix-###) ' %}", "{{ prefix }}")
         if (prefix) {
           prefix = prefix.toUpperCase();
-          let starting = prompt(`{% trans 'What is the starting tube number?' %} (e.g. ${prefix}-###)`)
+          let starting = prompt(`{% trans 'What is the starting tube number?' %} (e.g. ${prefix}-###)`, {{ next_tube_id }} )
           if (starting) {
             this.unsavedChanges = true;
             // copy the value for the field into the next row
@@ -405,7 +403,7 @@
       getFilters(selectedItems) {
         if (!selectedItems) selectedItems = [];
         this.loading = true;
-        endpoint = `/api/edna/filters/?batch=${this.filterBatchId}`;
+        endpoint = `/api/edna/filters/?batch=${this.filterBatchId}&lite=true`;
         apiService(endpoint)
             .then(response => {
               this.loading = false;
@@ -457,7 +455,7 @@
       },
       updateFilter(filter) {
         this.filterErrorMsg = null;
-        endpoint = `/api/edna/filters/${filter.id}/`;
+        endpoint = `/api/edna/filters/${filter.id}/?lite=True`;
         filter.start_datetime = filter.start_datetime_display
         filter.end_datetime = filter.end_datetime_display
         apiService(endpoint, "PUT", filter)

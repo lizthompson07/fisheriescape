@@ -83,8 +83,8 @@
             {#            </button>#}
 
           </th>
-          <th class="px-1 py-1 w200px">${labels.master_mix}</th>
           <th class="px-1 py-1 w300px">${pcrAssaylabels.assay}</th>
+          <th class="px-1 py-1 w50px">{% trans "LOD" %}</th>
           <th class="px-1 py-1" style="width: 100px">${pcrAssaylabels.threshold}</th>
           <th class="px-1 py-1" style="width: 100px">${pcrAssaylabels.is_undetermined}</th>
           <th class="px-1 py-1" style="width: 110px">${pcrAssaylabels.ct}</th>
@@ -129,13 +129,13 @@
               :ref="`row_${index}_col_1`"
             ></text-input-cell>
           </td>
-          <td class="px-0 py-0 text-muted">
-            ${obj.pcr_obj.master_mix_display}
-          </td>
 
           {# asssays #}
           <td class="px-0 py-0 text-muted">
             ${obj.assay_display}
+          </td>
+          <td class="px-0 py-0 text-muted">
+            ${obj.lod}
           </td>
           <td class="px-0 py-0">
             <text-input-cell
@@ -224,7 +224,6 @@
       loading: false,
       loading0: true,
       assayChoices: [],
-      masterMixChoices: [],
       unsavedChanges: false,
       currentSort: 'pcr_plate_well',
       currentSortDir: 'asc'
@@ -370,10 +369,9 @@
               })
         }
       },
-      getBlankPCR(extract, mm) {
+      getBlankPCR(extract) {
         return {
           pcr_batch: batchId,
-          master_mix: mm,
           collection: extract.collection,
           extract: extract,
           comments: null,
@@ -391,7 +389,6 @@
         endpoint = `/api/edna/meta/models/pcr/`;
         apiService(endpoint).then(data => {
           this.labels = data.labels;
-          this.masterMixChoices = data.master_mix_choices;
         });
         endpoint = `/api/edna/meta/models/pcr-assay/`;
         apiService(endpoint).then(data => {
@@ -419,15 +416,15 @@
                 })
             })
       },
-      addExtracts(extractArray, reps, assays, mm) {
+      addExtracts(extractArray, reps, assays) {
         this.loading = true;
         for (const extract of extractArray) {
-          this.newPCR(extract, reps, assays, mm);
+          this.newPCR(extract, reps, assays);
         }
       },
-      newPCR(extract, reps, assays, mm) {
+      newPCR(extract, reps, assays) {
         endpoint = `/api/edna/pcrs/`;
-        data = this.getBlankPCR(extract, mm)
+        data = this.getBlankPCR(extract)
         for (var i = 0; i < reps; i++) {
           apiService(endpoint, "POST", data)
               .then(response => {
@@ -464,7 +461,7 @@
       },
       updatePCR(pcr) {
         this.pcrErrorMsg = null;
-        endpoint = `/api/edna/pcrs/${pcr.id}/`;
+        endpoint = `/api/edna/pcrs/${pcr.id}/?lite=true`;
         apiService(endpoint, "PUT", pcr)
             .then(response => {
               if (!response.id) {
@@ -477,7 +474,8 @@
       },
       updatePCRAssay(pcrAssay) {
         this.pcrErrorMsg = null;
-        endpoint = `/api/edna/pcr-assays/${pcrAssay.id}/`;
+        endpoint = `/api/edna/pcr-assays/${pcrAssay.id}/?lite=true`;
+        console.log(pcrAssay);
         apiService(endpoint, "PUT", pcrAssay)
             .then(response => {
               if (!response.id) {
@@ -485,7 +483,9 @@
                 this.getPCRAssay(pcrAssay)
               } else {
                 this.unsavedChanges = false;
-                this.$set(this.pcrAssays, this.pcrAssays.indexOf(pcrAssay), response);
+                let newPcrAssay = response;
+                newPcrAssay.pcr_obj = pcrAssay.pcr_obj
+                this.$set(this.pcrAssays, this.pcrAssays.indexOf(pcrAssay), newPcrAssay);
               }
             })
       },
