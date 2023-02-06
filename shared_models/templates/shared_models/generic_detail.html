@@ -36,6 +36,8 @@
             {% verbose_td_display object field %}
           {% endblock %}
         {% endfor %}
+      {% block extra_table_rows %}
+      {% endblock %}
       </table>
     {% endblock %}
   {% endblock %}

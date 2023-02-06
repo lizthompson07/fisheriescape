@@ -122,72 +122,64 @@ def generate_sample_csv(qs):
 def generate_sweep_csv(qs):
     """Returns a generator for an HTTP Streaming Response"""
 
-    fields = models.Sweep._meta.fields
-    field_names = [field.name for field in fields]
-
-    # add any FKs
-    for field in fields:
-        if field.attname not in field_names and field.attname:
-            field_names.append(field.attname)
-
-    field_names.remove("id")
-    field_names.remove("created_by")
-    field_names.remove("updated_by")
-    field_names.remove("created_by_id")
-    field_names.remove("updated_by_id")
-
-    header_row = deepcopy(field_names)
-    header_row += [
-        "sweep_id",
+    header_row = [
+        "SFA",
+        "monitoring_program",
         "cgndb",
+        "river_name",
+        "site_name",
+        "date",
+        "day of the year[1 - 365]",
         "avg_wetted_length",
         "avg_wetted_width",
         "full_wetted_area",
-        "salmon_age_unknown",
+        "electrofisher",
+        "sweep_number",
+        "sweep_time",
         "salmon_0plus",
         "salmon_1plus",
         "salmon_2plus",
         "salmon_3plus",
-        "site_name",
-        "river_name",
-        "monitoring_program",
-        "date",
-        "ordinal_day",
+        "salmon_age_unknown",
         "other_species",
+        "sample",
+        "sample_id",
         "site_event_code",
-        "electrofisher",
+        "sweep_id",
     ]
 
     pseudo_buffer = Echo()
     writer = csv.writer(pseudo_buffer)
-    sorted_header = sorted(header_row)
-    yield writer.writerow(sorted_header)
+    yield writer.writerow(header_row)
 
     for obj in qs:
         age_breakdown = obj.get_salmon_age_breakdown()
-        data_row = [str(nz(getattr(obj, field), "")).encode("utf-8").decode('utf-8') for field in field_names]
-        data_row += [
-            obj.id,
-            obj.sample.site.river.cgndb,
-            obj.sample.ef_sample.avg_wetted_length,
-            obj.sample.ef_sample.avg_wetted_width,
-            obj.sample.ef_sample.full_wetted_area,
-            age_breakdown.get(None, 0),
-            age_breakdown.get(0, 0),
-            age_breakdown.get(1, 0),
-            age_breakdown.get(2, 0),
-            age_breakdown.get(3, 0),
-            obj.sample.site.name,
-            obj.sample.site.river.name,
-            obj.sample.monitoring_program,
-            obj.sample.arrival_date.strftime("%Y-%m-%d"),
-            obj.sample.arrival_date.toordinal(),
-            obj.specimens.filter(~Q(species__tsn=161996)).order_by("species").values("species").distinct().count(),
-            obj.site_event_code,
-            obj.sample.ef_sample.electrofisher.name if obj.sample.ef_sample.electrofisher else "",
+        data_row = [
+            obj.sample.site.river.fishing_area,  # SFA
+            obj.sample.monitoring_program,  # monitoring_program
+            obj.sample.site.river.cgndb,  # cgndb
+            obj.sample.site.river.name,  # river_name
+            obj.sample.site.name,  # site_name
+            obj.sample.arrival_date.strftime("%Y-%m-%d"),  # date
+            int(obj.sample.arrival_date.strftime("%j")),  # day of the year[1 - 365]
+            obj.sample.ef_sample.avg_wetted_length,  # avg_wetted_length
+            obj.sample.ef_sample.avg_wetted_width,  # avg_wetted_width
+            obj.sample.ef_sample.full_wetted_area,  # full_wetted_area
+            obj.sample.ef_sample.electrofisher.name if obj.sample.ef_sample.electrofisher else "",  # electrofisher
+            obj.sweep_number,  # sweep_number
+            obj.sweep_time,  # sweep_time
+            age_breakdown.get(0, 0),  # salmon_0plus
+            age_breakdown.get(1, 0),  # salmon_1plus
+            age_breakdown.get(2, 0),  # salmon_2plus
+            age_breakdown.get(3, 0),  # salmon_3plus
+            age_breakdown.get(None, 0),  # salmon_age_unknown
+            obj.specimens.filter(~Q(species__tsn=161996)).order_by("species").values("species").distinct().count(),  # other_species
+            f"{obj.sample.get_sample_type_display()} ({obj.sample.id})",  # sample
+            obj.sample.id,  # sample_id
+            obj.site_event_code,  # site_event_code
+            obj.id,  # sweep_id
         ]
-        sorted_data_row = [x for _, x in sorted(zip(header_row, data_row))]
-        yield writer.writerow(sorted_data_row)
+        yield writer.writerow(data_row)
 
 
 def generate_specimen_csv(qs, sample_type):

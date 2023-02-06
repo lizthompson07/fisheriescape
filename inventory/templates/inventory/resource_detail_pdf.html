@@ -41,9 +41,9 @@ table, th td {
     </th>
     <td>
       <ul>
-        {% for item in object.resource_people.all %}
+        {% for item in object.resource_people2.all %}
           <li>
-            {{ item.person.user }} - {{ item.role }}
+            {{ item.user }} - {{ item.roles_display }}
           </li>
         {% empty %}
           <em>No people</em>

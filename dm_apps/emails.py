@@ -116,6 +116,7 @@ class Email:
         context = dict()
         if self.instance:
             context["object"] = self.instance
+        context["request"] = self.request
         context.update(my_envr(self.request))
         return context
 

@@ -64,55 +64,55 @@ def codelist(root, level_1_tag, level_2_tag, code_list, code_list_value, text):
     return None
 
 
-def ci_responsible_party(resource_person):
+def ci_responsible_party(resource_person, role):
     root = Element('gmd:CI_ResponsibleParty')
 
     # individualName
-    charstring(root, 'gmd:individualName', resource_person.person.full_name)
+    charstring(root, 'gmd:individualName', resource_person.user.get_full_name())
 
     # organisationName
-    charstring(root, 'gmd:organisationName', attr_error_2_none(resource_person.person.organization, "name_eng"),
-               attr_error_2_none(resource_person.person.organization, "name_fre"))
+    charstring(root, 'gmd:organisationName', attr_error_2_none(resource_person.organization, "name_eng"),
+               attr_error_2_none(resource_person.organization, "name_fre"))
 
     # positionName
-    charstring(root, 'gmd:positionName', resource_person.person.position_eng, resource_person.person.position_fre)
+    charstring(root, 'gmd:positionName', resource_person.user.profile.position_eng, resource_person.user.profile.position_fre)
 
     contact_info = SubElement(root, "gmd:contactInfo")
     ci_contact = SubElement(contact_info, "gmd:CI_Contact")
     # telephone
     phone = SubElement(ci_contact, "gmd:phone")
     ci_telephone = SubElement(phone, "gmd:CI_Telephone")
-    charstring(ci_telephone, 'gmd:voice', resource_person.person.phone, resource_person.person.phone)
+    charstring(ci_telephone, 'gmd:voice', resource_person.user.profile.phone, resource_person.user.profile.phone)
     # address
     address = SubElement(ci_contact, "gmd:address")
     ci_address = SubElement(address, "gmd:CI_Address")
     # civic
-    charstring(ci_address, 'gmd:deliveryPoint', attr_error_2_none(resource_person.person.organization, "address"),
-               attr_error_2_none(resource_person.person.organization, "address"))
+    charstring(ci_address, 'gmd:deliveryPoint', attr_error_2_none(resource_person.organization, "address"),
+               attr_error_2_none(resource_person.organization, "address"))
     # city
-    charstring(ci_address, 'gmd:city', attr_error_2_none(resource_person.person.organization, "city"),
-               attr_error_2_none(resource_person.person.organization, "city"))
+    charstring(ci_address, 'gmd:city', attr_error_2_none(resource_person.organization, "city"),
+               attr_error_2_none(resource_person.organization, "city"))
     # province
-    my_loc = attr_error_2_none(resource_person.person.organization, "location")
+    my_loc = attr_error_2_none(resource_person.organization, "location")
     charstring(ci_address, 'gmd:administrativeArea',
                attr_error_2_none(my_loc, "location_eng"),
                attr_error_2_none(my_loc, "location_fre"),
                )
     # postalcode
-    charstring(ci_address, 'gmd:postalCode', attr_error_2_none(resource_person.person.organization, "postal_code"))
+    charstring(ci_address, 'gmd:postalCode', attr_error_2_none(resource_person.organization, "postal_code"))
     # country
-    my_loc = attr_error_2_none(resource_person.person.organization, "location")
+    my_loc = attr_error_2_none(resource_person.organization, "location")
     charstring(ci_address, 'gmd:country',
                attr_error_2_none(my_loc, "country"),
                attr_error_2_none(my_loc, "country_fr"),
                )
     # email
-    charstring(ci_address, 'gmd:electronicMailAddress', resource_person.person.user.email,
-               resource_person.person.user.email)
+    charstring(ci_address, 'gmd:electronicMailAddress', resource_person.user.email,
+               resource_person.user.email)
     # role
     codelist(root, "gmd:role", "gmd:CI_RoleCode",
-             "http://nap.geogratis.gc.ca/metadata/register/napMetadataRegister.xml#IC_90", resource_person.role.code,
-             resource_person.role.role)
+             "http://nap.geogratis.gc.ca/metadata/register/napMetadataRegister.xml#IC_90", role.code,
+             role.role)
     return root
 
 
@@ -573,7 +573,7 @@ class KeywordGroup:
             CI_OnlineResource = SubElement(onlineResource, 'gmd:CI_OnlineResource')
             linkage = SubElement(CI_OnlineResource, 'gmd:linkage')
             url = SubElement(linkage, 'gmd:URL')
-            url.text = "http://gcmd.nasa.gov/index.html"
+            url.text = "https://www.dfo-mpo.gc.ca/oceans/maps-cartes/bioregions-eng.html"
             charstring(CI_OnlineResource, 'gmd:protocol', 'WWW:LINK-1.0-http--link')
             codelist(CI_ResponsibleParty, "gmd:role", "gmd:CI_RoleCode",
                      "http://nap.geogratis.gc.ca/metadata/register/napMetadataRegister.xml#IC_90", 'RI_413',
@@ -583,26 +583,19 @@ class KeywordGroup:
 
 
 def construct(my_resource, pretty=True):
-    # ElementTree.register_namespace("gmd","http://www.isotc211.org/2005/gmd")
-    # ElementTree.register_namespace("xsi","http://www.w3.org/2001/XMLSchema-instance")
-
     root = Element("gmd:MD_Metadata", attrib={
         "xmlns:gmd": "http://www.isotc211.org/2005/gmd",
-        'xmlns:srv': "http://www.isotc211.org/2005/srv",
-        'xmlns:gss': "http://www.isotc211.org/2005/gss",
-        'xmlns:gco': "http://www.isotc211.org/2005/gco",
-        'xmlns:xlink': "http://www.w3.org/1999/xlink",
-        'xmlns:gts': "http://www.isotc211.org/2005/gts",
-        'xmlns:gfc': "http://www.isotc211.org/2005/gfc",
-        'xmlns:gmi': "http://www.isotc211.org/2005/gmi",
-        'xmlns:gml': "http://www.opengis.net/gml/3.2",
-        'xmlns:gmx': "http://www.isotc211.org/2005/gmx",
-        'xmlns:gsr': "http://www.isotc211.org/2005/gsr",
-        'xmlns': "http://www.isotc211.org/2005/gmd",
-        'xmlns:geonet': "http://www.fao.org/geonetwork",
-        'xmlns:xsi': "http://www.w3.org/2001/XMLSchema-instance",
-        'xsi:schemaLocation': "http://www.isotc211.org/2005/gmd http://nap.geogratis.gc.ca/metadata/tools/schemas/metadata/can-cgsb-171.100-2009-a/gmd/gmd.xsd http://www.isotc211.org/2005/srv http://nap.geogratis.gc.ca/metadata/tools/schemas/metadata/can-cgsb-171.100-2009-a/srv/srv.xsd http://www.geconnections.org/nap/napMetadataTools/napXsd/napm http://nap.geogratis.gc.ca/metadata/tools/schemas/metadata/can-cgsb-171.100-2009-a/napm/napm.xsd",
-
+        "xmlns:gmi": "http://www.isotc211.org/2005/gmi",
+        "xmlns:srv": "http://www.isotc211.org/2005/srv",
+        "xmlns:gsr": "http://www.isotc211.org/2005/gsr",
+        "xmlns:gco": "http://www.isotc211.org/2005/gco",
+        "xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
+        "xmlns:gfc": "http://www.isotc211.org/2005/gfc",
+        "xmlns:gss": "http://www.isotc211.org/2005/gss",
+        "xmlns:xlink": "http://www.w3.org/1999/xlink",
+        "xmlns:gts": "http://www.isotc211.org/2005/gts",
+        "xmlns:gml": "http://www.opengis.net/gml/3.2",
+        "xmlns:gmx": "http://www.isotc211.org/2005/gmx",
     })
 
     # uuid
@@ -616,14 +609,15 @@ def construct(my_resource, pretty=True):
              "http://nap.geogratis.gc.ca/metadata/register/napMetadataRegister.xml#IC_95", "RI_458", "utf8; utf8")
 
     # parentIdentifier
-    if my_resource.parent != None:
-        charstring(root, 'gmd:parentIdentifier', str(my_resource.parent.uuid))
+    # for now the FGP/Open Data cannot handle a parent record not being published along with the child. Therefore we will not export the parent child hierarchy
+    # if my_resource.parent != None:
+    #     charstring(root, 'gmd:parentIdentifier', str(my_resource.parent.uuid))
 
     # ResourceType
     try:
         codelist(root, "gmd:hierarchyLevel", "gmd:MD_ScopeCode",
                  "http://nap.geogratis.gc.ca/metadata/register/napMetadataRegister.xml#IC_108",
-                 my_resource.resource_type.code, my_resource.resource_type.label)
+                 my_resource.get_resource_type_instance().code, my_resource.get_resource_type_instance().label)
     except AttributeError:
         print("no resource_type")
 
@@ -631,8 +625,9 @@ def construct(my_resource, pretty=True):
     gmd_contact = SubElement(root, 'gmd:contact')
 
     # for each point of contact
-    for person in my_resource.resource_people.filter(role__id=4):
-        gmd_contact.append(ci_responsible_party(person))
+    for person in my_resource.resource_people2.filter(roles__code__iexact="RI_414"):
+        role = models.PersonRole.objects.get(code__iexact="RI_414")
+        gmd_contact.append(ci_responsible_party(person, role))
 
     # timestamp
     datestamp(root, 'gmd:dateStamp', timezone.now().year, timezone.now().month, timezone.now().day)
@@ -661,8 +656,8 @@ def construct(my_resource, pretty=True):
     RS_Identifier = SubElement(referenceSystemIdentifier, 'gmd:RS_Identifier')
 
     try:
-        charstring(RS_Identifier, 'gmd:code', my_resource.spat_ref_system.code)
-        charstring(RS_Identifier, 'gmd:codeSpace', my_resource.spat_ref_system.codespace)
+        charstring(RS_Identifier, 'gmd:code', my_resource.get_spat_ref_system_instance().code)
+        charstring(RS_Identifier, 'gmd:codeSpace', my_resource.get_spat_ref_system_instance().codespace)
     except AttributeError:
         print("no spat_ref_system")
 
@@ -715,10 +710,10 @@ def construct(my_resource, pretty=True):
 
     # Custodians and other roles (not point of contact)
     # for each point of contact
-    for person in my_resource.resource_people.filter(~Q(role__id=4)).filter(role__code__isnull=False):
-        # if person.role.id == 1:
-        citedResponsibleParty = SubElement(CI_Citation, 'gmd:citedResponsibleParty')
-        citedResponsibleParty.append(ci_responsible_party(person))
+    for person in my_resource.resource_people2.all():
+        for role in person.roles.filter(~Q(code__iexact="RI_414")).filter(code__isnull=False):
+            citedResponsibleParty = SubElement(CI_Citation, 'gmd:citedResponsibleParty')
+            citedResponsibleParty.append(ci_responsible_party(person, role))
 
     # abstract
     charstring(MD_DataIdentification, 'gmd:abstract', my_resource.descr_eng, my_resource.descr_fre)
@@ -729,8 +724,8 @@ def construct(my_resource, pretty=True):
     # status
     try:
         codelist(MD_DataIdentification, "gmd:status", "gmd:MD_ProgressCode",
-                 "http://nap.geogratis.gc.ca/metadata/register/napMetadataRegister.xml#IC_106", my_resource.status.code,
-                 my_resource.status.label)
+                 "http://nap.geogratis.gc.ca/metadata/register/napMetadataRegister.xml#IC_106", my_resource.get_status_instance().code,
+                 my_resource.get_status_instance().label)
     except AttributeError:
         print("no 'status'")
 
@@ -740,7 +735,7 @@ def construct(my_resource, pretty=True):
     try:
         codelist(MD_MaintenanceInformation, "gmd:maintenanceAndUpdateFrequency", "gmd:MD_MaintenanceFrequencyCode",
                  "http://nap.geogratis.gc.ca/metadata/register/napMetadataRegister.xml#IC_102",
-                 my_resource.maintenance.code, my_resource.maintenance.code)
+                 my_resource.get_maintenance_instance().code, my_resource.get_maintenance_instance().code)
     except AttributeError:
         print("no 'maintenance'")
 
@@ -815,7 +810,7 @@ def construct(my_resource, pretty=True):
     try:
         codelist(MD_DataIdentification, "gmd:spatialRepresentationType", "gmd:MD_SpatialRepresentationTypeCode",
                  "http://nap.geogratis.gc.ca/metadata/register/napMetadataRegister.xml#IC_109",
-                 my_resource.spat_representation.code, my_resource.spat_representation.label)
+                 my_resource.get_spat_representation_instance().code, my_resource.get_spat_representation_instance().label)
     except AttributeError:
         print("No 'spat_representation'")
 
@@ -826,7 +821,7 @@ def construct(my_resource, pretty=True):
     try:
         codelist(MD_DataIdentification, "gmd:characterSet", "gmd:MD_CharacterSetCode",
                  "http://nap.geogratis.gc.ca/metadata/register/napMetadataRegister.xml#IC_195",
-                 my_resource.data_char_set.code, my_resource.data_char_set.label)
+                 my_resource.get_data_char_set_instance().code, my_resource.get_data_char_set_instance().label)
     except AttributeError:
         print("No 'data_char_set")
 
@@ -886,9 +881,9 @@ def construct(my_resource, pretty=True):
     distributorContact = SubElement(MD_Distributor, 'gmd:distributorContact')
 
     # for each point of contact
-    for person in my_resource.resource_people.all():
-        if person.role.id == 4:
-            distributorContact.append(ci_responsible_party(person))
+    for person in my_resource.get_points_of_contact():
+        role = models.PersonRole.objects.get(code__iexact="RI_414")
+        distributorContact.append(ci_responsible_party(person, role))
 
     # for each data resource
     for data_resource in my_resource.data_resources.all():
@@ -900,7 +895,7 @@ def construct(my_resource, pretty=True):
         URL = SubElement(linkage, 'gmd:URL').text = data_resource.url
         charstring(CI_OnlineResource, 'gmd:protocol', data_resource.protocol)
         charstring(CI_OnlineResource, 'gmd:name', data_resource.name_eng, data_resource.name_fre)
-        charstring(CI_OnlineResource, 'gmd:description', data_resource.content_type.english_value, data_resource.content_type.french_value)
+        charstring(CI_OnlineResource, 'gmd:description', data_resource.get_content_type_instance().english_value, data_resource.get_content_type_instance().french_value)
 
     # for each web service
     for web_service in my_resource.web_services.all():
@@ -914,8 +909,8 @@ def construct(my_resource, pretty=True):
         URL = SubElement(linkage, 'gmd:URL').text = web_service.url
         charstring(CI_OnlineResource, 'gmd:protocol', web_service.protocol)
         charstring(CI_OnlineResource, 'gmd:name', web_service.name_eng, web_service.name_fre)
-        charstring(CI_OnlineResource, 'gmd:description', web_service.content_type.english_value,
-                   web_service.content_type.french_value)
+        charstring(CI_OnlineResource, 'gmd:description', web_service.get_content_type_instance().english_value,
+                   web_service.get_content_type_instance().french_value)
     if pretty:
         return prettify(root) if not None else None  # DJF: this is being added here because of a periodic failure in unit testing. Not a solution :(
     else:
@@ -931,7 +926,17 @@ def verify(resource):
         'east_bounding',
         'north_bounding',
         'thumbnail_url',
-        'dma',
+        'maintenance_text',
+        'storage_solution_text',
+        'storage_needed',
+        'raw_data_retention',
+        'data_retention',
+        'backup_plan',
+        'had_sharing_agreements',
+        'publication_timeframe',
+        'publishing_platforms',
+
+
 
         # bilingual fields
         '?title_',
@@ -961,6 +966,7 @@ def verify(resource):
         'data_resources|',
         'web_services|',
         'distribution_formats|',
+        'storage_solutions|',
 
         # will check all keywords associated with resource
         '*keyword.text_value_',  # special keywords function will be called
@@ -971,7 +977,7 @@ def verify(resource):
         '*person.organization.location',
         '*person.organization.location.location_',
         '*person.position_',
-        '*person.user.email',
+        '*person.dmapps_user.email',
 
         # optional fields; denoted by dollar sign $
         # these fields are optional but must be bilingual
@@ -1006,7 +1012,7 @@ def verify(resource):
 
     max_rating = len(fields_to_check) - \
                  (special_keyword_fields + special_person_fields + bilinugal_fields + fk_fields) + \
-                 (resource.people.count() * true_count_of_special_person_fields) + \
+                 (resource.resource_people2.count() * true_count_of_special_person_fields) + \
                  (resource.keywords.filter(~Q(keyword_domain_id=8)).count() * true_count_of_special_keyword_fields) + \
                  true_count_of_bilinugal_fields + \
                  true_count_of_fk_fields + 1  # the +1 at the end is for the eng and fre web-service
@@ -1017,17 +1023,24 @@ def verify(resource):
 
     for field in fields_to_check:
         # starting with the most simple case: unilingual fields of resource
+
         if "$" not in field and "|" not in field and "." not in field and "__" not in field and "?" not in field:
-            if field == "dma":
-                if not hasattr(resource, "dma"):
-                    checklist.append(f"A <a href='{reverse('inventory:dma_new')+f'?resource={resource.id}'}' target='_blank'>data management agreement</a> has not been created for this record. This is optional but <b>highly recommended.</b>")
-                    rating = rating - 0  # make this optional
-            else:
-                field_value = nz(getattr(resource, field), None)
-                verbose_name = resource._meta.get_field(field).verbose_name
+            field_value = nz(getattr(resource, field), None)
+            verbose_name = resource._meta.get_field(field).verbose_name
+            if field_value is None:
+                checklist.append(f"A value is missing for: '{verbose_name}'")
+                rating = rating - 1
+
+            # if there is an agreement then there should also be a description of that agreement
+            if field == "had_sharing_agreements" and field_value == 1:
+                rating += 1
+                max_rating += 1
+                field_value = nz(getattr(resource, "sharing_agreements_text"), None)
+                verbose_name = resource._meta.get_field("sharing_agreements_text").verbose_name
                 if field_value is None:
-                    checklist.append("A value for {} is missing.".format(verbose_name))
+                    checklist.append(f"A value is missing for: '{verbose_name}'")
                     rating = rating - 1
+
         # next lets deal with the simple bilingual fields
         elif field.startswith("?"):
             # for check to see if there is a value
@@ -1041,12 +1054,12 @@ def verify(resource):
 
             # check english field
             if field_value_eng is None:
-                checklist.append("A value for {} is missing.".format(verbose_name_eng))
+                checklist.append(f"A value is missing for: '{verbose_name_eng}'")
                 rating = rating - 1
 
             # check french field
             if field_value_fre is None:
-                checklist.append("A value for {} is missing.".format(verbose_name_fre))
+                checklist.append(f"A value is missing for: '{verbose_name_fre}'")
                 rating = rating - 1
 
             # now do a special bilingual field check to see if translation is needed
@@ -1069,11 +1082,11 @@ def verify(resource):
             if (field_value_eng is not None and field_value_fre is None) or (field_value_eng is None and field_value_fre is not None):
                 checklist.append(
                     "'{}' and '{}' are optional fields, but if entered, they must be present in both languages".format(verbose_name_eng,
-                                                                                                                       verbose_name_fre))
+                                                                                                                      verbose_name_fre))
                 rating = rating - 1
                 translation_needed = True
 
-        # next lets deal with foreign keys
+                # next lets deal with foreign keys
         elif field.startswith("."):
             field_split = field.split(".")[1:]  # discard the first item
             fk_field = field_split[0]
@@ -1084,7 +1097,7 @@ def verify(resource):
                 checklist.append("A selection for {} is missing.".format(resource._meta.get_field(fk_field).verbose_name))
                 rating = rating - 1
             #   otherwise check for attr value
-            elif nz(getattr(getattr(resource, fk_field), attr_field), None) is None:
+            elif nz(getattr(getattr(resource, f"get_{fk_field}_instance")(), attr_field), None) is None:
                 verbose_name_fk = resource._meta.get_field(fk_field).verbose_name
                 verbose_name_attr = getattr(resource, fk_field)._meta.get_field(attr_field).verbose_name
                 checklist.append(
@@ -1104,8 +1117,8 @@ def verify(resource):
                 if resource.certification_history.count() == 0:
                     checklist.append(f'This record has not been certified ({cert_now_html})')
                     rating = rating - 1
-                elif abs((resource.certification_history.first().certification_date - timezone.now()).days) > 30:
-                    checklist.append(f'This record has not been certified within the past 30 days ({cert_now_html})')
+                elif abs((resource.certification_history.first().certification_date - timezone.now()).days) > 60:
+                    checklist.append(f'This record has not been certified within the past 60 days ({cert_now_html})')
                     rating = rating - 1
 
             elif field == 'keywords':
@@ -1115,7 +1128,7 @@ def verify(resource):
                     rating = rating - 1
             elif field == 'resource_people':
                 role = models.PersonRole.objects.get(pk=my_filter)
-                if not resource.resource_people.filter(role=role).exists():
+                if not resource.resource_people2.filter(roles=role).exists():
                     checklist.append("At least one {} is needed.".format(role))
                     rating = rating - 1
             elif field == 'data_resources':
@@ -1158,7 +1171,7 @@ def verify(resource):
                         rating = rating - 1
                         translation_needed = True
             elif field_split[0] == "person":
-                for person in resource.people.all():
+                for person in resource.resource_people2.all():
                     if field_split[1] == "organization":
                         if len(field_split) == 2:  # means we are looking at the fk
                             if person.organization is None:
@@ -1175,7 +1188,8 @@ def verify(resource):
                                     checklist.append("A French organization name is needed for {}".format(person))
                                     rating = rating - 1
                                     translation_needed = True
-                            except AttributeError:
+                            except AttributeError as e:
+                                print(e)
                                 # two points are lost
                                 rating = rating - 2
                         elif field_split[2].startswith("loc") and len(field_split) == 3:  # means we are looking at the fk
@@ -1204,12 +1218,12 @@ def verify(resource):
                                 # two points are lost
                                 rating = rating - 2
 
-                    elif field_split[1].startswith("position"):
+                    elif field_split[1].startswith("job_title"):
                         if person.position_eng is None or person.position_eng == "":
-                            checklist.append("An English position name is needed for {}".format(person))
+                            checklist.append("An English job title is needed for {}".format(person))
                             rating = rating - 1
                         if person.position_fre is None or person.position_fre == "":
-                            checklist.append("A French position name is needed for {}".format(person))
+                            checklist.append("A French job title is needed for {}".format(person))
                             rating = rating - 1
 
                         # now do a special bilingual field check to see if translation is needed
@@ -1218,7 +1232,7 @@ def verify(resource):
                             translation_needed = True
 
                     elif field_split[1].startswith("user"):
-                        if person.user.email is None:
+                        if person.dmapps_user.email is None:
                             checklist.append("An email address is needed for {}".format(person))
                             rating = rating - 1
 

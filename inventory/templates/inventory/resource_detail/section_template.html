@@ -1,0 +1,38 @@
+{% load static %}
+{% load i18n %}
+{% load custom_filters %}
+
+<div class="mb-5 {% block wd %}{% endblock %}">
+
+  <div class="mb-3">
+    <h4 class="neighbours">
+    <span class="mdi {% block mdi_class %}{% endblock %}"></span>
+      {% block section_title %}{% endblock %}
+    </h4>
+    {% block optional_btn %}
+      <a class=" mb-2 btn btn-xs btn-outline-dark" {% block btn_href_arg %}href="#" pop-href{% endblock %}="{% block optional_btn_url %}{% endblock %}">
+        Add <span class="mdi mdi-plus text-dark"></span>
+      </a>
+    {% endblock %}
+  </div>
+
+  {% block section_table %}
+    <table class="table table-sm small">
+      <thead>
+      <tr>
+        {% block section_table_header_rows %}
+          <th class="w-40">{% trans "H1" %}</th>
+          <th class="w-25">{% trans "H2" %}</th>
+          <th>{% trans "H3" %}</th>
+        {% endblock %}
+      </tr>
+      </thead>
+      <tbody>
+      {% block section_table_body_rows %}
+
+      {% endblock %}
+      </tbody>
+    </table>
+  {% endblock %}
+
+</div>

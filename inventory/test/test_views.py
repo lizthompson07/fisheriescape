@@ -25,22 +25,6 @@ class TestIndexTemplateView(CommonTest):
         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template)
 
 
-class TestMyResourceListView(CommonTest):
-    def setUp(self):
-        super().setUp()
-        self.test_url = reverse_lazy('inventory:my_resource_list')
-        self.expected_template = 'inventory/resource_list.html'
-
-    @tag("inventory", 'list', "view")
-    def test_view_class(self):
-        self.assert_inheritance(views.MyResourceListView, ListView)
-
-    @tag("inventory", 'list', "access")
-    def test_view(self):
-        self.assert_good_response(self.test_url)
-        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template)
-
-
 class TestOpenDataDashboardTemplateView(CommonTest):
     def setUp(self):
         super().setUp()
@@ -196,7 +180,8 @@ class TestResourceUpdateView(CommonTest):
         super().setUp()
         self.instance = FactoryFloor.ResourceFactory()
         self.test_url = reverse_lazy('inventory:resource_edit', kwargs={"pk": self.instance.pk})
-        self.resource_person = FactoryFloor.CustodianResourcePersonFactory(resource=self.instance)
+        self.resource_person = FactoryFloor.ResourcePersonFactory(resource=self.instance)
+        self.resource_person.roles.add(models.PersonRole.objects.get(code="RI_409"))
         self.expected_template = 'inventory/resource_form.html'
 
     @tag("inventory", 'update', "view")
@@ -207,13 +192,12 @@ class TestResourceUpdateView(CommonTest):
     def test_view(self):
         self.assert_good_response(self.test_url)
         # the user must be a custodian...
-        user = FactoryFloor.CustodianResourcePersonFactory(resource=self.instance)
-        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.resource_person.person.user)
+        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.resource_person.user)
 
     @tag("inventory", 'update', "submit")
     def test_submit(self):
         data = FactoryFloor.ResourceFactory.get_valid_data()
-        self.assert_success_url(self.test_url, data=data, user=self.resource_person.person.user)
+        self.assert_success_url(self.test_url, data=data, user=self.resource_person.user)
 
 
 class TestResourceCloneUpdateView(CommonTest):
