@@ -14,7 +14,7 @@ from dm_apps.utils import get_timezone_time
 from lib.functions.custom_functions import listrify
 from lib.templatetags.custom_filters import nz
 from shared_models import models as shared_models
-from shared_models.models import MetadataFields, SimpleLookup, LatLongFields, Lookup
+from shared_models.models import MetadataFields, SimpleLookup, LatLongFields, Lookup, UnilingualSimpleLookup
 from shared_models.utils import remove_nulls
 from trapnet import model_choices
 from trapnet.utils import get_age_from_length
@@ -119,12 +119,21 @@ class Species(MetadataFields):
         return self.specimens.count()
 
 
-class Electrofisher(SimpleLookup):
-    model_number = models.CharField(max_length=255, blank=True, null=True)
+# class Electrofisher(models.Model):
+class Electrofisher(UnilingualSimpleLookup):
+    model_number = models.CharField(max_length=255, verbose_name=_("model"))
     serial_number = models.CharField(max_length=255, blank=True, null=True, unique=True)
+    notes = models.CharField(max_length=255, blank=True, null=True, unique=True)
+    is_decommissioned = models.BooleanField(default=False, verbose_name=_("Decommissioned?"))
 
     def __str__(self):
-        return f"{self.tname} (s/n: {nz(self.serial_number, '---')})"
+        mystr = f"{self.model_number} [s/n: {nz(self.serial_number, '---')}]"
+        if self.notes:
+            mystr += f" ({self.notes})"
+        return mystr
+
+    class Meta:
+        ordering = ['model_number']
 
 
 class Sample(MetadataFields):
@@ -331,7 +340,7 @@ class EFSample(models.Model):
 
     # efisher
     electrofisher = models.ForeignKey(Electrofisher, related_name='ef_samples', on_delete=models.DO_NOTHING, verbose_name=_("electrofisher"), blank=True,
-                                      null=True)
+                                      null=True, limit_choices_to={"is_decommissioned": False})
     electrofisher_voltage = models.FloatField(null=True, blank=True, verbose_name=_("electrofisher voltage (V)"))
     electrofisher_output_low = models.FloatField(null=True, blank=True, verbose_name=_("electrofisher output, low (amps)"))
     electrofisher_output_high = models.FloatField(null=True, blank=True, verbose_name=_("electrofisher output, high (amps)"))
