@@ -337,6 +337,9 @@ class ElectrofisherForm(forms.ModelForm):
     class Meta:
         model = models.Electrofisher
         fields = "__all__"
+        widgets = {
+            "model_number": forms.TextInput(attrs=({"class": "w200px"}))
+        }
 
 
 ElectrofisherFormset = modelformset_factory(
