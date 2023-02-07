@@ -338,7 +338,8 @@ class ElectrofisherForm(forms.ModelForm):
         model = models.Electrofisher
         fields = "__all__"
         widgets = {
-            "model_number": forms.TextInput(attrs=({"class": "w200px"}))
+            "model_number": forms.TextInput(attrs=({"class": "w200px"})),
+            "notes": forms.TextInput(attrs=({"class": "w200px"})),
         }
 
 
