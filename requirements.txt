@@ -37,7 +37,7 @@ djangorestframework==3.13.1 #updated from 3.12.2
 djangorestframework-gis==0.18
 factory-boy==3.1.0
 Faker==4.14.0
-future==0.18.2
+future==0.18.3
 google-api-core==1.23.0
 google-auth==1.22.1
 googleapis-common-protos==1.52.0
