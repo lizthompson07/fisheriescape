@@ -23,6 +23,7 @@ class SpecificItemFilter(django_filters.FilterSet):
         fields = {
             'item_name': ['icontains'],
             'size': ['exact'],
+            'category': ['exact'],
             'owner': ['exact'],
             'suppliers': ['exact'],
 

@@ -1,0 +1,65 @@
+{% extends "inventory/resource_detail/section_template.html" %}
+
+{% load verbose_names %}
+{% load static %}
+{% load i18n %}
+{% load custom_filters %}
+{% load humanize %}
+
+{% block wd %} {% endblock %}
+{% block mdi_class %}mdi-magnify{% endblock %}
+
+{% block section_title %}
+  {% trans "Review" %}
+{% endblock %}
+
+{% block optional_btn %}
+  {% if is_admin %}
+     <a class=" mb-2 btn btn-xs btn-outline-dark" href="#" pop-href="{% url 'inventory:review_new' object.id %}">
+        Add <span class="mdi mdi-plus text-dark"></span>
+      </a>
+
+  {% endif %}
+{% endblock %}
+
+{% block section_table_header_rows %}
+  {% for field in dma_review_field_list %}
+    {% if field == "comments" %}
+      <th class="w-40">{% get_verbose_label object.reviews.first field %}</th>
+    {% else %}
+      <th class="">{% get_verbose_label object.reviews.first field %}</th>
+    {% endif %}
+  {% endfor %}
+{% endblock %}
+
+{% block section_table %}
+  {% if not object.reviews.exists %}
+    <em>{% trans "This DMA has not been reviewed." %}</em>
+  {% else %}
+    {{ block.super }}
+  {% endif %}
+{% endblock %}
+
+{% block section_table_body_rows %}
+
+  {% for item in object.reviews.all %}
+    <tr>
+      {% for field in dma_review_field_list %}
+        <td>{% get_field_value item field format='html' %}</td>
+      {% endfor %}
+      <td>
+        {% if is_admin %}
+          <a href="#" pop-href="{% url "inventory:review_edit" item.id %}" data-toggle="tooltip" title="edit" class="btn btn-sm btn-warning">
+            <span class="mdi mdi-pencil text-dark"></span>
+          </a>
+          <a href="#" pop-href="{% url 'inventory:review_delete' item.id %}" data-toggle="tooltip" title="delete" class="btn btn-sm btn-danger">
+            <span class="mdi mdi-trash-can text-light"></span>
+          </a>
+        {% endif %}
+      </td>
+
+    </tr>
+  {% endfor %}
+{% endblock %}
+
+

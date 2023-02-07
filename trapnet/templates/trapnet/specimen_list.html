@@ -22,6 +22,7 @@
       <div class="col">
         {% bootstrap_field filter.form.id placeholder="" size="small" form_group_class="mb-2" label_class=" mb-0" %}
         {% bootstrap_field filter.form.sample_id placeholder="" size="small" form_group_class="mb-2" label_class=" mb-0" %}
+        {% bootstrap_field filter.form.sample__site__river__fishing_area placeholder="" size="small" form_group_class="mb-2" label_class=" mb-0" %}
       </div>
       <div class="col">
         {% bootstrap_field filter.form.species placeholder="" size="small" form_group_class="mb-2" label_class=" mb-0" %}
@@ -41,6 +42,7 @@
       </div>
       <div class="col">
         {% bootstrap_field filter.form.scale_id_number__icontains placeholder="" size="small" form_group_class="mb-2" label_class=" mb-0" %}
+        {% bootstrap_field filter.form.old_id__icontains placeholder="" size="small" form_group_class="mb-2" label_class=" mb-0" %}
       </div>
 
     </div>

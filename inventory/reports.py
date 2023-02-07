@@ -60,177 +60,6 @@ def generate_batch_xml(sections):
     return target_url
 
 
-def generate_odi_report():
-    # figure out the filename
-    target_dir = os.path.join(settings.BASE_DIR, 'media', 'inventory', 'temp')
-    target_file = "temp_data_export_{}.xlsx".format(timezone.now().strftime("%Y-%m-%d"))
-    target_file_path = os.path.join(target_dir, target_file)
-    target_url = os.path.join(settings.MEDIA_ROOT, 'inventory', 'temp', target_file)
-    # create workbook and worksheets
-    workbook = xlsxwriter.Workbook(target_file_path)
-    # create formatting variables
-    title_format = workbook.add_format(
-        {'bold': False, "align": 'normal', 'font_size': 14, "text_wrap": False, 'bg_color': '#006640', 'font_color': 'white'})
-    header_format = workbook.add_format(
-        {'bold': False, 'border': 1, 'border_color': 'black', 'bg_color': '#A1B7BF', "align": 'normal', "text_wrap": False})
-
-    normal_format = workbook.add_format({"align": 'left', "text_wrap": True, })
-    date_format = workbook.add_format({'num_format': "yyyy-mm-dd", "align": 'left', })
-
-    # get the trip list
-    resource_list = models.Resource.objects.filter(odi_id__isnull=False)
-
-    field_list = [
-        "odi_id",
-        "title_eng",
-        "title_fre",
-        "descr_eng",
-        "descr_fre",
-        "publisher_en",
-        "publisher_fr",
-        "od_publication_date",
-        "language",
-        "size",
-        "eligible_for_release",
-        "paa_en",
-        "paa_fr",
-        "od_release_date",
-        "url_en",
-        "url_fr",
-    ]
-
-    # define the headers
-    header1 = ["dfo-mpo",
-               "Open Data Inventory        Fisheries and Oceans Canada | Pêches et Océans Canada",
-               "",
-               "",
-               "",
-               "",
-               "",
-               "",
-               "",
-               "",
-               "",
-               "",
-               "",
-               "",
-               "",
-               "",
-               ]
-    header2 = ["Reference Number",
-               "Title (English)",
-               "Title (French)",
-               "Description (English)",
-               "Description (French)",
-               "Publisher - Name at Publication (English)",
-               "Publisher - Name at Publication (French)",
-               "Date Published",
-               "Language",
-               "Size",
-               "Eligible for Release",
-               "Program Alignment Architecture (English)",
-               "Program Alignment Architecture (French)",
-               "Date Released",
-               "Open Government Portal Record (English)",
-               "Open Government Portal Record (French)", ]
-    header3 = ["ref_number",
-               "title_en",
-               "title_fr",
-               "description_en",
-               "description_fr",
-               "publisher_en",
-               "publisher_fr",
-               "date_published",
-               "language",
-               "size",
-               "eligible_for_release",
-               "program_alignment_architecture_en",
-               "program_alignment_architecture_fr",
-               "date_released",
-               "portal_url_en",
-               "portal_url_fr",
-               ]
-    # header.append('Number of projects tagged')
-
-    # define a worksheet
-    my_ws = workbook.add_worksheet(name="trip list")
-    my_ws.write_row(0, 0, header1, title_format)
-    my_ws.write_row(1, 0, header2, header_format)
-    my_ws.write_row(2, 0, header3, header_format)
-    my_ws.set_row(2, 0)  # row # 2 is a hidden row
-
-    i = 3
-    for r in resource_list.order_by("odi_id"):
-        # create the col_max column to store the length of each header
-        # should be a maximum column width to 100
-        col_max = [len(str(d)) if len(str(d)) <= 100 else 100 for d in header2]
-
-        j = 0
-        for field in field_list:
-
-            if "publisher_en" in field:
-                my_val = "Fisheries and Oceans"
-                my_ws.write(i, j, my_val, normal_format)
-
-            elif "publisher_fr" in field:
-                my_val = "Pêches et Océans"
-                my_ws.write(i, j, my_val, normal_format)
-
-            elif "eligible_for_release" in field:
-                my_val = "Y"
-                my_ws.write(i, j, my_val, normal_format)
-
-            elif "language" in field:
-                my_val = "en+fr" if r.od_publication_date else ""
-                my_ws.write(i, j, my_val, normal_format)
-
-            elif "paa_en" in field:
-                my_val = listrify([f'{paa.code} {paa.name}' for paa in r.paa_items.all()])
-                my_ws.write(i, j, my_val, normal_format)
-
-            elif "paa_fr" in field:
-                my_val = listrify([f'{paa.code} {paa.nom}' for paa in r.paa_items.all()])
-                my_ws.write(i, j, my_val, normal_format)
-
-            elif "url_en" in field:
-                if r.public_url:
-                    my_val = f'https://open.canada.ca/data/en/dataset/{r.uuid}'
-                else:
-                    my_val = ""
-                my_ws.write_url(i, j, url=my_val, string=my_val)
-            elif "url_fr" in field:
-                if r.public_url:
-                    my_val = f'https://ouvert.canada.ca/data/fr/dataset/{r.uuid}'
-                else:
-                    my_val = ""
-                my_ws.write_url(i, j, url=my_val, string=my_val)
-            elif "date" in field:
-                my_val = get_field_value(r, field, nullmark="")
-                my_ws.write(i, j, my_val, date_format)
-            else:
-                my_val = get_field_value(r, field, nullmark="")
-                my_ws.write(i, j, my_val, normal_format)
-
-            # adjust the width of the columns based on the max string length in each col
-            ## replace col_max[j] if str length j is bigger than stored value
-
-            # if new value > stored value... replace stored value
-            if len(str(my_val)) > col_max[j]:
-                if len(str(my_val)) < 75:
-                    col_max[j] = len(str(my_val))
-                else:
-                    col_max[j] = 75
-            j += 1
-        i += 1
-
-        # set column widths
-        for j in range(0, len(col_max)):
-            my_ws.set_column(j, j, width=col_max[j] * 1.1)
-
-    workbook.close()
-    return target_url
-
-
 def generate_physical_samples_report():
     # figure out the filename
     target_dir = os.path.join(settings.BASE_DIR, 'media', 'inventory', 'temp')
@@ -250,7 +79,7 @@ def generate_physical_samples_report():
 
     # get the resource list
     # anything with resource type as "physical collection"
-    ids = [r.id for r in models.Resource.objects.filter(resource_type_id=4)]
+    ids = [r.id for r in models.Resource.objects.filter(resource_type=4)]
     # anything where this is a meaningful description of physical samples
     ids.extend(
         [r.id for r in models.Resource.objects.filter(physical_sample_descr_eng__isnull=False) if len(r.physical_sample_descr_eng) > 10])
@@ -263,9 +92,9 @@ def generate_physical_samples_report():
         [r.id for r in models.Resource.objects.filter(title_fre__icontains="physique").filter(title_fre__icontains="échantillon")])
     # anything where the word "physical" is in the storage notes
     ids.extend(
-        [r.id for r in models.Resource.objects.filter(storage_envr_notes__icontains="physical").filter(storage_envr_notes__icontains="sample")])
+        [r.id for r in models.Resource.objects.filter(storage_solution_text__icontains="physical").filter(storage_solution_text__icontains="sample")])
     ids.extend(
-        [r.id for r in models.Resource.objects.filter(storage_envr_notes__icontains="physique").filter(storage_envr_notes__icontains="échantillon")])
+        [r.id for r in models.Resource.objects.filter(storage_solution_text__icontains="physique").filter(storage_solution_text__icontains="échantillon")])
 
     resources = models.Resource.objects.filter(id__in=ids)
 
@@ -275,7 +104,7 @@ def generate_physical_samples_report():
         "title_fre",
         "physical_sample_descr_eng",
         "physical_sample_descr_fre",
-        "storage_envr_notes",
+        "storage_solution_text",
         "hyperlink",
     ]
 
@@ -386,7 +215,7 @@ def generate_resources_report(sections):
         "security_use_limitation_eng",
         "security_use_limitation_fre",
         "security_classification",
-        "storage_envr_notes",
+        "storage_solution_text",
         "distribution_formats",
         "data_char_set",
         "spat_representation",
@@ -407,7 +236,6 @@ def generate_resources_report(sections):
         "fgp_publication_date",
         "od_publication_date",
         "od_release_date",
-        "odi_id",
         "last_revision_date",
         "open_data_notes",
         "notes",
@@ -447,7 +275,7 @@ def generate_resources_report(sections):
                 my_val = f'http://dmapps{reverse("inventory:resource_detail", args=[r.id])}'
                 my_ws.write_url(i, j, url=my_val, string=my_val)
             elif "people" in field:
-                my_val = listrify([obj for obj in r.resource_people.all()])
+                my_val = listrify([obj for obj in r.resource_people2.all()])
                 my_ws.write(i, j, str(my_val), normal_format)
             elif "keywords" in field:
                 my_val = listrify([obj.non_hierarchical_name_en for obj in r.keywords.all()])
@@ -538,7 +366,7 @@ def generate_open_data_resources_report(regions):
                 my_val = f'http://dmapps{reverse("inventory:resource_detail", args=[r.id])}'
                 my_ws.write_url(i, j, url=my_val, string=my_val)
             elif "people" in field:
-                my_val = listrify([obj for obj in r.resource_people.all()])
+                my_val = listrify([obj for obj in r.resource_people2.all()])
                 my_ws.write(i, j, str(my_val), normal_format)
             elif "public_url" in field:
                 my_val = r.public_url
@@ -630,10 +458,10 @@ def generate_custodian_report(qs):
                 my_ws.write_url(i, j, url=my_link, string=my_val)
 
             elif "custodians" in field:
-                my_val = listrify([obj.person.user.email for obj in r.resource_people.filter(role__code__iexact="RI_409")], separator="; ")
+                my_val = listrify([obj.person.user.email for obj in r.resource_people2.filter(roles__code__iexact="RI_409").distinct()], separator="; ")
                 my_ws.write(i, j, str(my_val), normal_format)
             elif "points_of_contact" in field:
-                my_val = nz(listrify([obj.person.user.email for obj in r.resource_people.filter(role__code__iexact="RI_414")], separator="; "), "")
+                my_val = nz(listrify([obj.person.user.email for obj in r.resource_people2.filter(roles__code__iexact="RI_414").distinct()], separator="; "), "")
                 my_ws.write(i, j, str(my_val), normal_format)
             elif "region" in field:
                 my_val = str(r.section.division.branch.sector.region)

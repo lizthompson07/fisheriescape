@@ -217,17 +217,21 @@ class TravellerViewSet(viewsets.ModelViewSet):
         elif qp.get("clear_empty_costs"):
             utils.clear_empty_traveller_costs(obj)
             return Response(None, status.HTTP_204_NO_CONTENT)
-        elif qp.get("cherry_pick_approval"):
+        elif qp.get("cherry_pick_approval") or qp.get("cherry_pick_deny"):
             # This should only ever be used by authorized users
             if utils.can_cherry_pick(request.user):
                 # make sure this specific instance of cherry picking is appropriate
                 if utils.can_cherry_pick(request.user, obj.request):
-                    utils.cherry_pick_traveller(obj, request=request, comments=request.data.get("comments"))
+                    if qp.get("cherry_pick_approval"):
+                        utils.cherry_pick_traveller(obj, request=request, comments=request.data.get("comments"))
+                    else:
+                        utils.cherry_pick_deny_traveller(obj, request=request, comments=request.data.get("comments"))
                 else:
                     raise PermissionDenied(_("You cannot cherry pick this traveller at this time."))
             else:
                 raise PermissionDenied(_("You do not have the permissions to cherry pick the approval"))
             return Response(None, status.HTTP_204_NO_CONTENT)
+
 
     def perform_create(self, serializer):
         obj = serializer.save()

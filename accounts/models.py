@@ -30,15 +30,10 @@ class Profile(models.Model):
         return my_str
 
     def __str__(self):
-        return "{}, {}".format(self.user.last_name, self.user.first_name)
+        return self.user.get_full_name()
 
     class Meta:
-        ordering = ['user__last_name', 'user__first_name']
-
-    def save(self, *args, **kwargs):
-        self.full_name = "{} {}".format(self.user.first_name, self.user.last_name)
-
-        super().save(*args, **kwargs)
+        ordering = ['user__first_name', 'user__last_name']
 
 
 class Announcement(models.Model):

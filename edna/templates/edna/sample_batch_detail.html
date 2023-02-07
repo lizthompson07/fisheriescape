@@ -1,0 +1,461 @@
+{% extends 'edna/base.html' %}
+{% load verbose_names %}
+{% load i18n %}
+
+{% block subcontent %}
+
+  <div class="btns mb-3">
+    <a href="{% url 'edna:sample_batch_edit' object.id %}" class="btn btn-warning btn-sm">{% trans "Edit" %}</a>
+    <a href="{% url 'edna:sample_batch_delete' object.id %}" class="btn btn-danger btn-sm">{% trans "Delete" %}</a>
+
+  </div>
+  {% include 'edna/_table_navigation.html' %}
+  <table class="table table-sm w-50">
+    {% for field in field_list %}
+      {% verbose_td_display object field th_width="200px" %}
+    {% endfor %}
+  </table>
+
+  <div v-cloak
+       id="app"
+       class="mt-5"
+       @keydown.enter.prevent="goDown"
+       @keydown.shift.right.prevent="goRight"
+       @keydown.shift.left.prevent="goLeft"
+       @keydown.up.prevent="goUp"
+       @keydown.down.prevent="goDown"
+  >
+
+    <div class="mb-3">
+      <p class="h3">{% trans "Samples" %}</p>
+      <div class="neighbours">
+        <a href="{% url 'edna:import_samples' object.id %}" class="btn btn-sm btn-dark">
+          <span class="mdi mdi-import text-light mr-1"></span> {% trans "Import Samples from CSV" %}
+        </a>
+      </div>
+      <div class="neighbours">
+        <add-pcr-overlay v-if="samples.length" @add="addSamples" :example_sample="samples[samples.length-1]"></add-pcr-overlay>
+        <add-pcr-overlay v-else @add="addSamples"></add-pcr-overlay>
+      </div>
+    </div>
+
+    <div v-if="loading" class="loading mb-3 mt-3 mt-5">
+      <div class="spinner-border mb-3" style="width: 5rem; height: 5rem;" role="status">
+        <span class="sr-only"></span>
+      </div>
+    </div>
+    <div v-else-if="!samples.length">
+      <em>{% trans "No samples have been added to this collection." %}</em>
+    </div>
+    <div v-else>
+      <div class="alert alert-danger" role="alert" v-if="sampleErrorMsg">
+        <p class="mb-0 lead" v-html="sampleErrorMsg"></p>
+      </div>
+      <table :class="{'unsaved-borders':unsavedChanges, 'saved-borders':!unsavedChanges}" style="width: 100%">
+        <thead>
+        <tr>
+          <th rowspan="2" class="p-1" style="width: 100px">
+            <select-tools
+              :selected_items_count="selectedItems.length"
+              @select-all="selectAll"
+              @unselect-all="unselectAll"
+              @delete-selected="deleteSelected"
+              :disable_move="true"
+            ></select-tools>
+          </th>
+          <th class="px-1 py-1" style="width: 75px">{% trans "Sample ID" %}</th>
+          <th class="px-1 py-1" style="width: 125px">${labels.sample_type}</th>
+          <th class="px-1 py-1" style="width: 100px">${labels.bottle_id}</th>
+          <th class="px-1 py-1" style="width: 100px">${labels.is_field_blank}</th>
+          <th class="px-1 py-1" style="width: 150px">${labels.location}</th>
+          <th class="px-1 py-1" style="width: 100px">${labels.site}</th>
+          <th class="px-1 py-1" style="width: 100px">${labels.station}</th>
+          <th class="px-1 py-1" style="width: 220px">${labels.datetime} <br>yyyy-mm-dd HH:MM[:SS]</th>
+          <th class="px-1 py-1" style="width: 200px">${labels.samplers}</th>
+          <th class="px-1 py-1" style="width: 100px">${labels.latitude}</th>
+          <th class="px-1 py-1" style="width: 100px">${labels.longitude}</th>
+          <th class="px-1 py-1">${labels.comments}</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr v-for="(obj, index) in samples" :key="obj.id" :class="{highlight: obj.selected}">
+          <td class="p-1" tabindex="-1">
+            ${index + 1} &mdash; <input v-model='obj.selected' type="checkbox" tabindex="-1">
+          </td>
+
+          <td class="px-1  py-0 text-muted" tabindex="-1">${obj.display}</td>
+
+          <td class="px-0 py-0">
+            <text-input-cell
+              type="select"
+              :sample.sync="obj" :row="index"
+              @keypress="unsavedChanges=true" @change="updateSample" @setposition="setPosition" @copy-down="copyDown" @copy-double-down="copyDoubleDown"
+              field="sample_type"
+              :col="0"
+              :ref="`row_${index}_col_0`"
+              :options="sampleTypeChoices"
+            ></text-input-cell>
+          </td>
+          <td class="px-0 py-0">
+            <text-input-cell
+              type="text"
+              :sample.sync="obj" :row="index"
+              @keypress="unsavedChanges=true" @change="updateSample" @setposition="setPosition" @copy-down="copyDown" @copy-double-down="copyDoubleDown"
+              field="bottle_id"
+              :col="1"
+              :ref="`row_${index}_col_1`"
+              :key="`row_${index}_col_1`"
+            ></text-input-cell>
+          </td>
+          <td class="px-0 py-0">
+            <text-input-cell
+              type="select"
+              :sample.sync="obj" :row="index"
+              @keypress="unsavedChanges=true" @change="updateSample" @setposition="setPosition" @copy-down="copyDown" @copy-double-down="copyDoubleDown"
+              field="is_field_blank"
+              :col="2"
+              :ref="`row_${index}_col_2`"
+              :options="yesNoChoices"
+              :tools_enabled="false"
+            ></text-input-cell>
+          </td>
+          <td class="px-0 py-0">
+            <text-input-cell
+              type="text"
+              :sample.sync="obj" :row="index"
+              @keypress="unsavedChanges=true" @change="updateSample" @setposition="setPosition" @copy-down="copyDown" @copy-double-down="copyDoubleDown"
+              field="location"
+              :col="3"
+              :ref="`row_${index}_col_3`"
+              :key="`row_${index}_col_3`"
+            ></text-input-cell>
+          </td>
+
+          <td class="px-0 py-0">
+            <text-input-cell
+              type="text"
+              :sample="obj" :row="index"
+              @keypress="unsavedChanges=true" @change="updateSample" @setposition="setPosition" @copy-down="copyDown" @copy-double-down="copyDoubleDown"
+              field="site"
+              :col="4"
+              :ref="`row_${index}_col_4`"
+              :key="`row_${index}_col_4`"
+            ></text-input-cell>
+          </td>
+          <td class="px-0 py-0">
+            <text-input-cell
+              type="text"
+              :sample="obj" :row="index"
+              @keypress="unsavedChanges=true" @change="updateSample" @setposition="setPosition" @copy-down="copyDown" @copy-double-down="copyDoubleDown"
+              field="station"
+              :col="5"
+              :ref="`row_${index}_col_5`"
+              :key="`row_${index}_col_5`"
+            ></text-input-cell>
+          </td>
+          <td class="px-0 py-0">
+            <text-input-cell
+              type="text"
+              :sample="obj" :row="index"
+              @keypress="unsavedChanges=true" @change="updateSample" @setposition="setPosition" @copy-down="copyDown" @copy-double-down="copyDoubleDown"
+              field="datetime_display"
+              :col="6"
+              :ref="`row_${index}_col_6`"
+              :key="`row_${index}_col_6`"
+            ></text-input-cell>
+          </td>
+          <td class="px-0 py-0">
+            <text-input-cell
+              type="text"
+              :sample="obj" :row="index"
+              @keypress="unsavedChanges=true" @change="updateSample" @setposition="setPosition" @copy-down="copyDown" @copy-double-down="copyDoubleDown"
+              field="samplers"
+              :col="7"
+              :ref="`row_${index}_col_7`"
+              :key="`row_${index}_col_7`"
+
+            ></text-input-cell>
+          </td>
+          <td class="px-0 py-0">
+            <text-input-cell
+              type="text"
+              :sample="obj" :row="index"
+              @keypress="unsavedChanges=true" @change="updateSample" @setposition="setPosition" @copy-down="copyDown" @copy-double-down="copyDoubleDown"
+              field="latitude"
+              :col="8"
+              :ref="`row_${index}_col_8`"
+              :key="`row_${index}_col_8`"
+            ></text-input-cell>
+          </td>
+          <td class="px-0 py-0">
+            <text-input-cell
+              type="text"
+              :sample="obj" :row="index"
+              @keypress="unsavedChanges=true" @change="updateSample" @setposition="setPosition" @copy-down="copyDown" @copy-double-down="copyDoubleDown"
+              field="longitude"
+              :col="9"
+              :ref="`row_${index}_col_9`"
+              :key="`row_${index}_col_9`"
+            ></text-input-cell>
+          </td>
+          <td class="px-0 py-0">
+            <text-input-cell
+              type="text"
+              :sample="obj" :row="index"
+              @keypress="unsavedChanges=true" @change="updateSample" @setposition="setPosition" @copy-down="copyDown" @copy-double-down="copyDoubleDown"
+              field="comments"
+              :col="10"
+              :ref="`row_${index}_col_10`"
+              :key="`row_${index}_col_10`"
+            ></text-input-cell>
+          </td>
+          <td class="px-0 py-0" tabindex="-1">
+            <button v-if="obj.is_deletable" class="btn py-0" @click="deleteSample(obj)" tabindex="-1"><span class="h5 mdi mdi-delete"></span></button>
+            <button v-else class="btn py-0 helper"><span class="h5 mdi mdi-delete" style="color: lightgrey" data-toggle="tooltip" tabindex="-1"
+                                                         title="{% trans "cannot delete a sample that has downstream processing" %}"></span></button>
+
+          </td>
+        </tr>
+        </tbody>
+      </table>
+      <div class="my-3">
+        <p class="lead text-muted">TOTAL: ${samples.length}</p>
+      </div>
+    </div>
+
+  </div>
+
+{% endblock %}
+
+{% block body_js %}
+
+  {{ block.super }}
+  {% include "edna/components/text-input-cell.html" %}
+  {% include "edna/components/select_tools.html" %}
+  {% include "edna/components/add_samples_overlay.html" %}
+
+  <script type="application/javascript">
+  let sampleBatchId = {{ object.id }};
+  let collectionId = {{ object.default_collection_id }};
+  var app = new Vue({
+    el: '#app',
+    delimiters: ["${", "}"],
+    data: {
+      currentUser: null,
+      default_sample_type: null,
+      sampleErrorMsg: null,
+      samples: [],
+      sampleTypeChoices: [],
+      yesNoChoices: [{value: true, text: "{% trans 'Yes' %}"}, {value: false, text: "{% trans 'No' %}"}],
+      labels: [],
+      loading: false,
+      sampleChoices: [],
+      unsavedChanges: false,
+      row: 0,
+      col: 0,
+    },
+    methods: {
+      copyDown(sample, field, input) {
+        this.unsavedChanges = true;
+        // copy the value for the field into the next row
+        let index = this.samples.indexOf(sample) + 1;
+        if (this.samples[index]) this.samples[index][field] = input;
+        //console.log(sample, field, input, index, this.samples[index], this.samples[index][field])
+        this.updateSample(this.samples[index])
+      },
+      copyDoubleDown(sample, field, input) {
+        this.unsavedChanges = true;
+        // copy the value for the field into the next row
+        let startingIndex = this.samples.indexOf(sample) + 1;
+        let endingIndex = this.samples.length - 1;
+        for (var i = startingIndex; i <= endingIndex; i++) {
+          if (this.samples[i]) this.samples[i][field] = input;
+          this.updateSample(this.samples[i])
+        }
+        //console.log(sample, field, input, index, this.samples[index], this.samples[index][field])
+      },
+      setPosition(i, j) {
+        this.row = i;
+        this.col = j;
+      },
+      goRight() {
+        this.col += 1;
+        let ref = `row_${this.row}_col_${this.col}`;
+        if (this.$refs[ref]) {
+          let component = this.$refs[ref];
+          if (component[0].$refs.input.type === "select-one") {
+            component[0].$refs.input.focus();
+          } else {
+            component[0].$refs.input.select();
+          }
+        } else this.col -= 1
+      },
+      goLeft() {
+        this.col -= 1;
+        let ref = `row_${this.row}_col_${this.col}`;
+        if (this.$refs[ref]) {
+          let component = this.$refs[ref];
+          if (component[0].$refs.input.type === "select-one") {
+            component[0].$refs.input.focus();
+          } else {
+            component[0].$refs.input.select();
+          }
+        } else this.col += 1
+      },
+      goDown() {
+        this.row += 1;
+        let ref = `row_${this.row}_col_${this.col}`;
+        if (this.$refs[ref]) {
+          let component = this.$refs[ref];
+          if (component[0].$refs.input.type === "select-one") {
+            component[0].$refs.input.focus();
+          } else {
+            component[0].$refs.input.select();
+          }
+        } else this.row -= 1
+      },
+      goUp() {
+        this.row -= 1;
+        let ref = `row_${this.row}_col_${this.col}`;
+        if (this.$refs[ref]) {
+          let component = this.$refs[ref];
+          if (component[0].$refs.input.type === "select-one") {
+            component[0].$refs.input.focus();
+          } else {
+            component[0].$refs.input.select();
+          }
+        } else this.row += 1
+      },
+      deleteSelected() {
+        userInput = confirm(`{% trans 'Are you certain you want to delete the (${this.selectedItems.length}) selected samples?' %}'`)
+        for (const sample of this.selectedItems) this.deleteSample(sample, true);
+      },
+      deleteSample(sample, userInput) {
+        if (sample.is_deletable) {
+          if (userInput === null || userInput === undefined) userInput = confirm("{% trans 'Are you sure you want to delete this sample?' %}");
+          if (userInput) {
+            let endpoint = `/api/edna/samples/${sample.id}/`;
+            apiService(endpoint, "DELETE")
+                .then(response => {
+                  this.$delete(this.samples, this.samples.indexOf(sample))
+                })
+          }
+        }
+      },
+      getCurrentUser() {
+        let endpoint = `/api/edna/user/`;
+        apiService(endpoint)
+            .then(response => {
+              this.currentUser = response;
+            })
+      },
+      getSampleMetadata() {
+        let endpoint = `/api/edna/meta/models/sample/`;
+        apiService(endpoint).then(data => {
+          this.labels = data.labels;
+          this.sampleTypeChoices = data.sample_type_choices;
+          {#this.sampleChoices = data.sample_choices;#}
+        });
+      },
+      getSamples() {
+        this.loading = true;
+        endpoint = `/api/edna/samples/?sample_batch=${sampleBatchId}`;
+        apiService(endpoint)
+            .then(response => {
+              this.loading = false;
+              if (response.length && response[0].id) {
+                for (const responseElement of response) responseElement.selected = false;
+                this.samples = response;
+                //this.$nextTick(() => {
+//                  this.$refs.row_0_col_0[0].$refs.input.focus();
+                //})
+              }
+            })
+      },
+      addSamples(sample, n) {
+        for (let i = 0; i < n; i++) {
+          sample.collection = collectionId;
+          sample.sample_batch = sampleBatchId;
+          sample.bottle_id = null;
+          this.newSample(sample);
+        }
+      },
+      newSample(data) {
+
+        endpoint = `/api/edna/samples/`;
+        apiService(endpoint, "POST", data)
+            .then(response => {
+              if (response.id) {
+                response.selected = false;
+                this.samples.push(response)
+              } else {
+                console.log(response)
+              }
+            })
+      },
+      getSample(sample) {
+        endpoint = `/api/edna/samples/${sample.id}/`;
+        apiService(endpoint, "GET")
+            .then(response => {
+              this.$set(this.samples, this.samples.indexOf(sample), response);
+              this.unsavedChanges = false;
+            })
+      },
+      updateSample(sample) {
+        this.sampleErrorMsg = null;
+        endpoint = `/api/edna/samples/${sample.id}/`;
+        console.log(sample)
+        sample.datetime = sample.datetime_display
+        if (sample.bottle_id === "") sample.bottle_id = null;
+        apiService(endpoint, "PUT", sample)
+            .then(response => {
+              console.log(response)
+              if (!response.id) {
+                this.sampleErrorMsg = groomJSON(response);
+                this.getSample(sample)
+              } else {
+                this.unsavedChanges = false;
+                this.$set(this.samples, this.samples.indexOf(sample), response)
+              }
+            })
+      },
+      selectAll() {
+        for (const item of this.samples) item.selected = true;
+      },
+      unselectAll() {
+        for (const item of this.samples) item.selected = false;
+      },
+    },
+    computed: {
+      selectedItems() {
+        let myArray = [];
+        for (const item of this.samples) {
+          if (item.selected) myArray.push(item)
+        }
+        return myArray
+      },
+      bottleIds() {
+        let payload = [];
+        let sample;
+        for (var i = 0; i < this.samples.length; i++) {
+          sample = this.samples[i];
+          if (sample.bottle_id) payload.push(sample.bottle_id)
+        }
+        return payload.sort();
+      },
+      nextBottleId() {
+        if (!this.bottleIds.length) return 1;
+        else return this.bottleIds[this.bottleIds.length - 1] + 1;
+      }
+    },
+    created() {
+      this.getCurrentUser();
+      this.getSampleMetadata();
+      this.getSamples();
+
+    },
+
+  });
+  </script>
+
+{% endblock %}

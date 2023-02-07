@@ -34,7 +34,7 @@ class TransactionCategoryFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.TransactionCategory
 
-    type = factory.lazy_attribute(lambda o: faker.word())
+    type = factory.lazy_attribute(lambda o: faker.pyint(1,6))
 
 
 class OrganisationFactory(factory.django.DjangoModelFactory):

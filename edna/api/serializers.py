@@ -61,7 +61,7 @@ class FilterSerializer(serializers.ModelSerializer):
     end_datetime_display = serializers.SerializerMethodField()
     batch_display = serializers.SerializerMethodField()
     collection_display = serializers.SerializerMethodField()
-    sample_object = serializers.SerializerMethodField()
+    sample_obj = serializers.SerializerMethodField()
     has_extracts = serializers.SerializerMethodField()
     filtration_type_display = serializers.SerializerMethodField()
     info_display = serializers.SerializerMethodField()
@@ -78,7 +78,7 @@ class FilterSerializer(serializers.ModelSerializer):
         if instance.filtration_type:
             return str(instance.filtration_type)
 
-    def get_sample_object(self, instance):
+    def get_sample_obj(self, instance):
         if instance.sample:
             return SampleSerializer(instance.sample).data
 
@@ -123,14 +123,38 @@ class FilterSerializer(serializers.ModelSerializer):
         return attrs
 
 
+class FilterSerializerLITE(serializers.ModelSerializer):
+    class Meta:
+        model = models.Filter
+        fields = "__all__"
+
+    filtration_type_display = serializers.SerializerMethodField()
+    start_datetime_display = serializers.SerializerMethodField()
+    end_datetime_display = serializers.SerializerMethodField()
+
+    def get_filtration_type_display(self, instance):
+        if instance.filtration_type:
+            return str(instance.filtration_type)
+
+    def get_start_datetime_display(self, instance):
+        if instance.start_datetime:
+            dt = get_timezone_time(instance.start_datetime)
+            return dt.strftime("%Y-%m-%d %H:%M")
+
+    def get_end_datetime_display(self, instance):
+        if instance.end_datetime:
+            dt = get_timezone_time(instance.end_datetime)
+            return dt.strftime("%Y-%m-%d %H:%M")
+
+
 class DNAExtractSerializer(serializers.ModelSerializer):
     display = serializers.SerializerMethodField()
     datetime_display = serializers.SerializerMethodField()
     batch_display = serializers.SerializerMethodField()
     filter_display = serializers.SerializerMethodField()
     sample_display = serializers.SerializerMethodField()
-    filter_object = serializers.SerializerMethodField()
-    sample_object = serializers.SerializerMethodField()
+    filter_obj = serializers.SerializerMethodField()
+    sample_obj = serializers.SerializerMethodField()
     has_pcrs = serializers.SerializerMethodField()
     dna_extraction_protocol_display = serializers.SerializerMethodField()
     info_display = serializers.SerializerMethodField()
@@ -152,11 +176,11 @@ class DNAExtractSerializer(serializers.ModelSerializer):
     def get_has_pcrs(self, instance):
         return instance.pcrs.exists()
 
-    def get_sample_object(self, instance):
+    def get_sample_obj(self, instance):
         if instance.sample:
             return SampleSerializer(instance.sample).data
 
-    def get_filter_object(self, instance):
+    def get_filter_obj(self, instance):
         if instance.filter:
             return FilterSerializer(instance.filter).data
 
@@ -184,6 +208,28 @@ class DNAExtractSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
+class DNAExtractSerializerLITE(serializers.ModelSerializer):
+    datetime_display = serializers.SerializerMethodField()
+    dna_extraction_protocol_display = serializers.SerializerMethodField()
+    collection_display = serializers.SerializerMethodField()
+
+    def get_dna_extraction_protocol_display(self, instance):
+        if instance.dna_extraction_protocol:
+            return str(instance.dna_extraction_protocol)
+
+    def get_datetime_display(self, instance):
+        if instance.start_datetime:
+            dt = get_timezone_time(instance.start_datetime)
+            return dt.strftime("%Y-%m-%d %H:%M")
+
+    def get_collection_display(self, instance):
+        if instance.collection:
+            return instance.collection.__str__()
+
+    class Meta:
+        model = models.DNAExtract
+        fields = "__all__"
+
 # class SpeciesObservationSerializer(serializers.ModelSerializer):
 #     class Meta:
 #         model = models.SpeciesObservation
@@ -202,7 +248,7 @@ class PCRSerializer(serializers.ModelSerializer):
 
     display = serializers.SerializerMethodField()
     assay_count = serializers.SerializerMethodField()
-    extract_object = serializers.SerializerMethodField()
+    extract_obj = serializers.SerializerMethodField()
     master_mix_display = serializers.SerializerMethodField()
     batch_object = serializers.SerializerMethodField()
     pcr_assays = serializers.SerializerMethodField()
@@ -217,9 +263,9 @@ class PCRSerializer(serializers.ModelSerializer):
         if instance.master_mix:
             return str(instance.master_mix)
 
-    def get_extract_object(self, instance):
+    def get_extract_obj(self, instance):
         if instance.extract:
-            return DNAExtractSerializer(instance.extract).data
+            return DNAExtractSerializerLITE(instance.extract).data
 
     def get_assay_count(self, instance):
         return instance.assay_count
@@ -228,10 +274,34 @@ class PCRSerializer(serializers.ModelSerializer):
         return str(instance)
 
 
+class PCRSerializerLITE(serializers.ModelSerializer):
+    class Meta:
+        model = models.PCR
+        fields = "__all__"
+
+
 class PCRAssaySerializer(serializers.ModelSerializer):
-    pcr_object = serializers.SerializerMethodField()
+    pcr_obj = serializers.SerializerMethodField()
     result_display = serializers.SerializerMethodField()
     assay_display = serializers.SerializerMethodField()
+    extraction_number = serializers.SerializerMethodField()
+    info_display = serializers.SerializerMethodField()
+
+    def get_info_display(self, instance):
+        payload = list()
+        if instance.pcr.extract:
+            extract = instance.pcr.extract
+            if extract.is_extraction_blank:
+                payload.append("extraction blank")
+            if extract.filter and extract.filter.is_filtration_blank:
+                payload.append("filtration blank")
+            if extract.sample and extract.sample.is_field_blank:
+                payload.append("field blank")
+        return listrify(payload)
+
+    def get_extraction_number(self, instance):
+        if instance.pcr.extract:
+            return str(instance.pcr.extract.extraction_number)
 
     def get_assay_display(self, instance):
         if instance.assay:
@@ -240,7 +310,7 @@ class PCRAssaySerializer(serializers.ModelSerializer):
     def get_result_display(self, instance):
         return instance.get_result_display()
 
-    def get_pcr_object(self, instance):
+    def get_pcr_obj(self, instance):
         try:
             if instance.pcr:
                 return PCRSerializer(instance.pcr).data
@@ -276,7 +346,8 @@ class CollectionSerializer(serializers.ModelSerializer):
     date_display = serializers.SerializerMethodField()
 
     def get_date_display(self, instance):
-        return instance.start_date.strftime("%Y-%m-%d")
+        if instance.start_date:
+            return instance.start_date.strftime("%Y-%m-%d")
 
 
 class ExtractionBatchSerializer(serializers.ModelSerializer):

@@ -15,6 +15,7 @@ from django.views import View
 from django.views.generic import UpdateView, CreateView, TemplateView, DeleteView, ListView, FormView
 from django.views.generic.detail import SingleObjectMixin, DetailView
 from django_filters.views import FilterView
+from django_tables2 import SingleTableView
 
 ###
 from dm_apps.utils import custom_send_mail
@@ -404,6 +405,10 @@ class CommonListView(ListView, CommonListMixin):
         context.update(super().get_common_context())
         context["model_name"] = self.get_queryset().model._meta.verbose_name
         return context
+
+
+class CommonSingleTableListView(CommonFilterView, SingleTableView):
+    template_name = 'shared_models/generic_filter_w_table.html'
 
 
 class CommonFormView(FormView, CommonFormMixin):

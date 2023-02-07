@@ -31,7 +31,7 @@ app.conf.beat_schedule = {
         'task': 'resave_open_rsvps',
         'schedule': 60 * 60 * 12,  # execute every 12 hours
     },
-    # ppt
+    # inventory
     'resave_dmas': {
         'task': 'resave_dmas',
         'schedule': 60 * 60 * 24,  # execute every day

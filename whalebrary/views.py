@@ -1332,6 +1332,7 @@ class MaintenanceCreateView(WhalebraryEditRequiredMixin, CommonCreateView):
     def get_form(self, form_class=None):
         form = super().get_form(form_class=None)
         form.fields['assigned_to'].queryset = form.fields['assigned_to'].queryset.filter(groups__name__in=["whalebrary_admin", "whalebrary_edit"])
+        form.fields['last_maint_by'].queryset = form.fields['last_maint_by'].queryset.filter(groups__name__in=["whalebrary_admin", "whalebrary_edit"])
         return form
 
     def form_valid(self, form):
