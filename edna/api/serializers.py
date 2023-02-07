@@ -1,11 +1,12 @@
 from django.contrib.auth.models import User
 from django.contrib.humanize.templatetags.humanize import naturaltime
+from django.db.models import Count, Avg, Sum
 from django.utils.translation import gettext as _
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
 from lib.functions.custom_functions import listrify
-from .. import models
+from .. import models, utils
 from ..utils import get_timezone_time
 
 
@@ -131,6 +132,11 @@ class FilterSerializerLITE(serializers.ModelSerializer):
     filtration_type_display = serializers.SerializerMethodField()
     start_datetime_display = serializers.SerializerMethodField()
     end_datetime_display = serializers.SerializerMethodField()
+    sample__bottle_id = serializers.SerializerMethodField()
+    sample__time_display = serializers.SerializerMethodField()
+    sample_display = serializers.SerializerMethodField()
+    info_display = serializers.SerializerMethodField()
+
 
     def get_filtration_type_display(self, instance):
         if instance.filtration_type:
@@ -145,6 +151,27 @@ class FilterSerializerLITE(serializers.ModelSerializer):
         if instance.end_datetime:
             dt = get_timezone_time(instance.end_datetime)
             return dt.strftime("%Y-%m-%d %H:%M")
+
+    def get_sample__bottle_id(self, instance):
+        if instance.sample:
+            return instance.sample.bottle_id
+
+    def get_sample__time_display(self, instance):
+        if instance.sample:
+            dt = get_timezone_time(instance.sample.datetime)
+            return dt.strftime("%Y-%m-%d %H:%M")
+
+    def get_sample_display(self, instance):
+        if instance.sample:
+            return str(instance.sample)
+
+    def get_info_display(self, instance):
+        payload = list()
+        if instance.is_filtration_blank:
+            payload.append("filtration blank")
+        if instance.sample and instance.sample.is_field_blank:
+            payload.append("field blank")
+        return listrify(payload)
 
 
 class DNAExtractSerializer(serializers.ModelSerializer):
@@ -213,6 +240,11 @@ class DNAExtractSerializerLITE(serializers.ModelSerializer):
     dna_extraction_protocol_display = serializers.SerializerMethodField()
     collection_display = serializers.SerializerMethodField()
 
+    sample_display = serializers.SerializerMethodField()
+    filter_display = serializers.SerializerMethodField()
+    has_pcrs = serializers.SerializerMethodField()
+    info_display = serializers.SerializerMethodField()
+
     def get_dna_extraction_protocol_display(self, instance):
         if instance.dna_extraction_protocol:
             return str(instance.dna_extraction_protocol)
@@ -225,6 +257,27 @@ class DNAExtractSerializerLITE(serializers.ModelSerializer):
     def get_collection_display(self, instance):
         if instance.collection:
             return instance.collection.__str__()
+
+    def get_sample_display(self, instance):
+        if instance.sample:
+            return instance.sample.__str__()
+
+    def get_filter_display(self, instance):
+        if instance.filter:
+            return instance.filter.__str__()
+
+    def get_has_pcrs(self, instance):
+        return instance.pcrs.exists()
+
+    def get_info_display(self, instance):
+        payload = list()
+        if instance.is_extraction_blank:
+            payload.append("extraction blank")
+        if instance.filter and instance.filter.is_filtration_blank:
+            payload.append("filtration blank")
+        if instance.sample and instance.sample.is_field_blank:
+            payload.append("field blank")
+        return listrify(payload)
 
     class Meta:
         model = models.DNAExtract
@@ -249,7 +302,6 @@ class PCRSerializer(serializers.ModelSerializer):
     display = serializers.SerializerMethodField()
     assay_count = serializers.SerializerMethodField()
     extract_obj = serializers.SerializerMethodField()
-    master_mix_display = serializers.SerializerMethodField()
     batch_object = serializers.SerializerMethodField()
     pcr_assays = serializers.SerializerMethodField()
 
@@ -258,10 +310,6 @@ class PCRSerializer(serializers.ModelSerializer):
 
     def get_batch_object(self, instance):
         return PCRBatchSerializer(instance.pcr_batch).data
-
-    def get_master_mix_display(self, instance):
-        if instance.master_mix:
-            return str(instance.master_mix)
 
     def get_extract_obj(self, instance):
         if instance.extract:
@@ -278,6 +326,43 @@ class PCRSerializerLITE(serializers.ModelSerializer):
     class Meta:
         model = models.PCR
         fields = "__all__"
+
+
+class PCRResultsSerializer(serializers.Serializer):
+    pcr_batch = serializers.IntegerField()
+    extract = serializers.IntegerField()
+    assay = serializers.SerializerMethodField()
+
+    replicate_results = serializers.SerializerMethodField()
+
+    def get_assay(self, instance):
+        return instance["assay_pk"]
+
+    def get_replicate_results(self, instance):
+        pcr_assay_qs = self.context.get("pcr_assay_qs")
+        result_qs = pcr_assay_qs.filter(assay=instance["assay_pk"],
+                                        pcr__pcr_batch=instance["pcr_batch"],
+                                        pcr__extract=instance["extract"]).values("ct", "edna_conc")
+        return result_qs
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+
+        pcr_assay_qs = self.context.get("pcr_assay_qs")
+        result_qs = pcr_assay_qs.filter(assay=instance["assay_pk"],
+                                        pcr__pcr_batch=instance["pcr_batch"],
+                                        pcr__extract=instance["extract"])
+        data["replicate_results"] = result_qs.values("ct", "edna_conc")
+        if result_qs.aggregate(Sum("edna_conc"))["edna_conc__sum"]:
+            data["mean_conc"] = result_qs.aggregate(Sum("edna_conc"))["edna_conc__sum"] / result_qs.count()
+        else:
+            data["mean_conc"] = 0
+        data["threshold"] = result_qs.first().threshold
+        lod = result_qs.first().assay.lod
+        data["LOD"] = lod
+        # get result:
+        data["result"], data["result_display"] = utils.get_pcr_result(result_qs, lod)
+        return data
 
 
 class PCRAssaySerializer(serializers.ModelSerializer):
@@ -325,10 +410,15 @@ class PCRAssaySerializer(serializers.ModelSerializer):
 class PCRAssaySerializerLITE(serializers.ModelSerializer):
     result_display = serializers.SerializerMethodField()
     assay_display = serializers.SerializerMethodField()
+    lod = serializers.SerializerMethodField()
 
     def get_assay_display(self, instance):
         if instance.assay:
             return str(instance.assay)
+
+    def get_lod(self, instance):
+        if instance.assay:
+            return instance.assay.lod
 
     def get_result_display(self, instance):
         return instance.get_result_display()
@@ -390,6 +480,20 @@ class AssaySerializer(serializers.ModelSerializer):
         fields = "__all__"
 
     species_display = serializers.SerializerMethodField()
+    master_mix_display = serializers.SerializerMethodField()
+    max_replicates = serializers.SerializerMethodField()
 
     def get_species_display(self, instance):
         return instance.species_display
+
+    def get_master_mix_display(self, instance):
+        if instance.master_mix:
+            return instance.master_mix.__str__()
+
+    def get_max_replicates(self, instance):
+        collection_id = self.context.get("collection_id")
+        if collection_id:
+            pcr_assay_qs = models.PCRAssay.objects.filter(pcr__collection=collection_id, assay=instance)
+            pcr_max_rep_count = pcr_assay_qs.values("pcr__extract", "pcr__pcr_batch").annotate(count=Count('id')).order_by("-count").first()['count']
+            return pcr_max_rep_count
+        return 0

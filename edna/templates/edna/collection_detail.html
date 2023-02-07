@@ -142,12 +142,14 @@
         <th v-if="viewSamples" rowspan="2" colspan="9" class="lead samples">{% trans "Samples" %}</th>
         <th v-if="viewFilters" rowspan="2" colspan="9" class="lead filters">{% trans "Filters" %}</th>
         <th v-if="viewExtracts" rowspan="2" colspan="8" class="lead extracts">{% trans "Extractions" %}</th>
-        <th v-if="viewPCRs && viewExtracts" rowspan="2" colspan="6" class="lead pcrs">{% trans "PCR" %}</th>
-        <th v-if="viewPCRs && viewExtracts" :colspan="filteredAssaysTested.length * 6" class="lead assays">{% trans "Results" %}</th>
+        <th v-if="viewPCRs" :colspan="resultsWidth" class="lead assays">{% trans "Results" %}</th>
       </tr>
       <tr>
-        <th v-if="viewPCRs && viewExtracts" colspan="6" v-for="(a, index) in filteredAssaysTested" class="assays text-muted" style="font-size: 12px">${a.name} <br><span
-          v-html="a.species_display"></span></th>
+          <template v-for="(filteredAssay, index) in filteredAssaysTested">
+            <th v-if="viewPCRs" :colspan="5 + filteredAssay.max_replicates"  class="assays text-muted" style="font-size: 12px">${filteredAssay.name} (${filteredAssay.master_mix_display}) <br>
+                <span v-html="filteredAssay.species_display"></span>
+            </th>
+          </template>
       </tr>
       <tr >
         {# Samples #}
@@ -184,23 +186,18 @@
         <th v-if="viewExtracts" class="extracts">${extractLabels.comments}</th>
 
         {# PCR #}
-        {# batch / run #}
-        <th v-if="viewPCRs && viewExtracts" class="pcrs">${pcrBatchLabels.plate_id}</th>
-        <th v-if="viewPCRs && viewExtracts" class="pcrs">${pcrBatchLabels.machine_number}</th>
-        <th v-if="viewPCRs && viewExtracts" class="pcrs">${pcrBatchLabels.run_program}</th>
-        <th v-if="viewPCRs && viewExtracts" class="pcrs">${pcrBatchLabels.control_status}</th>
-        <th v-if="viewPCRs && viewExtracts" class="pcrs">${pcrLabels.pcr_plate_well}</th>
-        <th v-if="viewPCRs && viewExtracts" class="pcrs">${pcrLabels.master_mix}</th>
+
 
         {# results #}
         <th v-if="!filteredAssaysTested.length" class="assays">...</th>
         <template v-for="assay in filteredAssaysTested">
-          <th v-if="viewPCRs && viewExtracts" class="assays">${pcrAssayLabels.threshold}</th>
-          <th v-if="viewPCRs && viewExtracts" class="assays">${pcrAssayLabels.ct}</th>
-          <th v-if="viewPCRs && viewExtracts" class="assays">${pcrAssayLabels.is_undetermined}</th>
-          <th v-if="viewPCRs && viewExtracts" class="assays">${pcrAssayLabels.result}</th>
-          <th v-if="viewPCRs && viewExtracts" class="assays">${pcrAssayLabels.edna_conc}</th>
-          <th v-if="viewPCRs && viewExtracts" class="assays">${pcrAssayLabels.comments}</th>
+          <th v-if="viewPCRs" class="assays">{% trans "PCR Batch" %}</th>
+          <th v-if="viewPCRs" class="assays">${pcrAssayLabels.threshold}</th>
+
+          <th v-if="viewPCRs" v-for="index in assay.max_replicates" class="assays"> {% trans "Replicate" %} ${index}: ${pcrAssayLabels.ct} / ${pcrAssayLabels.edna_conc}</th>
+          <th v-if="viewPCRs" class="assays">${pcrAssayLabels.edna_conc}</th>
+          <th v-if="viewPCRs" class="assays">${pcrAssayLabels.result}</th>
+          <th v-if="viewPCRs" class="assays">${pcrAssayLabels.comments}</th>
         </template>
 
       </tr>
@@ -217,7 +214,7 @@
           <td :rowspan="sample.rowspan"><span v-html="sample.collection_time_display"></span></td>
           <td :rowspan="sample.rowspan"> ${sample.samplers}</td>
           <td :rowspan="sample.rowspan"> ${sample.coordinates}</td>
-          <td :rowspan="sample.rowspan"> ${sample.comments}</td>
+          <td :rowspan="sample.rowspan"> ${sample.rowspan}</td>
         </tr>
 
         {# Filters #}
@@ -235,11 +232,11 @@
             <td :rowspan="filter.rowspan">${filter.storage_location}</td>
             <td :rowspan="filter.rowspan">${filter.filtration_ipc}</td>
             <td :rowspan="filter.rowspan">${filter.duration_min}</td>
-            <td :rowspan="filter.rowspan">${filter.comments}</td>
+            <td :rowspan="filter.rowspan">${filter.rowspan}</td>
           </tr>
 
-          <template v-if="viewExtracts" v-for="(extract, index) in filter.extracts">
-            <tr class="extracts">
+          <template v-if="viewExtracts || viewPCRs" v-for="(extract, index) in filter.extracts">
+            <tr v-if="viewExtracts" class="extracts">
               <td :rowspan="extract.rowspan">
                 <a v-if="extract.id" :href=`/edna/extracts/${extract.id}/view/` target="_blank">${extract.extraction_number}</a>
                 <span v-else>${extract.extraction_number}</span>
@@ -250,38 +247,32 @@
               <td :rowspan="extract.rowspan" style="height: 100px;">${extract.extraction_plate_id}</td>
               <td :rowspan="extract.rowspan" style="height: 100px;">${extract.extraction_plate_well}</td>
               <td :rowspan="extract.rowspan" style="height: 100px;">${extract.extraction_ipc}</td>
-              <td :rowspan="extract.rowspan" style="height: 100px;">${extract.comments}</td>
+              <td :rowspan="extract.rowspan" style="height: 100px;">${extract.rowspan}</td>
             </tr>
 
-            <template v-if="viewPCRs && viewExtracts" v-for="(pcr, index) in extract.pcrs">
-              <tr>
-                <td class="pcrs">
-                    <a :href=`/edna/pcr-batches/${pcr.pcr_batch_obj.id}/view/`>${pcr.pcr_batch_obj.plate_id}</a>
+            <template v-if="viewPCRs" v-for="(pcrResult, pcrIndex) in extract.pcr_results">
+              <tr v-if="pcrResult.pcr_batch" class="pcrs">
+                <td  :rowspan="filteredAssaysTested.length - (pcrIndex % filteredAssaysTested.length)" style="height: 100px;">
+                    <a v-if="extract.id" :href=`/edna/pcr-batches/${pcrResult.pcr_batch}/view/` target="_blank">PCR Batch ${pcrResult.pcr_batch}</a>
                 </td>
-                <td class="pcrs">${pcr.pcr_batch_obj.machine_number}</td>
-                <td class="pcrs">${pcr.pcr_batch_obj.run_program}</td>
-                <td class="pcrs">${pcr.pcr_batch_obj.control_status}</td>
-                <td class="pcrs">${pcr.pcr_plate_well}</td>
-                <td class="pcrs">${pcr.master_mix_display}</td>
-
-                <template v-for="(pcrAssay, index) in pcr.pcr_assays">
-                  <template v-if="pcrAssay.id">
-                    <td :class="{assays:pcrAssay.id, greyed:!pcrAssay.id}">${pcrAssay.threshold}</td>
-                    <td :class="{assays:pcrAssay.id, greyed:!pcrAssay.id}">${pcrAssay.ct}</td>
-                    <td :class="{assays:pcrAssay.id, greyed:!pcrAssay.id}">${pcrAssay.is_undetermined |yesNo}</td>
-                    <td :class="{assays:pcrAssay.id, greyed:!pcrAssay.id}">
-                      <span v-if="pcrAssay.result === 1" class="good">${pcrAssay.result_display}</span>
-                      <span v-else class="bad">${pcrAssay.result_display}</span>
-                    </td>
-                    <td :class="{assays:pcrAssay.id, greyed:!pcrAssay.id}">${pcrAssay.edna_conc |floatformat(4)}</td>
-                    <td :class="{assays:pcrAssay.id, greyed:!pcrAssay.id}">${pcrAssay.comments}</td>
-                  </template>
-                  <template v-else>
-                    <td v-for="i in 6" class="greyed"></td>
-                  </template>
+                <td  :rowspan="filteredAssaysTested.length - (pcrIndex % filteredAssaysTested.length)" style="height: 100px;">${pcrResult.threshold}</td>
+                <template v-for="(replicateResult, repIndex) in pcrResult.replicate_results">
+                    <td  :rowspan="filteredAssaysTested.length - (pcrIndex % filteredAssaysTested.length)" style="height: 100px;">${replicateResult.ct} / ${replicateResult.edna_conc}</td>
                 </template>
-              </tr>
+                <template v-for="blank in (filteredAssaysTested.find(assay => assay.id === pcrResult.assay).max_replicates - pcrResult.replicate_results.length)">
+                    <td  :rowspan="filteredAssaysTested.length - (pcrIndex % filteredAssaysTested.length)" style="height: 100px;">---</td>
+                </template>
+                <td  :rowspan="filteredAssaysTested.length - (pcrIndex % filteredAssaysTested.length)" style="height: 100px;">${pcrResult.mean_conc}</td>
+                <td  :rowspan="filteredAssaysTested.length - (pcrIndex % filteredAssaysTested.length)" style="height: 100px;">
+                  <span v-if="pcrResult.result === 1" class="good">${pcrResult.result_display}</span>
+                  <span v-else class="bad">${pcrResult.result_display}</span>
+                </td>
 
+                <td  :rowspan="filteredAssaysTested.length - (pcrIndex % filteredAssaysTested.length)" style="height: 100px;">${pcrResult.assay}</td>
+              </tr>
+              <tr v-else>
+                <td v-for="i in (5 + pcrResult)" class="greyed" :rowspan="filteredAssaysTested.length - (pcrIndex % filteredAssaysTested.length)" style="height: 100px;"></td>
+              </tr>
             </template>
           </template>
         </template>
@@ -410,9 +401,9 @@
           }
           return endpoint
       },
-      getPcrEndpoint(){
-          let endpoint = `/api/edna/pcrs/?lite=true&`
-          if (this.projectId) endpoint += `collection=${this.projectId}&`;
+      getPcrResultsEndpoint(){
+          let endpoint = `/api/edna/pcr-assays/?results_format=true&`
+          if (this.projectId) endpoint += `pcr__collection=${this.projectId}&`;
           if (this.filterSpecies) {
               let speciesIdList = this.filterSpecies.map(element => element.species)
               endpoint += `speciesList=${speciesIdList}&`;
@@ -452,100 +443,80 @@
             }
             this.loadingObject.filters = false;
             apiService(`/api/edna/extracts/?lite=true&collection=${this.projectId}`).then(response => {
-              for (const extract of response) {
-                extract.pcrs = [];
-                // now we have to nest this extract under each filter under the "extracts" key
-                if (!extract.sample && !extract.filter) { // means it is an extraction blank
-                  this.samples.push(
-                      {
-                        filters: [{extracts: [extract]}]
-                      }
-                  );
-                } else {
-                  if (!extract.filter) {
-                    for (const sample of this.samples) {
-                      if (sample.id === extract.sample) {
-                        sample.filters.push({extracts: [extract]});
-                        break;
-                      }
-                    }
-                  } else {
-                    for (const sample of this.samples) {
-                      for (const filter of sample.filters) {
-                        if (filter.id === extract.filter) {
-                          filter.extracts.push(extract);
+              // add any results:
+              apiService(this.getPcrResultsEndpoint()).then(pcrResultsResponse => {
+                  response = join_api_arrays(response, pcrResultsResponse, "id", "extract", true, "pcr_results")
+                  for (const extract of response) {
+                      //order the results:
+
+                      let old_array = extract.pcr_results.slice();
+                      let new_order = [];
+                      for (let i=0; i < (extract.pcr_results.length * this.filteredAssaysTested.length); i++){
+                        if (old_array.length || (i % this.filteredAssaysTested.length !== 0)) {
+                          let assay_id =  this.filteredAssaysTested[i % this.filteredAssaysTested.length].id
+                          // push replicate number if there is no result
+                          let result_match = old_array.find(obj => obj.assay === assay_id)
+                          if (result_match) {
+                            new_order.push(result_match);
+                          } else {
+                            new_order.push(this.filteredAssaysTested[i % this.filteredAssaysTested.length].max_replicates);
+                          }
+                          if (result_match){
+                            old_array.splice(old_array.findIndex(obj => obj.assay === assay_id), 1);
+                          }
+                        } else {
                           break;
                         }
                       }
-                    }
-                  }
-                }
-              }
-              this.loadingObject.extracts = false;
-              let pcrEndpoint = this.getPcrEndpoint()
-              apiService(pcrEndpoint).then(pcrResponse => {
-                // need to add pcr batch and assays:
-                apiService(`/api/edna/pcr-assays/?lite=true&pcr__collection=${this.projectId}`).then(pcrAssayResponse => {
-                  pcrArray = join_api_arrays(pcrResponse, pcrAssayResponse, "id", "pcr", true, "pcr_assays")
-                    apiService(`/api/edna/pcr-batches/`).then(pcrBatchResponse => {
-                    pcrArray = join_api_arrays(pcrArray, pcrBatchResponse, "pcr_batch", "id")
+                      extract.pcr_results = new_order;
 
-                    for (const pcr of pcrArray) {
-                        // now we have to nest this pcr under each extract under the "pcrs" key
-                        if (!pcr.extract) {
-                            this.samples.push({filters: [{extracts: [{pcrs: [pcr]}]}]});
-                        } else {
-                            for (const sample of this.samples) {
-                                for (const filter of sample.filters) {
-                                    for (const extract of filter.extracts) {
-                                        if (extract.id === pcr.extract) {
-                                            extract.pcrs.push(pcr);
-                                            break;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    this.loadingObject.pcrs = false;
-                    // figure out formatting
-                    for (const sample of this.samples) {
-                        sample.rowspan = 1 + sample.filters.length;
-                        for (const filter of sample.filters) {
-                          sample.rowspan += filter.extracts.length;
-                          filter.rowspan = 1 + filter.extracts.length;
-                          for (const extract of filter.extracts) {
-                              sample.rowspan += extract.pcrs.length;
-                              filter.rowspan += extract.pcrs.length;
-                              extract.rowspan = 1 + extract.pcrs.length;
 
-                              // need to make sure that pcr assays are in the correct order
-                              for (const pcr of extract.pcrs) {
-                                  // we only need to do this if there are existing pcr assays.
-                                  if (pcr.pcr_assays.length) {
-                                      let new_pcr_assays = [];
-                                      let tempObj;
-                                      for (const assay of this.filteredAssaysTested) {
-                                          // for each assay tested, we will want to have an object in the new array
-                                          tempObj = {};
-                                          for (const pcrAssay of pcr.pcr_assays) {
-                                              if (assay.id === pcrAssay.assay) {
-                                                  tempObj = pcrAssay;
-                                              }
-                                          }
-                                          new_pcr_assays.push(tempObj);
-                                      }
-                                      pcr.pcr_assays = new_pcr_assays;
+                      // now we have to nest this extract under each filter under the "extracts" key
+                      if (!extract.sample && !extract.filter) { // means it is an extraction blank
+                          this.samples.push(
+                              {
+                                  filters: [{extracts: [extract]}]
+                              }
+                          );
+                      } else {
+                          if (!extract.filter) {
+                              for (const sample of this.samples) {
+                                  if (sample.id === extract.sample) {
+                                      sample.filters.push({extracts: [extract]});
+                                      break;
                                   }
                               }
+                          } else {
+                              for (const sample of this.samples) {
+                                  for (const filter of sample.filters) {
+                                      if (filter.id === extract.filter) {
+                                          filter.extracts.push(extract);
+                                          break;
+                                      }
+                                  }
                               }
                           }
                       }
-                      // this should be the last thing to do
-                      this.$forceUpdate();
-                      this.loadingObject.formatting = false;
-                  })
-                })
+                  }
+
+                  // figure out formatting
+                  for (const sample of this.samples) {
+                      sample.rowspan = 1 + sample.filters.length;
+                      for (const filter of sample.filters) {
+                          sample.rowspan += filter.extracts.length;
+                          filter.rowspan = 1 + filter.extracts.length;
+                          for (const extract of filter.extracts) {
+                              pcr_results_height = extract.pcr_results.length  ;
+                              sample.rowspan += pcr_results_height;
+                              filter.rowspan += pcr_results_height;
+                              extract.rowspan = 1 + pcr_results_height;
+                          }
+                      }
+                  }
+                this.loadingObject.pcrs = false;
+                this.loadingObject.extracts = false;
+                this.$forceUpdate();
+                this.loadingObject.formatting = false;
               })
             })
           })
@@ -565,10 +536,11 @@
             }
             for (const extract of filter.extracts) {
               extract.rowspan = 1
-              if (this.viewPCRs & this.viewExtracts){
-                sample.rowspan += extract.pcrs.length;
-                filter.rowspan += extract.pcrs.length;
-                extract.rowspan += extract.pcrs.length;
+              if (this.viewPCRs){
+                pcr_results_height = extract.pcr_results.length;
+                sample.rowspan += pcr_results_height;
+                filter.rowspan += pcr_results_height;
+                extract.rowspan = 1 + pcr_results_height;
               }
 
             }
@@ -587,6 +559,13 @@
           if (filter.selected) myArray.push(filter)
         }
         return myArray
+      },
+      resultsWidth(){
+        let resultsWidth = 0
+        for (const assay of this.filteredAssaysTested){
+            resultsWidth += 5 + assay.max_replicates;
+        }
+        return resultsWidth;
       },
       ready2Show() {
         for (const loadingObjectKey in this.loadingObject) {

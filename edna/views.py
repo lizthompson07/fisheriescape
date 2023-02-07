@@ -221,6 +221,8 @@ class AssayListView(eDNAAdminRequiredMixin, CommonListView):
         {"name": 'b_coef', "class": "", "width": ""},
         {"name": 'is_ipc', "class": "", "width": ""},
         {"name": 'species', "class": "", "width": ""},
+        {"name": 'master_mix', "class": "", "width": ""},
+        {"name": 'active', "class": "", "width": ""},
     ]
 
 
@@ -257,6 +259,8 @@ class AssayDetailView(eDNAAdminRequiredMixin, CommonDetailView):
         "b_coef",
         "is_ipc",
         "species",
+        "master_mix",
+        "active",
     ]
 
     def get_context_data(self, **kwargs):
@@ -700,6 +704,13 @@ class FiltrationBatchDetailView(eDNAAdminRequiredMixin, CommonDetailView):
             # 'observation_count|{}'.format(_("lobster count")),
         ]
         context["sample_field_list"] = sample_field_list
+        prefix = "{}F".format(self.object.datetime.strftime("%y"))
+        context["prefix"] = prefix
+        largest_tube = models.Filter.objects.filter(tube_id__startswith=prefix).order_by('-tube_id').first()
+        max_tube_id = 0
+        if largest_tube:
+            max_tube_id =  largest_tube.tube_id[len(prefix)+1:]
+        context["next_tube_id"] = int(max_tube_id) + 1
         return context
 
 
@@ -780,6 +791,13 @@ class ExtractionBatchDetailView(eDNAAdminRequiredMixin, CommonDetailView):
             # 'observation_count|{}'.format(_("lobster count")),
         ]
         context["sample_field_list"] = sample_field_list
+        prefix = "{}E".format(self.object.datetime.strftime("%y"))
+        context["prefix"] = prefix
+        largest_extraction = models.DNAExtract.objects.filter(extraction_number__startswith=prefix).order_by('-extraction_number').first()
+        max_extraction_number = 0
+        if largest_extraction:
+            max_extraction_number =  largest_extraction.extraction_number[len(prefix)+1:]
+        context["next_max_extraction_number"] = int(max_extraction_number) + 1
         return context
 
 
@@ -907,7 +925,6 @@ class FilterDetailView(eDNAAdminRequiredMixin, CommonDetailView):
     home_url_name = "edna:index"
     container_class = "container curvy"
     field_list = [
-        'display|filter Id',
         "filtration_batch",
         "sample",
         "tube_id",
@@ -922,7 +939,7 @@ class FilterDetailView(eDNAAdminRequiredMixin, CommonDetailView):
     ]
 
     def get_parent_crumb(self):
-        return {"title": self.get_object().filtration_batch, "url": reverse("edna:filter_list")}
+        return {"title": gettext_lazy("Filtrations"), "url": reverse("edna:filter_list")}
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -959,7 +976,6 @@ class DNAExtractDetailView(eDNAAdminRequiredMixin, CommonDetailView):
     home_url_name = "edna:index"
     container_class = "container curvy"
     field_list = [
-        'display|extract Id',
         "extraction_batch",
         "filter",
         "sample",
@@ -975,7 +991,7 @@ class DNAExtractDetailView(eDNAAdminRequiredMixin, CommonDetailView):
     ]
 
     def get_parent_crumb(self):
-        return {"title": self.get_object().extraction_batch, "url": reverse("edna:extract_list")}
+        return {"title": gettext_lazy("Extractions"), "url": reverse("edna:extract_list")}
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -1007,13 +1023,11 @@ class PCRDetailView(eDNAAdminRequiredMixin, CommonDetailView):
     home_url_name = "edna:index"
     container_class = "container curvy"
     field_list = [
-        'display|pcr Id',
         "pcr_batch",
         "sample",
         "filter",
         "extract",
         "pcr_plate_well",
-        "master_mix",
         "comments",
         'metadata',
     ]
@@ -1074,7 +1088,6 @@ class ImportPCRView(eDNAAdminRequiredMixin, CommonFormView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["master_mixes"] = models.MasterMix.objects.all()
         context["assays"] = models.Assay.objects.all()
         return context
 
@@ -1127,10 +1140,9 @@ class ImportPCRView(eDNAAdminRequiredMixin, CommonFormView):
 
                         # start with PCR details
                         extraction_number = row_dict["extraction_number"]
-                        master_mix = row_dict["master_mix"]
                         assay = row_dict["assay"]
 
-                        if not extraction_number or not master_mix or not assay:
+                        if not extraction_number or not assay:
                             messages.warning(self.request, f'This row is missing some important information and will not be imported: {row_dict}')
                         else:
                             # get the extract object from the extraction number
@@ -1144,46 +1156,38 @@ class ImportPCRView(eDNAAdminRequiredMixin, CommonFormView):
                             else:
                                 extract = extracts.first()
 
-                                # get the master mix
-                                mixes = models.MasterMix.objects.filter(name__iexact=master_mix)
-                                if not mixes.exists():
-                                    messages.warning(self.request, f'cannot find master mix: {master_mix}')
+                                # get the assay
+                                assays = models.Assay.objects.filter(alias__iexact=assay)
+                                if not assays.exists():
+                                    messages.warning(self.request, f'cannot find assay alias: {assay}')
                                 else:
-                                    master_mix = mixes.first()
+                                    assay = assays.first()
 
-                                    # get the assay
-                                    assays = models.Assay.objects.filter(alias__iexact=assay)
-                                    if not assays.exists():
-                                        messages.warning(self.request, f'cannot find assay alias: {assay}')
-                                    else:
-                                        assay = assays.first()
+                                    # now we can get / create the pcr object
+                                    pcr = models.PCR.objects.get_or_create(
+                                        pcr_batch=batch,
+                                        extract=extract,
+                                        pcr_plate_well=row_dict["pcr_plate_well"]
+                                    )[0]
 
-                                        # now we can get / create the pcr object
-                                        pcr = models.PCR.objects.get_or_create(
-                                            pcr_batch=batch,
-                                            master_mix=master_mix,
-                                            extract=extract,
-                                            pcr_plate_well=row_dict["pcr_plate_well"]
-                                        )[0]
+                                    pcr.save() # populate the collection
 
-                                        pcr.save() # populate the collection
+                                    # now finally, the assay itself
+                                    try:
+                                        ct = float(ct)
+                                        is_undetermined = False
+                                    except Exception as e:
+                                        print(e)
+                                        is_undetermined = True
+                                        ct = None
 
-                                        # now finally, the assay itself
-                                        try:
-                                            ct = float(ct)
-                                            is_undetermined = False
-                                        except Exception as e:
-                                            print(e)
-                                            is_undetermined = True
-                                            ct = None
-
-                                        assay = models.PCRAssay.objects.create(
-                                            pcr=pcr,
-                                            assay=assay,
-                                            ct=ct,
-                                            is_undetermined=is_undetermined,
-                                            threshold=row_dict["threshold"]
-                                        )
+                                    assay = models.PCRAssay.objects.create(
+                                        pcr=pcr,
+                                        assay=assay,
+                                        ct=ct,
+                                        is_undetermined=is_undetermined,
+                                        threshold=row_dict["threshold"]
+                                    )
 
             # if we run into the first header of the assay table, turn off the "wait" flag
             if len(row) and row[0] == "extraction_number":

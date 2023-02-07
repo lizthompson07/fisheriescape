@@ -149,7 +149,7 @@ Vue.component("sample-import-overlay", {
       this.loadingSamples = true;
       let endpoint = '/api/edna/samples/?'
       if (this.filterSampleId && this.filterSampleId !== "") endpoint += `id=${this.filterSampleId}&`;
-      if (this.filterBottleId && this.filterBottleId !== "") endpoint += `bottle_id=${this.filterBottleId}&`;
+      if (this.filterBottleId && this.filterBottleId !== "") endpoint += `bottle_id__icontains=${this.filterBottleId}&`;
       if (this.filterLocation && this.filterLocation !== "") endpoint += `location__icontains=${this.filterLocation}&`;
       if (this.filterCollection && this.filterCollection !== "") endpoint += `collection=${this.filterCollection}&`;
       if (this.filterDate && this.filterDate !== "") endpoint += `datetime=${this.filterDate}&`;

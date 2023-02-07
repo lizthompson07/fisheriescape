@@ -8,7 +8,42 @@
     <div class="col">
       <table class="table table-sm">
         {% for field in field_list %}
-          {% verbose_td_display object field th_width="200px" display_time=True %}
+          <tr>
+            {% if field == "filtration_batch" %}
+              <th style="width: 200px;">{% get_verbose_label object field %}</th>
+              <td>
+                <a href="{% url 'edna:filtration_batch_detail' object.filtration_batch.id %}">{% get_field_value object field %}</a>
+              </td>
+            {% elif field == "extraction_batch" %}
+              <th style="width: 200px;">{% get_verbose_label object field %}</th>
+              <td>
+                <a href="{% url 'edna:extraction_batch_detail' object.extraction_batch.id %}">{% get_field_value object field %}</a>
+              </td></td>
+            {% elif field == "pcr_batch" %}
+              <th style="width: 200px;">{% get_verbose_label object field %}</th>
+              <td>
+                <a href="{% url 'edna:pcr_batch_detail' object.pcr_batch.id %}">{% get_field_value object field %}</a>
+              </td>
+            {% elif field == "sample" %}
+              <th style="width: 200px;">{% get_verbose_label object field %}</th>
+              <td>
+                <a href="{% url 'edna:sample_detail' object.sample.id %}">{% get_field_value object field %}</a>
+              </td>
+            {% elif field == "filter" %}
+              <th style="width: 200px;">{% get_verbose_label object field %}</th>
+              <td>
+                <a href="{% url 'edna:filter_detail' object.filter.id %}">{% get_field_value object field %}</a>
+              </td>
+            {% elif field == "extract" %}
+              <th style="width: 200px;">{% get_verbose_label object field %}</th>
+              <td>
+                <a href="{% url 'edna:extract_detail' object.extract.id %}">{% get_field_value object field %}</a>
+              </td>
+            {% else %}
+              {% verbose_td_display object field th_width="200px" display_time=True %}
+            {% endif %}
+          </tr>
+
         {% endfor %}
       </table>
     </div>

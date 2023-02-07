@@ -76,12 +76,6 @@
                   <input type="number" class="form-control" placeholder="" v-model="numberOfTechReps">
                 </div>
                 <div class="col">
-                  <label for="">{% trans "Master mix" %}</label>
-                  <select name="" id="" class="form-control w-100" v-model="selectedMasterMix">
-                    <option v-for="(option, index) in masterMixChoices" :value="option.value">${option.text}</option>
-                  </select>
-                </div>
-                <div class="col">
                   <label for="">{% trans "Which main assays to test?" %}</label>
                   <v-select
                     id=""
@@ -152,8 +146,6 @@ Vue.component("extract-import-overlay", {
       selectedIPCAssays: [],
       mainAssayChoices: [],
       ipcAssayChoices: [],
-      selectedMasterMix: null,
-      masterMixChoices: [],
     };
   },
   methods: {
@@ -174,7 +166,7 @@ Vue.component("extract-import-overlay", {
         let msg = "{% trans "You did not select any extracts to import!" %}";
         alert(msg);
       } else {
-        this.$emit("add-extracts", this.selectedExtracts, this.numberOfTechReps, this.selectedAssays, this.selectedMasterMix)
+        this.$emit("add-extracts", this.selectedExtracts, this.numberOfTechReps, this.selectedAssays)
         this.overlay = false;
       }
     },
@@ -215,11 +207,10 @@ Vue.component("extract-import-overlay", {
     },
     getPCRMetadata() {
       let endpoint;
-      endpoint = `/api/edna/meta/models/pcr-assay/`;
+      endpoint = `/api/edna/meta/models/pcr-assay/?active=true`;
       apiService(endpoint).then(data => {
         this.mainAssayChoices = data.main_assay_choices;
         this.ipcAssayChoices = data.ipc_assay_choices;
-        this.masterMixChoices = data.master_mix_choices;
       });
     },
 
@@ -240,7 +231,7 @@ Vue.component("extract-import-overlay", {
         return [...(this.filterCollection.map(element => element.id))]
     },
     canProceed() {
-      if (this.numberOfTechReps && this.selectedMasterMix && this.selectedAssays.length) return true;
+      if (this.numberOfTechReps && this.selectedAssays.length) return true;
     }
 
   }
