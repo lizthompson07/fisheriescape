@@ -142,7 +142,7 @@ class Electrofisher(models.Model):
         return mystr
 
     class Meta:
-        ordering = ['model_number']
+        ordering = ["is_decommissioned", 'model_number']
 
 
 class Sample(MetadataFields):
