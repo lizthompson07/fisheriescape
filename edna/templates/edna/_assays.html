@@ -28,14 +28,14 @@
                   {% for species in obj.assay.species.all %}
                     {{ species }}<br>
                   {% endfor %}
-                {% elif "pcr" in field %}
-                  <a href="{% url 'edna:pcr_detail' obj.pcr.id %}" target="_blank">{{ obj.pcr }}</a>
                 {% elif "extract" in field %}
                   {% if obj.pcr.extract %}
                     <a href="{% url 'edna:extract_detail' obj.pcr.extract.id %}" target="_blank">{{ obj.pcr.extract }}</a>
                   {% else %}
                     ---
                   {% endif %}
+                {% elif "pcr" in field %}
+                  <a href="{% url 'edna:pcr_detail' obj.pcr.id %}" target="_blank">{{ obj.pcr }}</a>
                 {% elif "filter" in field %}
                   {% if obj.pcr.extract.filter %}
                     <a href="{% url 'edna:filter_detail' obj.pcr.extract.filter.id %}" target="_blank">{{ obj.pcr.extract.filter }}</a>

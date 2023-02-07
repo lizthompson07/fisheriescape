@@ -165,7 +165,7 @@ def generate_sweep_csv(qs):
             obj.sample.ef_sample.avg_wetted_length,  # avg_wetted_length
             obj.sample.ef_sample.avg_wetted_width,  # avg_wetted_width
             obj.sample.ef_sample.full_wetted_area,  # full_wetted_area
-            obj.sample.ef_sample.electrofisher.name if obj.sample.ef_sample.electrofisher else "",  # electrofisher
+            obj.sample.ef_sample.electrofisher.model_number if obj.sample.ef_sample.electrofisher else "",  # electrofisher
             obj.sweep_number,  # sweep_number
             obj.sweep_time,  # sweep_time
             age_breakdown.get(0, 0),  # salmon_0plus

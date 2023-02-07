@@ -1,3 +1,4 @@
+from django.db.models import F
 from django.utils.translation import gettext as _
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets, status
@@ -39,10 +40,10 @@ class CollectionViewSet(viewsets.ModelViewSet):
     def retrieve(self, request, *args, **kwargs):
         qp = request.query_params
         if qp.get("assays_tested"):
-            qs = models.Assay.objects.filter(pcrs__pcr__collection=self.get_object()).distinct()
+            qs = models.Assay.objects.filter(pcrs__pcr__collection=self.get_object()).select_related("master_mix").distinct()
             if qp.get("speciesList"):
                 qs = qs.filter(species__in=qp.get("speciesList").split(',')).distinct()
-            return Response(serializers.AssaySerializer(qs, many=True).data, status=status.HTTP_200_OK)
+            return Response(serializers.AssaySerializer(qs, many=True, context={'collection_id': self.get_object().id}).data, status=status.HTTP_200_OK)
         return super().retrieve(request, *args, **kwargs)
 
 
@@ -181,7 +182,7 @@ class DNAExtractViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.DNAExtractSerializer
     permission_classes = [eDNACRUDOrReadOnly]
     queryset = models.DNAExtract.objects.all().select_related("extraction_batch", "filter", "sample", "collection",
-                                                              "dna_extraction_protocol")
+                                                              "dna_extraction_protocol").prefetch_related("pcrs")
     filter_backends = (DjangoFilterBackend,)
     filterset_class = DNAExtractFilter
 
@@ -231,7 +232,8 @@ class DNAExtractViewSet(viewsets.ModelViewSet):
         qp = request.query_params
         if qp.get("batch"):
             batch = get_object_or_404(models.ExtractionBatch, pk=qp.get("batch"))
-            qs = batch.extracts.all()
+            qs = batch.extracts.all().select_related("extraction_batch", "filter", "sample", "collection",
+                                                              "dna_extraction_protocol").prefetch_related("pcrs")
             serializer = self.get_serializer(qs, many=True)
             return Response(serializer.data)
         return super().list(request, *args, **kwargs)
@@ -261,7 +263,7 @@ class DNAExtractModelMetaAPIView(APIView):
 class PCRViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.PCRSerializer
     permission_classes = [eDNACRUDOrReadOnly]
-    queryset = models.PCR.objects.all().select_related("pcr_batch", "extract", "collection", "master_mix")
+    queryset = models.PCR.objects.all().select_related("pcr_batch", "extract", "collection")
 
     # pagination_class = StandardResultsSetPagination
 
@@ -304,7 +306,6 @@ class PCRModelMetaAPIView(APIView):
         data = dict()
         data['labels'] = get_labels(self.model)
         # we want to get a list of filters for which there has been no PCRs
-        data['master_mix_choices'] = [dict(text=str(item), value=item.id) for item in models.MasterMix.objects.all()]
         return Response(data)
 
 
@@ -315,10 +316,14 @@ class PCRAssayModelMetaAPIView(APIView):
     def get(self, request):
         data = dict()
         data['labels'] = get_labels(self.model)
-        data['assay_choices'] = [dict(text=str(item), value=item.id) for item in models.Assay.objects.all()]
-        data['main_assay_choices'] = [dict(text=str(item), value=item.id) for item in models.Assay.objects.filter(is_ipc=False)]
-        data['ipc_assay_choices'] = [dict(text=str(item), value=item.id) for item in models.Assay.objects.filter(is_ipc=True)]
-        data['master_mix_choices'] = [dict(text=str(item), value=item.id) for item in models.MasterMix.objects.all()]
+        assay_qs = models.Assay.objects.all()
+        qp = self.request.query_params
+        if qp.get("active"):
+            assay_qs = assay_qs.filter(active=True)
+
+        data['assay_choices'] = [dict(text=str(item), value=item.id) for item in assay_qs]
+        data['main_assay_choices'] = [dict(text=str(item), value=item.id) for item in assay_qs.filter(is_ipc=False)]
+        data['ipc_assay_choices'] = [dict(text=str(item), value=item.id) for item in assay_qs.filter(is_ipc=True)]
         return Response(data)
 
 
@@ -342,20 +347,33 @@ class PCRAssayViewSet(viewsets.ModelViewSet):
         qp = self.request.query_params
         if qp.get("lite"):
             return serializers.PCRAssaySerializerLITE
+        if qp.get("results_format"):
+            return serializers.PCRResultsSerializer
         return serializers.PCRAssaySerializer
 
     def list(self, request, *args, **kwargs):
         qp = request.query_params
+        if qp.get("speciesList"):
+            self.queryset = self.queryset.filter(assay__species__in=qp.get("speciesList").split(',')).distinct()
         if qp.get("batch"):
             batch = get_object_or_404(models.PCRBatch, pk=qp.get("batch"))
-            qs = models.PCRAssay.objects.filter(pcr__pcr_batch=batch).select_related("assay", "pcr__extract", "pcr__extract__filter", "pcr__extract__sample")
+            qs = self.queryset.filter(pcr__pcr_batch=batch).select_related("assay", "pcr__extract", "pcr__extract__filter", "pcr__extract__sample")
             serializer = self.get_serializer(qs, many=True)
             return Response(serializer.data)
         if qp.get("pcr__collection"):
+            if qp.get("results_format"):
+                collection = get_object_or_404(models.Collection, pk=qp.get("pcr__collection"))
+                all_assay_qs = self.queryset.filter(pcr__collection=collection).select_related("pcr")
+                results_qs = all_assay_qs.values(assay_pk=F("assay_id"), pcr_batch=F("pcr__pcr_batch_id"), extract=F("pcr__extract_id")).distinct()
+                # get unique assays, similar to qs.distinct("key1", "key2", etc.) which only works on postgres
+                results_list = [dict(y) for y in set(tuple(pcr_assay.items()) for pcr_assay in results_qs)]
+                serializer = self.get_serializer(results_list, many=True, context={"pcr_assay_qs": all_assay_qs})
+                return Response(serializer.data)
             collection = get_object_or_404(models.Collection, pk=qp.get("pcr__collection"))
             qs = models.PCRAssay.objects.filter(pcr__collection=collection).select_related("assay", "pcr__extract", "pcr__extract__filter", "pcr__extract__sample")
             serializer = self.get_serializer(qs, many=True)
             return Response(serializer.data)
+
         raise ValidationError(_("You need to specify a batch"))
 
     def perform_create(self, serializer):

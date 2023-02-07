@@ -81,12 +81,15 @@ class AssayForm(forms.ModelForm):
         "b_coef",
         "is_ipc",
         "species",
+        "mastermix",
+        "active",
     ]
     class Meta:
         model = models.Assay
         fields = "__all__"
         widgets = {
             "species": forms.SelectMultiple(attrs=chosen_js),
+            "mastermix": forms.Select(attrs=chosen_js),
         }
 
     def __init__(self, *args, **kwargs):

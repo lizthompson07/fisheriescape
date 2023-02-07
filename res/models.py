@@ -1,3 +1,5 @@
+import re
+
 from django.contrib.auth.models import User
 from django.db import models
 from django.template.defaultfilters import date
@@ -374,6 +376,11 @@ class Achievement(MetadataFields):
 
     @property
     def achievement_display_no_code(self):
+        mystr = self.achievement_display_no_code_no_connection
+        return connect_refs(mystr, self.user.achievements.all())
+
+    @property
+    def achievement_display_no_code_no_connection(self):
         mystr = ""
         if self.category and self.category.is_publication:
             if self.date:
@@ -387,13 +394,12 @@ class Achievement(MetadataFields):
             mystr += f"{self.date.year}."
         if self.detail:
             mystr += f" {self.detail}"
-
         mystr = truncate(mystr, max_length=1000)
-        return connect_refs(mystr, self.user.achievements.all())
+        return mystr
 
     @property
     def achievement_display_text(self):
-        return html2text(self.achievement_display_no_code).replace("'", "").replace("\n", "")
+        return re.sub(r'<[^>]*>', "", self.achievement_display_no_code_no_connection).replace("'", "").replace("\n", "")
 
     @property
     def is_publication(self):

@@ -65,10 +65,13 @@
 
           {% endfor %}
 
-
           {# each field of the form should be a cell #}
           {% for field in form %}
-            {% if not field.is_hidden %}
+            {% if field.widget_type == "checkbox" %}
+              <td>
+                {{ field }}
+              </td>
+            {% elif not field.is_hidden %}
               <td {% if field.name == "color" %}class="color-cell" color-value="{{ form.instance.color }}"{% endif %}>
                 {% bootstrap_field field size="small" show_label=False placeholder="" %}
               </td>
@@ -94,12 +97,12 @@
           {% if form.instance.id %}
             {% block delete_link %}
               {% if delete_url_name %}
-              <td>
-                <a class="delete-btn red-font" href="#" delete_url="{% url delete_url_name form.instance.id %}"
-                   object-name="{{ form.instance }}">
-                  ({% trans "delete" %})
-                </a>
-              </td>
+                <td>
+                  <a class="delete-btn red-font" href="#" delete_url="{% url delete_url_name form.instance.id %}"
+                     object-name="{{ form.instance }}">
+                    ({% trans "delete" %})
+                  </a>
+                </td>
               {% endif %}
             {% endblock delete_link %}
           {% else %}
@@ -122,7 +125,6 @@
   </form>
 
   {% block post_form_div %}{% endblock %}
-
 
 
 {% endblock %}

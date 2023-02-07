@@ -54,7 +54,6 @@ def get_sample_field_list():
 
 def get_collection_field_list(collection):
     my_list = [
-        'id',
         'name',
         'description',
         'region',
@@ -166,3 +165,32 @@ def sample_csv_parser(csv_reader, batch, request):
         except Exception as err:
             messages.error(request, _('Invalid CSV. Error on row {}. Error: {}'.format(row, err)))
             raise
+
+
+def get_pcr_result(result_qs, lod):
+    # codes in pcr_assay model
+    if not lod:
+        return 91, _("LOD missing :(")
+    checklist = []
+    for pcr_result in result_qs:
+        if not pcr_result.ct:
+            checklist.append("No Data")
+        elif pcr_result.ct == 0:
+            checklist.append("Negative")
+        elif pcr_result.ct <= lod:
+            checklist.append("Positive")
+        elif pcr_result.ct > lod:
+            checklist.append("Weak positive")
+        else:
+            checklist.append("No Data")
+
+    if all(assay == "Positive" for assay in checklist):
+        return 1, _("positive")
+    elif all(assay in ["Positive", "Weak positive"] for assay in checklist):
+        return 93, _("Suspected")
+    elif any(assay == "Positive" for assay in checklist):
+        return 92, _("Inconclusive")
+    else:
+        return 0, _("negative")
+
+
