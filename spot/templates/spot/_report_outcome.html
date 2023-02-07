@@ -5,13 +5,13 @@
 
 <div class="">
     <h4>
-        {% trans "Select Report Outcome:" %}
+        {% trans "Select Reporting Outcome:" %}
     </h4>
 </div>
 
 {% if object.report_outcome.count == 0 %}
     <em>
-        {% trans "No Report Outcomes have been entered" %}
+        {% trans "No Reporting Outcomes have been entered" %}
 
     </em><br>
 {% else %}
@@ -27,13 +27,16 @@
                 {% trans "Site" %}
             </th>
             <th style="width: 120px">
-                {% trans "Report Link?" %}
-            </th>
-            <th style="width: 120px">
                 {% trans "Comment" %}
             </th>
             <th style="width: 120px">
                 {% trans "Metric" %}
+            </th>
+            <th style="width: 120px">
+                {% trans "Report Link" %}
+            </th>
+            <th style="width: 120px">
+                {% trans "Species" %}
             </th>
         </tr>
         <tbody>
@@ -49,13 +52,16 @@
                     {{ obj.site }}
                 </td>
                 <td>
-                    {{ obj.report_link.document_name }}
-                </td>
-                <td>
                     {{ obj.report_outcome_comment }}
                 </td>
                 <td>
                     {{ obj.reporting_outcome_metric }}
+                </td>
+                <td>
+                    {{ obj.report_link.document_name }}
+                </td>
+                <td>
+                    {{ obj.activity_outcome.document_name.river.species }}
                 </td>
             </tr>
         {% endfor %}

@@ -18,7 +18,7 @@
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'spot:index' %}">Home</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'spot:obj_list' %}">Activities and Outcomes List</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'spot:act_list' %}">Activities & Outcomes List</a></li>
             <li class="breadcrumb-item active" aria-current="page">{{ object }}</li>
         </ol>
         <ol class="breadcrumb">
@@ -38,10 +38,10 @@
 
 
         <div class="btn-group">
-            <a class="btn btn-warning" href="{% url 'spot:obj_edit' object.id %}">
+            <a class="btn btn-warning" href="{% url 'spot:act_edit' object.id %}">
                 {% trans "Edit" %}
             </a>
-            <a class="btn btn-danger " href="{% url 'spot:obj_delete' object.id %}">
+            <a class="btn btn-danger " href="{% url 'spot:act_delete' object.id %}">
                 {% trans "Delete" %}
             </a>
         </div>
@@ -57,9 +57,9 @@
                         {% include "spot/_sample_outcome.html" %}
                     {% elif field == 'reporting_outcome_placeholder' %}
                         {% include "spot/_report_outcome.html" %}
-                    {% elif field == 'location' %}
-                            {% if object.location %}
-                                <strong>Location:</strong>
+                    {% elif field == 'river' %}
+                            {% if object.river %}
+                                <strong>River:</strong>
                                 <table class="table table-hover table-sm" style="width: 100">
                                     <tr>
                                         <th style="width: 120px">
@@ -95,41 +95,47 @@
                                         <th style="width: 120px">
                                             {% trans "DU Number" %}
                                         </th>
+                                        <th style="width: 120px">
+                                            {% trans "Watershed" %}
+                                        </th>
                                     </tr>
                                     <tbody>
                                         <tr>
                                             <td>
-                                                {{ object.location.name }}
+                                                {{ object.river.name }}
                                             </td>
                                             <td>
-                                                {{ object.location.species.name }}
+                                                {{ object.river.species }}
                                             </td>
                                             <td>
-                                                {{ object.location.cu_index }}
+                                                {{ object.river.cu_index }}
                                             </td>
                                             <td>
-                                                {{ object.location.cu_name }}
+                                                {{ object.river.cu_name }}
                                             </td>
                                             <td>
-                                                {{ object.location.latitude }}
+                                                {{ object.river.latitude }}
                                             </td>
                                             <td>
-                                                {{ object.location.longitude }}
+                                                {{ object.river.longitude }}
                                             </td>
                                             <td>
-                                                {{ object.location.sub_district_area }}
+                                                {{ object.river.sub_district_area }}
                                             </td>
                                             <td>
-                                                {{ object.location.stock_management_unit }}
+                                                {{ object.river.stock_management_unit }}
                                             </td>
                                             <td>
-                                                {{ object.location.pop_id }}
+                                                {{ object.river.pop_id }}
                                             </td>
                                             <td>
-                                                {{ object.location.du }}
+                                                {{ object.river.du }}
                                             </td>
                                             <td>
-                                                {{ object.location.du_number }}
+                                                {{ object.river.du_number }}
+                                            </td>
+                                            <td>
+                                                {{ object.river.watershed.name }}
                                             </td>
                                         </tr>
                                     </tbody>

@@ -77,20 +77,30 @@ label {
   <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">×</a>
   <form class="form" action="." method="get" id="filter-form">
                 <h1>Filters</h1>
-                <br>
                 {% for field in filter.form %}
+                        {% if field.name == 'project_name' %}
+                            <h3><u>Search</u></h3>
+                        {% elif field.name == 'species' %}
+                            <h3><u>Geographical/<br>Biological</u></h3>
+                        {% elif field.name == 'sub_district_area' %}
+                            <h3><u>Stock Assessment</u></h3>
+                        {% elif field.name == 'project_type' %}
+                            <h3><u>Project Classifications</u></h3>
+                        {% elif field.name == 'funding_sources' %}
+                            <h3><u>Other</u></h3>
+                        {% endif %}
                         {% bootstrap_field field placeholder="" size="small" label="left" %}
                 {% endfor %}
                     <br>
                     <input type="submit" value="Filter" class="btn btn-sm btn-warning">
-                    <a href="{% url 'spot:obj_list' %}" class="btn btn-sm btn-primary">Clear Filters</a>
+                    <a href="{% url 'spot:act_list' %}" class="btn btn-sm btn-primary">Clear Filters</a>
   </form>
 </div>
 <div id="main">
   <button class="openbtn" onclick="openNav()">☰ Filters</button>
     <div class="container-fluid">
 
-        <p class="h1 text-center">{% trans "Objectives" %}</p>
+        <p class="h1 text-center">{% trans "Activities & Outcomes" %}</p>
         <p>TOTAL: {{ object_list.count }}</p>
         <br>
         {% paginate 75 filter.qs as filter_list %}
@@ -105,7 +115,7 @@ label {
                 <em>{% trans "displaying" %} {{ filter_list.count }} {% trans "of" %} {{ filter.qs.count }}</em>
             </div>
             <div class="col" style="text-align: right; padding-bottom: 10px">
-                <a href="{% url 'spot:export_objective' %}?{{request.GET.urlencode}}" class="btn btn-sm btn-success">Export to .XLSX</a>
+                <a href="{% url 'spot:export_activity_outcome' %}?{{request.GET.urlencode}}" class="btn btn-sm btn-success">Export to .XLSX</a>
             </div>
         </div>
 
@@ -119,7 +129,7 @@ label {
             </thead>
             <tbody>
             {% for object in filter_list %}
-                {% url 'spot:obj_detail' object.id as my_url %}
+                {% url 'spot:act_detail' object.id as my_url %}
                 <tr href="{{ my_url }}">
                     {% for field in field_list %}
                         {% if "sample_outcome" in field %}
@@ -136,11 +146,11 @@ label {
                                 </td>
                         {% elif "species" in field %}
                             <td>
-                                {{ object.location.species }}
+                                {{ object.river.species }}
                             </td>
-                        {% elif "location" in field %}
+                        {% elif "river" in field %}
                             <td>
-                                {{ object.location.name }}
+                                {{ object.river.name }}
                             </td>
                         {% else %}
                             <td>{% get_field_value object field %}</td>

@@ -25,7 +25,6 @@
             width: 100%; /* The width is the width of the web page */
         }
     </style>
-<div>
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'spot:index' %}">Home</a></li>
@@ -36,12 +35,12 @@
     <div class="container-fluid">
         <div class="row">
             <div class="col">
-        <h1>{{ object }}</h1>
-        <h1>{{ object.name }}</h1>
+                <h1>{{ object }}</h1>
+                <h1>{{ object.name }}</h1>
             </div>
             <div class="col">
                 {% localize off %}
-        <div id="map"></div>
+                    <div id="map"></div>
                 {% endlocalize %}
             </div>
         </div>
@@ -58,171 +57,167 @@
             <a class="btn btn-info " href="{% url 'spot:project_clone' object.id  %}">
                 {% trans "Clone" %}
             </a>
-
         </div>
         <br>
         {% include "spot/_project_certified.html" %}
         <div id="accordion">
-              <div class="card">
+            <div class="card">
                 <div class="card-header" id="headingOne">
-                  <h2 class="mb-0">
-                    <button class="btn btn-link" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                      {% trans "Project Details" %}
-                    </button>
-                  </h2>
+                    <h2 class="mb-0">
+                        <button class="btn btn-link" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                            {% trans "Project Details" %}
+                        </button>
+                    </h2>
                 </div>
-                  <div id="collapseOne" class="collapse" aria-labelledby="headingOne">
-                 <div class="card-body">
-                <div class="col">
-                     <table class="table table-sm table-bordered" style="width: 100">
-                        <h2><u>Project Information</u></h2>
-                         {% for field in field_list %}
-                            {% if field == 'project_categorization' %}
-                                <br><h2><u>Project Categorization</u></h2><br>
-                            {% elif field == 'project_links' %}
-                                <br><h2><u>Project Links</u></h2><br>
-                            {% elif field == 'project_contacts' %}
-                                <br><h2><u>Project Contacts</u></h2><br>
-                            {% elif field == 'funding_year' %}
-                                <br>{% include "spot/_funding_years.html" %}<br>
-                            {% elif field == 'DFO_project_authority' %}
-                                <strong>DFO Project Authority:</strong><br>
-                                <ul>
-                                    {% for person in project.DFO_project_authority.all %}
-                                    <li><a href="{% url 'spot:person_detail' person.id %}">{{person.full_name}}</a></li>
-                                    {% endfor %}
-                                 </ul>
-                            {% elif field == 'DFO_area_chief' %}
-                                <strong>DFO Area Chief:</strong><br>
-                                <ul>
-                                    {% for person in project.DFO_area_chief.all %}
-                                    <li><a href="{% url 'spot:person_detail' person.id %}">{{person.full_name}}</a></li>
-                                    {% endfor %}
-                                 </ul>
-                            {% elif field == 'DFO_resource_manager' %}
-                                <strong>DFO Resource Manager:</strong><br>
-                                <ul>
-                                    {% for person in project.DFO_resource_manager.all %}
-                                    <li><a href="{% url 'spot:person_detail' person.id %}">{{person.full_name}}</a></li>
-                                    {% endfor %}
-                                 </ul>
-                            {% elif field == 'DFO_aboriginal_AAA' %}
-                                <strong>DFO Aboriginal AAA:</strong><br>
-                                <ul>
-                                    {% for person in project.DFO_aboriginal_AAA.all %}
-                                    <li><a href="{% url 'spot:person_detail' person.id %}">{{person.full_name}}</a></li>
-                                    {% endfor %}
-                                 </ul>
-                            {% elif field == 'first_nations_contact' %}
-                                <strong>First Nations Contact:</strong><br>
-                                <ul>
-                                    {% if project.first_nations_contact %}
-                                    <li><a href="{% url 'spot:person_detail' project.first_nations_contact.id %}">{{project.first_nations_contact.full_name}}</a></li>
+                <div id="collapseOne" class="collapse" aria-labelledby="headingOne">
+                    <div class="card-body">
+                        <div class="col">
+                             <table class="table table-sm table-bordered" style="width: 100">
+                                <h2><u>Project Information</u></h2>
+                                 {% for field in field_list %}
+                                    {% if field == 'project_categorization' %}
+                                        <br><h2><u>Project Categorization</u></h2><br>
+                                    {% elif field == 'project_links' %}
+                                        <br><h2><u>Project Links</u></h2><br>
+                                    {% elif field == 'project_contacts' %}
+                                        <br><h2><u>Project Contacts</u></h2><br>
+                                    {% elif field == 'funding_year' %}
+                                        <br>{% include "spot/_funding_years.html" %}<br>
+                                    {% elif field == 'DFO_project_authority' %}
+                                        <strong>DFO Project Authority:</strong><br>
+                                        <ul>
+                                            {% for person in project.DFO_project_authority.all %}
+                                            <li><a href="{% url 'spot:person_detail' person.id %}">{{person.full_name}}</a></li>
+                                            {% endfor %}
+                                         </ul>
+                                    {% elif field == 'DFO_area_chief' %}
+                                        <strong>DFO Area Chief:</strong><br>
+                                        <ul>
+                                            {% for person in project.DFO_area_chief.all %}
+                                            <li><a href="{% url 'spot:person_detail' person.id %}">{{person.full_name}}</a></li>
+                                            {% endfor %}
+                                         </ul>
+                                    {% elif field == 'DFO_resource_manager' %}
+                                        <strong>DFO Resource Manager:</strong><br>
+                                        <ul>
+                                            {% for person in project.DFO_resource_manager.all %}
+                                            <li><a href="{% url 'spot:person_detail' person.id %}">{{person.full_name}}</a></li>
+                                            {% endfor %}
+                                         </ul>
+                                    {% elif field == 'DFO_aboriginal_AAA' %}
+                                        <strong>DFO Aboriginal AAA:</strong><br>
+                                        <ul>
+                                            {% for person in project.DFO_aboriginal_AAA.all %}
+                                            <li><a href="{% url 'spot:person_detail' person.id %}">{{person.full_name}}</a></li>
+                                            {% endfor %}
+                                         </ul>
+                                    {% elif field == 'first_nations_contact' %}
+                                        <strong>First Nations Contact:</strong><br>
+                                        <ul>
+                                            {% if project.first_nations_contact %}
+                                            <li><a href="{% url 'spot:person_detail' project.first_nations_contact.id %}">{{project.first_nations_contact.full_name}}</a></li>
+                                            {% else %}
+                                                <tr>
+                                                    {% verbose_field_display object field %}
+                                                </tr>
+                                            {% endif %}
+                                         </ul>
+                                    {% elif field == 'DFO_technicians' %}
+                                        <strong>DFO Technicians:</strong><br>
+                                        <ul>
+                                            {% for person in project.DFO_technicians.all %}
+                                            <li><a href="{% url 'spot:person_detail' person.id %}">{{person.full_name}}</a></li>
+                                            {% endfor %}
+                                         </ul>
+                                    {% elif field == 'partner_contact' %}
+                                        <strong>Partner Contact:</strong><br>
+                                        <ul>
+                                            {% for person in project.partner_contact.all %}
+                                            <li><a href="{% url 'spot:person_detail' person.id %}">{{person.full_name}}</a></li>
+                                            {% endfor %}
+                                         </ul>
+                                    {% elif field == 'costing' %}
+                                        <br><h2><u>Agreement Source & Costing</u></h2><br>
+                                    {% elif field == 'river' %}
+                                        {% include "spot/_rivers.html" %}<br>
                                     {% else %}
                                         <tr>
                                             {% verbose_field_display object field %}
                                         </tr>
                                     {% endif %}
-                                 </ul>
-                            {% elif field == 'DFO_technicians' %}
-                                <strong>DFO Technicians:</strong><br>
-                                <ul>
-                                    {% for person in project.DFO_technicians.all %}
-                                    <li><a href="{% url 'spot:person_detail' person.id %}">{{person.full_name}}</a></li>
-                                    {% endfor %}
-                                 </ul>
-                            {% elif field == 'partner_contact' %}
-                                <strong>Partner Contact:</strong><br>
-                                <ul>
-                                    {% for person in project.partner_contact.all %}
-                                    <li><a href="{% url 'spot:person_detail' person.id %}">{{person.full_name}}</a></li>
-                                    {% endfor %}
-                                 </ul>
-                            {% elif field == 'costing' %}
-                                <br><h2><u>Agreement Source & Costing</u></h2><br>
-                            {% elif field == 'river' %}
-                                {% include "spot/_rivers.html" %}<br>
-                            {% else %}
-                                <tr>
-                                    {% verbose_field_display object field %}
-                                </tr>
-                            {% endif %}
-                        {% endfor %}
-
-                        <br>
-                     </table>
+                                {% endfor %}
+                                <br>
+                             </table>
+                        </div>
                     </div>
                 </div>
-                 </div>
+            </div>
             <div class="card">
                 <div class="card-header" id="headingThree">
-                  <h2 class="mb-0">
-                    <button class="btn btn-link" data-toggle="collapse" data-target="#collapseThree" aria-expanded="true" aria-controls="collapseThree">
-                      {% trans "Data" %}
-                    </button>
-                  </h2>
+                    <h2 class="mb-0">
+                        <button class="btn btn-link" data-toggle="collapse" data-target="#collapseThree" aria-expanded="true" aria-controls="collapseThree">
+                            {% trans "Data" %}
+                        </button>
+                     </h2>
                 </div>
                 <div id="collapseThree" class="collapse" aria-labelledby="headingThree">
-                 <div class="card-body">
-                <div>
-                     {% include "spot/_data.html" %}
-                </div>
-                 </div>
+                    <div class="card-body">
+                        <div>
+                            {% include "spot/_data.html" %}
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="card">
-                    <div class="card-header" id="headingFour">
-                      <h2 class="mb-0">
+                <div class="card-header" id="headingFour">
+                    <h2 class="mb-0">
                         <button class="btn btn-link" data-toggle="collapse" data-target="#collapseFour" aria-expanded="true" aria-controls="collapseFour">
-                          {% trans "Methods" %}
+                            {% trans "Methods" %}
                         </button>
-                      </h2>
-                    </div>
-                    <div id="collapseFour" class="collapse" aria-labelledby="headingFour">
-                     <div class="card-body">
-                    <div>
-                         {% include "spot/_methods.html" %}
-                    </div>
-                     </div>
+                    </h2>
+                </div>
+                <div id="collapseFour" class="collapse" aria-labelledby="headingFour">
+                    <div class="card-body">
+                        <div>
+                            {% include "spot/_methods.html" %}
+                        </div>
                     </div>
                 </div>
-        </div>
-        <div class="card">
-                    <div class="card-header" id="headingFive">
-                      <h2 class="mb-0">
-                        <button class="btn btn-link" data-toggle="collapse" data-target="#collapseFive" aria-expanded="true" aria-controls="collapseFive">
-                          {% trans "Reports" %}
-                        </button>
-                      </h2>
-                    </div>
-                    <div id="collapseFive" class="collapse" aria-labelledby="headingFive">
-                     <div class="card-body">
-                    <div>
-                         {% include "spot/_reports.html" %}
-                    </div>
-                     </div>
-                        </div>
             </div>
-        <div class="card">
-                    <div class="card-header" id="headingSix">
-                      <h2 class="mb-0">
-                        <button class="btn btn-link" data-toggle="collapse" data-target="#collapseSix" aria-expanded="true" aria-controls="collapseSix">
-                          {% trans "Activities & Outcomes" %}
+            <div class="card">
+                <div class="card-header" id="headingFive">
+                    <h2 class="mb-0">
+                        <button class="btn btn-link" data-toggle="collapse" data-target="#collapseFive" aria-expanded="true" aria-controls="collapseFive">
+                            {% trans "Reports" %}
                         </button>
-                      </h2>
+                    </h2>
+                </div>
+                <div id="collapseFive" class="collapse" aria-labelledby="headingFive">
+                    <div class="card-body">
+                        <div>
+                            {% include "spot/_reports.html" %}
+                        </div>
                     </div>
-                    <div id="collapseSix" class="collapse" aria-labelledby="headingSix">
-                     <div class="card-body">
-                    <div>
-                         {% include "spot/_objectives.html" %}
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header" id="headingSix">
+                    <h2 class="mb-0">
+                        <button class="btn btn-link" data-toggle="collapse" data-target="#collapseSix" aria-expanded="true" aria-controls="collapseSix">
+                            {% trans "Activities & Outcomes" %}
+                        </button>
+                    </h2>
+                </div>
+                <div id="collapseSix" class="collapse" aria-labelledby="headingSix">
+                    <div class="card-body">
+                        <div>
+                            {% include "spot/_activity_outcome.html" %}
+                        </div>
                     </div>
-                     </div>
-                    </div>
+                </div>
+            </div>
         </div>
-        </div>
-
     </div>
-</div>
 {% endblock content %}
 
 {% block body_js %}
