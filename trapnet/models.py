@@ -120,11 +120,20 @@ class Species(MetadataFields):
 
 
 # class Electrofisher(models.Model):
-class Electrofisher(UnilingualSimpleLookup):
+class Electrofisher(models.Model):
     model_number = models.CharField(max_length=255, verbose_name=_("model"))
     serial_number = models.CharField(max_length=255, blank=True, null=True, unique=True)
     notes = models.CharField(max_length=255, blank=True, null=True)
     is_decommissioned = models.BooleanField(default=False, verbose_name=_("Decommissioned?"))
+
+    @property
+    def years(self):
+        return listrify([item["sample__season"] for item in self.ef_samples.order_by("sample__season").values("sample__season").distinct()])
+
+    @property
+    def fishing_areas(self):
+        return listrify([shared_models.FishingArea.objects.get(pk=item["sample__site__river__fishing_area"]) for item in
+                         self.ef_samples.order_by("sample__site__river__fishing_area").values("sample__site__river__fishing_area").distinct()])
 
     def __str__(self):
         mystr = f"{self.model_number} [s/n: {nz(self.serial_number, '---')}]"

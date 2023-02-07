@@ -131,6 +131,7 @@ class ElectrofisherFormsetView(TrapNetAdminRequiredMixin, CommonFormsetView):
     h1 = "Manage Electrofishers"
     queryset = models.Electrofisher.objects.all()
     formset_class = forms.ElectrofisherFormset
+    post_display_fields = ["years", "fishing_areas|fishing areas"]
     success_url_name = "trapnet:manage_electrofishers"
     home_url_name = "trapnet:index"
     delete_url_name = "trapnet:delete_electrofisher"
