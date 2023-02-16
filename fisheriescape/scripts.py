@@ -196,11 +196,12 @@ def import_fishery_info():
         print(f'{str(cont_success)} records inserted successfully! ')
 
 
-def import_scores_info():
+def import_scores_info(path : str):
     """ a simple function to import information from a csv """
-    csv_file = os.path.abspath(
-        os.path.join(os.path.dirname(__file__), 'data', 'Snow Crab Fisheriescape 20220413.csv'),
-    )
+    # csv_file = os.path.abspath(
+    #     os.path.join(os.path.dirname(__file__), 'data', 'Snow Crab Fisheriescape 20220413.csv'),
+    # )
+    csv_file = path
     cont_success = 0
     # Remove all data from Table
     models.Score.objects.all().delete()
@@ -215,23 +216,25 @@ def import_scores_info():
 
             # Get or create FK fields first
             hexagon_obj, created = models.Hexagon.objects.get_or_create(
-                grid_id=str(row["Grid"].strip())
+                grid_id=str(row["grid.id"].strip())
             )
 
             species_obj, created = models.Species.objects.get_or_create(
-                english_name=str(row["Species"].strip())
+                english_name__iexact=str(row["sw2"].strip()[:-19].strip())
             )
 
+            print("species", str(row["sw2"].strip()[:-19].strip()))
+
             week_obj, created = models.Week.objects.get_or_create(
-                week_number=row["Week"].strip()
+                week_number=row["sw"].strip()
             )
             created, _ = models.Score.objects.get_or_create(
                 hexagon=hexagon_obj,
                 species=species_obj,
                 week=week_obj,
-                site_score=row["SS"].strip(),
-                ceu_score=row["CEU"].strip(),
-                fs_score=row["FS"].strip(),
+                site_score=row["ss.std"].strip(),
+                ceu_score=row["ceu"].strip(),
+                fs_score=row["fs"].strip(),
             )
 
             cont_success += 1
