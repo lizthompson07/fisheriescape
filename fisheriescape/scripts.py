@@ -223,8 +223,6 @@ def import_scores_info(path : str):
                 english_name__iexact=str(row["sw2"].strip()[:-19].strip())
             )
 
-            print("species", str(row["sw2"].strip()[:-19].strip()))
-
             week_obj, created = models.Week.objects.get_or_create(
                 week_number=row["sw"].strip()
             )
