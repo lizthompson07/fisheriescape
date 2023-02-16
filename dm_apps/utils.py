@@ -1,5 +1,5 @@
 import boto3
-from Levenshtein._levenshtein import distance
+import Levenshtein
 from botocore.config import Config
 from botocore.exceptions import ClientError
 from decouple import config
@@ -223,7 +223,7 @@ def compare_strings(str1, str2):
         return str(string.lower().replace(" ", "").split(",")[0])
 
     try:
-        return distance(__strip_string__(str1), __strip_string__(str2))
+        return Levenshtein.distance(__strip_string__(str1), __strip_string__(str2))
     except AttributeError:
         return 9999
 

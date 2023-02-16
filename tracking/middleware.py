@@ -5,7 +5,7 @@ import warnings
 import django
 from django.db import IntegrityError, transaction
 from django.utils import timezone
-from django.utils.encoding import smart_text
+from django.utils.encoding import smart_str
 try:
     from django.utils.deprecation import MiddlewareMixin
 except ImportError:
@@ -50,14 +50,14 @@ class VisitorTrackingMiddleware(MiddlewareMixin):
             return False
 
         # Do not track AJAX requests
-        if request.is_ajax() and not TRACK_AJAX_REQUESTS:
+        if request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest' and not TRACK_AJAX_REQUESTS:
             return False
 
         # Do not track if HTTP HttpResponse status_code blacklisted
         if response.status_code in TRACK_IGNORE_STATUS_CODES:
             return False
 
-        # Do not tracking anonymous users if set
+        # Do not track anonymous users if set
         if user is None and not TRACK_ANONYMOUS_USERS:
             return False
 
@@ -93,7 +93,7 @@ class VisitorTrackingMiddleware(MiddlewareMixin):
             visitor = Visitor(pk=session_key, ip_address=ip_address)
 
         # Update the user field if the visitor user is not set. This
-        # implies authentication has occured on this request and now
+        # implies authentication has occurred on this request and now
         # the user is object exists. Check using `user_id` to prevent
         # a database hit.
         if user and not visitor.user_id:
@@ -106,7 +106,7 @@ class VisitorTrackingMiddleware(MiddlewareMixin):
         # grab the latest User-Agent and store it
         user_agent = request.META.get('HTTP_USER_AGENT', None)
         if user_agent:
-            visitor.user_agent = smart_text(
+            visitor.user_agent = smart_str(
                 user_agent, encoding='latin-1', errors='ignore')
 
         time_on_site = 0

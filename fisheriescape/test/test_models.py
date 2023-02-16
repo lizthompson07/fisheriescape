@@ -34,16 +34,16 @@ class TestFisheryAreaModel(CommonTest):
     def test_m2m_NAFOArea(self):
         # a `my_model` that is attached to a given `NAFOArea` should be accessible by the m2m field name `NAFOAreas`
         NAFOArea = FactoryFloor.NAFOAreaFactory()
-        self.instance.NAFOAreas.add(NAFOArea)
-        self.assertEqual(self.instance.NAFOAreas.count(), 1)
-        self.assertIn(NAFOArea, self.instance.NAFOAreas.all())
+        self.instance.nafo_area.add(NAFOArea)
+        self.assertEqual(self.instance.nafo_area.count(), 1)
+        self.assertIn(NAFOArea, self.instance.nafo_area.all())
 
     @tag('FisheryArea', 'models', 'unique_together')
     def test_unique_together(self):
         expected_unique_together = (('name', 'layer_id'),)
         actual_unique_together = models.FisheryArea._meta.unique_together
         self.assertEqual(expected_unique_together, actual_unique_together)
-        
+
     @tag('FisheryArea', 'models', 'choices')
     def test_choices_region(self):
         actual_choices = (

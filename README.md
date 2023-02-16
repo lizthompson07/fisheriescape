@@ -4,11 +4,12 @@
 
 ### Prerequisite to running the application
 1. Install Python 3 (<https://www.python.org>), and make sure that Python is added to your PATH variable.
-1. Working from your root projects directory (e.g., `~/my_projects`), create python virtual environment: `python -m venv dm_apps_venv`
-1. Activate the virtual environment: `.\dm_apps_venv\Scripts\activate` (Windows) OR `source ./dm_apps_venv/bin/activate` (Linux)
-1. Clone project: `git clone https://github.com/dfo-mar-odis/dm_apps`
-1. navigate into the project directory: `cd dm_apps`
-1. Install the Python packages required by the DM APPS application: `pip install -r requirements.txt`
+2. Install MySql (https://pypi.org/project/mysqlclient/). Just follow the mysql installation steps. The `pip install mysqlclient` command will be included later in the process.
+3. Working from your root projects directory (e.g., `~/my_projects`), create python virtual environment: `python -m venv dm_apps_venv`
+4. Activate the virtual environment: `.\dm_apps_venv\Scripts\activate` (Windows) OR `source ./dm_apps_venv/bin/activate` (Linux)
+5. Clone project: `git clone https://github.com/dfo-mar-odis/dm_apps`
+6. navigate into the project directory: `cd dm_apps`
+7. Install the Python packages required by the DM APPS application: `pip install -r requirements.txt`
     - If you get an error when installing this, you will have to open the requirements.txt and comment out the lines for `mysqlclient` and `shapely`.
     - Rerun the package installation line above
     - You will have to download a precompiled version of `mysqlclient` and `shapely`. The binary versions of these packages are available here:

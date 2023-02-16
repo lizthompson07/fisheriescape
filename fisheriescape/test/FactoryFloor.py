@@ -101,6 +101,7 @@ class FisheryFactory(factory.django.DjangoModelFactory):
     def get_valid_data():
         return {
             'species': SpeciesFactory().id,
+            'fishery_areas': [FisheryAreaFactory().id],
         }
 
 
@@ -152,7 +153,7 @@ class ScoreFactory(factory.django.DjangoModelFactory):
     hexagon = factory.SubFactory(HexagonFactory)
     species = factory.SubFactory(SpeciesFactory)
     week = factory.SubFactory(WeekFactory)
-    fs_score = factory.lazy_attribute(lambda o: faker.pyfloat(positive=True))
+    fs_score = factory.lazy_attribute(lambda o: faker.pydecimal(positive=True, left_digits=4, right_digits=4))
 
     @staticmethod
     def get_valid_data():
@@ -160,7 +161,7 @@ class ScoreFactory(factory.django.DjangoModelFactory):
             'hexagon': HexagonFactory().id,
             'species': SpeciesFactory().id,
             'week': WeekFactory().id,
-            'fs_score': faker.pyfloat(positive=True),
+            'fs_score': faker.pydecimal(positive=True),
         }
 
 

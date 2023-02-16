@@ -19,6 +19,13 @@ from django.utils.translation import gettext_lazy as _
 
 from . import utils
 
+
+# Needed as a temporary fix for the currently unmaintained package  django-el-pagination
+import django
+from django.utils.encoding import force_str
+django.utils.encoding.force_text = force_str
+
+
 # Custom variables
 
 WEB_APP_NAME = "DMApps"

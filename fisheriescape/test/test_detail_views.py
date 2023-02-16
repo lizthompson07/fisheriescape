@@ -118,7 +118,7 @@ class TestNAFOAreaDetailView(CommonTest):
     @tag("NAFOArea", "nafo_area_detail", "correct_url")
     def test_correct_url(self):
         # use the 'en' locale prefix to url
-        self.assert_correct_url("fisheriescape:nafo_area_detail", f"/en/nafoarea/{self.instance.pk}/view/", [self.instance.pk])
+        self.assert_correct_url("fisheriescape:nafo_area_detail", f"/en/fisheriescape/nafoarea/{self.instance.pk}/view/", [self.instance.pk])
 
 
 class TestAnalysesDetailView(CommonTest):
@@ -149,4 +149,4 @@ class TestAnalysesDetailView(CommonTest):
     @tag("Analyses", "analyses_detail", "correct_url")
     def test_correct_url(self):
         # use the 'en' locale prefix to url
-        self.assert_correct_url("fisheriescape:analyses_detail", f"/en/analyses/{self.instance.pk}/view/", [self.instance.pk])
+        self.assert_correct_url("fisheriescape:analyses_detail", f"/en/fisheriescape/analyses/{self.instance.pk}/view/", [self.instance.pk])

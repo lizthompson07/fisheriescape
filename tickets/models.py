@@ -7,7 +7,7 @@ from django.db import models
 from django.dispatch import receiver
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from lib.functions.custom_functions import fiscal_year
 from shared_models import models as shared_models

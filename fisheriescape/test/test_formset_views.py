@@ -61,7 +61,7 @@ class TestAllHardDeleteViews(CommonTest):
         for d in self.starter_dicts:
             new_d = d
             m = d["model"]
-            obj = m.objects.create(name=faker.catch_phrase())
+            obj = m.objects.create(english_name=faker.catch_phrase())
             new_d["obj"] = obj
             new_d["url"] = reverse_lazy("fisheriescape:" + d["url_name"], kwargs={"pk": obj.id})
             self.test_dicts.append(new_d)

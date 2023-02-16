@@ -119,7 +119,7 @@ class TestNAFOAreaListView(CommonTest):
     def setUp(self):
         super().setUp()
         self.instance = FactoryFloor.NAFOAreaFactory()
-        self.test_url = reverse_lazy('fisheriescape:nafo_area_list', args=[self.instance.pk, ])
+        self.test_url = reverse_lazy('fisheriescape:nafo_area_list')
         self.expected_template = 'fisheriescape/list.html'
         self.user = self.get_and_login_user()
 
@@ -207,4 +207,4 @@ class TestScoreFilterView(CommonTest):
     @tag("Score", "score_filter", "correct_url")
     def test_correct_url(self):
         # use the 'en' locale prefix to url
-        self.assert_correct_url("fisheriescape:score_filter", f"/en/fisheriescape/scores-list")
+        self.assert_correct_url("fisheriescape:score_filter", f"/en/fisheriescape/scores-list/")

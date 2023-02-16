@@ -120,7 +120,7 @@ from .models import FisheryArea, Hexagon, Score, NAFOArea
 #     lm = LayerMapping(Hexagon, hexagon_shp, mapping, transform=False)
 #     lm.save(strict=True, verbose=verbose)
 
-## For hexagon scores from a shapefile
+# For hexagon scores from a shapefile
 # mapping = {
 #     'hexagon': {'grid_id': 'grid_id'},
 #     'species': {'english_name': 'species'},

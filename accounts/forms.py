@@ -159,7 +159,7 @@ class DMAppsEmailLoginForm(PasswordResetForm):
 
     def clean_email(self):
         new_email = self.cleaned_data['email']
-        if new_email.lower().endswith("@dfo-mpo.gc.ca") == False:
+        if new_email.lower().endswith("@dfo-mpo.gc.ca") == True:
             raise forms.ValidationError(_("Only DFO employees can register for an account. Please enter an email ending with '@DFO-MPO.GC.CA'"))
         elif len([u for u in self.get_users(new_email)]) == 0:
             raise forms.ValidationError(_("This email address is not in the system. Please check the spelling or register for an account "))
