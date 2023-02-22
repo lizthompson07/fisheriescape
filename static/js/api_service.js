@@ -27,7 +27,7 @@ function handleResponse(response) {
 
 
 function handleError(error) {
-  console.log(error);
+  console.log('❌ Error',error);
 }
 
 

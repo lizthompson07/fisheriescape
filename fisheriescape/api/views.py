@@ -102,12 +102,15 @@ class ScoreFeatureViewSet(ModelViewSet):
     # pagination_class = pagination.StandardResultsSetPagination
 
     def get_queryset(self):
-
-        queryset = self.queryset
+        start = time.time()
+        queryset = self.queryset.prefetch_related('week').prefetch_related('species')
 
         species = self.request.query_params.get('species')
         week = self.request.query_params.get('week')
         site_score = self.request.query_params.get('site_score')
+
+        prefetch_filters = time.time()
+
 
         #custom filters by field
         if species is not None:
@@ -116,6 +119,13 @@ class ScoreFeatureViewSet(ModelViewSet):
             queryset = queryset.filter(week__week_number=week)
         if site_score is not None:
             queryset = queryset.filter(site_score=site_score)
+
+        end = time.time()
+
+        print('start', prefetch_filters - start)
+        print('prefetch_filter', end - prefetch_filters)
+        print('total', end - start)
+
         return queryset
 
         # # get filter request from client:
