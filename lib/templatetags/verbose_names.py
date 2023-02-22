@@ -1,4 +1,4 @@
-import markdown
+# import markdown
 from django import template
 from django.conf import settings
 from django.core.exceptions import FieldDoesNotExist

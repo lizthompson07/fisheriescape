@@ -160,7 +160,7 @@ INSTALLED_APPS = [
                      'rest_framework_gis',
                      'django_filters',
                      'crispy_forms',  # added for testing DRF filters
-                     'storages',
+                     # 'storages',
                      'django.contrib.humanize',
                      'bootstrap4',
                      'bootstrap5',
@@ -168,13 +168,13 @@ INSTALLED_APPS = [
                      'el_pagination',
                      'debug_toolbar',
                      'webpack_loader',
-                     'easy_pdf',
-                     'tracking',
+                     # 'easy_pdf',
+                     # 'tracking',
                      'accounts',
                      'lib',
                      'shared_models',
                      'tickets',
-                     'durationwidget',
+                     # 'durationwidget',
                  ] + local_conf.MY_INSTALLED_APPS
 
 # # If the GEODJANGO setting is set to False, turn off any apps that require it
@@ -197,7 +197,7 @@ if not GEODJANGO:
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
-    'tracking.middleware.VisitorTrackingMiddleware',
+    # 'tracking.middleware.VisitorTrackingMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',

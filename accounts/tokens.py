@@ -1,6 +1,6 @@
 import base64
 
-import pyotp as pyotp
+import pyotp
 import six
 from django.conf import settings
 from django.contrib.auth.tokens import PasswordResetTokenGenerator

@@ -30,7 +30,7 @@ APP_DICT = {
     # 'diets': dict(name='Marine diets'),
     # 'ppt': dict(name='Science project planning tool'),
     # 'csas2': dict(name="Canadian Science Advisory Secretariat v2.0"),  # dependency on ppt
-    'masterlist': dict(name='Masterlist'),
+    # 'masterlist': dict(name='Masterlist'),
     # 'ihub': dict(name='iHub'),  # dependency on masterlist
     # 'maret': dict(name="Maret"),  # dependency on masterlist, ihub
     # 'shares': dict(name='Gulf Shares'),
@@ -51,31 +51,8 @@ APP_DICT = {
     # 'bio_diversity': dict(name="Biodiversity"),
 }
 
-# Deal with fake apps...
-if config("FAKE_TRAVEL_APP", cast=bool, default=False) and APP_DICT.get("travel"):
-    del APP_DICT["travel"]
-
-# This variable is used to employ a preconfiguartion of applications for Azure deployment
-DEPLOYMENT_STAGE = config("DEPLOYMENT_STAGE", cast=str, default="").upper()
-
-### Deploying application in production - don't change, unless you know what you're doing
-if DEPLOYMENT_STAGE == 'PROD':
-    # overwrite app_dict with only the applications to be deployed to PROD
-    APP_DICT = {
-        'travel': dict(name='Travel Management System')
-    }
-
-### Deploying application in test environment
-elif DEPLOYMENT_STAGE == 'TEST':
-    # overwrite app_dict with only the applications to be deployed to TEST
-    APP_DICT = {
-        'travel': dict(name='Travel Management System')
-    }
 
 
-elif DEPLOYMENT_STAGE == 'DEV':
-    # no changes to make, just a placeholder
-    pass
 
 MY_INSTALLED_APPS = [app for app in APP_DICT]
 

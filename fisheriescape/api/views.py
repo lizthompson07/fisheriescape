@@ -1,9 +1,9 @@
 import json
-
+import time
 import django_filters
 from django_filters import rest_framework as filters
 from rest_framework import generics
-from rest_framework.generics import ListAPIView
+from rest_framework.generics import ListAPIView, get_object_or_404
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter
@@ -62,6 +62,7 @@ from .. import models
 #     filter_backends = (filters.DjangoFilterBackend, SearchFilter,)
 #     filterset_class = MyFilter
 #     search_fields = ['species__english_name', 'species__french_name', 'week__week_number']
+from ..models import Species, Week
 
 
 class ScoreViewSet(ModelViewSet):
@@ -69,17 +70,29 @@ class ScoreViewSet(ModelViewSet):
     serializer_class = ScoreSerializer
 
     def get_queryset(self):
+        start = time.time()
+        queryset = self.queryset.prefetch_related('week').prefetch_related('species')
 
-        queryset = self.queryset
+        species_english_name = self.request.query_params.get('species')
+        week_number = self.request.query_params.get('week')
 
-        species = self.request.query_params.get('species')
-        week = self.request.query_params.get('week')
+        prefetch_filters = time.time()
 
         #custom filters by field
-        if species is not None:
-            queryset = queryset.filter(species__english_name=species)
-        if week is not None:
-            queryset = queryset.filter(week__week_number=week)
+        if species_english_name is not None:
+            # species = get_object_or_404(Species, english_name=species_english_name)
+            queryset = queryset.filter(species__english_name=species_english_name)
+        if week_number is not None:
+            # week = get_object_or_404(Week, week_week_number=week_number)
+            queryset = queryset.filter(week__week_number=week_number)
+
+        end = time.time()
+
+
+        print('start', prefetch_filters - start)
+        print('prefetch_filter', end - prefetch_filters)
+        print('total', end - start)
+
         return queryset
 
 

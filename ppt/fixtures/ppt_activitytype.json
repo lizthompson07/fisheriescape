@@ -1,1 +1,0 @@
-[{"model": "ppt.activitytype", "pk": 1, "fields": {"name": "Monitoring & Assessment", "nom": ""}}, {"model": "ppt.activitytype", "pk": 2, "fields": {"name": "Research", "nom": ""}}, {"model": "ppt.activitytype", "pk": 3, "fields": {"name": "Other", "nom": ""}}, {"model": "ppt.activitytype", "pk": 4, "fields": {"name": "Data Management", "nom": null}}]

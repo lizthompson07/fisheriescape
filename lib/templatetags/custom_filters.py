@@ -1,6 +1,6 @@
 from textwrap import wrap
 
-import textile
+# import textile
 from django import template
 from django.utils.safestring import mark_safe
 

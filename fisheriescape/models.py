@@ -1,16 +1,12 @@
 import os
 
-from django.contrib.auth.models import User
-from django.db import models
 from django.dispatch import receiver
 from django.urls import reverse
-from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django.contrib.gis.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator
 
 from shared_models.models import MetadataFields
-from shared_models.utils import get_metadata_string
 
 
 class NAFOArea(models.Model):
@@ -97,8 +93,10 @@ class MarineMammal(models.Model):
     french_name_short = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("short french name"))
     latin_name = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("scientific name"))
     population = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("population"))
-    sara_status = models.CharField(max_length=255, null=True, blank=True, choices=RISK_STATUS_CHOICES, verbose_name=_("sara status"))
-    cosewic_status = models.CharField(max_length=255, null=True, blank=True, choices=RISK_STATUS_CHOICES, verbose_name=_("cosewic assessed"))
+    sara_status = models.CharField(max_length=255, null=True, blank=True, choices=RISK_STATUS_CHOICES,
+                                   verbose_name=_("sara status"))
+    cosewic_status = models.CharField(max_length=255, null=True, blank=True, choices=RISK_STATUS_CHOICES,
+                                      verbose_name=_("cosewic assessed"))
     website = models.URLField(max_length=250, blank=True, null=True, verbose_name=_("website"))
 
     class Meta:
@@ -172,7 +170,7 @@ ROPE_CHOICES = (
 
 
 class Fishery(MetadataFields):
-    #fisheries info
+    # fisheries info
     species = models.ForeignKey(Species, on_delete=models.DO_NOTHING, related_name="fisherys",
                                 verbose_name=_("species"))
     fishery_areas = models.ManyToManyField(FisheryArea, related_name="fisherys", verbose_name=_("fishery areas"))
@@ -188,25 +186,36 @@ class Fishery(MetadataFields):
                                          verbose_name=_("management system"))
     fishery_comment = models.TextField(blank=True, null=True, verbose_name=_("general comments"))
     # gear information
-    gear_type = models.CharField(max_length=255, null=True, blank=True, choices=GEAR_CHOICES, verbose_name=_("gear type"))
-    gear_amount = models.CharField(max_length=255, null=True, blank=True, verbose_name=_("avg gear amount per participant"))
+    gear_type = models.CharField(max_length=255, null=True, blank=True, choices=GEAR_CHOICES,
+                                 verbose_name=_("gear type"))
+    gear_amount = models.CharField(max_length=255, null=True, blank=True,
+                                   verbose_name=_("avg gear amount per participant"))
     gear_config = models.CharField(max_length=255, null=True, blank=True, verbose_name=_("gear configuration"))
     gear_soak = models.FloatField(max_length=255, null=True, blank=True, verbose_name=_("avg rope soak time"))
-    gear_primary_colour = models.CharField(max_length=255, null=True, blank=True, choices=ROPE_CHOICES, verbose_name=_("gear primary colour"))
-    gear_secondary_colour = models.CharField(max_length=255, null=True, blank=True, choices=ROPE_CHOICES, verbose_name=_("gear secondary colour"))
-    gear_tertiary_colour = models.CharField(max_length=255, null=True, blank=True, choices=ROPE_CHOICES, verbose_name=_("gear tertiary colour"))
+    gear_primary_colour = models.CharField(max_length=255, null=True, blank=True, choices=ROPE_CHOICES,
+                                           verbose_name=_("gear primary colour"))
+    gear_secondary_colour = models.CharField(max_length=255, null=True, blank=True, choices=ROPE_CHOICES,
+                                             verbose_name=_("gear secondary colour"))
+    gear_tertiary_colour = models.CharField(max_length=255, null=True, blank=True, choices=ROPE_CHOICES,
+                                            verbose_name=_("gear tertiary colour"))
     gear_comment = models.TextField(blank=True, null=True, verbose_name=_("gear comments"))
     # monitoring information
-    monitoring_aso = models.IntegerField(validators=[MaxValueValidator(100), MinValueValidator(0)], null=True, blank=True, verbose_name=_("at sea observer (ASO)"))
-    monitoring_dockside = models.IntegerField(validators=[MaxValueValidator(100), MinValueValidator(0)], null=True, blank=True, verbose_name=_("dockside monitoring"))
-    monitoring_logbook = models.IntegerField(validators=[MaxValueValidator(100), MinValueValidator(0)], null=True, blank=True, verbose_name=_("logbook"))
-    monitoring_vms = models.IntegerField(validators=[MaxValueValidator(100), MinValueValidator(0)], null=True, blank=True, verbose_name=_("vessel monitoring system (VMS)"))
+    monitoring_aso = models.IntegerField(validators=[MaxValueValidator(100), MinValueValidator(0)], null=True,
+                                         blank=True, verbose_name=_("at sea observer (ASO)"))
+    monitoring_dockside = models.IntegerField(validators=[MaxValueValidator(100), MinValueValidator(0)], null=True,
+                                              blank=True, verbose_name=_("dockside monitoring"))
+    monitoring_logbook = models.IntegerField(validators=[MaxValueValidator(100), MinValueValidator(0)], null=True,
+                                             blank=True, verbose_name=_("logbook"))
+    monitoring_vms = models.IntegerField(validators=[MaxValueValidator(100), MinValueValidator(0)], null=True,
+                                         blank=True, verbose_name=_("vessel monitoring system (VMS)"))
     monitoring_comment = models.TextField(blank=True, null=True, verbose_name=_("monitoring comments"))
     # mitigation
-    mitigation = models.ManyToManyField(Mitigation, blank=True, related_name="fisherys", verbose_name=_("mitigation type"))
+    mitigation = models.ManyToManyField(Mitigation, blank=True, related_name="fisherys",
+                                        verbose_name=_("mitigation type"))
     mitigation_comment = models.TextField(blank=True, null=True, verbose_name=_("mitigation comments"))
     # marine mammals
-    marine_mammals = models.ManyToManyField(MarineMammal, blank=True, related_name="fisherys", verbose_name=_("marine mammals"))
+    marine_mammals = models.ManyToManyField(MarineMammal, blank=True, related_name="fisherys",
+                                            verbose_name=_("marine mammals"))
 
     class Meta:
         ordering = ["start_date", "species", ]
@@ -280,8 +289,9 @@ class Analyses(models.Model):
                                 verbose_name=_("species"))
     type = models.IntegerField(blank=True, null=True, choices=TYPE_CHOICES, verbose_name="type")
     week = models.ForeignKey(Week, on_delete=models.DO_NOTHING, related_name="weeks",
-                                verbose_name=_("week"))
-    image = models.FileField(upload_to=image_directory_path, default='/fisheriescape/default_image.png', verbose_name=_("image"))
+                             verbose_name=_("week"))
+    image = models.FileField(upload_to=image_directory_path, default='/fisheriescape/default_image.png',
+                             verbose_name=_("image"))
     ref_text = models.TextField(blank=True, null=True, verbose_name="reference text")
 
     def __str__(self):
@@ -332,7 +342,7 @@ def auto_delete_file_on_change(sender, instance, **kwargs):
 
 class Hexagon(models.Model):
     grid_id = models.CharField(max_length=255, null=True, blank=True, unique=True, verbose_name="grid id")
-    polygon = models.MultiPolygonField(srid=4326) #srid 4326 for WGS84 and 4269 for NAD83
+    polygon = models.MultiPolygonField(srid=4326)  # srid 4326 for WGS84 and 4269 for NAD83
 
     def __str__(self):
         my_str = "Grid {}".format(self.grid_id)
@@ -346,7 +356,8 @@ class Score(models.Model):
                                 verbose_name=_("species"))
     week = models.ForeignKey(Week, on_delete=models.DO_NOTHING, related_name="scores",
                              verbose_name=_("week"))
-    site_score = models.DecimalField(max_digits=10, decimal_places=6, blank=True, null=True, verbose_name=_("site score"))
+    site_score = models.DecimalField(max_digits=10, decimal_places=6, blank=True, null=True,
+                                     verbose_name=_("site score"))
     ceu_score = models.DecimalField(max_digits=10, decimal_places=4, blank=True, null=True, verbose_name=_("ceu score"))
     fs_score = models.DecimalField(max_digits=8, decimal_places=4, blank=True, null=True, verbose_name=_("fs score"))
 
@@ -359,3 +370,9 @@ class Score(models.Model):
 
     class Meta:
         ordering = ['species', 'week', ]
+
+        indexes = [
+            models.Index(["species", "week"], name="species_week"),
+            models.Index(["week"], name="week"),
+            models.Index(["species"], name="species")
+        ]

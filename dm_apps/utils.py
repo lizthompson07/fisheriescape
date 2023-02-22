@@ -1,5 +1,5 @@
 import boto3
-import Levenshtein
+# import Levenshtein
 from botocore.config import Config
 from botocore.exceptions import ClientError
 from decouple import config
@@ -132,7 +132,7 @@ def custom_send_mail(subject=None, html_message=None, from_email=None, recipient
         mail.add_personalization(to_list)
         try:
             sg.send(mail)
-            create_email_log_entry(from_email, recipient_list, subject, user, "sendgrid")
+            # create_email_log_entry(from_email, recipient_list, subject, user, "sendgrid")
         except BadRequestsError:
             print("bad request. email not sent")
 
@@ -181,7 +181,7 @@ def custom_send_mail(subject=None, html_message=None, from_email=None, recipient
         else:
             msg_id = response['MessageId']
             # print(f"Email sent! Message ID: {msg_id}"),
-            create_email_log_entry(from_email, recipient_list, subject, user, "aws-ses", msg_id)
+            # create_email_log_entry(from_email, recipient_list, subject, user, "aws-ses", msg_id)
 
     elif settings.USE_SMTP_EMAIL:
         django_send_mail(
@@ -192,40 +192,40 @@ def custom_send_mail(subject=None, html_message=None, from_email=None, recipient
             recipient_list=recipient_list,
             fail_silently=False
         )
-        create_email_log_entry(from_email, recipient_list, subject, user, "smtp")
+        # create_email_log_entry(from_email, recipient_list, subject, user, "smtp")
     else:
         print('No email configuration present in application...')
         if email_instance:
             print(email_instance)
         else:
             print("FROM: {}\nTO: {}\nSUBJECT: {}\nMESSAGE:{}".format(from_email, recipient_list, subject, html_message))
-        create_email_log_entry(from_email, recipient_list, subject, user, "console")
+        # create_email_log_entry(from_email, recipient_list, subject, user, "console")
 
 
-def create_email_log_entry(from_email, recipient_list, subject, user, send_method, msg_id=None):
-    try:
-        # make an entry in the system email table
-        from tracking import models as tracking_models
-        tracking_models.Email.objects.create(
-            from_email=from_email,
-            recipient_list=recipient_list,
-            subject=subject,
-            sent_by=user,
-            send_method=send_method,
-            msg_id=msg_id,
-        )
-    except:
-        print("failed to create an entry in the email log table.")
+# def create_email_log_entry(from_email, recipient_list, subject, user, send_method, msg_id=None):
+#     try:
+#         # make an entry in the system email table
+#         # from tracking import models as tracking_models
+#         tracking_models.Email.objects.create(
+#             from_email=from_email,
+#             recipient_list=recipient_list,
+#             subject=subject,
+#             sent_by=user,
+#             send_method=send_method,
+#             msg_id=msg_id,
+#         )
+#     except:
+#         print("failed to create an entry in the email log table.")
 
 
-def compare_strings(str1, str2):
-    def __strip_string__(string):
-        return str(string.lower().replace(" ", "").split(",")[0])
-
-    try:
-        return Levenshtein.distance(__strip_string__(str1), __strip_string__(str2))
-    except AttributeError:
-        return 9999
+# def compare_strings(str1, str2):
+#     def __strip_string__(string):
+#         return str(string.lower().replace(" ", "").split(",")[0])
+#
+#     try:
+#         return Levenshtein.distance(__strip_string__(str1), __strip_string__(str2))
+#     except AttributeError:
+#         return 9999
 
 
 def get_timezone_time(dt):
