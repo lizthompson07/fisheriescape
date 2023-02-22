@@ -202,38 +202,56 @@ def import_scores_info(path : str):
     #     os.path.join(os.path.dirname(__file__), 'data', 'Snow Crab Fisheriescape 20220413.csv'),
     # )
     csv_file = path
-    cont_success = 0
+    count_success = 0
+    count_error = 0
     # Remove all data from Table
-    models.Score.objects.all().delete()
+    # models.Score.objects.all().delete()
+
 
     with open(csv_file, newline='', encoding='UTF-8') as csvfile:
         spamreader = csv.DictReader(csvfile, delimiter=',', quotechar='"')
         # next(spamreader, None)  # skip the headers
-        print('Loading...')
+        print(f"Importing file {csv_file}...")
         # for row in spamreader:
         #     print(row[0])
         for row in spamreader:
 
-            # Get or create FK fields first
-            hexagon_obj, created = models.Hexagon.objects.get_or_create(
-                grid_id=str(row["grid.id"].strip())
-            )
+            try:
+                # Get or create FK fields first
+                hexagon_obj, created = models.Hexagon.objects.get_or_create(
+                    grid_id=str(row["grid.id"].strip())
+                )
 
-            species_obj, created = models.Species.objects.get_or_create(
-                english_name__iexact=str(row["sw2"].strip()[:-19].strip())
-            )
+                species_obj, created = models.Species.objects.get_or_create(
+                    defaults={'english_name':str(row["sw2"].strip()[:-19].strip())},
+                    english_name__iexact=str(row["sw2"].strip()[:-19].strip())
+                )
 
-            week_obj, created = models.Week.objects.get_or_create(
-                week_number=row["sw"].strip()
-            )
-            created, _ = models.Score.objects.get_or_create(
-                hexagon=hexagon_obj,
-                species=species_obj,
-                week=week_obj,
-                site_score=row["ss.std"].strip(),
-                ceu_score=row["ceu"].strip(),
-                fs_score=row["fs"].strip(),
-            )
+                week_obj, created = models.Week.objects.get_or_create(
+                    week_number=row["sw"].strip()
+                )
+                created, _ = models.Score.objects.get_or_create(
+                    hexagon=hexagon_obj,
+                    species=species_obj,
+                    week=week_obj,
+                    site_score=row["ss.std"].strip(),
+                    ceu_score=row["ceu"].strip(),
+                    fs_score=row["fs"].strip(),
+                )
 
-            cont_success += 1
-        print(f'{str(cont_success)} records inserted successfully! ')
+                count_success += 1
+            except Exception as e:
+                print(f"❌ error inserting line {row} from {csv_file} : {e}")
+                count_error +=1
+
+        print(f'✅ {str(count_success)} records inserted successfully! for file {csv_file}')
+        print(f'❌ {str(count_error)} errors for file {csv_file}')
+
+
+def import_all_scores(folder_path:str):
+    for file in os.listdir(folder_path) :
+        file_path = os.path.join(folder_path, file)
+        if os.path.isfile(file_path):
+            import_scores_info(path=file_path)
+
+
