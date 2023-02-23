@@ -103,7 +103,7 @@ class ScoreFeatureViewSet(ModelViewSet):
 
     def get_queryset(self):
         start = time.time()
-        queryset = self.queryset.prefetch_related('week').prefetch_related('species')
+        queryset = self.queryset.prefetch_related('week').prefetch_related('species').prefetch_related("hexagon")
 
         species = self.request.query_params.get('species')
         week = self.request.query_params.get('week')
