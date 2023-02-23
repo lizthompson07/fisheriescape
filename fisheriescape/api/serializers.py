@@ -60,7 +60,6 @@ class ScoreFeatureSerializer(GeoFeatureModelSerializer):
     species = StringRelatedField()
     week = StringRelatedField()
     grid_id = SerializerMethodField()
-    max_fs_score = DecimalField(max_digits=8,decimal_places=4)
 
     def get_hexagon(self, obj):
         return obj.hexagon.polygon

@@ -361,10 +361,6 @@ class Score(models.Model):
     ceu_score = models.DecimalField(max_digits=10, decimal_places=4, blank=True, null=True, verbose_name=_("ceu score"))
     fs_score = models.DecimalField(max_digits=8, decimal_places=4, blank=True, null=True, verbose_name=_("fs score"))
 
-    @property
-    def max_fs_score(self):
-        return Score.objects.filter(species=self.species).aggregate(models.Max('fs_score')).get('fs_score__max')
-
     def __str__(self):
         my_str = "{}".format(self.hexagon.grid_id)
 
