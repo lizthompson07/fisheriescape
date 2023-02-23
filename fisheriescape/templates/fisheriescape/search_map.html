@@ -13,14 +13,11 @@
 
 {% block content %}
     <div id="app" v-cloak>
-
-        <div id="mySidebar" :class="{'sidebar-opened':showSidebar,'sidebar-closed':!showSidebar}">
+        <div id="mySidebar" :class="(showSidebar) ? 'sidebar-opened':'sidebar-closed'">
             {% include "fisheriescape/_console.html" %}
         </div>
-        <div :class="{'main-opened':showSidebar, 'main-closed':!showSidebar}">
+        <div :class="(showSidebar) ? 'main-opened':'main-closed'">
 
-
-            {#            <map-component>test</map-component>#}
             <div class="container-fluid bg-light curvy">
                 <div class="row">
                     <div class="col">
@@ -53,7 +50,7 @@
             </div>
 
 
-            <div class="row container-fluid bg-light curvy">
+            <div class="container-fluid bg-light curvy">
                 <div class="col">
                     <div>
                         <p class="h1 text-center">{% trans "Explore Fisheriescape Scores" %}</p>
@@ -146,7 +143,7 @@
                 bounds: [],
             },
             methods: {
-                search(){
+                search() {
                     this.getFeatures();
                 },
                 getFeatures() {
@@ -157,13 +154,13 @@
 
                     if (this.filter.species) featuresEndpoint += `species=${this.filter.species}&`;
                     if (this.filter.week) featuresEndpoint += `week=${this.filter.week}&`;
-                    this.features = []
+                    this.features = [];
                     apiService(featuresEndpoint)
                         .then(response => {
                             this.projects_loading = false;
                             this.dataReady = true;
                             this.features = response;
-                            this.refreshMap()
+                            this.refreshMap();
                         });
                 },
                 getFilterData() {

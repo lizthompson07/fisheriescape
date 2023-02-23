@@ -29,6 +29,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('__debug__/', include(debug_toolbar.urls)),
     path('api/shared/', include('shared_models.api.urls')),
+    path("__reload__/", include("django_browser_reload.urls")),
     # path('api/tracking/', include('tracking.api.urls')),
 ]
 

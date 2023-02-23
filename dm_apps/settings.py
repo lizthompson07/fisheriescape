@@ -174,6 +174,7 @@ INSTALLED_APPS = [
                      'lib',
                      'shared_models',
                      'tickets',
+                     "django_browser_reload",
                      # 'durationwidget',
                  ] + local_conf.MY_INSTALLED_APPS
 
@@ -206,6 +207,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
+    "django_browser_reload.middleware.BrowserReloadMiddleware",
 ]
 
 if PREVENT_CONCURRENT_LOGINS:
