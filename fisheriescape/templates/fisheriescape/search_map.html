@@ -310,22 +310,22 @@
                     {#                    '#FFEDA0';#}
 
                     // Define colour gradient for scores
-                    function getColor(d) {
-                        return d > 30 ? '#FF050B' :
-                            d > 29 ? '#FF3105' :
-                                d > 27 ? '#FF6305' :
-                                    d > 25 ? '#FF9405' :
-                                        d > 22 ? '#FFC605' :
-                                            d > 20 ? '#FFF805' :
-                                                d > 17 ? '#D4FF05' :
-                                                    d > 15 ? '#A3FF05' :
-                                                        d > 12 ? '#71FF06' :
-                                                            d > 9 ? '#3FFF06' :
-                                                                d > 6 ? '#0EFF06' :
-                                                                    d > 3 ? '#06FF2F' :
-                                                                        d > 2 ? '#06FF61' :
-                                                                            d > 1 ? '#06FF93' :
-                                                                                d > 0 ? '#06FFC4' :
+                    getColor = (value) => {
+                        return value > this.scale[9] ? '#FF050B' :
+                            value > this.scale[8] ? '#FF3105' :
+                                value > this.scale[7] ? '#FF6305' :
+                                    value > this.scale[6] ? '#FF9405' :
+                                        value > this.scale[5] ? '#FFC605' :
+                                            {#value > this.scale[6] ? '#FFF805' :#}
+                                                value > this.scale[4] ? '#D4FF05' :
+                                                    {#value > this.scale[5] ? '#A3FF05' :#}
+                                                    {#    value > this.scale[9] ? '#71FF06' :#}
+                                                            value > this.scale[3] ? '#3FFF06' :
+                                                    {#            value > this.scale[3] ? '#0EFF06' :#}
+                                                    {#                value > this.scale[3] ? '#06FF2F' :#}
+                                                                        value > this.scale[2] ? '#06FF61' :
+                                                                        {#    value > this.scale[2] ? '#06FF93' :#}
+                                                                                value > this.scale[1] ? '#06FFC4' :
                                                                                     '#06FFF6';
                     }
 
