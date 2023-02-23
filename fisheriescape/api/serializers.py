@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from rest_framework.fields import SerializerMethodField
+from rest_framework.fields import SerializerMethodField, DecimalField
 from rest_framework.relations import StringRelatedField
 from rest_framework_gis.serializers import GeoFeatureModelSerializer, GeometrySerializerMethodField, GeoModelSerializer
 
@@ -60,6 +60,7 @@ class ScoreFeatureSerializer(GeoFeatureModelSerializer):
     species = StringRelatedField()
     week = StringRelatedField()
     grid_id = SerializerMethodField()
+    max_fs_score = DecimalField(max_digits=8,decimal_places=4)
 
     def get_hexagon(self, obj):
         return obj.hexagon.polygon
