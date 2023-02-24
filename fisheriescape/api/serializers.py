@@ -1,8 +1,12 @@
+from collections import OrderedDict
+
 from rest_framework import serializers
 from rest_framework.fields import SerializerMethodField, DecimalField
 from rest_framework.relations import StringRelatedField
+from rest_framework.serializers import LIST_SERIALIZER_KWARGS, ListSerializer
 from rest_framework_gis.serializers import GeoFeatureModelSerializer, GeometrySerializerMethodField, GeoModelSerializer
 
+from django.db import models
 from fisheriescape.models import Score, Hexagon, Species, Week
 
 
@@ -53,6 +57,25 @@ class HexagonSerializer(GeoFeatureModelSerializer):
 #
 #
 ## BUT need GeoFeatureModelSerializer to use getJSON in map3.js---is there another way to import api endpoint into .js file?
+
+class CustomGeoFeatureModelListSerializer(ListSerializer):
+    @property
+    def data(self):
+        return super(ListSerializer, self).data
+
+    def to_representation(self, data):
+        """
+        Add GeoJSON compatible formatting to a serialized queryset list
+        """
+        max_fs_score = data.model.objects.filter(species=data.first().species).aggregate(models.Max('fs_score')).get('fs_score__max')
+        return OrderedDict(
+            (
+                ("type", "FeatureCollection"),
+                ("max_fs_score", max_fs_score),
+                ("features", super().to_representation(data)),
+            )
+        )
+
 class ScoreFeatureSerializer(GeoFeatureModelSerializer):
     """A class to serialize hex polygons as GeoJSON compatible data"""
 
@@ -72,6 +95,23 @@ class ScoreFeatureSerializer(GeoFeatureModelSerializer):
         geo_field = 'hexagon'
         fields = "__all__"
 
+    # Override base method to use our custom GeoFeatureModelListSerializer
+    @classmethod
+    def many_init(cls, *args, **kwargs):
+        child_serializer = cls(*args, **kwargs)
+        list_kwargs = {'child': child_serializer}
+        list_kwargs.update(
+            {
+                key: value
+                for key, value in kwargs.items()
+                if key in LIST_SERIALIZER_KWARGS
+            }
+        )
+        meta = getattr(cls, 'Meta', None)
+        list_serializer_class = getattr(
+            meta, 'list_serializer_class', CustomGeoFeatureModelListSerializer
+        )
+        return list_serializer_class(*args, **list_kwargs)
 
 # For testing
 # class ScoreSerializer(serializers.ModelSerializer):
