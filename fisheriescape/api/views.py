@@ -1,5 +1,4 @@
 import json
-import time
 import django_filters
 from django_filters import rest_framework as filters
 from rest_framework import generics
@@ -70,28 +69,16 @@ class ScoreViewSet(ModelViewSet):
     serializer_class = ScoreSerializer
 
     def get_queryset(self):
-        start = time.time()
         queryset = self.queryset.prefetch_related('week').prefetch_related('species')
 
         species_english_name = self.request.query_params.get('species')
         week_number = self.request.query_params.get('week')
 
-        prefetch_filters = time.time()
-
         #custom filters by field
         if species_english_name is not None:
-            # species = get_object_or_404(Species, english_name=species_english_name)
             queryset = queryset.filter(species__english_name=species_english_name)
         if week_number is not None:
-            # week = get_object_or_404(Week, week_week_number=week_number)
             queryset = queryset.filter(week__week_number=week_number)
-
-        end = time.time()
-
-
-        print('start', prefetch_filters - start)
-        print('prefetch_filter', end - prefetch_filters)
-        print('total', end - start)
 
         return queryset
 
@@ -102,14 +89,11 @@ class ScoreFeatureViewSet(ModelViewSet):
     # pagination_class = pagination.StandardResultsSetPagination
 
     def get_queryset(self):
-        start = time.time()
         queryset = self.queryset.prefetch_related('week').prefetch_related('species').prefetch_related("hexagon")
 
         species = self.request.query_params.get('species')
         week = self.request.query_params.get('week')
         site_score = self.request.query_params.get('site_score')
-
-        prefetch_filters = time.time()
 
 
         #custom filters by field
@@ -120,11 +104,6 @@ class ScoreFeatureViewSet(ModelViewSet):
         if site_score is not None:
             queryset = queryset.filter(site_score=site_score)
 
-        end = time.time()
-
-        print('start', prefetch_filters - start)
-        print('prefetch_filter', end - prefetch_filters)
-        print('total', end - start)
 
         return queryset
 
