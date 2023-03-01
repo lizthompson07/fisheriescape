@@ -61,6 +61,9 @@ class Species(models.Model):
 
     class Meta:
         ordering = ["english_name"]
+        indexes = [
+            models.Index(["english_name"], name="english_name"),
+        ]
 
     def __str__(self):
         # check to see if a french value is given
@@ -260,6 +263,9 @@ class Week(models.Model):
 
     class Meta:
         ordering = ["week_number"]
+        indexes = [
+            models.Index(["week_number"], name="week_number"),
+        ]
 
     def __str__(self):
         my_str = "Week {}".format(self.week_number)
@@ -348,6 +354,11 @@ class Hexagon(models.Model):
         my_str = "Grid {}".format(self.grid_id)
         return my_str
 
+    class Meta:
+        indexes = [
+            models.Index(["grid_id"], name="grid_id"),
+        ]
+
 
 class Score(models.Model):
     hexagon = models.ForeignKey(Hexagon, on_delete=models.DO_NOTHING, related_name="scores",
@@ -370,7 +381,7 @@ class Score(models.Model):
 
     class Meta:
         ordering = ['species', 'week', ]
-
+        unique_together = (('hexagon', 'week'),)
         indexes = [
             models.Index(["species", "week"], name="species_week"),
             models.Index(["week"], name="week"),

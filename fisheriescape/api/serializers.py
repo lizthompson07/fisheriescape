@@ -67,7 +67,10 @@ class CustomGeoFeatureModelListSerializer(ListSerializer):
         """
         Add GeoJSON compatible formatting to a serialized queryset list
         """
-        max_fs_score = data.model.objects.filter(species=data.first().species).aggregate(models.Max('fs_score')).get('fs_score__max')
+        max_fs_score = 0
+        if data :
+            max_fs_score = data.model.objects.filter(species=data.first().species).aggregate(models.Max('fs_score')).get('fs_score__max')
+
         return OrderedDict(
             (
                 ("type", "FeatureCollection"),

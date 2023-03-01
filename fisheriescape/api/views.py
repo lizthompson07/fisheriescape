@@ -1,8 +1,10 @@
 import json
 import django_filters
+from django.core.checks import caches
 from django_filters import rest_framework as filters
 from rest_framework import generics
 from rest_framework.generics import ListAPIView, get_object_or_404
+from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter
@@ -14,6 +16,9 @@ from rest_framework_gis.filterset import GeoFilterSet
 from . import pagination
 from .serializers import ScoreSerializer, ScoreFeatureSerializer, SpeciesSerializer, WeekSerializer, HexagonSerializer
 from .. import models
+from hashlib import md5
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 
 
 # class EntryCSVAPIView(ListAPIView):
@@ -86,7 +91,26 @@ class ScoreViewSet(ModelViewSet):
 class ScoreFeatureViewSet(ModelViewSet):
     queryset = models.Score.objects.all()
     serializer_class = ScoreFeatureSerializer
-    # pagination_class = pagination.StandardResultsSetPagination
+
+
+    # Cache the results
+    def list(self, request, *args, **kwargs):
+        cache = caches.caches['default']
+        species = self.request.query_params.get('species')
+        week = self.request.query_params.get('week')
+        cache_key = f"ScoreFeatureViewSet:{species}_{week}".encode('utf-8')
+        hashed_cache_key = md5(cache_key).hexdigest()
+        cached_results = cache.get(hashed_cache_key)
+        if cached_results:
+            print('cache hit')
+            return Response(cached_results)
+        else:
+            print('cache miss')
+            queryset = self.filter_queryset(self.get_queryset())
+            serializer = self.get_serializer(queryset, many=True)
+            cache.set(hashed_cache_key, serializer.data)
+            return Response(serializer.data)
+
 
     def get_queryset(self):
         queryset = self.queryset.prefetch_related('week').prefetch_related('species').prefetch_related("hexagon")

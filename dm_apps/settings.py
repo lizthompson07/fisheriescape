@@ -235,6 +235,13 @@ TEMPLATES = [
     },
 ]
 
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+        'LOCATION': 'cache',
+    }
+}
+
 WSGI_APPLICATION = 'dm_apps.wsgi.application'
 
 ######################################################
