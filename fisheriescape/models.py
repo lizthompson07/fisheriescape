@@ -41,6 +41,9 @@ class FisheryArea(models.Model):
     class Meta:
         unique_together = (('name', 'layer_id'),)
         ordering = ["layer_id", "name", ]
+        indexes = [
+            models.Index(["layer_id"], name="layer_id"),
+        ]
 
     def __str__(self):
         my_str = "{}".format(self.name)
