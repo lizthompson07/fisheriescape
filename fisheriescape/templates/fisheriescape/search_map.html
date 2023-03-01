@@ -50,53 +50,6 @@
             </div>
 
 
-            <div class="container-fluid bg-light curvy">
-                <div class="col">
-                    <div>
-                        <p class="h1 text-center">{% trans "Explore Fisheriescape Scores" %}</p>
-                        {#                        <table class="table table-sm">#}
-                        {#                            <thead>#}
-                        {#                            <tr>#}
-                        {#                                {% for field in field_list %}#}
-                        {#                                    <th>#}
-                        {#                                        {% get_verbose_label random_score field %}#}
-                        {#                                    </th>#}
-                        {#                                {% endfor %}#}
-                        {#                            </tr>#}
-                        {#                            </thead>#}
-                        {#                            <tbody>#}
-                        {##}
-                        {#                            <tr v-for="(p, index) in filteredData">#}
-                        {#                                <td>${p.id}</td>#}
-                        {#                                <td>${p.species}</td>#}
-                        {#                                <td>${p.week}</td>#}
-                        {#                                <td>${p.grid_id}</td>#}
-                        {#                                <td>${p.site_score}</td>#}
-                        {#                                <td>${p.ceu_score}</td>#}
-                        {#                                <td>${p.fs_score}</td>#}
-                        {#                            </tr>#}
-                        {##}
-                        {#                            </tbody>#}
-                        {#                        </table>#}
-
-                        <div v-if="projects_loading" class="loading mb-3 mt-3 text-center mt-5">
-                            <div class="spinner-border mb-3" style="width: 10rem; height: 10rem;" role="status">
-                                <span class="sr-only"></span>
-                            </div>
-                        </div>
-                        <div v-else>
-                            <div class="text-center">
-                                <p class="font-italic font-weight-bold">${features.length} loaded</p>
-                                {#                                <button v-if="next" @click="loadMoreResults" class="btn btn-primary btn-sm">#}
-                                {#                                    {% trans "Load more results..." %}#}
-                                {#                                </button>#}
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-
-            </div>
         </div>
     </div>
 
