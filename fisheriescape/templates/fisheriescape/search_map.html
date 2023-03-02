@@ -62,7 +62,14 @@
     {#    {% include "fisheriescape/map_component.html" %}#}
 
     <script type="application/javascript">
-        let lobsterObj = {{ lobster_areas | safe }};
+        const lobsterAreas = {{ lobster_areas | safe }};
+        const SnowCrabAreas = {{ snow_crab_areas | safe }};
+        const HerringAreas = {{ herring_areas | safe }};
+        const GroundfishAreas = {{ groundfish_areas | safe }};
+        const NAFOAreas = {{ nafo_areas | safe }};
+        const NAFOSubAreas = {{ nafo_sub_areas | safe }};
+
+        const areaOverlaysRawData = [lobsterAreas, SnowCrabAreas, HerringAreas, GroundfishAreas, NAFOAreas, NAFOSubAreas];
 
         var app = new Vue({
             el: '#app',
@@ -104,8 +111,8 @@
                 {#    for (let i = 0; i < bucketsCount; i++) {#}
                 {#        buckets[i * bucketsSize] = array.filter(value => value >= i * bucketsSize && value < (i + 1) * bucketsSize);#}
                 {#    }#}
-                    {#console.log('buckets', buckets)#}
-                    {#console.log('array', array)#}
+                {#console.log('buckets', buckets)#}
+                {#console.log('array', array)#}
                 {#    return buckets;                },#}
 
                 search() {
@@ -113,20 +120,19 @@
                 },
                 buildScale(maxValue) {
                     {#const allFsScores = features.map(feature => feature.properties.fs_score).sort((a, b) => a - b);#}
-                    const stepsCount = 10
-                    console.log('maxValue', maxValue)
+                    const stepsCount = 10;
+                    console.log('maxValue', maxValue);
                     let stepsSize;
-                    if(maxValue >9) {
-                    stepsSize = Math.floor((Math.floor(maxValue) / stepsCount))
+                    if (maxValue > 9) {
+                        stepsSize = Math.floor((Math.floor(maxValue) / stepsCount));
 
+                    } else {
+                        stepsSize = (maxValue / stepsCount);
                     }
-                    else{
-                        stepsSize = (maxValue / stepsCount)
-                    }
-                    console.log('stepSize', stepsSize)
-                    const scale = []
+                    console.log('stepSize', stepsSize);
+                    const scale = [];
                     for (let i = 0; i < stepsCount; i++) {
-                        scale.push(parseFloat((i * stepsSize).toFixed(2)))
+                        scale.push(parseFloat((i * stepsSize).toFixed(2)));
                     }
 
                     {#const scale = Object.keys(this.bucketSort(allFsScores, 10, maxValue));#}
@@ -146,8 +152,8 @@
                             this.projects_loading = false;
                             this.dataReady = true;
                             this.features = response;
-                            if (response.features.length){
-                            this.scale = this.buildScale(response.max_fs_score);
+                            if (response.features.length) {
+                                this.scale = this.buildScale(response.max_fs_score);
                             }
                             this.refreshMap();
                         });
@@ -210,28 +216,36 @@
                             'fillColor': '#689ae9'
                         });
                     }
-
-                    function removeInfoLobster() {
-                        lobsterFishery.resetStyle(this);
+                    function hideInfo() {
+                        this.setStyle({
+                            'fillColor': 'blue'
+                        });
                     }
+
 
                     // Create Lobster polygon layer and use onEachFeature to show certain info for each feature
 
-                    var lobsterFishery = L.geoJSON(lobsterObj, {
-                        style: function () {
-                            return {
-                                color: 'blue'
-                            };
-                        },
-                        onEachFeature: function (feature, layer) {
-                            myUrl = `http://dmapps/en/fisheriescape/fisheryarea/${feature.properties.pk}/view/`;
-                            layer.bindPopup(`Name: <a href = "${myUrl}">${feature.properties.name}</a></br>Layer ID: ${feature.properties.layer_id}</br>Region: ${feature.properties.region}`);
-                            layer.on({
-                                mouseover: showInfo,
-                                mouseout: removeInfoLobster
+                    const areaOverlays = areaOverlaysRawData.reduce(
+                        (acc, areas) => {
+                            const areasName = areas.features[0].properties.layer_id
+                            acc[areasName] = L.geoJSON(areas, {
+                                style: function () {
+                                    return {
+                                        color: 'blue'
+                                    };
+                                },
+                                onEachFeature: function (feature, layer) {
+                                    myUrl = `http://dmapps/en/fisheriescape/fisheryarea/${feature.properties.pk}/view/`;
+                                    layer.bindPopup(`Name: <a href = "${myUrl}">${feature.properties.name}</a></br>Layer ID: ${feature.properties.layer_id}</br>Region: ${feature.properties.region}`);
+                                    layer.on({
+                                        mouseover: showInfo,
+                                        mouseout: hideInfo
+                                    });
+                                }
                             });
-                        }
-                    });
+                            return acc
+                        },{}
+                    )
 
                     {#// Testing, this function takes in the getJSON call below and gets geoJson formatted data and makes layer#}
                     {#function createOverlay(data, layerName, style) {#}
@@ -264,24 +278,24 @@
 
                     // Define colour gradient for scores
                     getColor = (value) => {
-                        console.log('value, scale', value, this.scale)
+                        console.log('value, scale', value, this.scale);
                         return value > this.scale[9] ? '#FF050B' :
                             value > this.scale[8] ? '#FF3105' :
                                 value > this.scale[7] ? '#FF6305' :
                                     value > this.scale[6] ? '#FF9405' :
                                         value > this.scale[5] ? '#FFC605' :
                                             {#value > this.scale[6] ? '#FFF805' :#}
-                                                value > this.scale[4] ? '#D4FF05' :
-                                                    {#value > this.scale[5] ? '#A3FF05' :#}
-                                                    {#    value > this.scale[9] ? '#71FF06' :#}
-                                                            value > this.scale[3] ? '#3FFF06' :
+                                            value > this.scale[4] ? '#D4FF05' :
+                                                {#value > this.scale[5] ? '#A3FF05' :#}
+                                                {#    value > this.scale[9] ? '#71FF06' :#}
+                                                value > this.scale[3] ? '#3FFF06' :
                                                     {#            value > this.scale[3] ? '#0EFF06' :#}
                                                     {#                value > this.scale[3] ? '#06FF2F' :#}
-                                                                        value > this.scale[2] ? '#06FF61' :
-                                                                        {#    value > this.scale[2] ? '#06FF93' :#}
-                                                                                value > this.scale[1] ? '#06FFC4' :
-                                                                                    '#06FFF6';
-                    }
+                                                    value > this.scale[2] ? '#06FF61' :
+                                                        {#    value > this.scale[2] ? '#06FF93' :#}
+                                                        value > this.scale[1] ? '#06FFC4' :
+                                                            '#06FFF6';
+                    };
 
                     // Define polygon style
                     function gradientStyle(feature) {
@@ -457,7 +471,7 @@
                     var legend = L.control({position: 'bottomright'});
 
                     legend.onAdd = map => {
-                        console.log('hehe')
+                        console.log('hehe');
                         var div = L.DomUtil.create('div', 'info legend'),
                             {#grades = [0, 1, 2, 3, 6, 9, 12, 15, 17, 20, 22, 25, 27, 29, 30],#}
                             grades = this.scale,
@@ -467,7 +481,7 @@
                         for (var i = 0; i < grades.length; i++) {
                             div.innerHTML +=
                                 '<i style="background:' + getColor(grades[i] + 0.01) + '"></i> ' +
-                                grades[i] + (grades[i + 1] ? ' &ndash; ' + grades[i + 1]+  '<br>' : '+');
+                                grades[i] + (grades[i + 1] ? ' &ndash; ' + grades[i + 1] + '<br>' : '+');
                         }
 
                         return div;
@@ -489,9 +503,7 @@
                         "Fisheriescape Scores": {
                             [this.filter.species]: overlayObject,
                         },
-                        "Fishing Areas": {
-                            "Lobster Areas": lobsterFishery,
-                        }
+                        "Fishing Areas": areaOverlays,
                     };
 
                     // Create the control layer box and add baseMaps and overlayMaps to it
