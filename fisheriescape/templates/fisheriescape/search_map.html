@@ -115,10 +115,18 @@
                     {#const allFsScores = features.map(feature => feature.properties.fs_score).sort((a, b) => a - b);#}
                     const stepsCount = 10
                     console.log('maxValue', maxValue)
-                    const stepsSize = Math.floor((Math.floor(maxValue) / stepsCount))
+                    let stepsSize;
+                    if(maxValue >9) {
+                    stepsSize = Math.floor((Math.floor(maxValue) / stepsCount))
+
+                    }
+                    else{
+                        stepsSize = (maxValue / stepsCount)
+                    }
+                    console.log('stepSize', stepsSize)
                     const scale = []
                     for (let i = 0; i < stepsCount; i++) {
-                        scale.push(i * stepsSize)
+                        scale.push(parseFloat((i * stepsSize).toFixed(2)))
                     }
 
                     {#const scale = Object.keys(this.bucketSort(allFsScores, 10, maxValue));#}
