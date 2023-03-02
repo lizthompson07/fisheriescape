@@ -102,10 +102,8 @@ class ScoreFeatureViewSet(ModelViewSet):
         hashed_cache_key = md5(cache_key).hexdigest()
         cached_results = cache.get(hashed_cache_key)
         if cached_results:
-            print('cache hit')
             return Response(cached_results)
         else:
-            print('cache miss')
             queryset = self.filter_queryset(self.get_queryset())
             serializer = self.get_serializer(queryset, many=True)
             cache.set(hashed_cache_key, serializer.data)
