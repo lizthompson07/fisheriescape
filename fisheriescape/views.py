@@ -561,28 +561,28 @@ class FisheryDeleteView(FisheriescapeAdminAccessRequired, CommonDeleteView):
 # #
 #
 
-class AnalysesFilterView(FisheriescapeAccessRequired, CommonFilterView):
-    template_name = "fisheriescape/analyses_filter.html"
-    filterset_class = filters.AnalysesFilter
-    h1 = "Analyses Search"
-    home_url_name = "fisheriescape:index"
-    # row_object_url_name = "fisheriescape:fishery_detail"
-    new_btn_text = "New Analysis"
-
-    queryset = models.Analyses.objects.annotate(
-        search_term=Concat('species', 'id', output_field=TextField()))
-
-    field_list = [
-        {"name": 'id', "class": "", "width": ""},
-        {"name": 'species', "class": "", "width": ""},
-        {"name": 'type', "class": "", "width": ""},
-        {"name": 'week', "class": "", "width": ""},
-        # {"name": 'image', "class": "", "width": ""},
-        {"name": 'ref_text', "class": "", "width": ""},
-    ]
-
-    def get_new_object_url(self):
-        return reverse("fisheriescape:analyses_new", kwargs=self.kwargs)
+# class AnalysesFilterView(FisheriescapeAccessRequired, CommonFilterView):
+#     template_name = "fisheriescape/analyses_filter.html"
+#     filterset_class = filters.AnalysesFilter
+#     h1 = "Analyses Search"
+#     home_url_name = "fisheriescape:index"
+#     # row_object_url_name = "fisheriescape:fishery_detail"
+#     new_btn_text = "New Analysis"
+#
+#     queryset = models.Analyses.objects.annotate(
+#         search_term=Concat('species', 'id', output_field=TextField()))
+#
+#     field_list = [
+#         {"name": 'id', "class": "", "width": ""},
+#         {"name": 'species', "class": "", "width": ""},
+#         {"name": 'type', "class": "", "width": ""},
+#         {"name": 'week', "class": "", "width": ""},
+#         # {"name": 'image', "class": "", "width": ""},
+#         {"name": 'ref_text', "class": "", "width": ""},
+#     ]
+#
+#     def get_new_object_url(self):
+#         return reverse("fisheriescape:analyses_new", kwargs=self.kwargs)
 
 
 class AnalysesCreateView(FisheriescapeAdminAccessRequired, CommonCreateView):
@@ -591,7 +591,7 @@ class AnalysesCreateView(FisheriescapeAdminAccessRequired, CommonCreateView):
     template_name = 'fisheriescape/form.html'
     home_url_name = "fisheriescape:index"
     h1 = gettext_lazy("Add New Analysis")
-    parent_crumb = {"title": gettext_lazy("Analysis Search"), "url": reverse_lazy("fisheriescape:analyses_filter")}
+    # parent_crumb = {"title": gettext_lazy("Analysis Search"), "url": reverse_lazy("fisheriescape:analyses_filter")}
     is_multipart_form_data = True
 
     def form_valid(self, form):
@@ -645,7 +645,7 @@ class AnalysesDetailView(FisheriescapeAdminAccessRequired, CommonDetailView):
 
     ]
     home_url_name = "fisheriescape:index"
-    parent_crumb = {"title": gettext_lazy("Analyses Search"), "url": reverse_lazy("fisheriescape:analyses_filter")}
+    # parent_crumb = {"title": gettext_lazy("Analyses Search"), "url": reverse_lazy("fisheriescape:analyses_filter")}
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -655,10 +655,10 @@ class AnalysesDetailView(FisheriescapeAdminAccessRequired, CommonDetailView):
 class AnalysesDeleteView(FisheriescapeAdminAccessRequired, CommonDeleteView):
     model = models.Analyses
     permission_required = "__all__"
-    success_url = reverse_lazy('fisheriescape:analyses_filter')
+    # success_url = reverse_lazy('fisheriescape:analyses_filter')
     template_name = 'fisheriescape/confirm_delete.html'
     home_url_name = "fisheriescape:index"
-    grandparent_crumb = {"title": gettext_lazy("Analyses Search"), "url": reverse_lazy("fisheriescape:analyses_filter")}
+    # grandparent_crumb = {"title": gettext_lazy("Analyses Search"), "url": reverse_lazy("fisheriescape:analyses_filter")}
 
     def get_parent_crumb(self):
         return {"title": self.get_object(), "url": reverse_lazy("fisheriescape:analyses_detail", kwargs=self.kwargs)}

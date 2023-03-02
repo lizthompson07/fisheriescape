@@ -11,7 +11,7 @@ urlpatterns = [
     path('', views.IndexView.as_view(), name="index"),
 
     # MAP #
-    path('map/', views.MapView.as_view(), name="map_view"),
+    # path('map/', views.MapView.as_view(), name="map_view"),
 
     # FISHERY AREA #
 
@@ -35,7 +35,7 @@ urlpatterns = [
     path('fishery/<int:pk>/delete/', views.FisheryDeleteView.as_view(), name="fishery_delete"),
 
     # ANALYSES #
-    path('analyses-list/', views.AnalysesFilterView.as_view(), name="analyses_filter"),
+    # path('analyses-list/', views.AnalysesFilterView.as_view(), name="analyses_filter"),
     path('analyses/new/', views.AnalysesCreateView.as_view(), name="analyses_new"),
     path('analyses/<int:pk>/view/', views.AnalysesDetailView.as_view(), name="analyses_detail"),
     path('analyses/<int:pk>/edit/', views.AnalysesUpdateView.as_view(), name="analyses_edit"),
