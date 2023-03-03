@@ -4,7 +4,8 @@ from django.core.checks import caches
 from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 
-from .serializers import ScoreFeatureSerializer, SpeciesSerializer, WeekSerializer, VulnerableSpeciesSerializer
+from .serializers import ScoreFeatureSerializer, SpeciesSerializer, WeekSerializer, VulnerableSpeciesSerializer, \
+    VulnerableSpeciesSpotsSerializer
 from .. import models
 from fisheriescape.views import FisheriescapeAccessRequired
 
@@ -112,33 +113,41 @@ class ScoreFeatureView(FisheriescapeAccessRequired, ListAPIView):
 
         return queryset
 
-        # # get filter request from client:
-        # filter_string = self.request.query_params.get('filter')
 
-        # # apply filters if they are passed in using json format
-        # # i.e. ?filter={"week__week_number":16}:
-        # if filter_string is not None:
-        #     filter_dictionary = json.loads(filter_string)
-        #     queryset = queryset.filter(**filter_dictionary)
+class VulnerableSpeciesSpotsView(FisheriescapeAccessRequired, ListAPIView):
+    queryset = models.VulnerableSpeciesSpot.objects.all()
+    serializer_class = VulnerableSpeciesSpotsSerializer
 
+    # Cache the results
+    def list(self, request, *args, **kwargs):
+        cache = caches.caches['default']
+        vulnerable_species = self.request.query_params.get('vulnerable_species')
+        week = self.request.query_params.get('week')
+        cache_key = f"VulnerableSpeciesSpotsView:{vulnerable_species}_{week}".encode('utf-8')
+        hashed_cache_key = md5(cache_key).hexdigest()
+        cached_results = cache.get(hashed_cache_key)
+        if cached_results:
+            return Response(cached_results)
+        else:
+            queryset = self.filter_queryset(self.get_queryset())
+            serializer = self.get_serializer(queryset, many=True)
+            cache.set(hashed_cache_key, serializer.data)
+            return Response(serializer.data)
 
-# For TESTING
-# class ScoreViewSet(ModelViewSet):
-#     queryset = models.Species.objects.all()
-#     serializer_class = ScoreSerializer
-#     filter_backends = (filters.DjangoFilterBackend,)
-#     filterset_fields = ('english_name', 'french_name')
+    def get_queryset(self):
+        queryset = self.queryset.prefetch_related('week').prefetch_related('vulnerable_species')
 
-# class ScoreListView(mixins.UpdateModelMixin,
-#                      mixins.ListModelMixin,
-#                      mixins.RetrieveModelMixin,
-#                      viewsets.GenericViewSet):
-#     queryset = models.Score.objects.all()
-#     serializer_class = ScoreSerializer
-#     filter_backends = [SearchFilter]
-#     # filter_class = MyFilter
-#     search_fields = ['species', 'site_score']
-#     # filterset_fields = ['species', 'hexagon__grid_id']
+        vulnerable_species = self.request.query_params.get('vulnerable_species')
+        week = self.request.query_params.get('week')
+
+        # custom filters by field
+        if vulnerable_species is not None:
+            queryset = queryset.filter(vulnerable_species__english_name=vulnerable_species)
+        if week is not None:
+            queryset = queryset.filter(week__week_number=week)
+
+        return queryset
+
 
 # LOOKUPS
 ##########

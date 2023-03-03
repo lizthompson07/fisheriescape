@@ -81,7 +81,6 @@ class Species(models.Model):
         return reverse("fisheriescape:species_detail", kwargs={"pk": self.id})
 
 
-
 class VulnerableSpecies(models.Model):
     english_name = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("english name"))
     french_name = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("french name"))
@@ -103,7 +102,7 @@ class VulnerableSpecies(models.Model):
             return self.english_name
 
     def get_absolute_url(self):
-        return reverse("fisheriescape:species_detail", kwargs={"pk": self.id})
+        return reverse("fisheriescape:vulnerable_species_detail", kwargs={"pk": self.id})
 
 
 RISK_STATUS_CHOICES = (
@@ -411,7 +410,33 @@ class Score(models.Model):
         ordering = ['species', 'week', ]
         unique_together = (('hexagon', 'week'),)
         indexes = [
-            models.Index(["species", "week"], name="species_week"),
-            models.Index(["week"], name="week"),
-            models.Index(["species"], name="species")
+            models.Index(["species", "week"], name="%(class)s_species_week"),
+            models.Index(["week"], name="%(class)s_week"),
+            models.Index(["species"], name="%(class)s_species")
+        ]
+
+
+class VulnerableSpeciesSpot(models.Model):
+    vulnerable_species = models.ForeignKey(VulnerableSpecies, on_delete=models.DO_NOTHING, related_name="spots",
+                                           verbose_name=_("vulnerable_species"))
+    week = models.ForeignKey(Week, on_delete=models.DO_NOTHING, related_name="vulnerable_species_spots",
+                             verbose_name=_("week"))
+    count = models.IntegerField(blank=True, null=True, verbose_name=_("count"))
+    point = models.PointField(blank=False, null=False, verbose_name=_("point"))
+
+    def __str__(self):
+        my_str = "{}".format(self.id)
+
+        if self.vulnerable_species:
+            my_str += f' ({self.vulnerable_species.english_name} - {self.week.week_number})'
+
+        return my_str
+
+    class Meta:
+        ordering = ['vulnerable_species', 'week', ]
+        unique_together = (('vulnerable_species', 'week'),)
+        indexes = [
+            models.Index(["vulnerable_species", "week"], name="%(class)s_s_w"),
+            models.Index(["week"], name="%(class)s_week"),
+            models.Index(["species"], name="%(class)s_species")
         ]

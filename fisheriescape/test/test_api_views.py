@@ -56,4 +56,30 @@ class TestVulnerableSpeciesView(CommonTest):
     @tag("VulnerableSpecies", "vulnerable_species", "correct_response")
     def test_correct_response(self):
         response = self.client.get(self.test_url)
-        self.assert_dict_has_keys(response.json()[0],["english_name","french_name","latin_name","website"])
+        self.assert_dict_has_keys(response.json()[0],["species","lat","long","count","date","week"])
+
+
+class TestVulnerableSpeciesSpotsView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.VulnerableSpeciesSpotsFactory()
+        self.test_url = reverse_lazy('api:vulnerable-species-spots')
+        self.user = self.get_and_login_user()
+
+    @tag("VulnerableSpeciesSpots", "vulnerable_species_spots", "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.VulnerableSpeciesSpotsView, ListAPIView)
+        self.assert_inheritance(views.VulnerableSpeciesSpotsView, views.FisheriescapeAccessRequired)
+
+    @tag("VulnerableSpeciesSpots", "vulnerable_species_spots", "access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+
+    @tag("VulnerableSpeciesSpots", "vulnerable_species_spots", "correct_url")
+    def test_correct_url(self):
+        self.assert_correct_url('api:vulnerable-species-spots', f"/api/fisheriescape/vulnerable-species-spots/")
+
+    @tag("VulnerableSpeciesSpots", "vulnerable_species_spots", "correct_response")
+    def test_correct_response(self):
+        response = self.client.get(self.test_url)
+        self.assert_dict_has_keys(response.json()[0],["count","vulnerable_species","week","point"])

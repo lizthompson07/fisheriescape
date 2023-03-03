@@ -3,11 +3,12 @@ from collections import OrderedDict
 from rest_framework import serializers
 from rest_framework.fields import SerializerMethodField
 from rest_framework.relations import StringRelatedField
-from rest_framework.serializers import LIST_SERIALIZER_KWARGS, ListSerializer
+from rest_framework.serializers import LIST_SERIALIZER_KWARGS, ListSerializer, ModelSerializer
 from rest_framework_gis.serializers import GeoFeatureModelSerializer, GeometrySerializerMethodField
 from django.db import models
+from drf_extra_fields.geo_fields import PointField
 
-from fisheriescape.models import Score, Hexagon, Species, Week, VulnerableSpecies
+from fisheriescape.models import Score, Hexagon, Species, Week, VulnerableSpecies, VulnerableSpeciesSpot
 
 
 ## doesn't work with leaflet implementation as yet
@@ -118,6 +119,35 @@ class ScoreFeatureSerializer(GeoFeatureModelSerializer):
             meta, 'list_serializer_class', CustomGeoFeatureModelListSerializer
         )
         return list_serializer_class(*args, **list_kwargs)
+
+
+class VulnerableSpeciesSpotsSerializer(ModelSerializer):
+    point = PointField()
+    vulnerable_species = StringRelatedField()
+    week = StringRelatedField()
+
+    class Meta:
+        model = VulnerableSpeciesSpot
+        # geo_field = "point"
+        fields = "__all__"
+
+    # # Override base method to use our custom GeoFeatureModelListSerializer
+    # @classmethod
+    # def many_init(cls, *args, **kwargs):
+    #     child_serializer = cls(*args, **kwargs)
+    #     list_kwargs = {'child': child_serializer}
+    #     list_kwargs.update(
+    #         {
+    #             key: value
+    #             for key, value in kwargs.items()
+    #             if key in LIST_SERIALIZER_KWARGS
+    #         }
+    #     )
+    #     meta = getattr(cls, 'Meta', None)
+    #     list_serializer_class = getattr(
+    #         meta, 'list_serializer_class', CustomGeoFeatureModelListSerializer
+    #     )
+    #     return list_serializer_class(*args, **list_kwargs)
 
 
 # For testing
