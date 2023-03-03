@@ -1,13 +1,13 @@
 from collections import OrderedDict
 
 from rest_framework import serializers
-from rest_framework.fields import SerializerMethodField, DecimalField
+from rest_framework.fields import SerializerMethodField
 from rest_framework.relations import StringRelatedField
 from rest_framework.serializers import LIST_SERIALIZER_KWARGS, ListSerializer
-from rest_framework_gis.serializers import GeoFeatureModelSerializer, GeometrySerializerMethodField, GeoModelSerializer
-
+from rest_framework_gis.serializers import GeoFeatureModelSerializer, GeometrySerializerMethodField
 from django.db import models
-from fisheriescape.models import Score, Hexagon, Species, Week
+
+from fisheriescape.models import Score, Hexagon, Species, Week, VulnerableSpecies
 
 
 ## doesn't work with leaflet implementation as yet
@@ -35,6 +35,7 @@ class HexagonSerializer(GeoFeatureModelSerializer):
         model = Hexagon
         geo_field = 'polygon'
         fields = "__all__"
+
 
 # Standalone without hexagon names
 
@@ -68,8 +69,9 @@ class CustomGeoFeatureModelListSerializer(ListSerializer):
         Add GeoJSON compatible formatting to a serialized queryset list
         """
         max_fs_score = 0
-        if data :
-            max_fs_score = data.model.objects.filter(species=data.first().species).aggregate(models.Max('fs_score')).get('fs_score__max')
+        if data:
+            max_fs_score = data.model.objects.filter(species=data.first().species).aggregate(
+                models.Max('fs_score')).get('fs_score__max')
 
         return OrderedDict(
             (
@@ -78,6 +80,7 @@ class CustomGeoFeatureModelListSerializer(ListSerializer):
                 ("features", super().to_representation(data)),
             )
         )
+
 
 class ScoreFeatureSerializer(GeoFeatureModelSerializer):
     """A class to serialize hex polygons as GeoJSON compatible data"""
@@ -116,6 +119,7 @@ class ScoreFeatureSerializer(GeoFeatureModelSerializer):
         )
         return list_serializer_class(*args, **list_kwargs)
 
+
 # For testing
 # class ScoreSerializer(serializers.ModelSerializer):
 #     """A class to serialize hex polygons as GeoJSON compatible data"""
@@ -130,8 +134,13 @@ class SpeciesSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-class WeekSerializer(serializers.ModelSerializer):
+class VulnerableSpeciesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = VulnerableSpecies
+        fields = "__all__"
 
+
+class WeekSerializer(serializers.ModelSerializer):
     date_range_text = SerializerMethodField()
 
     def get_date_range_text(self, obj):

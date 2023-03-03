@@ -165,3 +165,14 @@ class ScoreFactory(factory.django.DjangoModelFactory):
         }
 
 
+class VulnerableSpeciesFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.VulnerableSpecies
+
+    english_name = factory.lazy_attribute(lambda o: faker.catch_phrase())
+
+    @staticmethod
+    def get_valid_data():
+        return {
+            'english_name': faker.catch_phrase(),
+        }

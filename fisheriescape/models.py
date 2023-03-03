@@ -65,7 +65,7 @@ class Species(models.Model):
     class Meta:
         ordering = ["english_name"]
         indexes = [
-            models.Index(["english_name"], name="english_name"),
+            models.Index(["english_name"], name="%(class)s_english_name"),
         ]
 
     def __str__(self):
@@ -76,6 +76,31 @@ class Species(models.Model):
         # if there is no translated term, just pull from the english field
         else:
             return "{}".format(self.english_name)
+
+    def get_absolute_url(self):
+        return reverse("fisheriescape:species_detail", kwargs={"pk": self.id})
+
+
+
+class VulnerableSpecies(models.Model):
+    english_name = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("english name"))
+    french_name = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("french name"))
+    latin_name = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("scientific name"))
+    website = models.CharField(max_length=250, blank=True, null=True, verbose_name=_("website"))
+
+    class Meta:
+        ordering = ["english_name"]
+        indexes = [
+            models.Index(["english_name"], name="%(class)s_english_name"),
+        ]
+
+    def __str__(self):
+        # check to see if a french value is given
+        if getattr(self, str(_("english_name"))):
+            return getattr(self, str(_("english_name")))
+        # if there is no translated term, just pull from the english field
+        else:
+            return self.english_name
 
     def get_absolute_url(self):
         return reverse("fisheriescape:species_detail", kwargs={"pk": self.id})

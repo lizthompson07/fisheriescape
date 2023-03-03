@@ -1,23 +1,11 @@
-import json
-import django_filters
-from django.core.checks import caches
-from django_filters import rest_framework as filters
-from rest_framework import generics
-from rest_framework.generics import ListAPIView, get_object_or_404
-from rest_framework.response import Response
-from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
-from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.filters import SearchFilter
-from rest_framework import viewsets
-from rest_framework import mixins
-
-from rest_framework_gis.filters import GeometryFilter
-from rest_framework_gis.filterset import GeoFilterSet
-from . import pagination
-from .serializers import ScoreSerializer, ScoreFeatureSerializer, SpeciesSerializer, WeekSerializer, HexagonSerializer
-from .. import models
 from hashlib import md5
 
+from django.core.checks import caches
+from rest_framework.generics import ListAPIView
+from rest_framework.response import Response
+
+from .serializers import ScoreFeatureSerializer, SpeciesSerializer, WeekSerializer, VulnerableSpeciesSerializer
+from .. import models
 from fisheriescape.views import FisheriescapeAccessRequired
 
 
@@ -66,7 +54,6 @@ from fisheriescape.views import FisheriescapeAccessRequired
 #     filter_backends = (filters.DjangoFilterBackend, SearchFilter,)
 #     filterset_class = MyFilter
 #     search_fields = ['species__english_name', 'species__french_name', 'week__week_number']
-from ..models import Species, Week
 
 
 # class ScoreViewSet(ModelViewSet):
@@ -92,7 +79,6 @@ class ScoreFeatureView(FisheriescapeAccessRequired, ListAPIView):
     queryset = models.Score.objects.all()
     serializer_class = ScoreFeatureSerializer
 
-
     # Cache the results
     def list(self, request, *args, **kwargs):
         cache = caches.caches['default']
@@ -109,7 +95,6 @@ class ScoreFeatureView(FisheriescapeAccessRequired, ListAPIView):
             cache.set(hashed_cache_key, serializer.data)
             return Response(serializer.data)
 
-
     def get_queryset(self):
         queryset = self.queryset.prefetch_related('week').prefetch_related('species').prefetch_related("hexagon")
 
@@ -117,15 +102,13 @@ class ScoreFeatureView(FisheriescapeAccessRequired, ListAPIView):
         week = self.request.query_params.get('week')
         site_score = self.request.query_params.get('site_score')
 
-
-        #custom filters by field
+        # custom filters by field
         if species is not None:
             queryset = queryset.filter(species__english_name=species)
         if week is not None:
             queryset = queryset.filter(week__week_number=week)
         if site_score is not None:
             queryset = queryset.filter(site_score=site_score)
-
 
         return queryset
 
@@ -137,8 +120,6 @@ class ScoreFeatureView(FisheriescapeAccessRequired, ListAPIView):
         # if filter_string is not None:
         #     filter_dictionary = json.loads(filter_string)
         #     queryset = queryset.filter(**filter_dictionary)
-
-
 
 
 # For TESTING
@@ -165,6 +146,11 @@ class ScoreFeatureView(FisheriescapeAccessRequired, ListAPIView):
 class SpeciesListAPIView(ListAPIView):
     queryset = models.Species.objects.all()
     serializer_class = SpeciesSerializer
+
+
+class VulnerableSpeciesView(FisheriescapeAccessRequired, ListAPIView):
+    queryset = models.VulnerableSpecies.objects.all()
+    serializer_class = VulnerableSpeciesSerializer
 
 
 class WeekListAPIView(ListAPIView):

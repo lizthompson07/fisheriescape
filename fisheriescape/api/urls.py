@@ -15,8 +15,8 @@ app_name = "api"
 urlpatterns = [
     # path("fisheriescape/", include((router.urls, 'fisheriescape'), namespace='api')),
     # path("avatar/", ScoreListView.as_view(), name="score-looky")
-
     path("fisheriescape/scores-feature/", views.ScoreFeatureView.as_view(), name="scores-feature"),
+    path("fisheriescape/vulnerable-species/", views.VulnerableSpeciesView.as_view(), name="vulnerable-species"),
     # lookups
     path("fisheriescape/species/", views.SpeciesListAPIView.as_view(), name="fisheriescape-species-list"),
     path("fisheriescape/week/", views.WeekListAPIView.as_view(), name="fisheriescape-week-list"),
