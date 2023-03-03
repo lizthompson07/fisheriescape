@@ -69,3 +69,4 @@ class TestScoreMapView(CommonTest):
     def test_correct_url(self):
         # use the 'en' locale prefix to url
         self.assert_correct_url("fisheriescape:score_map", f"/en/fisheriescape/scores-map/")
+

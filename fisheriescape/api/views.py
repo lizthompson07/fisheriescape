@@ -17,8 +17,8 @@ from . import pagination
 from .serializers import ScoreSerializer, ScoreFeatureSerializer, SpeciesSerializer, WeekSerializer, HexagonSerializer
 from .. import models
 from hashlib import md5
-from django.utils.decorators import method_decorator
-from django.views.decorators.cache import cache_page
+
+from fisheriescape.views import FisheriescapeAccessRequired
 
 
 # class EntryCSVAPIView(ListAPIView):
@@ -69,26 +69,26 @@ from django.views.decorators.cache import cache_page
 from ..models import Species, Week
 
 
-class ScoreViewSet(ModelViewSet):
-    queryset = models.Score.objects.all()
-    serializer_class = ScoreSerializer
+# class ScoreViewSet(ModelViewSet):
+#     queryset = models.Score.objects.all()
+#     serializer_class = ScoreSerializer
+#
+#     def get_queryset(self):
+#         queryset = self.queryset.prefetch_related('week').prefetch_related('species')
+#
+#         species_english_name = self.request.query_params.get('species')
+#         week_number = self.request.query_params.get('week')
+#
+#         #custom filters by field
+#         if species_english_name is not None:
+#             queryset = queryset.filter(species__english_name=species_english_name)
+#         if week_number is not None:
+#             queryset = queryset.filter(week__week_number=week_number)
+#
+#         return queryset
 
-    def get_queryset(self):
-        queryset = self.queryset.prefetch_related('week').prefetch_related('species')
 
-        species_english_name = self.request.query_params.get('species')
-        week_number = self.request.query_params.get('week')
-
-        #custom filters by field
-        if species_english_name is not None:
-            queryset = queryset.filter(species__english_name=species_english_name)
-        if week_number is not None:
-            queryset = queryset.filter(week__week_number=week_number)
-
-        return queryset
-
-
-class ScoreFeatureViewSet(ModelViewSet):
+class ScoreFeatureView(FisheriescapeAccessRequired, ListAPIView):
     queryset = models.Score.objects.all()
     serializer_class = ScoreFeatureSerializer
 
