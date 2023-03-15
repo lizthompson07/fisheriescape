@@ -69,8 +69,8 @@
             delimiters: ["${", "}"],
             data: {
                 showSidebar: true,
-                message: "test message",
                 features: [],
+                vulnerableSpeciesSpots: [],
                 count: 0,
 
                 projects_loading: false,
@@ -80,15 +80,15 @@
 
                 // filters
                 filter: {
-                    is_hidden: "",
                     week: "",
                     species: "",
-                    point: "",
+                    vulnerableSpecies : []
                 },
 
                 // lists for filters
                 speciesList: [],
                 weekList: [],
+                vulnerableSpeciesList: [],
                 pointList: ["point1", "point2"],
 
                 // map
@@ -99,6 +99,9 @@
 
                 search() {
                     this.getFeatures();
+                },
+                searchVulnerableSpeciesSpots(){
+                    this.getVulnerableSpecies();
                 },
                 buildScale(maxValue) {
                     const stepsCount = 10;
@@ -134,9 +137,25 @@
                             this.refreshMap();
                         });
                 },
+                getVulnerableSpecies() {
+                    this.projects_loading = true;
+                    let vulnerableSpeciesEndpoint = "/api/fisheriescape/vulnerable-species-spots/?";
+
+                    if (this.filter.vulnerableSpecies) vulnerableSpeciesEndpoint += `vulnerable_species=${this.filter.vulnerableSpecies}&`;
+                    if (this.filter.week) vulnerableSpeciesEndpoint += `week=${this.filter.week}`;
+                    this.vulnerableSpeciesSpots = [];
+                    apiService(vulnerableSpeciesEndpoint)
+                        .then(response => {
+                            this.projects_loading = false;
+                            this.dataReady = true;
+                            this.vulnerableSpeciesSpots = response;
+                            this.refreshMap();
+                        });
+                },
                 getFilterData() {
                     apiService(`/api/fisheriescape/species/`).then(response => this.speciesList = response);
                     apiService(`/api/fisheriescape/week/`).then(response => this.weekList = response);
+                    apiService(`/api/fisheriescape/vulnerable-species/`).then(response => this.vulnerableSpeciesList = response);
                 },
                 removeMap() {
                     if (this.map) {
@@ -227,7 +246,6 @@
 
                     // Define colour gradient for scores
                     getColor = (value) => {
-                        console.log('value, scale', value, this.scale);
                         return value > this.scale[9] ? '#FF050B' :
                             value > this.scale[8] ? '#FF3105' :
                                 value > this.scale[7] ? '#FF6305' :
@@ -248,7 +266,6 @@
 
                     // Define polygon style
                     function gradientStyle(feature) {
-                        // console.log(feature)
                         return {
                             fillColor: getColor(feature.properties.fs_score),
                             weight: 0.5,
@@ -333,7 +350,6 @@
                     var legend = L.control({position: 'bottomright'});
 
                     legend.onAdd = map => {
-                        console.log('hehe');
                         var div = L.DomUtil.create('div', 'info legend'),
                             grades = this.scale;
 
