@@ -27,11 +27,6 @@
                         <hr>
                     </div>
                 </div>
-                {#            <div v-if="projects_loading" class="loading mb-3 mt-3 text-center mt-5">#}
-                {#                <div class="spinner-border mb-3" style="width: 10rem; height: 10rem;" role="status">#}
-                {#                    <span class="sr-only"></span>#}
-                {#                </div>#}
-                {#            </div>#}
                 <div class="row">
                     <div class="col my-auto">
                         <div v-if="dataReady" id="maptest">
@@ -59,8 +54,6 @@
 {% block body_js %}
     {{ block.super }}
 
-    {#    {% include "fisheriescape/map_component.html" %}#}
-
     <script type="application/javascript">
         const lobsterAreas = {{ lobster_areas | safe }};
         const SnowCrabAreas = {{ snow_crab_areas | safe }};
@@ -79,7 +72,6 @@
                 message: "test message",
                 features: [],
                 count: 0,
-                {#filteredData: [],#}
 
                 projects_loading: false,
                 help_text: true,
@@ -309,16 +301,11 @@
                         style: gradientStyle,
                         filter: function (feature) {
                             thingy = `Week ${getWeek}`;
-                            {#console.log(thingy)#}
                             thingy2 = `${getSpecies}`;
-                            {#console.log(thingy2)#}
 
                             // this works but only once you've chosen a species and a week -- add more logic or do something to show they have to pick both
                             if (feature.properties.species && feature.properties.week) return (feature.properties.species === thingy2 && feature.properties.week === thingy);
-                            {#|| (feature.properties.week) return (feature.properties.week === thingy);#}
                         }
-                        {#filter: function(feature) {#}
-                        {#    return feature.properties.species === this.filter.species;#}
                     }).addTo(overlayObject);
 
 
@@ -404,9 +391,6 @@
 
     </script>
 
-    <script type="text/javascript" src="{% static "js/clickableTableRows.js" %}?version=1.1.7"></script>
-    <script type=" text/javascript" src="{% static "js/popItOut.js" %}?version=1.2.2"></script>
-    <script type=" text/javascript" src="{% static "js/underDevelopment.js" %}?version=1.2.4"></script>
 
 
 {% endblock %}
