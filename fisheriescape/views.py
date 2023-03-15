@@ -736,7 +736,6 @@ class ScoreMapView(FisheriescapeAccessRequired, CommonTemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["random_score"] = models.Score.objects.first()
 
         context["lobster_areas"] = serialize("geojson", models.FisheryArea.objects.filter(layer_id="Lobster"))
         context["snow_crab_areas"] = serialize("geojson", models.FisheryArea.objects.filter(layer_id="Crab"))

@@ -104,24 +104,12 @@
                 bounds: [],
             },
             methods: {
-                {#bucketSort(array, bucketsCount, startValue = 0, maxValue) {#}
-                {#    const buckets = {};#}
-                {#    const bucketsSize = Math.floor((Math.floor(maxValue) - startValue) / bucketsCount);#}
-                {##}
-                {#    for (let i = 0; i < bucketsCount; i++) {#}
-                {#        buckets[i * bucketsSize] = array.filter(value => value >= i * bucketsSize && value < (i + 1) * bucketsSize);#}
-                {#    }#}
-                {#console.log('buckets', buckets)#}
-                {#console.log('array', array)#}
-                {#    return buckets;                },#}
 
                 search() {
                     this.getFeatures();
                 },
                 buildScale(maxValue) {
-                    {#const allFsScores = features.map(feature => feature.properties.fs_score).sort((a, b) => a - b);#}
                     const stepsCount = 10;
-                    console.log('maxValue', maxValue);
                     let stepsSize;
                     if (maxValue > 9) {
                         stepsSize = Math.floor((Math.floor(maxValue) / stepsCount));
@@ -129,19 +117,15 @@
                     } else {
                         stepsSize = (maxValue / stepsCount);
                     }
-                    console.log('stepSize', stepsSize);
                     const scale = [];
                     for (let i = 0; i < stepsCount; i++) {
                         scale.push(parseFloat((i * stepsSize).toFixed(2)));
                     }
 
-                    {#const scale = Object.keys(this.bucketSort(allFsScores, 10, maxValue));#}
-                    console.log('scale', scale);
                     return scale;
                 },
                 getFeatures() {
                     this.projects_loading = true;
-                    {#this.dataReady = false;#}
                     let featuresEndpoint = "/api/fisheriescape/scores-feature/?";
 
                     if (this.filter.species) featuresEndpoint += `species=${this.filter.species}&`;
@@ -216,6 +200,7 @@
                             'fillColor': '#689ae9'
                         });
                     }
+
                     function hideInfo() {
                         this.setStyle({
                             'fillColor': 'blue'
@@ -227,7 +212,7 @@
 
                     const areaOverlays = areaOverlaysRawData.reduce(
                         (acc, areas) => {
-                            const areasName = areas.features[0].properties.layer_id
+                            const areasName = areas.features[0].properties.layer_id;
                             acc[areasName] = L.geoJSON(areas, {
                                 style: function () {
                                     return {
@@ -243,38 +228,10 @@
                                     });
                                 }
                             });
-                            return acc
-                        },{}
-                    )
+                            return acc;
+                        }, {}
+                    );
 
-                    {#// Testing, this function takes in the getJSON call below and gets geoJson formatted data and makes layer#}
-                    {#function createOverlay(data, layerName, style) {#}
-                    {#  overlay = L.geoJson(data, { // Make the layer from the JSON and grab the handle.#}
-                    {#    onEachFeature: function(feature, layer) {#}
-                    {#       layer.bindPopup(`Species: ${feature.properties.species}</br>Week: ${feature.properties.week}</br>Site Score: ${feature.properties.site_score}`);#}
-                    {#       layer.on({#}
-                    {#mouseover: highlightFeature,#}
-                    {#mouseout: resetHighlight,#}
-                    {#       })#}
-                    {#    },#}
-                    {#style: gradientStyle,#}
-                    {#// filter: function(feature) {#}
-                    {#//    return feature.properties.week === 'Week 25';#}
-                    {#// }#}
-                    {#  });#}
-                    {#  overlay.addTo(this.map);#}
-                    {#  control.addOverlay(overlay, layerName); // Add the layer to the Layer Control.#}
-
-                    {#// Define colour gradient for scores#}
-                    {#function getColor(d) {#}
-                    {#    return d > 30 ? '#800026' :#}
-                    {#           d > 20  ? '#BD0026' :#}
-                    {#           d > 14  ? '#E31A1C' :#}
-                    {#           d > 10  ? '#FC4E2A' :#}
-                    {#           d > 6  ? '#FD8D3C' :#}
-                    {#           d > 3  ? '#FEB24C' :#}
-                    {#           d > 1  ? '#FED976' :#}
-                    {#                    '#FFEDA0';#}
 
                     // Define colour gradient for scores
                     getColor = (value) => {
@@ -327,20 +284,10 @@
                         info.update(layer.feature.properties);
                     }
 
-                    // Reset Highlight on mouseout -- had to move this inside getJSON
-                    {#function resetHighlight(e) {#}
-                    {#   overlayTest.resetStyle(e.target);#}
-                    {#   info.update();#}
-
-
-                    // getting really close! just need to pass the filter to a new var outside the getJSON; need async get after filter is updated?
                     var getWeek = `${this.filter.week}`;
-                    {#console.log(getWeek)#}
 
                     var getSpecies = `${this.filter.species}`;
-                    {#console.log(getSpecies)#}
 
-                    // trying without getJSON, use method from Vue --- maybe only grab the already filtered data to reduce lag and take away need to filter in layer??
 
                     var overlayTest = new L.geoJson(this.features, { // Make the layer from the JSON and grab the handle.
                         onEachFeature: function (feature, layer) {
@@ -374,78 +321,6 @@
                         {#    return feature.properties.species === this.filter.species;#}
                     }).addTo(overlayObject);
 
-                    // Don't go down this path friends, it just leads to madness.. should have realized much earlier that all that was
-                    // needed was to get the json from a Vue method instead of trying to get it the way I've done in non-vue templates
-                    // this works but because it's async, I couldn't figure out how to get the bounds of the layer that's created by it
-
-                    {##}
-                    {#                   var boundingNELat = []#}
-                    {#                   var boundingNELng = null#}
-                    {#                   var boundingNorthEast = L.latLng(40.712, -74.227)#}
-                    {#                   var boundingSouthWest = L.latLng(40.774, -74.125)#}
-                    {#                   var boundsForReal = L.latLngBounds(boundingSouthWest, boundingNorthEast)#}
-
-                    {#// this works but had to add leaflet-ajax to static - but not sure how to get filter#}
-                    {#$.getJSON(url, function(data){#}
-                    {#    overlayTest = new L.geoJson(data, { // Make the layer from the JSON and grab the handle.#}
-                    {#        onEachFeature: function (feature, layer) {#}
-                    {#            layer.bindPopup(#}
-                    {#                `Id: ${feature.id}</br>#}
-                    {#                Grid-id: ${feature.properties.grid_id}</br>#}
-                    {#                Species: ${feature.properties.species}</br>#}
-                    {#                Week: ${feature.properties.week}</br>#}
-                    {#                Site Score: ${feature.properties.site_score}`);#}
-                    {#            layer.on({#}
-                    {#                mouseover: highlightFeature,#}
-                    {#                mouseout:  function resetHighlight(e) {#}
-                    {#                           overlayTest.resetStyle(e.target);#}
-                    {#                           info.update();#}
-                    {#                        }#}
-                    {#            })#}
-                    {##}
-                    {#        },#}
-                    {#        style: gradientStyle,#}
-                    {#        filter: function(feature) {#}
-                    {#            thingy = `Week ${getWeek}`#}
-                    {#console.log(thingy)#}
-                    {#            thingy2 = `${getSpecies}`#}
-                    {#console.log(thingy2)#}
-                    {##}
-                    {#            // this works but only once you've chosen a species and a week -- add more logic or do something to show they have to pick both#}
-                    {#            if (feature.properties.species && feature.properties.week) return (feature.properties.species === thingy2 && feature.properties.week === thingy);#}
-                    {#|| (feature.properties.week) return (feature.properties.week === thingy);#}
-                    {#        }#}
-                    {#filter: function(feature) {#}
-                    {#    return feature.properties.species === this.filter.species;#}
-                    {#    }).addTo(overlayObject);#}
-                    {#overlayTest.on('data:loaded', function() {#}
-                    {#console.log(overlayObject.getBounds())#}
-                    {#this.map.(overlayObject.getBounds())#}
-                    {#    if (thingy !== 'Week ' && thingy2 !== '') {#}
-                    {#console.log(overlayTest.getBounds())#}
-                    {#bounding.push(overlayTest.getBounds())#}
-                    {#boundingNorthEast.push(overlayTest.getBounds().getNorthEast())#}
-                    {#boundingSouthWest.push(overlayTest.getBounds().getSouthWest())#}
-                    {#console.log(overlayTest)#}
-                    {#this.bounds = (overlayTest.getBounds())#}
-                    {#var bounding = (overlayTest.getBounds().getNorthEast());#}
-                    {#console.log(bounding.lat)#}
-                    {#console.log(bounding.lng)#}
-                    {#boundingNELat.lat = bounding.lat.toString()#}
-                    {#boundingNELat.lng = bounding.lng#}
-                    {#console.log(boundingNELat.lat)#}
-                    {#this.boundingNELng= bounding.lng#}
-                    {#console.log(bounding)#}
-                    {#var northEast = (overlayTest.getBounds().getNorthEast());#}
-                    {#    southWest = (overlayTest.getBounds().getSouthWest());#}
-                    {#bounds = L.latLngBounds(southWest, northEast)#}
-                    {#console.log(bounds)#}
-                    {#console.log(bounds.getCenter())#}
-                    {#this.map.setView(new L.LatLng(40.737, -73.923), 8);#}
-                    {#    }#}
-                    {#    console.log(overlayObject.getBounds())#}
-                    //});
-
 
                     // Add hover info control box with info
 
@@ -473,9 +348,7 @@
                     legend.onAdd = map => {
                         console.log('hehe');
                         var div = L.DomUtil.create('div', 'info legend'),
-                            {#grades = [0, 1, 2, 3, 6, 9, 12, 15, 17, 20, 22, 25, 27, 29, 30],#}
-                            grades = this.scale,
-                            labels = [];
+                            grades = this.scale;
 
                         // loop through our density intervals and generate a label with a colored square for each interval
                         for (var i = 0; i < grades.length; i++) {
@@ -508,7 +381,6 @@
 
                     // Create the control layer box and add baseMaps and overlayMaps to it
 
-                    {#L.control.layers(baseMaps, groupedOverlays).addTo(this.map);#}
                     L.control.groupedLayers(baseMaps, groupedOverlays).addTo(this.map);
 
                     // check if species and week filter has been chosen and if so get the bounds of the object
@@ -517,21 +389,12 @@
                 },
             },
             async setup() {
-                {#await this.getTest();#}
-                {#await this.dataReady;#}
                 this.setupLeafletMap();
             },
             created() {
-                {#this.getTest();#}
-                {#this.getFilteredData("/api/fisheriescape/scores/?species=Atlantic Halibut");#}
                 this.getFilterData();
 
             },
-            {#async mounted() {#}
-            {#     await this.dataReady;#}
-            {#     this.setupLeafletMap();#}
-            {##}
-            {# },#}
             beforeDestroy() {
                 if (this.map) {
                     this.map.remove();
