@@ -56,7 +56,7 @@ class TestVulnerableSpeciesView(CommonTest):
     @tag("VulnerableSpecies", "vulnerable_species", "correct_response")
     def test_correct_response(self):
         response = self.client.get(self.test_url)
-        self.assert_dict_has_keys(response.json()[0],["species","lat","long","count","date","week"])
+        self.assert_dict_has_keys(response.json()[0],["english_name","french_name","latin_name","website"])
 
 
 class TestVulnerableSpeciesSpotsView(CommonTest):

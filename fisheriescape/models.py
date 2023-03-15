@@ -423,6 +423,7 @@ class VulnerableSpeciesSpot(models.Model):
                              verbose_name=_("week"))
     count = models.IntegerField(blank=True, null=True, verbose_name=_("count"))
     point = models.PointField(blank=False, null=False, verbose_name=_("point"))
+    date = models.DateField()
 
     def __str__(self):
         my_str = "{}".format(self.id)
@@ -434,7 +435,6 @@ class VulnerableSpeciesSpot(models.Model):
 
     class Meta:
         ordering = ['vulnerable_species', 'week', ]
-        unique_together = (('vulnerable_species', 'week'),)
         indexes = [
             models.Index(["vulnerable_species", "week"], name="%(class)s_s_w"),
             models.Index(["week"], name="%(class)s_week"),

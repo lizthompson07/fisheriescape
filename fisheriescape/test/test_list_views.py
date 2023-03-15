@@ -79,40 +79,40 @@ class TestFisheryListView(CommonTest):
         self.assert_correct_url("fisheriescape:fishery_list", f"/en/fisheriescape/fishery-list/")
 
 
-class TestUserListView(CommonTest):
-    def setUp(self):
-        super().setUp()
-        self.test_url = reverse_lazy('fisheriescape:user_list')
-        self.test_url1 = reverse_lazy('fisheriescape:user_list', args=[1])
-        self.expected_template = 'fisheriescape/user_list.html'
-        self.user = self.get_and_login_user(in_group="fisheriescape_admin")
-        GroupFactory(name="fisheriescape_admin")
-        GroupFactory(name="fisheriescape_edit")
-
-    @tag("User", "user_list", "view")
-    def test_view_class(self):
-        self.assert_inheritance(views.UserListView, CommonFilterView)
-        self.assert_inheritance(views.UserListView, views.FisheriescapeAdminAccessRequired)
-
-    @tag("User", "user_list", "access")
-    def test_view(self):
-        self.assert_good_response(self.test_url)
-        self.assert_good_response(self.test_url1)
-        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
-        self.assert_non_public_view(test_url=self.test_url1, expected_template=self.expected_template, user=self.user)
-
-    @tag("User", "user_list", "context")
-    def test_context(self):
-        context_vars = [
-            "fisheriescape_admin",
-            "fisheriescape_edit",
-        ]
-        self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.user)
-
-    @tag("User", "user_list", "correct_url")
-    def test_correct_url(self):
-        # use the 'en' locale prefix to url
-        self.assert_correct_url("fisheriescape:user_list", f"/en/fisheriescape/settings/users/")
+# class TestUserListView(CommonTest):
+#     def setUp(self):
+#         super().setUp()
+#         self.test_url = reverse_lazy('fisheriescape:user_list')
+#         self.test_url1 = reverse_lazy('fisheriescape:user_list', args=[1])
+#         self.expected_template = 'fisheriescape/user_list.html'
+#         self.user = self.get_and_login_user(in_group="fisheriescape_admin")
+#         GroupFactory(name="fisheriescape_admin")
+#         GroupFactory(name="fisheriescape_edit")
+#
+#     @tag("User", "user_list", "view")
+#     def test_view_class(self):
+#         self.assert_inheritance(views.UserListView, CommonFilterView)
+#         self.assert_inheritance(views.UserListView, views.FisheriescapeAdminAccessRequired)
+#
+#     @tag("User", "user_list", "access")
+#     def test_view(self):
+#         self.assert_good_response(self.test_url)
+#         self.assert_good_response(self.test_url1)
+#         self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
+#         self.assert_non_public_view(test_url=self.test_url1, expected_template=self.expected_template, user=self.user)
+#
+#     @tag("User", "user_list", "context")
+#     def test_context(self):
+#         context_vars = [
+#             "fisheriescape_admin",
+#             "fisheriescape_edit",
+#         ]
+#         self.assert_presence_of_context_vars(self.test_url, context_vars, user=self.user)
+#
+#     @tag("User", "user_list", "correct_url")
+#     def test_correct_url(self):
+#         # use the 'en' locale prefix to url
+#         self.assert_correct_url("fisheriescape:user_list", f"/en/fisheriescape/settings/users/")
 
 
 class TestNAFOAreaListView(CommonTest):

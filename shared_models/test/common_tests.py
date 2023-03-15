@@ -10,6 +10,8 @@ from faker import Faker
 from html2text import html2text
 from shared_models.test.SharedModelsFactoryFloor import UserFactory, GroupFactory
 
+from django.test.client import MULTIPART_CONTENT
+
 faker = Faker()
 
 fixtures_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'fixtures')
@@ -300,7 +302,7 @@ class CommonTest(TestCase):
         self.assertEquals(test_view, expected_form_class)
 
     def assert_success_url(self, test_url, data=None, user=None, expected_url_name=None, expected_success_url=None,
-                           use_anonymous_user=False, file_field_name=None, expected_code=302):
+                           use_anonymous_user=False, file_field_name=None,content_type=MULTIPART_CONTENT, expected_code=302):
         """
         test that upon a successful form the view redirects to the expected success url
         :param test_url: URL being tested
@@ -312,6 +314,7 @@ class CommonTest(TestCase):
         to true
         :param file_field_name: For the occasion a file is created for a model this is the name of the column the file
         data will be stored in
+        :param content_type: when something else than JSON needs to be sent (eg : a csv file)
         """
         # arbitrarily activate the english locale
         activate('en')
@@ -323,12 +326,12 @@ class CommonTest(TestCase):
         if data and file_field_name:
             with open(os.path.join(settings.BASE_DIR, "static", "img", "inventory", "good to go.jpg"), mode='rb') as fp:
                 data[file_field_name] = fp
-                response = self.client.post(test_url, data=data, )
+                response = self.client.post(test_url, data=data,content_type=content_type)
         else:
-            response = self.client.post(test_url, data=data)
+            response = self.client.post(test_url, data=data, content_type=content_type)
 
         if response.context and 'form' in response.context:
-            # If the data in this test is invaild the response will be invalid
+            # If the data in this test is invalid the response will be invalid
             self.assertTrue(response.context_data['form'].is_valid(),
                             msg=f"\n\nTest data was likely invalid. \n\nHere's the error log from the form:\n"
                                 f" {html2text(str(response.context_data['form'].errors))}"

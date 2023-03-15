@@ -88,8 +88,5 @@ class Migration(migrations.Migration):
             model_name="vulnerablespeciesspot",
             index=models.Index(["species"], name="vulnerablespeciesspot_species"),
         ),
-        migrations.AlterUniqueTogether(
-            name="vulnerablespeciesspot",
-            unique_together={("vulnerable_species", "week")},
-        ),
+
     ]

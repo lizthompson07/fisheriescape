@@ -88,3 +88,10 @@ class AnalysesForm(forms.ModelForm):
         fields = "__all__"
         widgets = {
         }
+
+
+class VulnerableSpeciesSpotForm(forms.Form):
+    file = forms.FileField()
+
+    class Meta:
+        fields = ['file']

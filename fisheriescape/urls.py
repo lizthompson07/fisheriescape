@@ -1,7 +1,7 @@
 from django.urls import path
-from . import views
-
 from django.contrib.gis import admin
+
+from . import views
 
 app_name = "fisheriescape"
 
@@ -46,11 +46,16 @@ urlpatterns = [
     path('scores-list/', views.ScoreFilterView.as_view(), name="score_filter"),
     path('scores-map/', views.ScoreMapView.as_view(), name="score_map"),
 
+    # IMPORTS #
+    path('import/vulnerable-species-spots', views.ImportVulnerableSpeciesSpotsView.as_view(),
+         name="import_vulnerable_species_spots"),
+
     # SETTINGS #
     ############
 
     path('settings/marinemammals/', views.MarineMammalFormsetView.as_view(), name="manage_marinemammals"),
-    path('settings/marinemammals/<int:pk>/delete/', views.MarineMammalHardDeleteView.as_view(), name="delete_marinemammals"),
+    path('settings/marinemammals/<int:pk>/delete/', views.MarineMammalHardDeleteView.as_view(),
+         name="delete_marinemammals"),
     path('settings/species/', views.SpeciesFormsetView.as_view(), name="manage_species"),
     path('settings/species/<int:pk>/delete/', views.SpeciesHardDeleteView.as_view(), name="delete_species"),
 
