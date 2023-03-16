@@ -2,53 +2,54 @@
 {% load static %}
 
 {% block bug_create %}
-  {% include "fisheriescape/base/_bug_url.html" %}
+    {% include "fisheriescape/base/_bug_url.html" %}
 {% endblock bug_create %}
 
 {% block title %}
-  {% include "fisheriescape/base/_app_title.html" %}
-  {% block subtitle %} - {{ subtitle }}{% endblock %}
+    {% include "fisheriescape/base/_app_title.html" %}
+    {% block subtitle %} - {{ subtitle }}{% endblock %}
 {% endblock title %}
 
 {% block header %}
-  {{ block.super }}
-  {% include "fisheriescape/base/_style.html" %}
+    {{ block.super }}
+    {% include "fisheriescape/base/_style.html" %}
 {% endblock %}
 
 {% block body %}
-  {{ block.super }}
+    {{ block.super }}
 {% endblock body %}
 
 {% block left_auth %}
-  {% include "fisheriescape/base/_nav_left_auth.html" %}
+    {% include "fisheriescape/base/_nav_left_auth.html" %}
 {% endblock left_auth %}
 
 {# Need this to enable vuejs #}
 {% block body_js %}
-  {% include "_vuejs_import.html" %}
+    {% include "_vuejs_import.html" %}
 {% endblock %}
 
 {% block leaflet %}
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
-        integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
-        crossorigin=""/>
+          integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+          crossorigin=""/>
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
-          integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
-          crossorigin=""></script>
-{#    <script src="//unpkg.com/vue2-leaflet"></script>#}
+            integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
+            crossorigin=""></script>
+    {#    <script src="//unpkg.com/vue2-leaflet"></script>#}
 
     <script src="{% static "js/leaflet-groupedlayercontrol/leaflet.groupedlayercontrol.min.js" %}"></script>
-        <script src="{% static 'leaflet-ajax/dist/leaflet.ajax.min.js' %}"></script>
-{#    <script src="{% static "js/leaflet-groupedlayercontrol/leaflet.groupedlayercontrol.min.js.map" %}"></script>#}
-{#    <script src="{% static "js/leaflet-groupedlayercontrol/leaflet.groupedlayercontrol.min.css" %}"></script>#}
+    <script src="{% static 'leaflet-ajax/dist/leaflet.ajax.min.js' %}"></script>
+    {#    <script src="{% static "js/leaflet-groupedlayercontrol/leaflet.groupedlayercontrol.min.js.map" %}"></script>#}
+    {#    <script src="{% static "js/leaflet-groupedlayercontrol/leaflet.groupedlayercontrol.min.css" %}"></script>#}
 
     <style>
-{#    I am putting specific leaflet styling here instead of in css #}
+        {#    I am putting specific leaflet styling here instead of in css #}
         .leaflet-container {
             height: 400px;
             width: 600px;
         }
+
         .leaflet-control-layers-base {
             text-align: left;
         }
@@ -66,24 +67,44 @@
             padding: 6px 8px;
             font: 14px/16px Arial, Helvetica, sans-serif;
             background: white;
-            background: rgba(255,255,255,0.8);
-            box-shadow: 0 0 15px rgba(0,0,0,0.2);
+            background: rgba(255, 255, 255, 0.8);
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
             border-radius: 5px;
         }
+
         .info h4 {
             margin: 0 0 5px;
             color: #777;
         }
+
         .legend {
             line-height: 18px;
             color: #555;
         }
+
         .legend i {
             width: 18px;
             height: 18px;
             float: left;
             margin-right: 8px;
             opacity: 0.7;
+        }
+
+        .leaflet-div-icon {
+            background: #7b7b7ba1;
+            border: none;
+            border-radius: 50%;
+            width : 20px;
+            height : 20px;
+        }
+
+        .leaflet-marker-icon .number {
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .leaflet-marker-icon img {
+            display: none
         }
 
     </style>
