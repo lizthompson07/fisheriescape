@@ -137,12 +137,12 @@ class VulnerableSpeciesSpotsView(FisheriescapeAccessRequired, ListAPIView):
     def get_queryset(self):
         queryset = self.queryset.prefetch_related('week').prefetch_related('vulnerable_species')
 
-        vulnerable_species = self.request.query_params.get('vulnerable_species')
+        vulnerable_species = self.request.query_params.get('vulnerable_species').split(',')
         week = self.request.query_params.get('week')
 
         # custom filters by field
         if vulnerable_species is not None:
-            queryset = queryset.filter(vulnerable_species__english_name=vulnerable_species)
+            queryset = queryset.filter(vulnerable_species__english_name__in=vulnerable_species)
         if week is not None:
             queryset = queryset.filter(week__week_number=week)
 
