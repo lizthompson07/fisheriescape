@@ -37,7 +37,7 @@
 
             {#       Week#}
             <div class="form-group">
-                <label class="text-muted small" for="filter.week">{% trans "Week" %}</label>
+                <label for="filter.week">{% trans "Week" %}</label>
                 <select
                         v-model="filter.week"
                         class="form-control" id="filter.week">
@@ -51,7 +51,7 @@
 
             {#       Species#}
             <div class="form-group">
-                <label class="text-muted small" for="filter.species">{% trans "Species" %}</label>
+                <label for="filter.species">{% trans "Species" %}</label>
                 <select
                         v-model="filter.species"
                         class="form-control" id="filter.species">
@@ -74,8 +74,10 @@
 
             {#      Vulnerable Species#}
             <div class="form-group">
-                <label class="text-muted small" for="filter.vulnerableSpecies">{% trans "Vulnerable Species" %}</label>
+                <label for="filter.vulnerableSpecies">{% trans "Vulnerable Species" %}</label>
+                <p> (CTRL + click to select multiple)</p>
                 <select
+                        multiple
                         v-model="filter.vulnerableSpecies"
                         class="form-control" id="filter.vulnerableSpecies">
                     <option v-for="(obj, index) in vulnerableSpeciesList" :value="obj.english_name">${obj.english_name}</option>
