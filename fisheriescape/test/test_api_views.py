@@ -6,6 +6,8 @@ from fisheriescape.api import views
 from fisheriescape.test import FactoryFloor
 from fisheriescape.test.common_tests import CommonFisheriescapeTest as CommonTest
 
+TEST_SPECIES = ["American Lobster","Snow Crab","Atlantic Herring"]
+
 
 class TestScoreFeatureView(CommonTest):
     def setUp(self):
@@ -30,7 +32,33 @@ class TestScoreFeatureView(CommonTest):
     @tag("ScoreFeature", "score_feature", "correct_response")
     def test_correct_response(self):
         response = self.client.get(self.test_url)
-        self.assert_dict_has_keys(response.json(),["type","max_fs_score","features"])
+        self.assert_dict_has_keys(response.json(), ["type", "max_fs_score", "features"])
+
+
+class TestScoreFeatureCombinedView(CommonTest):
+    def setUp(self):
+        super().setUp()
+        self.instance = FactoryFloor.ScoreFactory()
+        self.test_url = reverse_lazy('api:scores-feature-combined')
+        self.user = self.get_and_login_user()
+
+    @tag("ScoreFeature", "score_feature", "view")
+    def test_view_class(self):
+        self.assert_inheritance(views.ScoreFeatureCombinedView, ListAPIView)
+        self.assert_inheritance(views.ScoreFeatureCombinedView, views.FisheriescapeAccessRequired)
+
+    @tag("ScoreFeature", "score_feature", "access")
+    def test_view(self):
+        self.assert_good_response(self.test_url)
+
+    @tag("ScoreFeature", "score_feature", "correct_url")
+    def test_correct_url(self):
+        self.assert_correct_url('api:scores-feature-combined', f"/api/fisheriescape/scores-feature-combined/")
+
+    @tag("ScoreFeature", "score_feature", "correct_response")
+    def test_correct_response(self):
+        response = self.client.get(self.test_url,{"species": TEST_SPECIES})
+        self.assert_dict_has_keys(response.json(), ["type", "max_fs_score", "features"])
 
 
 class TestVulnerableSpeciesView(CommonTest):
@@ -56,7 +84,7 @@ class TestVulnerableSpeciesView(CommonTest):
     @tag("VulnerableSpecies", "vulnerable_species", "correct_response")
     def test_correct_response(self):
         response = self.client.get(self.test_url)
-        self.assert_dict_has_keys(response.json()[0],["english_name","french_name","latin_name","website"])
+        self.assert_dict_has_keys(response.json()[0], ["english_name", "french_name", "latin_name", "website"])
 
 
 class TestVulnerableSpeciesSpotsView(CommonTest):
@@ -82,4 +110,4 @@ class TestVulnerableSpeciesSpotsView(CommonTest):
     @tag("VulnerableSpeciesSpots", "vulnerable_species_spots", "correct_response")
     def test_correct_response(self):
         response = self.client.get(self.test_url)
-        self.assert_dict_has_keys(response.json()[0],["count","vulnerable_species","week","point"])
+        self.assert_dict_has_keys(response.json()[0], ["count", "vulnerable_species", "week", "point"])

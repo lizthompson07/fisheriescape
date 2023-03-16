@@ -52,7 +52,9 @@
             {#       Species#}
             <div class="form-group">
                 <label for="filter.species">{% trans "Species" %}</label>
+                <p class="text-muted small"> {% trans "CTRL + click to select multiple" %}</p>
                 <select
+                        multiple
                         v-model="filter.species"
                         class="form-control" id="filter.species">
                     <option v-for="(obj, index) in speciesList" :value="obj.english_name">${obj.english_name}</option>
@@ -75,7 +77,7 @@
             {#      Vulnerable Species#}
             <div class="form-group">
                 <label for="filter.vulnerableSpecies">{% trans "Vulnerable Species" %}</label>
-                <p> (CTRL + click to select multiple)</p>
+                <p class="text-muted small"> {% trans "CTRL + click to select multiple" %}</p>
                 <select
                         multiple
                         v-model="filter.vulnerableSpecies"

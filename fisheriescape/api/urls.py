@@ -11,6 +11,7 @@ app_name = "api"
 urlpatterns = [
 
     path("fisheriescape/scores-feature/", views.ScoreFeatureView.as_view(), name="scores-feature"),
+    path("fisheriescape/scores-feature-combined/", views.ScoreFeatureCombinedView.as_view(), name="scores-feature-combined"),
     path("fisheriescape/vulnerable-species-spots/", views.VulnerableSpeciesSpotsView.as_view(), name="vulnerable-species-spots"),
     # lookups
     path("fisheriescape/vulnerable-species/", views.VulnerableSpeciesView.as_view(), name="vulnerable-species"),

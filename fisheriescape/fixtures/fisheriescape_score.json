@@ -1,0 +1,6 @@
+[
+{"model": "fisheriescape.score", "pk": 387901, "fields": {"hexagon": 313, "species": 13, "week": 30, "site_score": "0.001767", "ceu_score": "635.0908", "fs_score": "1.1221"}},
+ {"model": "fisheriescape.score", "pk": 387902, "fields": {"hexagon": 313, "species": 17, "week": 28, "site_score": "0.001894", "ceu_score": "202.6492", "fs_score": "0.3838"}},
+  {"model": "fisheriescape.score", "pk": 387903, "fields": {"hexagon": 312, "species": 17, "week": 30, "site_score": "0.003534", "ceu_score": "635.0908", "fs_score": "2.2441"}},
+  {"model": "fisheriescape.score", "pk": 387904, "fields": {"hexagon": 313, "species": 17, "week": 30, "site_score": "0.003534", "ceu_score": "635.0908", "fs_score": "2.2441"}},
+  {"model": "fisheriescape.score", "pk": 387905, "fields": {"hexagon": 313, "species": 16, "week": 28, "site_score": "0.001894", "ceu_score": "202.6492", "fs_score": "0.3838"}}]
