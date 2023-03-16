@@ -50,6 +50,9 @@ urlpatterns = [
     path('import/vulnerable-species-spots', views.ImportVulnerableSpeciesSpotsView.as_view(),
          name="import_vulnerable_species_spots"),
 
+    path('import/fisheriescape-scores', views.ImportFisheriescapeScoresView.as_view(),
+         name="import_fisheriescape_scores"),
+
     # SETTINGS #
     ############
 

@@ -21,7 +21,7 @@ from shared_models.views import CommonFilterView, CommonCreateView, CommonDetail
 from . import models
 from . import forms
 from . import filters
-from .scripts import import_vulnerable_species_from_reader
+from .scripts import import_vulnerable_species_from_reader, import_scores_from_reader
 
 
 class CloserTemplateView(TemplateView):
@@ -773,3 +773,22 @@ class ImportVulnerableSpeciesSpotsView(FisheriescapeAdminAccessRequired, FormVie
             context["post_result"] = result
 
         return super(ImportVulnerableSpeciesSpotsView, self).render_to_response(context)
+
+
+class ImportFisheriescapeScoresView(FisheriescapeAdminAccessRequired, FormView):
+    h1 = gettext_lazy("Import Fisheriescape Scores")
+    template_name = "fisheriescape/import_fisheriescape_scores.html"
+    form_class = forms.ScoresForm
+    is_multipart_form_data = True
+
+    def post(self, *args, **kwargs):
+        context = super().get_context_data(**kwargs)
+        form = self.form_class(self.request.POST, self.request.FILES)
+        if form.is_valid():
+            file = form.cleaned_data['file']
+            csv_file = io.StringIO(file.read().decode('utf-8'))
+            reader = csv.DictReader(csv_file, delimiter=',', quotechar='"')
+            result = import_scores_from_reader(reader)
+            context["post_result"] = result
+
+        return super(ImportFisheriescapeScoresView, self).render_to_response(context)

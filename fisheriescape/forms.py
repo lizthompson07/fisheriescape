@@ -95,3 +95,10 @@ class VulnerableSpeciesSpotForm(forms.Form):
 
     class Meta:
         fields = ['file']
+
+
+class ScoresForm(forms.Form):
+    file = forms.FileField()
+
+    class Meta:
+        fields = ['file']
