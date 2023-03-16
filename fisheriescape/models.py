@@ -408,7 +408,7 @@ class Score(models.Model):
 
     class Meta:
         ordering = ['species', 'week', ]
-        unique_together = (('hexagon', 'week'),)
+        unique_together = (('hexagon', 'week', 'species'),)
         indexes = [
             models.Index(["species", "week"], name="%(class)s_species_week"),
             models.Index(["week"], name="%(class)s_week"),
