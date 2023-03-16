@@ -32,7 +32,6 @@
                         <div v-if="dataReady" id="maptest">
                             <div>Choose filters on the left menu to display the map.</div>
                         </div>
-
                         <div v-else class="loading mb-3 mt-3 text-center mt-5">
                             <div class="spinner-border mb-3" style="width: 10rem; height: 10rem;" role="status">
                                 <span class="sr-only"></span>
@@ -82,7 +81,7 @@
                 filter: {
                     week: "",
                     species: "",
-                    vulnerableSpecies : []
+                    vulnerableSpecies: []
                 },
 
                 // lists for filters
@@ -100,7 +99,7 @@
                 search() {
                     this.getFeatures();
                 },
-                searchVulnerableSpeciesSpots(){
+                searchVulnerableSpeciesSpots() {
                     this.getVulnerableSpecies();
                 },
                 buildScale(maxValue) {
@@ -197,6 +196,10 @@
                     var overlayObject = L.featureGroup();
                     // Create the map starting location and zoom level and tell it which layers to have
 
+                    const vulnerableSpeciesMarkers = this.vulnerableSpeciesSpots.map(spot => L.marker([spot.point.longitude, spot.point.latitude]));
+                    const vulnerableSpeciesLayer = L.layerGroup(vulnerableSpeciesMarkers);
+
+
                     this.map = L.map('maptest', {
                         center: [48.46, -61.95],
                         zoom: 6,
@@ -219,7 +222,7 @@
                     }
 
 
-                    // Create Lobster polygon layer and use onEachFeature to show certain info for each feature
+                    // Create zones polygon layer and use onEachFeature to show certain info for each feature
 
                     const areaOverlays = areaOverlaysRawData.reduce(
                         (acc, areas) => {
@@ -293,12 +296,7 @@
                         info.update(layer.feature.properties);
                     }
 
-                    var getWeek = `${this.filter.week}`;
-
-                    var getSpecies = `${this.filter.species}`;
-
-
-                    var overlayTest = new L.geoJson(this.features, { // Make the layer from the JSON and grab the handle.
+                    var fisheries = new L.geoJson(this.features, { // Make the layer from the JSON and grab the handle.
                         onEachFeature: function (feature, layer) {
                             layer.bindPopup(
                                 `Id: ${feature.id}</br>
@@ -309,26 +307,18 @@
                             layer.on({
                                 mouseover: highlightFeature,
                                 mouseout: function resetHighlight(e) {
-                                    overlayTest.resetStyle(e.target);
+                                    fisheries.resetStyle(e.target);
                                     info.update();
                                 }
                             });
 
                         },
                         style: gradientStyle,
-                        filter: function (feature) {
-                            thingy = `Week ${getWeek}`;
-                            thingy2 = `${getSpecies}`;
-
-                            // this works but only once you've chosen a species and a week -- add more logic or do something to show they have to pick both
-                            if (feature.properties.species && feature.properties.week) return (feature.properties.species === thingy2 && feature.properties.week === thingy);
-                        }
                     }).addTo(overlayObject);
-
 
                     // Add hover info control box with info
 
-                    var info = L.control({position: 'bottomleft'});
+                    const info = L.control({position: 'bottomleft'});
 
                     info.onAdd = function (map) {
                         this._div = L.DomUtil.create('div', 'info'); // create a div with a class "info"
@@ -379,6 +369,7 @@
                         "Fisheriescape Scores": {
                             [this.filter.species]: overlayObject,
                         },
+                        "Vulnerable Species": {"Spots":vulnerableSpeciesLayer},
                         "Fishing Areas": areaOverlays,
                     };
 
@@ -388,6 +379,7 @@
 
                     // check if species and week filter has been chosen and if so get the bounds of the object
                     if (this.filter.species && this.filter.week) return this.map.fitBounds(overlayObject.getBounds(), {padding: [50, 50]});
+                    {#if (this.filter.vulnerableSpecies && this.filter.week) return this.map.fitBounds(vulnerableSpeciesLayer.getBounds(), {padding: [50, 50]});#}
 
                 },
             },
@@ -396,7 +388,6 @@
             },
             created() {
                 this.getFilterData();
-
             },
             beforeDestroy() {
                 if (this.map) {
