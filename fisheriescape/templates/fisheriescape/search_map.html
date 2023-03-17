@@ -28,16 +28,17 @@
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col my-auto">
-                        <div v-if="dataReady" id="maptest">
-                            <div>Choose filters on the left menu to display the map.</div>
-                        </div>
-                        <div v-else class="loading mb-3 mt-3 text-center mt-5">
+                    <div id=map class="col my-auto">
+                        <div v-if="loading" class="loading mb-3 mt-3 text-center mt-5">
                             <div class="spinner-border mb-3" style="width: 10rem; height: 10rem;" role="status">
                                 <span class="sr-only"></span>
                             </div>
-                            <h5>Waiting for database query to finish</h5>
+                            <h5>Querying database</h5>
                         </div>
+                        <div v-else>
+                            <div class="h3">⬅️ {% trans "Choose filters on the left menu to display the map."%}</div>
+                        </div>
+
                     </div>
                 </div>
 
@@ -72,9 +73,8 @@
                 vulnerableSpeciesSpots: [],
                 count: 0,
 
-                projects_loading: false,
+                loading: false,
                 help_text: true,
-                dataReady: true,
                 scale: [],
 
                 // filters
@@ -119,7 +119,7 @@
                     return scale;
                 },
                 getFeatures() {
-                    this.projects_loading = true;
+                    this.loading = true;
 
                     let featuresEndpoint;
 
@@ -134,25 +134,25 @@
                         featuresEndpoint += `species=${speciesQuery}&`;
                     }
 
-                    console.log('species hehe', featuresEndpoint)
-
                     if (this.filter.week) {
                         featuresEndpoint += `week=${this.filter.week}&`;
                     }
                     this.features = [];
                     apiService(featuresEndpoint)
                         .then(response => {
-                            this.projects_loading = false;
-                            this.dataReady = true;
+                            this.loading = false;
                             this.features = response;
                             if (response.features.length) {
                                 this.scale = this.buildScale(response.max_fs_score);
                             }
                             this.refreshMap();
-                        });
+                        }).catch((err) => {
+                       handleError(err)
+                        this.loading = false;
+                    });
                 },
                 getVulnerableSpecies() {
-                    this.projects_loading = true;
+                    this.loading = true;
                     let vulnerableSpeciesEndpoint = "/api/fisheriescape/vulnerable-species-spots/?";
 
                     if (this.filter.vulnerableSpecies) vulnerableSpeciesEndpoint += `vulnerable_species=${this.filter.vulnerableSpecies}&`;
@@ -160,10 +160,12 @@
                     this.vulnerableSpeciesSpots = [];
                     apiService(vulnerableSpeciesEndpoint)
                         .then(response => {
-                            this.projects_loading = false;
-                            this.dataReady = true;
+                            this.loading = false;
                             this.vulnerableSpeciesSpots = response;
                             this.refreshMap();
+                        })
+                        .catch((err) => {handleError(err)
+                            this.loading = false;
                         });
                 },
                 getFilterData() {
@@ -246,7 +248,7 @@
                     const vulnerableSpeciesLayer = L.layerGroup(vulnerableSpeciesMarkers);
 
 
-                    this.map = L.map('maptest', {
+                    this.map = L.map('map', {
                         center: [48.46, -61.95],
                         zoom: 6,
                         layers: [streets, overlayObject, vulnerableSpeciesLayer] //this says what to have on by default
@@ -423,9 +425,13 @@
 
                     L.control.groupedLayers(baseMaps, groupedOverlays).addTo(this.map);
 
-                    // check if species and week filter has been chosen and if so get the bounds of the object
-                    if (this.filter.species && this.filter.week) return this.map.fitBounds(overlayObject.getBounds(), {padding: [50, 50]});
-                    {#if (this.filter.vulnerableSpecies && this.filter.week) return this.map.fitBounds(vulnerableSpeciesLayer.getBounds(), {padding: [50, 50]});#}
+                    // check if features found and if so get the bounds of the object
+                    if (this.features.features.length) {
+                        return this.map.fitBounds(overlayObject.getBounds(), {padding: [50, 50]});
+                    } else {
+                        alert("No data found for the selected period and species");
+                        return this.map;
+                    }
 
                 },
             },

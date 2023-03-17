@@ -27,7 +27,8 @@ function handleResponse(response) {
 
 
 function handleError(error) {
-  console.log('❌ Error',error);
+  console.error('❌ Error : An error occurred while getting getting vulnerable species', error);
+  alert('An error occurred while loading the data. Please try again or open a bug ticket');
 }
 
 

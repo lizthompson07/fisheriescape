@@ -15,7 +15,7 @@
         </div>
     </div>
         <div class="col my-auto">
-            <div id="maptest"></div>
+            <div id="map"></div>
         </div>
 
     </div>
@@ -74,7 +74,7 @@ Vue.component("map-component", {
            var overlayObject = L.featureGroup()
            // Create the map starting location and zoom level and tell it which layers to have
 
-           this.map = L.map('maptest', {
+           this.map = L.map('map', {
                center: [48.46, -61.95],
                zoom: 6,
                layers: [streets, overlayObject] //this says what to have on by default
