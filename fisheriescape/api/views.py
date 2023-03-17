@@ -1,5 +1,6 @@
 from hashlib import md5
 
+from django.contrib.postgres.aggregates import StringAgg
 from django.core.checks import caches
 from django.db.models import Sum
 from rest_framework.generics import ListAPIView
@@ -134,13 +135,19 @@ class ScoreFeatureCombinedView(FisheriescapeAccessRequired, ListAPIView):
     def get_queryset(self):
         queryset = self.queryset.prefetch_related('week').prefetch_related('species').prefetch_related("hexagon")
 
-        species = self.request.query_params.get('species').split(',')
+        species = self.request.query_params.getlist('species')
         week = self.request.query_params.get('week')
 
-        if species:
-            queryset = queryset.filter(species__english_name__in=species).values('hexagon','week').annotate(fs_score=Sum("fs_score")).order_by()
         if week is not None:
             queryset = queryset.filter(week__week_number=week)
+
+        if species:
+            queryset = queryset.filter(species__english_name__in=species).values('hexagon', 'week').annotate(
+                fs_score=Sum("fs_score"),
+                species=StringAgg(
+                    'species__english_name', delimiter=','),
+                id=Sum('id')
+            ).order_by()
 
         return queryset
 
@@ -168,11 +175,14 @@ class VulnerableSpeciesSpotsView(FisheriescapeAccessRequired, ListAPIView):
     def get_queryset(self):
         queryset = self.queryset.prefetch_related('week').prefetch_related('vulnerable_species')
 
-        vulnerable_species = self.request.query_params.get('vulnerable_species').split(',')
+        if self.request.query_params.get('vulnerable_species'):
+            vulnerable_species = self.request.query_params.get('vulnerable_species').split(',')
+        else :
+            vulnerable_species = None
         week = self.request.query_params.get('week')
 
         # custom filters by field
-        if vulnerable_species is not None:
+        if vulnerable_species:
             queryset = queryset.filter(vulnerable_species__english_name__in=vulnerable_species)
         if week is not None:
             queryset = queryset.filter(week__week_number=week)

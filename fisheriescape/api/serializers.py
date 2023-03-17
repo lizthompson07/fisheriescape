@@ -70,9 +70,19 @@ class CustomGeoFeatureModelListSerializer(ListSerializer):
         Add GeoJSON compatible formatting to a serialized queryset list
         """
         max_fs_score = 0
-        if data:
-            max_fs_score = data.model.objects.filter(species=data.first().species).aggregate(
-                models.Max('fs_score')).get('fs_score__max')
+        if data :
+            if isinstance(data[0],Score):
+                species_list = {score.species for score in data.all()}
+                max_fs_score = sum([Score.objects.filter(species=species).aggregate(models.Max('fs_score')).get('fs_score__max') for species in species_list])
+            else:
+                species_names = set()
+                for score in data:
+                    species_names.update(score.get('species').split(','))
+
+                for species in species_names:
+                    species_max_fs_score = Score.objects.filter(species__english_name=species).aggregate(models.Max('fs_score')).get('fs_score__max')
+                    max_fs_score += species_max_fs_score
+
 
         return OrderedDict(
             (
@@ -102,6 +112,7 @@ class ScoreFeatureSerializer(GeoFeatureModelSerializer):
         geo_field = 'hexagon'
         fields = "__all__"
 
+
     # Override base method to use our custom GeoFeatureModelListSerializer
     @classmethod
     def many_init(cls, *args, **kwargs):
@@ -130,13 +141,16 @@ class ScoreFeatureCombinedSerializer(GeoFeatureModelSerializer):
     grid_id = SerializerMethodField()
 
     def get_hexagon(self, obj):
-        return obj.hexagon.polygon
+        hexagon_id = obj.get('hexagon')
+        return Hexagon.objects.get(id=hexagon_id).polygon
 
     def get_grid_id(self, obj):
-        return obj.hexagon.grid_id
+        hexagon_id = obj.get('hexagon')
+        return Hexagon.objects.get(id=hexagon_id).grid_id
 
     class Meta:
         model = Score
+        id_field = None
         geo_field = 'hexagon'
         fields = "__all__"
 

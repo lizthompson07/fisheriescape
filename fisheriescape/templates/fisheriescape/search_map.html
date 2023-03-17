@@ -120,10 +120,25 @@
                 },
                 getFeatures() {
                     this.projects_loading = true;
-                    let featuresEndpoint = "/api/fisheriescape/scores-feature/?";
 
-                    if (this.filter.species) featuresEndpoint += `species=${this.filter.species}&`;
-                    if (this.filter.week) featuresEndpoint += `week=${this.filter.week}&`;
+                    let featuresEndpoint;
+
+                    if (this.filter.species.length > 1) {
+                        featuresEndpoint = "/api/fisheriescape/scores-feature-combined/?";
+                    } else {
+                        featuresEndpoint = "/api/fisheriescape/scores-feature/?";
+                    }
+
+                    if (this.filter.species) {
+                        const speciesQuery = this.filter.species.join('&species=');
+                        featuresEndpoint += `species=${speciesQuery}&`;
+                    }
+
+                    console.log('species hehe', featuresEndpoint)
+
+                    if (this.filter.week) {
+                        featuresEndpoint += `week=${this.filter.week}&`;
+                    }
                     this.features = [];
                     apiService(featuresEndpoint)
                         .then(response => {
@@ -214,10 +229,10 @@
                             var div = document.createElement('div');
                             var img = this._createImg(this.options['iconUrl']);
                             var numdiv = document.createElement('div');
-                            numdiv.setAttribute ( "class", "number" );
+                            numdiv.setAttribute("class", "number");
                             numdiv.innerHTML = this.options['number'] || '';
-                            div.appendChild ( img );
-                            div.appendChild ( numdiv );
+                            div.appendChild(img);
+                            div.appendChild(numdiv);
                             this._setIconStyles(div, 'icon');
                             return div;
                         },
@@ -227,7 +242,7 @@
                             return null;
                         }
                     });
-                    const vulnerableSpeciesMarkers = this.vulnerableSpeciesSpots.map(spot => L.marker([spot.point.longitude, spot.point.latitude],{icon:   new L.NumberedDivIcon({number: spot.count})}));
+                    const vulnerableSpeciesMarkers = this.vulnerableSpeciesSpots.map(spot => L.marker([spot.point.longitude, spot.point.latitude], {icon: new L.NumberedDivIcon({number: spot.count})}));
                     const vulnerableSpeciesLayer = L.layerGroup(vulnerableSpeciesMarkers);
 
 
@@ -400,7 +415,7 @@
                         "Fisheriescape Scores": {
                             [this.filter.species]: overlayObject,
                         },
-                        "Vulnerable Species": {"Spots":vulnerableSpeciesLayer},
+                        "Vulnerable Species": {"Spots": vulnerableSpeciesLayer},
                         "Fishing Areas": areaOverlays,
                     };
 

@@ -59,7 +59,6 @@ class TestScoreMapView(CommonTest):
     def test_context(self):
         context_vars = [
             "field_list",
-            "random_score",
             "lobster_areas",
             "mapbox_api_key",
         ]

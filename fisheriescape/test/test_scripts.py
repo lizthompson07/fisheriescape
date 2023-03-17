@@ -22,7 +22,7 @@ class TestImportScores(CommonTest):
     def test_import_success(self):
         result = scripts.import_all_scores(folder_path=TEST_SCORES_FOLDER)
         assert not result.get('errors')
-        assert Score.objects.count() == 3
+        assert Score.objects.count() == 8 # 5 from fixtures and 3 imported by this test
 
 
 class TestImportVulnerableSpots(CommonTest):

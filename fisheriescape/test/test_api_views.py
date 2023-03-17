@@ -6,7 +6,8 @@ from fisheriescape.api import views
 from fisheriescape.test import FactoryFloor
 from fisheriescape.test.common_tests import CommonFisheriescapeTest as CommonTest
 
-TEST_SPECIES = ["American Lobster","Snow Crab","Atlantic Herring"]
+TEST_SPECIES = ["American Lobster","Snow Crab","Atlantic Halibut"]
+TEST_WEEK = 30
 
 
 class TestScoreFeatureView(CommonTest):
@@ -57,8 +58,9 @@ class TestScoreFeatureCombinedView(CommonTest):
 
     @tag("ScoreFeature", "score_feature", "correct_response")
     def test_correct_response(self):
-        response = self.client.get(self.test_url,{"species": TEST_SPECIES})
+        response = self.client.get(self.test_url,{"species": TEST_SPECIES, "week": TEST_WEEK}, content_type='application/json')
         self.assert_dict_has_keys(response.json(), ["type", "max_fs_score", "features"])
+        self.assertEqual(len(response.data.get('features')),2,)
 
 
 class TestVulnerableSpeciesView(CommonTest):
