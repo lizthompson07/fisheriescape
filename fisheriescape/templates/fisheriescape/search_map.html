@@ -316,14 +316,15 @@
                     };
 
                     // Define polygon style
-                    function gradientStyle(feature) {
+                     gradientStyle = (feature) => {
                         return {
                             fillColor: getColor(feature.properties.fs_score),
                             weight: 0.5,
                             opacity: 1,
                             color: 'white',
                             dashArray: '3',
-                            fillOpacity: 0.7
+                            fillOpacity: 0.7,
+                            className: `${feature.properties.species_count >1 ? "multiple-species" : ""}`
                         };
                     }
 
@@ -347,7 +348,7 @@
                     var fisheries = new L.geoJson(this.features, { // Make the layer from the JSON and grab the handle.
                         onEachFeature: function (feature, layer) {
                             layer.bindPopup(
-                                `Id: ${feature.id}</br>
+                                `{#Id: ${feature.id}</br>#}
                                 Grid-id: ${feature.properties.grid_id}</br>
                                 Species: ${feature.properties.species}</br>
                                 Week: ${feature.properties.week}</br>
@@ -365,7 +366,6 @@
                     }).addTo(overlayObject);
 
                     // Add hover info control box with info
-
                     const info = L.control({position: 'bottomleft'});
 
                     info.onAdd = function (map) {

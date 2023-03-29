@@ -2,7 +2,7 @@ from hashlib import md5
 
 from django.contrib.postgres.aggregates import StringAgg
 from django.core.checks import caches
-from django.db.models import Sum
+from django.db.models import Sum, Count
 from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 
@@ -146,6 +146,7 @@ class ScoreFeatureCombinedView(FisheriescapeAccessRequired, ListAPIView):
                 fs_score=Sum("fs_score"),
                 species=StringAgg(
                     'species__english_name', delimiter=','),
+                species_count=(Count("id")),
                 id=Sum('id')
             ).order_by()
 
