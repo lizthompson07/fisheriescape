@@ -1,0 +1,53 @@
+{% extends "shared_models/generic_base.html" %}
+{% load bootstrap4 %}
+{% load i18n %}
+{% load custom_filters %}
+{% load custom_tags %}
+{% load verbose_names %}
+
+{% block subcontent %}
+  <div class="mb-3">
+    <div class="btns">
+      {% block buttons_div %}
+        {% block buttons %}
+          {% if edit_url_name %}
+            {% url edit_url_name object.id as edit_url %}
+            <a class="btn btn-lg btn-warning" href="{{ edit_url }}">
+              {% trans "Edit" %}
+            </a>
+          {% endif %}
+          {% if delete_url_name %}
+            {% url delete_url_name object.id as delete_url %}
+            <a class="btn btn-lg btn-danger" href="{{ delete_url }}">
+              {% trans "Delete" %}
+            </a>
+          {% endif %}
+
+        {% endblock %}
+      {% endblock %}
+    </div>
+  </div>
+
+  {% block detail %}
+    {% block detail_table %}
+      <table class="table">
+        {% for field in field_list %}
+          {% block detail_tr %}
+            {% verbose_td_display object field %}
+          {% endblock %}
+        {% endfor %}
+      {% block extra_table_rows %}
+      {% endblock %}
+      </table>
+    {% endblock %}
+  {% endblock %}
+
+
+  <div class="mb-3">
+    {% block post_detail_div %}{% endblock %}
+  </div>
+
+
+{% endblock %}
+
+

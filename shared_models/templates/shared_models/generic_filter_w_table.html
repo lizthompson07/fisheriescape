@@ -1,0 +1,113 @@
+{% extends "shared_models/generic_base.html" %}
+{% load bootstrap4 %}
+{% load i18n %}
+{% load custom_filters %}
+{% load custom_tags %}
+{% load verbose_names %}
+{% load django_tables2 %}
+
+{% block subcontent %}
+  {% trans 'New' as default_new_btn_text %}
+  {% if filter %}
+    {% block filter %}
+      <div class="{% block filter_div_classes %}{% endblock %}">
+        <form class="form {% block extra_filter_classes %}{% endblock %}" action="." method="get" id="filter-form">
+          <div class="row">
+            {% for field in filter.form %}
+              <div class="col">
+                {% bootstrap_field field placeholder="" size="small" %}
+              </div>
+            {% endfor %}
+            <div class="col">
+              <br>
+              <input type="submit" value="{% trans "Filter" %}" class="btn btn-warning btn-sm">
+              <a href="." class="btn btn-secondary btn-sm">{% trans "Clear" %}</a>
+            </div>
+          </div>
+        </form>
+      </div>
+    {% endblock %}
+    <br>
+  {% endif %}
+
+  {% if object_list.exists %}
+    {% if filter %}
+      {% if filter_list %}
+        {% echo filter_list as list %}
+      {% else %}
+        {% echo filter.qs as list %}
+      {% endif %}
+    {% else %}
+      {% echo object_list as list %}
+    {% endif %}
+
+    {% block pre_table %}
+    {% endblock %}
+
+    {% block table_and_table_header %}
+
+      {% block table_header %}
+        <div class="row mb-3">
+          <div class="col">
+              {% trans "(click on a header to sort current page)" %}
+          </div>
+
+          {% block new_object_button %}
+            <div class="col" style="text-align: right">
+              {% if new_object_url %}
+                <a href="{{ new_object_url }}" class="btn btn-sm btn-primary">
+                  {{ new_btn_text|nz:default_new_btn_text }}
+                </a>
+              {% endif %}
+              {% if extra_button_dict1 %}
+                <a href="{{ extra_button_dict1.url }}"
+                   class="btn btn-sm {{ extra_button_dict1.class|nz:"btn-outline-primary" }}">{{ extra_button_dict1.name|safe }}
+                </a>
+              {% endif %}
+              {% if extra_button_dict2 %}
+                <a href="{{ extra_button_dict2.url }}"
+                   class="btn btn-sm {{ extra_button_dict2.class|nz:"btn-outline-primary" }}">{{ extra_button_dict2.name|safe }}
+                </a>
+              {% endif %}
+            </div>
+          {% endblock %}
+        </div>
+      {% endblock %}
+
+      {% block table %}
+       {% render_table table %}
+
+      {% endblock %}
+
+      {% block post_table %}    {% endblock %}
+
+    {% endblock %}
+  {% else %}
+    <div>
+      <p class="lead">
+        <em>
+          {% trans "There are no items to display" %} <span class="ml-1 mdi mdi-emoticon-confused-outline"> </span>
+        </em>
+      </p>
+      {% if new_object_url %}
+        <a href="{{ new_object_url }}" class="btn btn-lg btn-primary">{{ new_btn_text|nz:default_new_btn_text }}</a>
+      {% endif %}
+    </div>
+  {% endif %}
+
+  {% block table_footer %}
+    <div class="text-center">
+      {% if filter %}
+        {% if filter_list %}
+          <em>{% trans 'displaying' %} {{ filter_list|length }} {% trans 'of' %} {{ filter.qs.count }}</em>
+        {% else %}
+          <em>{% trans 'displaying' %} {{ filter.qs.count }} {% trans 'of' %} {{ object_list.count }}</em>
+        {% endif %}
+      {% else %}
+        <em>{% trans 'displaying' %} {{ object_list.count }} {% trans "records." %}</em>
+      {% endif %}
+    </div>
+
+  {% endblock %}
+{% endblock %}
+

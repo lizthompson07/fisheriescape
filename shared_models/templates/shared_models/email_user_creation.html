@@ -1,0 +1,54 @@
+{% load verbose_names %}
+
+<em>
+  *** un message français suit
+</em>
+<br><br>
+
+<p>{{ object.first_name }},</p>
+
+
+<p>
+  A new account was created for you in the <a href="{{ SITE_FULL_URL }}">DM Apps</a> system.
+  This account was created for you by {{ created_by.get_full_name }} (<a href="mailto:{{ created_by.email }}">{{ created_by.email }}</a>).
+</p>
+
+<p>
+  You can access the DM Apps website at the following URL: <a href="{{ SITE_FULL_URL }}">{{ SITE_FULL_URL }}</a>.
+</p>
+
+<p>
+  Thank you,
+</p>
+<p>
+  The DM Apps Team
+</p>
+
+<p>
+  ********************************************************************
+</p>
+
+
+<p>{{ object.first_name }},</p>
+
+<p>
+  Un nouveau compte a été créé pour vous dans le système <a href="{{ SITE_FULL_URL }}"> DM Apps </a>.
+  Ce compte a été créé pour vous par {{ created_by.get_full_name }} (<a href="mailto:{{ created_by.email }}">{{ created_by.email }}</a>).
+</p>
+
+<p>
+  Vous pouvez accéder au site Web d'Applis GD à l'URL suivante : <a href="{{ SITE_FULL_URL }}">{{ SITE_FULL_URL }}</a>.
+</p>
+
+<p>
+  Merci,
+</p>
+<p>
+  L'équipe d'Applications GD
+</p>
+
+<style media="screen">
+table, td {
+    border: solid 1px black;
+}
+</style>

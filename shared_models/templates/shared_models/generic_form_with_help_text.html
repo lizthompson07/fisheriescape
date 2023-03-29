@@ -1,0 +1,47 @@
+{% extends 'shared_models/generic_form.html' %}
+{% load bootstrap4 %}
+{% load static %}
+{% load custom_filters %}
+
+
+
+{% block form_field %}
+    <div id="{{ field.name }}_div">
+        {% block form_field_label %}
+            {% if not field.is_hidden %}
+                {# adds required label to field #}
+                {% if field.field.required %}
+                    {% bootstrap_label field.label label_class="required" label_for="id_"|add:field.name %}
+                {% else %}
+                    {% bootstrap_label field.label label_for="id_"|add:field.name%}
+                {% endif %}
+
+                {# adds help text icon to field or pop up button #}
+                {% if field.name in help_text_dict %}
+                    <span class="mdi mdi-help-circle-outline h6" data-toggle="popover" title="{{ field.label }}"
+                        data-content="{{ help_text_dict|lookup:field.name }}" data-trigger="hover"></span>
+                    {% if manage_help_url %}
+                          <a class='mdi mdi-plus-box h6 ml-1' pop-href='{% url manage_help_url model_name field.name %}'></a>
+                    {% endif %}
+                {% elif manage_help_url %}
+                    <a class='mdi mdi-plus-box h6 ml-1' pop-href='{% url manage_help_url model_name field.name %}'></a>
+                {% endif %}
+            {% endif %}
+        {% endblock %}
+
+        {% bootstrap_field field placeholder="" show_label=False%}
+
+        {% block post_field_area%}
+        {% endblock %}
+
+    </div>
+{% endblock %}
+
+{% block body_js %}
+    <script type="application/javascript">
+        $(function () {
+            $('[data-toggle="popover"]').popover(
+            )
+        });
+    </script>
+{% endblock %}

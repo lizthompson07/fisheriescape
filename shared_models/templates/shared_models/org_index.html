@@ -1,0 +1,66 @@
+{% extends 'shared_models/generic_base.html' %}
+{% load i18n %}
+{% block subcontent %}
+
+  <div class="container mt-5">
+    <div class="mb-5">
+      <h4>{% trans "DFO Governance" %}</h4>
+      <ul>
+        <li>
+          <a href="{% url 'shared_models:org_spreadsheet' %}">{% trans "Masterlist" %}</a>
+        </li>
+        <li>
+          <a href="{% url 'shared_models:region_list' %}">{% trans "Region - National (NCR)" %}</a>
+        </li>
+        <li>
+          <a href="{% url 'shared_models:sector_list' %}">{% trans "Sector" %}</a>
+        </li>
+        <li>
+          <a href="{% url 'shared_models:branch_list' %}">{% trans "Branch - Directorate (NCR)" %}</a>
+        </li>
+        <li>
+          <a href="{% url 'shared_models:division_list' %}">{% trans "Division - Branch (NCR)" %}</a>
+        </li>
+        <li>
+          <a href="{% url 'shared_models:section_list' %}">{% trans "Section - Team (NCR)" %}</a>
+        </li>
+      </ul>
+      <ul>
+        <li>
+          <a href='#' pop-href="{% url 'shared_models:user_new' %}">{% trans "Add a new DM Apps User" %}</a>
+        </li>
+      </ul>
+    </div>
+
+    <div class="mb-5">
+      <h4>{% trans "Physcial Locations" %}</h4>
+      <ul>
+        <li>
+          <a href="{% url 'shared_models:org_list' %}">{% trans "DFO Physical Locations" %}</a>
+        </li>
+      </ul>
+    </div>
+    <div class="mb-5">
+      <h4>{% trans "Financial Coding" %}</h4>
+      <ul>
+        <li>
+          <a href="{% url 'shared_models:project_list' %}">{% trans "Project Codes" %}</a>
+        </li>
+        <li>
+          <a href="{% url 'shared_models:rc_list' %}">{% trans "RC Codes" %}</a>
+        </li>
+      </ul>
+    </div>
+
+  <div class="mb-5">
+      <h4>{% trans "REPORTS" %}</h4>
+      <ul>
+        <li>
+          <a href="{% url 'shared_models:export_org_report' %}">{% trans "export organization (CSV)" %}</a>
+        </li>
+      </ul>
+    </div>
+
+  </div>
+
+{% endblock %}
