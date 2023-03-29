@@ -94,7 +94,7 @@ class VulnerableSpecies(models.Model):
         ]
 
     def __str__(self):
-        # check to see if a french value is given
+        # check to see if a French value is given
         if getattr(self, str(_("english_name"))):
             return getattr(self, str(_("english_name")))
         # if there is no translated term, just pull from the english field

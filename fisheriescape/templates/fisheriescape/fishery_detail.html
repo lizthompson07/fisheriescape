@@ -5,14 +5,15 @@
 {% load l10n %}
 
 {% block subcontent %}
-
-    <div class="mb-4">
-        <div class="btn-group">
-            <a class="btn btn-warning" href="{% url 'fisheriescape:fishery_edit' object.id %}">Edit</a>
-            <a class="btn btn-danger" href="{% url 'fisheriescape:fishery_delete' object.id %}">Delete</a>
-            <a class="btn btn-dark" href="{{ request.META.HTTP_REFERER }}">Back</a>
+    {% if user.is_superuser %}
+        <div class="mb-4">
+            <div class="btn-group">
+                <a class="btn btn-warning" href="{% url 'fisheriescape:fishery_edit' object.id %}">Edit</a>
+                <a class="btn btn-danger" href="{% url 'fisheriescape:fishery_delete' object.id %}">Delete</a>
+                <a class="btn btn-dark" href="{{ request.META.HTTP_REFERER }}">Back</a>
+            </div>
         </div>
-    </div>
+    {% endif %}
 
     {#  <div class="row">#}
     {#    <div class="col-3">#}
@@ -68,7 +69,7 @@
                                                 <td style="background-color: {{ object.gear_primary_colour }}; color: black; width: 60px; border: none ">{% get_field_value object field %}</td>
                                             {% else %}
                                                 <td style="background-color: {{ object.gear_primary_colour }}; color: white; width: 60px; border: none ">{% get_field_value object field %}</td>
-                                            {%  endif %}
+                                            {% endif %}
                                         </table>
                                     </td>
                                 </tr>
@@ -81,7 +82,7 @@
                                                 <td style="background-color: {{ object.gear_secondary_colour }}; color: white; width: 60px; border: none ">{% get_field_value object field %}</td>
                                             {% else %}
                                                 <td style="background-color: {{ object.gear_secondary_colour }}; color: black; width: 60px; border: none ">{% get_field_value object field %}</td>
-                                            {%  endif %}
+                                            {% endif %}
                                         </table>
                                     </td>
                                 </tr>
@@ -96,7 +97,7 @@
                                                 <td style="background-color: {{ object.gear_tertiary_colour }}; color: black; width: 60px; border: solid 1px ">{% get_field_value object field %}</td>
                                             {% else %}
                                                 <td style="background-color: {{ object.gear_tertiary_colour }}; color: black; width: 60px; border: none ">{% get_field_value object field %}</td>
-                                            {%  endif %}
+                                            {% endif %}
                                         </table>
                                     </td>
                                 </tr>
@@ -143,7 +144,8 @@
                     <h5 class="card-title"> {% trans "Monitoring Programs" %}</h5>
                 </div>
                 <div class="card-body">
-                    <p><strong>These numbers represent the percent of the fleet that is required to report under each monitoring program.</strong></p>
+                    <p><strong>These numbers represent the percent of the fleet that is required to report under each
+                        monitoring program.</strong></p>
                     <table class="table table-sm">
                         {% for field in field_list_monitoring %}
                             {% if field == "monitoring_comment" %}
@@ -184,7 +186,7 @@
 
     </script>
 
-{#Remember to update version if you change css styling in base.html in order to reload!#}
+    {#Remember to update version if you change css styling in base.html in order to reload!#}
     <script src="{% static 'fisheriescape/map2.js' %}?version=1.4"></script>
 
 {% endblock %}
