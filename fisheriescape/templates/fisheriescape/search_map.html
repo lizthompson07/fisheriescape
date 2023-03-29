@@ -40,13 +40,27 @@
                                 <h2>
                                     Title disclaimer/insctructions
                                 </h2>
-                                <p>Text under this is a random placeholder to be filled with actual disclaimer/instructions</p>
-                                <p>Hussar wallago, hairtail barbel threadfin bream kuhli loach, "pike conger emperor angelfish coelacanth." Flagblenny. Common carp dace triplefin blenny; river loach rivuline longjaw mudsucker freshwater flyingfish.</p>
-                                <p>Surfperch suckermouth armored catfish yellow-and-black triplefin dusky grouper emperor angelfish emperor bream bluegill. Bigscale fish common carp ide dorab betta goblin shark sawfish Quillfish sleeper shark eeltail catfish weatherfish loweye catfish.</p>
-                                <p>Emperor angelfish zingel walu sturgeon, threespine stickleback. Haddock carp codlet telescopefish sawfish loach minnow galjoen fish carp Indian mul zebra lionfish lemon sole mullet, armoured catfish footballfish. Australian lungfish needlefish roach razorfish man-of-war fish Asian carps, false moray loach giant wels mola crocodile shark parrotfish tigerperch flounder ronquil yellow-edged moray. Morwong roughy murray cod gombessa southern smelt; pink salmon Old World knifefish southern grayling skipjack tuna sea bass. Clingfish, pike conger merluccid hake eagle ray. Kelp perch, "livebearer catalufa viperfish eagle ray?" Smelt pearl perch cavefish; nase wolffish, prickleback Black scabbardfish rock bass gurnard?</p>
+                                <p>Text under this is a random placeholder to be filled with actual
+                                    disclaimer/instructions</p>
+                                <p>Hussar wallago, hairtail barbel threadfin bream kuhli loach, "pike conger emperor
+                                    angelfish coelacanth." Flagblenny. Common carp dace triplefin blenny; river loach
+                                    rivuline longjaw mudsucker freshwater flyingfish.</p>
+                                <p>Surfperch suckermouth armored catfish yellow-and-black triplefin dusky grouper
+                                    emperor angelfish emperor bream bluegill. Bigscale fish common carp ide dorab betta
+                                    goblin shark sawfish Quillfish sleeper shark eeltail catfish weatherfish loweye
+                                    catfish.</p>
+                                <p>Emperor angelfish zingel walu sturgeon, threespine stickleback. Haddock carp codlet
+                                    telescopefish sawfish loach minnow galjoen fish carp Indian mul zebra lionfish lemon
+                                    sole mullet, armoured catfish footballfish. Australian lungfish needlefish roach
+                                    razorfish man-of-war fish Asian carps, false moray loach giant wels mola crocodile
+                                    shark parrotfish tigerperch flounder ronquil yellow-edged moray. Morwong roughy
+                                    murray cod gombessa southern smelt; pink salmon Old World knifefish southern
+                                    grayling skipjack tuna sea bass. Clingfish, pike conger merluccid hake eagle ray.
+                                    Kelp perch, "livebearer catalufa viperfish eagle ray?" Smelt pearl perch cavefish;
+                                    nase wolffish, prickleback Black scabbardfish rock bass gurnard?</p>
                             </div>
                             <hr/>
-                            <div class="h4">⬅️ {% trans "Choose filters on the left menu to display the map."%}</div>
+                            <div class="h4">⬅️ {% trans "Choose filters on the left menu to display the map." %}</div>
                         </div>
 
                     </div>
@@ -157,7 +171,7 @@
                             }
                             this.refreshMap();
                         }).catch((err) => {
-                       handleError(err)
+                        handleError(err);
                         this.loading = false;
                     });
                 },
@@ -174,7 +188,8 @@
                             this.vulnerableSpeciesSpots = response;
                             this.refreshMap();
                         })
-                        .catch((err) => {handleError(err)
+                        .catch((err) => {
+                            handleError(err);
                             this.loading = false;
                         });
                 },
@@ -326,7 +341,7 @@
                     };
 
                     // Define polygon style
-                     gradientStyle = (feature) => {
+                    gradientStyle = (feature) => {
                         return {
                             fillColor: getColor(feature.properties.fs_score),
                             weight: 0.5,
@@ -334,9 +349,9 @@
                             color: 'white',
                             dashArray: '3',
                             fillOpacity: 0.7,
-                            className: `${feature.properties.species_count >1 ? "multiple-species" : ""}`
+                            className: `${feature.properties.species_count > 1 ? "multiple-species" : ""}`
                         };
-                    }
+                    };
 
                     // Highlight the hexagon on mouseover
                     function highlightFeature(e) {
@@ -435,9 +450,9 @@
                     L.control.groupedLayers(baseMaps, groupedOverlays).addTo(this.map);
 
                     // check if features found and if so get the bounds of the object
-                    if (this.features.features.length) {
+                    if (this.features.features && this.features.features.length) {
                         return this.map.fitBounds(overlayObject.getBounds(), {padding: [50, 50]});
-                    } else {
+                    } else if (!this.vulnerableSpeciesSpots.length) {
                         alert("No data found for the selected period and species");
                         return this.map;
                     }
