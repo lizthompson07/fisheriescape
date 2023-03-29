@@ -239,16 +239,8 @@
                     // Create the map starting location and zoom level and tell it which layers to have
                     L.NumberedDivIcon = L.Icon.extend({
                         options: {
-                            {#iconUrl: '<%= image_path("leaflet/marker_hole.png") %>',#}
                             number: '',
                             shadowUrl: null,
-                            {#iconSize: new L.Point(40, 40),#}
-                            {#iconAnchor: new L.Point(13, 41),#}
-                            {#popupAnchor: new L.Point(0, -33),#}
-                            /*
-                            iconAnchor: (Point)
-                            popupAnchor: (Point)
-                            */
                             className: 'leaflet-div-icon'
                         },
 
@@ -263,13 +255,16 @@
                             this._setIconStyles(div, 'icon');
                             return div;
                         },
-
-                        //you could change this to add a shadow like in the normal marker if you really wanted
-                        createShadow: function () {
-                            return null;
-                        }
                     });
-                    const vulnerableSpeciesMarkers = this.vulnerableSpeciesSpots.map(spot => L.marker([spot.point.longitude, spot.point.latitude], {icon: new L.NumberedDivIcon({number: spot.count})}));
+                    const vulnerableSpeciesMarkers = this.vulnerableSpeciesSpots.map(
+                        spot => L.marker(
+                            [spot.point.longitude, spot.point.latitude],
+                            {icon: new L.NumberedDivIcon({number: spot.count})}
+                        ).bindPopup(`
+                                Species: ${spot.vulnerable_species}</br>
+                                Week: ${spot.week}</br>
+                                Year: ${spot.date.split('-').slice(0,1)}`)
+                    );
                     const vulnerableSpeciesLayer = L.layerGroup(vulnerableSpeciesMarkers);
 
 
