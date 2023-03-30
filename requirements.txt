@@ -39,3 +39,8 @@ whitenoise==6.3.0
 
 # LOCAL
 django-browser-reload==1.6.0
+
+# Next 3 libs are just used to generate DB schema and require 'graphviz' to be installed on the machine
+# django-extensions==3.2.1
+# pyparsing==3.0.9
+# pydot==1.4.2
