@@ -58,6 +58,9 @@ ALTER ROLE localuser SUPERUSER;
    pip install -r requirements.txt
    ```
 4. Run the unit tests to make sure everything is setup properly
+   ```bash
+   python manage.py test fisheriescape.test
+   ```
    
 
 ## Import local data
