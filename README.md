@@ -68,11 +68,13 @@ ALTER ROLE localuser SUPERUSER;
       python manage.py loaddata [absolute\path\to\fixtures\folder]\*.json
       ```
 2. Import Score and Vulnerable Species data to your local DB
-   1. Run the app 
-   2. Navigate to http://127.0.0.1:8000/fr/fisheriescape/import/fisheriescape-scores
-   3. Upload Vulnerable Species files
-   4. Navigate to http://127.0.0.1:8000/fr/fisheriescape/import/vulnerable-species-spots
-   5. Upload Scores files
+   1. Run the app : `python manage.py runserver`
+   2. Navigate to http://127.0.0.1:8000/ and login using the email `admin_test_user@dfo-mpo.gc.ca`. 
+   The magic link to login will appear in the terminal where Django is running.
+   3. Navigate to http://127.0.0.1:8000/fr/fisheriescape/import/fisheriescape-scores
+   4. Upload Vulnerable Species files
+   5. Navigate to http://127.0.0.1:8000/fr/fisheriescape/import/vulnerable-species-spots
+   6. Upload Scores files
 
    > Species and vulnerable species will be created automatically, based on the names present in the files imported
 
