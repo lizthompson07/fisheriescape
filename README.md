@@ -113,3 +113,19 @@ the app of interest in the app dictionary: `my_conf.APP_DICT`. Each connected ap
     1. if you are using windows, you can run the suite of test using the following batch file: `run_tests_in_windows.bat`
 1. Please do not create a merge request that has conflicts with the master branch, unless you specifically need help with dealing with any conflicting code.
     1. in the case of the latter, please be sure to properly assign your merge request and add the appropriate comments
+
+# Production Setup
+Deploying on a production environment will greatly depend on the chosen environment.
+
+If you choose to go along the path of a VPS, the setup process is pretty much the same as the local environment.
+
+The only differences are :
+1. No need for a `my_config.py` file
+2. Environment variables set for the production values -> don't forget to specify a restrictive array of ALLOWED_HOST
+3. You might want to change the global admin email in fixtures.zip/auth_user.json before loading the fixtures
+4. If you choose a managed DB (preferred option), you can skipp the DB creation part and directly set the DB connexion parameters in the .env file.   
+⚠️ You still need to grant different privileges to the user and install the PSQL spatial extension.
+
+
+To run the server, configure your reverse proxy (NGINX or other) to run this command : `gunicorn dm_apps.wsgi`
+Please read [gunicorn documentation](https://docs.gunicorn.org/en/latest/configure.html) to see which flags you'd like to add to this command (e.g.: number of concurrent workers)
