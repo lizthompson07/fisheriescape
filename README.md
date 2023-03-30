@@ -62,10 +62,10 @@ ALTER ROLE localuser SUPERUSER;
 
 ## Import local data
 1. Import test data to your local DB
-   1. Get the fixtures.zip file and unzip it somwehre on your local computer. Write down the folder path
+   1. Get the fixtures.zip file and unzip it somewhere on your local computer. Write down the folder path
    2. Load the fixtures
       ```bash
-      python manage.py loaddata [absolute/path/to/fixtures/folder]/*.json
+      python manage.py loaddata [absolute\path\to\fixtures\folder]\*.json
       ```
 2. Import Score and Vulnerable Species data to your local DB
    1. Run the app 
