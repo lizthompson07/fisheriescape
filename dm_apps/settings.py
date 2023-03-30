@@ -160,7 +160,6 @@ INSTALLED_APPS = [
                      'rest_framework_gis',
                      'django_filters',
                      'crispy_forms',  # added for testing DRF filters
-                     # 'storages',
                      'django.contrib.humanize',
                      'bootstrap4',
                      'bootstrap5',
@@ -168,32 +167,13 @@ INSTALLED_APPS = [
                      'el_pagination',
                      'debug_toolbar',
                      'webpack_loader',
-                     # 'easy_pdf',
-                     # 'tracking',
                      'accounts',
                      'lib',
                      'shared_models',
                      'tickets',
                      "django_browser_reload",
-                     # 'durationwidget',
                  ] + local_conf.MY_INSTALLED_APPS
 
-# # If the GEODJANGO setting is set to False, turn off any apps that require it
-GEODJANGO = config("GEODJANGO", cast=bool, default=False)
-if not GEODJANGO:
-    INSTALLED_APPS.remove('django.contrib.gis')
-    INSTALLED_APPS.remove('rest_framework_gis')
-    try:
-        INSTALLED_APPS.remove('spring_cleanup')
-        print("turning off spring cleanup app because geodjango is not enabled")
-    except:
-        pass
-
-    try:
-        INSTALLED_APPS.remove('fisheriescape')
-        print("turning off fisheriescape app because geodjango is not enabled")
-    except:
-        pass
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -235,13 +215,7 @@ TEMPLATES = [
     },
 ]
 
-CACHES = {
-    'default': {
-        # 'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
-        'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
-        'LOCATION': 'cache',
-    }
-}
+CACHES = local_conf.CACHES
 
 WSGI_APPLICATION = 'dm_apps.wsgi.application'
 
@@ -339,7 +313,7 @@ TRACK_QUERY_STRING = True
 TRACK_REFERER = True
 TRACK_SUPERUSERS = False
 
-if not IS_LINUX and GEODJANGO:
+if not IS_LINUX:
     GDAL_LIBRARY_PATH = config("GDAL_LIBRARY_PATH", cast=str, default="")
     GEOS_LIBRARY_PATH = config("GEOS_LIBRARY_PATH", cast=str, default="")
 
