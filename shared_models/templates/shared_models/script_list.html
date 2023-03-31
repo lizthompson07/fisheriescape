@@ -1,0 +1,21 @@
+{% extends "shared_models/generic_filter.html" %}
+{% load bootstrap4 %}
+{% load i18n %}
+{% load custom_filters %}
+{% load custom_tags %}
+
+{% load verbose_names %}
+
+{% block table_tr %}
+  {% url row_object_url_name object.id as my_url %}
+  <tr {% if row_object_url_name %}href="{{ my_url }}"{% endif %}>
+    {% for field in field_list %}
+      <td class="{{ field.class }}">
+        {% block table_td %}
+          {% get_field_value object field.name safe=True %}
+        {% endblock %}
+      </td>
+    {% endfor %}
+    <td><a href="{% url 'shared_models:run_script' object.id %}" class="btn btn-danger btn-sm">run</a></td>
+  </tr>
+{% endblock %}

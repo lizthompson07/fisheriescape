@@ -1,20 +1,20 @@
-from django.urls import path, include
+from django.urls import path
 from rest_framework.routers import DefaultRouter
 
-from . import views
-from .views import ScoreViewSet, ScoreFeatureViewSet
+from fisheriescape.api import views
+
 
 router = DefaultRouter()
 
-router.register(r"scores", ScoreViewSet)
-router.register(r"scores-feature", ScoreFeatureViewSet, basename='scores-feature')
-# router.register(r"profiles", ScoreListView)
+app_name = "api"
 
 urlpatterns = [
-    path("fisheriescape/", include((router.urls, 'fisheriescape'), namespace='test')),
-    # path("avatar/", ScoreListView.as_view(), name="score-looky")
 
+    path("fisheriescape/scores-feature/", views.ScoreFeatureView.as_view(), name="scores-feature"),
+    path("fisheriescape/scores-feature-combined/", views.ScoreFeatureCombinedView.as_view(), name="scores-feature-combined"),
+    path("fisheriescape/vulnerable-species-spots/", views.VulnerableSpeciesSpotsView.as_view(), name="vulnerable-species-spots"),
     # lookups
+    path("fisheriescape/vulnerable-species/", views.VulnerableSpeciesView.as_view(), name="vulnerable-species"),
     path("fisheriescape/species/", views.SpeciesListAPIView.as_view(), name="fisheriescape-species-list"),
     path("fisheriescape/week/", views.WeekListAPIView.as_view(), name="fisheriescape-week-list"),
 ]

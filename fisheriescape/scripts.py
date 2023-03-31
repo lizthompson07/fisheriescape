@@ -1,17 +1,16 @@
 import csv
+import datetime
 import json
 import os
 
+from django.contrib.gis.geos import Point
 from django.utils import timezone
-from lib.templatetags.custom_filters import nz
-
 from django.core import serializers
-from django.core.files import File
 
 from fisheriescape import models
 
 
-#to get list of url names from rest api
+# to get list of url names from rest api
 # To use in shell:
 # from fisheriescape.scripts import print_url_pattern_names
 # from fisheriescape.api import urls
@@ -20,11 +19,12 @@ from fisheriescape import models
 def print_url_pattern_names(patterns):
     """Print a list of urlpattern and their names"""
     for pat in patterns:
-        if pat.__class__.__name__ == 'URLResolver':      # load patterns from this URLResolver
+        if pat.__class__.__name__ == 'URLResolver':  # load patterns from this URLResolver
             print_url_pattern_names(pat.url_patterns)
-        elif pat.__class__.__name__ == 'URLPattern':     # load name from this URLPattern
+        elif pat.__class__.__name__ == 'URLPattern':  # load name from this URLPattern
             if pat.name is not None:
                 print('[API-URL] {:>50} -> {}'.format(pat.name, pat.pattern))
+
 
 # for individual exports, can use:
 # python manage.py dumpdata app_name.model_name > fisheriescape/fixtures/file.json
@@ -102,6 +102,7 @@ def many_var(row_name, instance_name, model_name):
     else:
         return
 
+
 ## this can be used to parse import of M2M fields -- currently using for mitigation_type field
 def many_var_mit(row_name, instance_name, model_name):
     if row_name != "" and row_name:
@@ -113,6 +114,7 @@ def many_var_mit(row_name, instance_name, model_name):
         return
     else:
         return
+
 
 ## this can be used to parse import of M2M fields -- currently using for mitigation_type field
 def many_var_fish(row_name, instance_name, model_name):
@@ -196,62 +198,126 @@ def import_fishery_info():
         print(f'{str(cont_success)} records inserted successfully! ')
 
 
-def import_scores_info(path : str):
+def import_scores_info_from_file_path(path: str) -> dict:
     """ a simple function to import information from a csv """
-    # csv_file = os.path.abspath(
-    #     os.path.join(os.path.dirname(__file__), 'data', 'Snow Crab Fisheriescape 20220413.csv'),
-    # )
     csv_file = path
-    count_success = 0
-    count_error = 0
-    # Remove all data from Table
-    # models.Score.objects.all().delete()
-
 
     with open(csv_file, newline='', encoding='UTF-8') as csvfile:
-        spamreader = csv.DictReader(csvfile, delimiter=',', quotechar='"')
-        # next(spamreader, None)  # skip the headers
+        reader = csv.DictReader(csvfile, delimiter=',', quotechar='"')
         print(f"Importing file {csv_file}...")
-        # for row in spamreader:
-        #     print(row[0])
-        for row in spamreader:
+        result = import_scores_from_reader(reader=reader)
 
-            try:
-                # Get or create FK fields first
-                hexagon_obj, created = models.Hexagon.objects.get_or_create(
-                    grid_id=str(row["grid.id"].strip())
-                )
+        print(f"✅ {result.get('count_success')} records inserted successfully! for file {csv_file}")
+        print(f"❌ {len(result.get('errors'))} errors for file {csv_file}")
 
-                species_obj, created = models.Species.objects.get_or_create(
-                    defaults={'english_name':str(row["sw2"].strip()[:-19].strip())},
-                    english_name__iexact=str(row["sw2"].strip()[:-19].strip())
-                )
-
-                week_obj, created = models.Week.objects.get_or_create(
-                    week_number=row["sw"].strip()
-                )
-                created, _ = models.Score.objects.get_or_create(
-                    hexagon=hexagon_obj,
-                    species=species_obj,
-                    week=week_obj,
-                    site_score=row["ss.std"].strip(),
-                    ceu_score=row["ceu"].strip(),
-                    fs_score=row["fs"].strip(),
-                )
-
-                count_success += 1
-            except Exception as e:
-                print(f"❌ error inserting line {row} from {csv_file} : {e}")
-                count_error +=1
-
-        print(f'✅ {str(count_success)} records inserted successfully! for file {csv_file}')
-        print(f'❌ {str(count_error)} errors for file {csv_file}')
+        return result
 
 
-def import_all_scores(folder_path:str):
-    for file in os.listdir(folder_path) :
+def import_all_scores(folder_path: str) -> dict:
+    result = {
+        "count_success": 0,
+        "errors": []
+    }
+    for file in os.listdir(folder_path):
         file_path = os.path.join(folder_path, file)
         if os.path.isfile(file_path):
-            import_scores_info(path=file_path)
+            file_result = import_scores_info_from_file_path(path=file_path)
+            result["count_success"] += file_result["count_success"]
+            result["errors"] += file_result["errors"]
+    return result
 
 
+def import_vulnerable_species_spots_from_file_path(file_path: str) -> dict:
+    print(f"Importing file {file_path}...")
+
+    with open(file_path, newline='', encoding='UTF-8') as csvfile:
+        reader = csv.DictReader(csvfile, delimiter=',', quotechar='"')
+        result = import_vulnerable_species_from_reader(reader=reader)
+        print(f"✅ {result.get('count_success')} records inserted successfully! for file {file_path}")
+        print(f"❌ {len(result.get('errors'))} errors for file {file_path}")
+
+    return result
+
+
+def import_all_vulnerable_species_spots(folder_path: str) -> dict:
+    result = {
+        "count_success": 0,
+        "errors": []
+    }
+    for file in os.listdir(folder_path):
+        file_path = os.path.join(folder_path, file)
+        if os.path.isfile(file_path):
+            file_result = import_vulnerable_species_spots_from_file_path(file_path=file_path)
+            result["count_success"] += file_result["count_success"]
+            result["errors"] += file_result["errors"]
+
+    return result
+
+
+def import_vulnerable_species_from_reader(reader: csv.DictReader) -> dict:
+    count_success = 0
+    errors = []
+    for row in reader:
+        try:
+            vulnerable_species_english_name = row["species"].strip().capitalize()
+            vulnerable_species_obj, created = models.VulnerableSpecies.objects.get_or_create(
+                defaults={'english_name': vulnerable_species_english_name},
+                english_name__iexact=vulnerable_species_english_name
+            )
+
+            week_obj, created = models.Week.objects.get_or_create(
+                week_number=row["SW"].strip()
+            )
+
+            created, _ = models.VulnerableSpeciesSpot.objects.get_or_create(
+                vulnerable_species=vulnerable_species_obj,
+                week=week_obj,
+                count=row["number"].strip(),
+                date=datetime.datetime.strptime(row["date"].strip(), '%m/%d/%Y').date(),
+                point=Point(float(row["lat"].strip()), float(row["lon"].strip())),
+            )
+
+            count_success += 1
+        except Exception as e:
+            errors.append(f"❌ error inserting line {row} : {e}")
+
+    return {
+        "count_success": count_success,
+        "errors": errors,
+    }
+
+
+def import_scores_from_reader(reader: csv.DictReader) -> dict:
+    count_success = 0
+    errors = []
+    for row in reader:
+        try:
+            # Get or create FK fields first
+            hexagon_obj, created = models.Hexagon.objects.get_or_create(
+                grid_id=str(row["grid.id"].strip())
+            )
+
+            species_obj, created = models.Species.objects.get_or_create(
+                defaults={'english_name': str(row["sw2"].strip()[:-19].strip())},
+                english_name__iexact=str(row["sw2"].strip()[:-19].strip())
+            )
+
+            week_obj, created = models.Week.objects.get_or_create(
+                week_number=row["sw"].strip()
+            )
+            created, _ = models.Score.objects.get_or_create(
+                hexagon=hexagon_obj,
+                species=species_obj,
+                week=week_obj,
+                site_score=row["ss.std"].strip(),
+                ceu_score=row["ceu"].strip(),
+                fs_score=row["fs"].strip(),
+            )
+            count_success += 1
+        except Exception as e:
+            errors.append(f"❌ error inserting line {row} : {e}")
+
+    return {
+        "count_success": count_success,
+        "errors": errors
+    }

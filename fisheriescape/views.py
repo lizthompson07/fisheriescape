@@ -1,3 +1,5 @@
+import csv
+import io
 from copy import deepcopy
 
 from django.conf import settings
@@ -8,24 +10,18 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.db.models import TextField, Value
 from django.db.models.functions import Concat
 from django.http import HttpResponseRedirect
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy, reverse
-from django.views.generic import UpdateView, DeleteView, CreateView, DetailView, TemplateView, FormView
-from django_filters.views import FilterView
+from django.views.generic import TemplateView, FormView
 from django.contrib.auth.models import User, Group
-from rest_framework.views import APIView
-from rest_framework.viewsets import ModelViewSet
+from django.core.serializers import serialize
 
 from shared_models.views import CommonFilterView, CommonCreateView, CommonDetailView, CommonUpdateView, \
     CommonDeleteView, CommonHardDeleteView, CommonFormsetView, CommonTemplateView
 from . import models
 from . import forms
 from . import filters
-
-import json
-from django.core.serializers import serialize
-
-from .api.serializers import ScoreSerializer
+from .scripts import import_vulnerable_species_from_reader, import_scores_from_reader
 
 
 class CloserTemplateView(TemplateView):
@@ -147,6 +143,7 @@ def toggle_user(request, pk, type):
         else:
             my_user.groups.add(fisheriescape_edit)
     return HttpResponseRedirect("{}#user_{}".format(request.META.get('HTTP_REFERER'), my_user.id))
+
 
 ### SETTINGS ###
 ### FORMSETS ###
@@ -645,6 +642,7 @@ class AnalysesDetailView(FisheriescapeAdminAccessRequired, CommonDetailView):
 
     ]
     home_url_name = "fisheriescape:index"
+
     # parent_crumb = {"title": gettext_lazy("Analyses Search"), "url": reverse_lazy("fisheriescape:analyses_filter")}
 
     def get_context_data(self, **kwargs):
@@ -658,6 +656,7 @@ class AnalysesDeleteView(FisheriescapeAdminAccessRequired, CommonDeleteView):
     # success_url = reverse_lazy('fisheriescape:analyses_filter')
     template_name = 'fisheriescape/confirm_delete.html'
     home_url_name = "fisheriescape:index"
+
     # grandparent_crumb = {"title": gettext_lazy("Analyses Search"), "url": reverse_lazy("fisheriescape:analyses_filter")}
 
     def get_parent_crumb(self):
@@ -723,7 +722,7 @@ class ScoreFilterView(FisheriescapeAccessRequired, CommonFilterView):
 
 
 class ScoreMapView(FisheriescapeAccessRequired, CommonTemplateView):
-    h1 = gettext_lazy("Test")
+    h1 = gettext_lazy("Score map")
     template_name = "fisheriescape/search_map.html"
     field_list = [
         'id',
@@ -737,7 +736,6 @@ class ScoreMapView(FisheriescapeAccessRequired, CommonTemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["random_score"] = models.Score.objects.first()
 
         context["lobster_areas"] = serialize("geojson", models.FisheryArea.objects.filter(layer_id="Lobster"))
         context["snow_crab_areas"] = serialize("geojson", models.FisheryArea.objects.filter(layer_id="Crab"))
@@ -749,3 +747,48 @@ class ScoreMapView(FisheriescapeAccessRequired, CommonTemplateView):
         context["mapbox_api_key"] = settings.MAPBOX_API_KEY
 
         return context
+
+
+#
+# # ##########
+# # # IMPORTS #
+# # ##########
+# #
+#
+
+class ImportVulnerableSpeciesSpotsView(FisheriescapeAdminAccessRequired, FormView):
+    h1 = gettext_lazy("Import vulnerable species spots")
+    template_name = "fisheriescape/import_vulnerable_species_spots.html"
+    form_class = forms.VulnerableSpeciesSpotForm
+    is_multipart_form_data = True
+
+    def post(self, *args, **kwargs):
+        context = super().get_context_data(**kwargs)
+        form = self.form_class(self.request.POST, self.request.FILES)
+        if form.is_valid():
+            file = form.cleaned_data['file']
+            csv_file = io.StringIO(file.read().decode('utf-8'))
+            reader = csv.DictReader(csv_file, delimiter=',', quotechar='"')
+            result = import_vulnerable_species_from_reader(reader)
+            context["post_result"] = result
+
+        return super(ImportVulnerableSpeciesSpotsView, self).render_to_response(context)
+
+
+class ImportFisheriescapeScoresView(FisheriescapeAdminAccessRequired, FormView):
+    h1 = gettext_lazy("Import Fisheriescape Scores")
+    template_name = "fisheriescape/import_fisheriescape_scores.html"
+    form_class = forms.ScoresForm
+    is_multipart_form_data = True
+
+    def post(self, *args, **kwargs):
+        context = super().get_context_data(**kwargs)
+        form = self.form_class(self.request.POST, self.request.FILES)
+        if form.is_valid():
+            file = form.cleaned_data['file']
+            csv_file = io.StringIO(file.read().decode('utf-8'))
+            reader = csv.DictReader(csv_file, delimiter=',', quotechar='"')
+            result = import_scores_from_reader(reader)
+            context["post_result"] = result
+
+        return super(ImportFisheriescapeScoresView, self).render_to_response(context)

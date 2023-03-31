@@ -27,23 +27,42 @@
                         <hr>
                     </div>
                 </div>
-                {#            <div v-if="projects_loading" class="loading mb-3 mt-3 text-center mt-5">#}
-                {#                <div class="spinner-border mb-3" style="width: 10rem; height: 10rem;" role="status">#}
-                {#                    <span class="sr-only"></span>#}
-                {#                </div>#}
-                {#            </div>#}
                 <div class="row">
-                    <div class="col my-auto">
-                        <div v-if="dataReady" id="maptest">
-                            <div>Choose filters on the left menu to display the map.</div>
-                        </div>
-
-                        <div v-else class="loading mb-3 mt-3 text-center mt-5">
+                    <div id=map class="col my-auto">
+                        <div v-if="loading" class="loading mb-3 mt-3 text-center mt-5">
                             <div class="spinner-border mb-3" style="width: 10rem; height: 10rem;" role="status">
                                 <span class="sr-only"></span>
                             </div>
-                            <h5>Waiting for database query to finish</h5>
+                            <h5>Querying database</h5>
                         </div>
+                        <div v-else>
+                            <div>
+                                <h2>
+                                    Title disclaimer/insctructions
+                                </h2>
+                                <p>Text under this is a random placeholder to be filled with actual
+                                    disclaimer/instructions</p>
+                                <p>Hussar wallago, hairtail barbel threadfin bream kuhli loach, "pike conger emperor
+                                    angelfish coelacanth." Flagblenny. Common carp dace triplefin blenny; river loach
+                                    rivuline longjaw mudsucker freshwater flyingfish.</p>
+                                <p>Surfperch suckermouth armored catfish yellow-and-black triplefin dusky grouper
+                                    emperor angelfish emperor bream bluegill. Bigscale fish common carp ide dorab betta
+                                    goblin shark sawfish Quillfish sleeper shark eeltail catfish weatherfish loweye
+                                    catfish.</p>
+                                <p>Emperor angelfish zingel walu sturgeon, threespine stickleback. Haddock carp codlet
+                                    telescopefish sawfish loach minnow galjoen fish carp Indian mul zebra lionfish lemon
+                                    sole mullet, armoured catfish footballfish. Australian lungfish needlefish roach
+                                    razorfish man-of-war fish Asian carps, false moray loach giant wels mola crocodile
+                                    shark parrotfish tigerperch flounder ronquil yellow-edged moray. Morwong roughy
+                                    murray cod gombessa southern smelt; pink salmon Old World knifefish southern
+                                    grayling skipjack tuna sea bass. Clingfish, pike conger merluccid hake eagle ray.
+                                    Kelp perch, "livebearer catalufa viperfish eagle ray?" Smelt pearl perch cavefish;
+                                    nase wolffish, prickleback Black scabbardfish rock bass gurnard?</p>
+                            </div>
+                            <hr/>
+                            <div class="h4">⬅️ {% trans "Choose filters on the left menu to display the map." %}</div>
+                        </div>
+
                     </div>
                 </div>
 
@@ -58,8 +77,6 @@
 
 {% block body_js %}
     {{ block.super }}
-
-    {#    {% include "fisheriescape/map_component.html" %}#}
 
     <script type="application/javascript">
         const lobsterAreas = {{ lobster_areas | safe }};
@@ -76,27 +93,25 @@
             delimiters: ["${", "}"],
             data: {
                 showSidebar: true,
-                message: "test message",
                 features: [],
+                vulnerableSpeciesSpots: [],
                 count: 0,
-                {#filteredData: [],#}
 
-                projects_loading: false,
+                loading: false,
                 help_text: true,
-                dataReady: true,
                 scale: [],
 
                 // filters
                 filter: {
-                    is_hidden: "",
                     week: "",
                     species: "",
-                    point: "",
+                    vulnerableSpecies: []
                 },
 
                 // lists for filters
                 speciesList: [],
                 weekList: [],
+                vulnerableSpeciesList: [],
                 pointList: ["point1", "point2"],
 
                 // map
@@ -104,24 +119,15 @@
                 bounds: [],
             },
             methods: {
-                {#bucketSort(array, bucketsCount, startValue = 0, maxValue) {#}
-                {#    const buckets = {};#}
-                {#    const bucketsSize = Math.floor((Math.floor(maxValue) - startValue) / bucketsCount);#}
-                {##}
-                {#    for (let i = 0; i < bucketsCount; i++) {#}
-                {#        buckets[i * bucketsSize] = array.filter(value => value >= i * bucketsSize && value < (i + 1) * bucketsSize);#}
-                {#    }#}
-                {#console.log('buckets', buckets)#}
-                {#console.log('array', array)#}
-                {#    return buckets;                },#}
 
                 search() {
                     this.getFeatures();
                 },
+                searchVulnerableSpeciesSpots() {
+                    this.getVulnerableSpecies();
+                },
                 buildScale(maxValue) {
-                    {#const allFsScores = features.map(feature => feature.properties.fs_score).sort((a, b) => a - b);#}
                     const stepsCount = 10;
-                    console.log('maxValue', maxValue);
                     let stepsSize;
                     if (maxValue > 9) {
                         stepsSize = Math.floor((Math.floor(maxValue) / stepsCount));
@@ -129,38 +135,68 @@
                     } else {
                         stepsSize = (maxValue / stepsCount);
                     }
-                    console.log('stepSize', stepsSize);
                     const scale = [];
                     for (let i = 0; i < stepsCount; i++) {
                         scale.push(parseFloat((i * stepsSize).toFixed(2)));
                     }
 
-                    {#const scale = Object.keys(this.bucketSort(allFsScores, 10, maxValue));#}
-                    console.log('scale', scale);
                     return scale;
                 },
                 getFeatures() {
-                    this.projects_loading = true;
-                    {#this.dataReady = false;#}
-                    let featuresEndpoint = "/api/fisheriescape/scores-feature/?";
+                    this.loading = true;
 
-                    if (this.filter.species) featuresEndpoint += `species=${this.filter.species}&`;
-                    if (this.filter.week) featuresEndpoint += `week=${this.filter.week}&`;
+                    let featuresEndpoint;
+
+                    if (this.filter.species.length > 1) {
+                        featuresEndpoint = "/api/fisheriescape/scores-feature-combined/?";
+                    } else {
+                        featuresEndpoint = "/api/fisheriescape/scores-feature/?";
+                    }
+
+                    if (this.filter.species) {
+                        const speciesQuery = this.filter.species.join('&species=');
+                        featuresEndpoint += `species=${speciesQuery}&`;
+                    }
+
+                    if (this.filter.week) {
+                        featuresEndpoint += `week=${this.filter.week}&`;
+                    }
                     this.features = [];
                     apiService(featuresEndpoint)
                         .then(response => {
-                            this.projects_loading = false;
-                            this.dataReady = true;
+                            this.loading = false;
                             this.features = response;
                             if (response.features.length) {
                                 this.scale = this.buildScale(response.max_fs_score);
                             }
                             this.refreshMap();
+                        }).catch((err) => {
+                        handleError(err);
+                        this.loading = false;
+                    });
+                },
+                getVulnerableSpecies() {
+                    this.loading = true;
+                    let vulnerableSpeciesEndpoint = "/api/fisheriescape/vulnerable-species-spots/?";
+
+                    if (this.filter.vulnerableSpecies) vulnerableSpeciesEndpoint += `vulnerable_species=${this.filter.vulnerableSpecies}&`;
+                    if (this.filter.week) vulnerableSpeciesEndpoint += `week=${this.filter.week}`;
+                    this.vulnerableSpeciesSpots = [];
+                    apiService(vulnerableSpeciesEndpoint)
+                        .then(response => {
+                            this.loading = false;
+                            this.vulnerableSpeciesSpots = response;
+                            this.refreshMap();
+                        })
+                        .catch((err) => {
+                            handleError(err);
+                            this.loading = false;
                         });
                 },
                 getFilterData() {
                     apiService(`/api/fisheriescape/species/`).then(response => this.speciesList = response);
                     apiService(`/api/fisheriescape/week/`).then(response => this.weekList = response);
+                    apiService(`/api/fisheriescape/vulnerable-species/`).then(response => this.vulnerableSpeciesList = response);
                 },
                 removeMap() {
                     if (this.map) {
@@ -201,11 +237,41 @@
 
                     var overlayObject = L.featureGroup();
                     // Create the map starting location and zoom level and tell it which layers to have
+                    L.NumberedDivIcon = L.Icon.extend({
+                        options: {
+                            number: '',
+                            shadowUrl: null,
+                            className: 'leaflet-div-icon'
+                        },
 
-                    this.map = L.map('maptest', {
+                        createIcon: function () {
+                            var div = document.createElement('div');
+                            var img = this._createImg(this.options['iconUrl']);
+                            var numdiv = document.createElement('div');
+                            numdiv.setAttribute("class", "number");
+                            numdiv.innerHTML = this.options['number'] || '';
+                            div.appendChild(img);
+                            div.appendChild(numdiv);
+                            this._setIconStyles(div, 'icon');
+                            return div;
+                        },
+                    });
+                    const vulnerableSpeciesMarkers = this.vulnerableSpeciesSpots.map(
+                        spot => L.marker(
+                            [spot.point.longitude, spot.point.latitude],
+                            {icon: new L.NumberedDivIcon({number: spot.count})}
+                        ).bindPopup(`
+                                Species: ${spot.vulnerable_species}</br>
+                                Week: ${spot.week}</br>
+                                Year: ${spot.date.split('-').slice(0,1)}`)
+                    );
+                    const vulnerableSpeciesLayer = L.layerGroup(vulnerableSpeciesMarkers);
+
+
+                    this.map = L.map('map', {
                         center: [48.46, -61.95],
                         zoom: 6,
-                        layers: [streets, overlayObject] //this says what to have on by default
+                        layers: [streets, overlayObject, vulnerableSpeciesLayer] //this says what to have on by default
                     });
 
 
@@ -216,6 +282,7 @@
                             'fillColor': '#689ae9'
                         });
                     }
+
                     function hideInfo() {
                         this.setStyle({
                             'fillColor': 'blue'
@@ -223,11 +290,11 @@
                     }
 
 
-                    // Create Lobster polygon layer and use onEachFeature to show certain info for each feature
+                    // Create zones polygon layer and use onEachFeature to show certain info for each feature
 
                     const areaOverlays = areaOverlaysRawData.reduce(
                         (acc, areas) => {
-                            const areasName = areas.features[0].properties.layer_id
+                            const areasName = areas.features[0].properties.layer_id;
                             acc[areasName] = L.geoJSON(areas, {
                                 style: function () {
                                     return {
@@ -243,42 +310,13 @@
                                     });
                                 }
                             });
-                            return acc
-                        },{}
-                    )
+                            return acc;
+                        }, {}
+                    );
 
-                    {#// Testing, this function takes in the getJSON call below and gets geoJson formatted data and makes layer#}
-                    {#function createOverlay(data, layerName, style) {#}
-                    {#  overlay = L.geoJson(data, { // Make the layer from the JSON and grab the handle.#}
-                    {#    onEachFeature: function(feature, layer) {#}
-                    {#       layer.bindPopup(`Species: ${feature.properties.species}</br>Week: ${feature.properties.week}</br>Site Score: ${feature.properties.site_score}`);#}
-                    {#       layer.on({#}
-                    {#mouseover: highlightFeature,#}
-                    {#mouseout: resetHighlight,#}
-                    {#       })#}
-                    {#    },#}
-                    {#style: gradientStyle,#}
-                    {#// filter: function(feature) {#}
-                    {#//    return feature.properties.week === 'Week 25';#}
-                    {#// }#}
-                    {#  });#}
-                    {#  overlay.addTo(this.map);#}
-                    {#  control.addOverlay(overlay, layerName); // Add the layer to the Layer Control.#}
-
-                    {#// Define colour gradient for scores#}
-                    {#function getColor(d) {#}
-                    {#    return d > 30 ? '#800026' :#}
-                    {#           d > 20  ? '#BD0026' :#}
-                    {#           d > 14  ? '#E31A1C' :#}
-                    {#           d > 10  ? '#FC4E2A' :#}
-                    {#           d > 6  ? '#FD8D3C' :#}
-                    {#           d > 3  ? '#FEB24C' :#}
-                    {#           d > 1  ? '#FED976' :#}
-                    {#                    '#FFEDA0';#}
 
                     // Define colour gradient for scores
                     getColor = (value) => {
-                        console.log('value, scale', value, this.scale);
                         return value > this.scale[9] ? '#FF050B' :
                             value > this.scale[8] ? '#FF3105' :
                                 value > this.scale[7] ? '#FF6305' :
@@ -298,22 +336,21 @@
                     };
 
                     // Define polygon style
-                    function gradientStyle(feature) {
-                        // console.log(feature)
+                    gradientStyle = (feature) => {
                         return {
                             fillColor: getColor(feature.properties.fs_score),
                             weight: 0.5,
                             opacity: 1,
                             color: 'white',
                             dashArray: '3',
-                            fillOpacity: 0.7
+                            fillOpacity: 0.7,
+                            className: `${feature.properties.species_count > 1 ? "multiple-species" : ""}`
                         };
-                    }
+                    };
 
                     // Highlight the hexagon on mouseover
                     function highlightFeature(e) {
                         var layer = e.target;
-
                         layer.setStyle({
                             weight: 5,
                             color: '#666',
@@ -327,25 +364,10 @@
                         info.update(layer.feature.properties);
                     }
 
-                    // Reset Highlight on mouseout -- had to move this inside getJSON
-                    {#function resetHighlight(e) {#}
-                    {#   overlayTest.resetStyle(e.target);#}
-                    {#   info.update();#}
-
-
-                    // getting really close! just need to pass the filter to a new var outside the getJSON; need async get after filter is updated?
-                    var getWeek = `${this.filter.week}`;
-                    {#console.log(getWeek)#}
-
-                    var getSpecies = `${this.filter.species}`;
-                    {#console.log(getSpecies)#}
-
-                    // trying without getJSON, use method from Vue --- maybe only grab the already filtered data to reduce lag and take away need to filter in layer??
-
-                    var overlayTest = new L.geoJson(this.features, { // Make the layer from the JSON and grab the handle.
+                    var fisheries = new L.geoJson(this.features, { // Make the layer from the JSON and grab the handle.
                         onEachFeature: function (feature, layer) {
                             layer.bindPopup(
-                                `Id: ${feature.id}</br>
+                                `{#Id: ${feature.id}</br>#}
                                 Grid-id: ${feature.properties.grid_id}</br>
                                 Species: ${feature.properties.species}</br>
                                 Week: ${feature.properties.week}</br>
@@ -353,103 +375,17 @@
                             layer.on({
                                 mouseover: highlightFeature,
                                 mouseout: function resetHighlight(e) {
-                                    overlayTest.resetStyle(e.target);
+                                    fisheries.resetStyle(e.target);
                                     info.update();
                                 }
                             });
 
                         },
                         style: gradientStyle,
-                        filter: function (feature) {
-                            thingy = `Week ${getWeek}`;
-                            {#console.log(thingy)#}
-                            thingy2 = `${getSpecies}`;
-                            {#console.log(thingy2)#}
-
-                            // this works but only once you've chosen a species and a week -- add more logic or do something to show they have to pick both
-                            if (feature.properties.species && feature.properties.week) return (feature.properties.species === thingy2 && feature.properties.week === thingy);
-                            {#|| (feature.properties.week) return (feature.properties.week === thingy);#}
-                        }
-                        {#filter: function(feature) {#}
-                        {#    return feature.properties.species === this.filter.species;#}
                     }).addTo(overlayObject);
 
-                    // Don't go down this path friends, it just leads to madness.. should have realized much earlier that all that was
-                    // needed was to get the json from a Vue method instead of trying to get it the way I've done in non-vue templates
-                    // this works but because it's async, I couldn't figure out how to get the bounds of the layer that's created by it
-
-                    {##}
-                    {#                   var boundingNELat = []#}
-                    {#                   var boundingNELng = null#}
-                    {#                   var boundingNorthEast = L.latLng(40.712, -74.227)#}
-                    {#                   var boundingSouthWest = L.latLng(40.774, -74.125)#}
-                    {#                   var boundsForReal = L.latLngBounds(boundingSouthWest, boundingNorthEast)#}
-
-                    {#// this works but had to add leaflet-ajax to static - but not sure how to get filter#}
-                    {#$.getJSON(url, function(data){#}
-                    {#    overlayTest = new L.geoJson(data, { // Make the layer from the JSON and grab the handle.#}
-                    {#        onEachFeature: function (feature, layer) {#}
-                    {#            layer.bindPopup(#}
-                    {#                `Id: ${feature.id}</br>#}
-                    {#                Grid-id: ${feature.properties.grid_id}</br>#}
-                    {#                Species: ${feature.properties.species}</br>#}
-                    {#                Week: ${feature.properties.week}</br>#}
-                    {#                Site Score: ${feature.properties.site_score}`);#}
-                    {#            layer.on({#}
-                    {#                mouseover: highlightFeature,#}
-                    {#                mouseout:  function resetHighlight(e) {#}
-                    {#                           overlayTest.resetStyle(e.target);#}
-                    {#                           info.update();#}
-                    {#                        }#}
-                    {#            })#}
-                    {##}
-                    {#        },#}
-                    {#        style: gradientStyle,#}
-                    {#        filter: function(feature) {#}
-                    {#            thingy = `Week ${getWeek}`#}
-                    {#console.log(thingy)#}
-                    {#            thingy2 = `${getSpecies}`#}
-                    {#console.log(thingy2)#}
-                    {##}
-                    {#            // this works but only once you've chosen a species and a week -- add more logic or do something to show they have to pick both#}
-                    {#            if (feature.properties.species && feature.properties.week) return (feature.properties.species === thingy2 && feature.properties.week === thingy);#}
-                    {#|| (feature.properties.week) return (feature.properties.week === thingy);#}
-                    {#        }#}
-                    {#filter: function(feature) {#}
-                    {#    return feature.properties.species === this.filter.species;#}
-                    {#    }).addTo(overlayObject);#}
-                    {#overlayTest.on('data:loaded', function() {#}
-                    {#console.log(overlayObject.getBounds())#}
-                    {#this.map.(overlayObject.getBounds())#}
-                    {#    if (thingy !== 'Week ' && thingy2 !== '') {#}
-                    {#console.log(overlayTest.getBounds())#}
-                    {#bounding.push(overlayTest.getBounds())#}
-                    {#boundingNorthEast.push(overlayTest.getBounds().getNorthEast())#}
-                    {#boundingSouthWest.push(overlayTest.getBounds().getSouthWest())#}
-                    {#console.log(overlayTest)#}
-                    {#this.bounds = (overlayTest.getBounds())#}
-                    {#var bounding = (overlayTest.getBounds().getNorthEast());#}
-                    {#console.log(bounding.lat)#}
-                    {#console.log(bounding.lng)#}
-                    {#boundingNELat.lat = bounding.lat.toString()#}
-                    {#boundingNELat.lng = bounding.lng#}
-                    {#console.log(boundingNELat.lat)#}
-                    {#this.boundingNELng= bounding.lng#}
-                    {#console.log(bounding)#}
-                    {#var northEast = (overlayTest.getBounds().getNorthEast());#}
-                    {#    southWest = (overlayTest.getBounds().getSouthWest());#}
-                    {#bounds = L.latLngBounds(southWest, northEast)#}
-                    {#console.log(bounds)#}
-                    {#console.log(bounds.getCenter())#}
-                    {#this.map.setView(new L.LatLng(40.737, -73.923), 8);#}
-                    {#    }#}
-                    {#    console.log(overlayObject.getBounds())#}
-                    //});
-
-
                     // Add hover info control box with info
-
-                    var info = L.control({position: 'bottomleft'});
+                    const info = L.control({position: 'bottomleft'});
 
                     info.onAdd = function (map) {
                         this._div = L.DomUtil.create('div', 'info'); // create a div with a class "info"
@@ -471,11 +407,8 @@
                     var legend = L.control({position: 'bottomright'});
 
                     legend.onAdd = map => {
-                        console.log('hehe');
                         var div = L.DomUtil.create('div', 'info legend'),
-                            {#grades = [0, 1, 2, 3, 6, 9, 12, 15, 17, 20, 22, 25, 27, 29, 30],#}
-                            grades = this.scale,
-                            labels = [];
+                            grades = this.scale;
 
                         // loop through our density intervals and generate a label with a colored square for each interval
                         for (var i = 0; i < grades.length; i++) {
@@ -503,35 +436,30 @@
                         "Fisheriescape Scores": {
                             [this.filter.species]: overlayObject,
                         },
+                        "Vulnerable Species": {"Spots": vulnerableSpeciesLayer},
                         "Fishing Areas": areaOverlays,
                     };
 
                     // Create the control layer box and add baseMaps and overlayMaps to it
 
-                    {#L.control.layers(baseMaps, groupedOverlays).addTo(this.map);#}
                     L.control.groupedLayers(baseMaps, groupedOverlays).addTo(this.map);
 
-                    // check if species and week filter has been chosen and if so get the bounds of the object
-                    if (this.filter.species && this.filter.week) return this.map.fitBounds(overlayObject.getBounds(), {padding: [50, 50]});
+                    // check if features found and if so get the bounds of the object
+                    if (this.features.features && this.features.features.length) {
+                        return this.map.fitBounds(overlayObject.getBounds(), {padding: [50, 50]});
+                    } else if (!this.vulnerableSpeciesSpots.length) {
+                        alert("No data found for the selected period and species");
+                        return this.map;
+                    }
 
                 },
             },
             async setup() {
-                {#await this.getTest();#}
-                {#await this.dataReady;#}
                 this.setupLeafletMap();
             },
             created() {
-                {#this.getTest();#}
-                {#this.getFilteredData("/api/fisheriescape/scores/?species=Atlantic Halibut");#}
                 this.getFilterData();
-
             },
-            {#async mounted() {#}
-            {#     await this.dataReady;#}
-            {#     this.setupLeafletMap();#}
-            {##}
-            {# },#}
             beforeDestroy() {
                 if (this.map) {
                     this.map.remove();
@@ -541,9 +469,6 @@
 
     </script>
 
-    <script type="text/javascript" src="{% static "js/clickableTableRows.js" %}?version=1.1.7"></script>
-    <script type=" text/javascript" src="{% static "js/popItOut.js" %}?version=1.2.2"></script>
-    <script type=" text/javascript" src="{% static "js/underDevelopment.js" %}?version=1.2.4"></script>
 
 
 {% endblock %}

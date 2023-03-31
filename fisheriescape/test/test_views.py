@@ -59,7 +59,6 @@ class TestScoreMapView(CommonTest):
     def test_context(self):
         context_vars = [
             "field_list",
-            "random_score",
             "lobster_areas",
             "mapbox_api_key",
         ]
@@ -69,3 +68,4 @@ class TestScoreMapView(CommonTest):
     def test_correct_url(self):
         # use the 'en' locale prefix to url
         self.assert_correct_url("fisheriescape:score_map", f"/en/fisheriescape/scores-map/")
+

@@ -1,24 +1,15 @@
-import json
-import django_filters
-from django.core.checks import caches
-from django_filters import rest_framework as filters
-from rest_framework import generics
-from rest_framework.generics import ListAPIView, get_object_or_404
-from rest_framework.response import Response
-from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
-from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.filters import SearchFilter
-from rest_framework import viewsets
-from rest_framework import mixins
-
-from rest_framework_gis.filters import GeometryFilter
-from rest_framework_gis.filterset import GeoFilterSet
-from . import pagination
-from .serializers import ScoreSerializer, ScoreFeatureSerializer, SpeciesSerializer, WeekSerializer, HexagonSerializer
-from .. import models
 from hashlib import md5
-from django.utils.decorators import method_decorator
-from django.views.decorators.cache import cache_page
+
+from django.contrib.postgres.aggregates import StringAgg
+from django.core.checks import caches
+from django.db.models import Sum, Count
+from rest_framework.generics import ListAPIView
+from rest_framework.response import Response
+
+from .serializers import ScoreFeatureSerializer, SpeciesSerializer, WeekSerializer, VulnerableSpeciesSerializer, \
+    VulnerableSpeciesSpotsSerializer, ScoreFeatureCombinedSerializer
+from .. import models
+from fisheriescape.views import FisheriescapeAccessRequired
 
 
 # class EntryCSVAPIView(ListAPIView):
@@ -66,32 +57,30 @@ from django.views.decorators.cache import cache_page
 #     filter_backends = (filters.DjangoFilterBackend, SearchFilter,)
 #     filterset_class = MyFilter
 #     search_fields = ['species__english_name', 'species__french_name', 'week__week_number']
-from ..models import Species, Week
 
 
-class ScoreViewSet(ModelViewSet):
-    queryset = models.Score.objects.all()
-    serializer_class = ScoreSerializer
+# class ScoreViewSet(ModelViewSet):
+#     queryset = models.Score.objects.all()
+#     serializer_class = ScoreSerializer
+#
+#     def get_queryset(self):
+#         queryset = self.queryset.prefetch_related('week').prefetch_related('species')
+#
+#         species_english_name = self.request.query_params.get('species')
+#         week_number = self.request.query_params.get('week')
+#
+#         #custom filters by field
+#         if species_english_name is not None:
+#             queryset = queryset.filter(species__english_name=species_english_name)
+#         if week_number is not None:
+#             queryset = queryset.filter(week__week_number=week_number)
+#
+#         return queryset
 
-    def get_queryset(self):
-        queryset = self.queryset.prefetch_related('week').prefetch_related('species')
 
-        species_english_name = self.request.query_params.get('species')
-        week_number = self.request.query_params.get('week')
-
-        #custom filters by field
-        if species_english_name is not None:
-            queryset = queryset.filter(species__english_name=species_english_name)
-        if week_number is not None:
-            queryset = queryset.filter(week__week_number=week_number)
-
-        return queryset
-
-
-class ScoreFeatureViewSet(ModelViewSet):
+class ScoreFeatureView(FisheriescapeAccessRequired, ListAPIView):
     queryset = models.Score.objects.all()
     serializer_class = ScoreFeatureSerializer
-
 
     # Cache the results
     def list(self, request, *args, **kwargs):
@@ -109,55 +98,98 @@ class ScoreFeatureViewSet(ModelViewSet):
             cache.set(hashed_cache_key, serializer.data)
             return Response(serializer.data)
 
-
     def get_queryset(self):
         queryset = self.queryset.prefetch_related('week').prefetch_related('species').prefetch_related("hexagon")
 
         species = self.request.query_params.get('species')
         week = self.request.query_params.get('week')
-        site_score = self.request.query_params.get('site_score')
 
-
-        #custom filters by field
-        if species is not None:
+        if species:
             queryset = queryset.filter(species__english_name=species)
         if week is not None:
             queryset = queryset.filter(week__week_number=week)
-        if site_score is not None:
-            queryset = queryset.filter(site_score=site_score)
-
 
         return queryset
 
-        # # get filter request from client:
-        # filter_string = self.request.query_params.get('filter')
 
-        # # apply filters if they are passed in using json format
-        # # i.e. ?filter={"week__week_number":16}:
-        # if filter_string is not None:
-        #     filter_dictionary = json.loads(filter_string)
-        #     queryset = queryset.filter(**filter_dictionary)
+class ScoreFeatureCombinedView(FisheriescapeAccessRequired, ListAPIView):
+    queryset = models.Score.objects.all()
+    serializer_class = ScoreFeatureCombinedSerializer
+
+    # Cache the results
+    def list(self, request, *args, **kwargs):
+        cache = caches.caches['default']
+        species = self.request.query_params.get('species')
+        week = self.request.query_params.get('week')
+        cache_key = f"ScoreFeatureViewSet:{species}_{week}".encode('utf-8')
+        hashed_cache_key = md5(cache_key).hexdigest()
+        cached_results = cache.get(hashed_cache_key)
+        if cached_results:
+            return Response(cached_results)
+        else:
+            queryset = self.filter_queryset(self.get_queryset())
+            serializer = self.get_serializer(queryset, many=True)
+            cache.set(hashed_cache_key, serializer.data)
+            return Response(serializer.data)
+
+    def get_queryset(self):
+        queryset = self.queryset.prefetch_related('week').prefetch_related('species').prefetch_related("hexagon")
+
+        species = self.request.query_params.getlist('species')
+        week = self.request.query_params.get('week')
+
+        if week is not None:
+            queryset = queryset.filter(week__week_number=week)
+
+        if species:
+            queryset = queryset.filter(species__english_name__in=species).values('hexagon', 'week').annotate(
+                fs_score=Sum("fs_score"),
+                species=StringAgg(
+                    'species__english_name', delimiter=','),
+                species_count=(Count("id")),
+                id=Sum('id')
+            ).order_by()
+
+        return queryset
 
 
+class VulnerableSpeciesSpotsView(FisheriescapeAccessRequired, ListAPIView):
+    queryset = models.VulnerableSpeciesSpot.objects.all()
+    serializer_class = VulnerableSpeciesSpotsSerializer
 
+    # Cache the results
+    def list(self, request, *args, **kwargs):
+        cache = caches.caches['default']
+        vulnerable_species = self.request.query_params.get('vulnerable_species')
+        week = self.request.query_params.get('week')
+        cache_key = f"VulnerableSpeciesSpotsView:{vulnerable_species}_{week}".encode('utf-8')
+        hashed_cache_key = md5(cache_key).hexdigest()
+        cached_results = cache.get(hashed_cache_key)
+        if cached_results:
+            return Response(cached_results)
+        else:
+            queryset = self.filter_queryset(self.get_queryset())
+            serializer = self.get_serializer(queryset, many=True)
+            cache.set(hashed_cache_key, serializer.data)
+            return Response(serializer.data)
 
-# For TESTING
-# class ScoreViewSet(ModelViewSet):
-#     queryset = models.Species.objects.all()
-#     serializer_class = ScoreSerializer
-#     filter_backends = (filters.DjangoFilterBackend,)
-#     filterset_fields = ('english_name', 'french_name')
+    def get_queryset(self):
+        queryset = self.queryset.prefetch_related('week').prefetch_related('vulnerable_species')
 
-# class ScoreListView(mixins.UpdateModelMixin,
-#                      mixins.ListModelMixin,
-#                      mixins.RetrieveModelMixin,
-#                      viewsets.GenericViewSet):
-#     queryset = models.Score.objects.all()
-#     serializer_class = ScoreSerializer
-#     filter_backends = [SearchFilter]
-#     # filter_class = MyFilter
-#     search_fields = ['species', 'site_score']
-#     # filterset_fields = ['species', 'hexagon__grid_id']
+        if self.request.query_params.get('vulnerable_species'):
+            vulnerable_species = self.request.query_params.get('vulnerable_species').split(',')
+        else :
+            vulnerable_species = None
+        week = self.request.query_params.get('week')
+
+        # custom filters by field
+        if vulnerable_species:
+            queryset = queryset.filter(vulnerable_species__english_name__in=vulnerable_species)
+        if week is not None:
+            queryset = queryset.filter(week__week_number=week)
+
+        return queryset
+
 
 # LOOKUPS
 ##########
@@ -165,6 +197,11 @@ class ScoreFeatureViewSet(ModelViewSet):
 class SpeciesListAPIView(ListAPIView):
     queryset = models.Species.objects.all()
     serializer_class = SpeciesSerializer
+
+
+class VulnerableSpeciesView(FisheriescapeAccessRequired, ListAPIView):
+    queryset = models.VulnerableSpecies.objects.all()
+    serializer_class = VulnerableSpeciesSerializer
 
 
 class WeekListAPIView(ListAPIView):

@@ -1,0 +1,84 @@
+{% extends "shared_models/generic_base_bs5.html" %}
+{% load bootstrap5 %}
+{% load i18n %}
+{% load custom_filters %}
+{% load custom_tags %}
+
+{% block subcontent %}
+  <div class="mb-3">
+    {% block pre_form_div %}{% endblock %}
+  </div>
+
+  {% block form %}
+    <form method="post" class="form" {% if is_multipart_form_data %}enctype="multipart/form-data"{% endif %} onsubmit="switchButtons();">
+      {% csrf_token %}
+      {% if form %}
+        {% bootstrap_form_errors form %}
+      {% endif %}
+      {% block form_fields %}
+        {% for field in form %}
+          {% block form_field %}
+             <div id="{{ field.name }}_div">
+              {% block form_field_label %}
+                  {% if not field.is_hidden %}
+
+                      {# adds required label to field #}
+                      {% if field.field.required %}
+                          {% bootstrap_label field.label label_class="required" label_for="id_"|add:field.name %}
+                      {% else %}
+                          {% bootstrap_label field.label label_for="id_"|add:field.name%}
+                      {% endif %}
+                  {% endif %}
+              {% endblock %}
+
+              {% bootstrap_field field placeholder="" show_label=False%}
+
+              {% block post_field_area%}
+              {% endblock %}
+            </div>
+          {% endblock %}
+        {% endfor %}
+      {% endblock %}
+
+      {% block form_buttons %}
+        <div class="mt-3 mb-3">
+          {% trans "Submit" as default_submit_text %}
+          {% trans "Cancel" as default_cancel_text %}
+          {% echo request.META.HTTP_REFERER as default_cancel_url %}
+          <span data-toggle="tooltip" title="{% block submit_btn_tip_text %}{% endblock %}">
+            <input type="submit" class="btn btn-lg {% block submit_btn_class %}{{ submit_btn_class|nz:"btn-warning" }}{% endblock %}" id="submit-btn"
+              {% block submit_btn_props %}{% endblock %}
+                   value="{{ submit_text|nz:default_submit_text }}">
+            <a class="gone disabled btn btn-lg btn-warning" id="thinking-btn">
+              <div class="spinner-border spinner-border-sm" role="status"><span class="sr-only">Loading...</span></div>
+            </a>
+          </span>
+          {% if delete_url %}
+            <a class="btn btn-lg btn-danger" href="{{ delete_url }}">
+              {% trans "Delete" %}
+            </a>
+          {% endif %}
+
+          <a class="btn btn-lg btn-secondary" href="{{ cancel_url|nz:default_cancel_url }}">
+            {{ cancel_text|nz:default_cancel_text }}
+          </a>
+        </div>
+      {% endblock %}
+    </form>
+  {% endblock %}
+
+
+  <div class="mb-3">
+    {% block post_form_div %}{% endblock %}
+  </div>
+
+  <script type="application/javascript">
+  function switchButtons() {
+    $("#submit-btn").addClass("gone")
+    $("#thinking-btn").removeClass("gone")
+  }
+  </script>
+
+{% endblock %}
+
+

@@ -22,11 +22,6 @@
         {% trans "Filters" %}
     </h5>
     <hr>
-    <div v-if="projects_loading" class="loading mb-3 mt-3 text-center mt-5">
-        <div class="spinner-border mb-3" style="width: 10rem; height: 10rem;" role="status">
-            <span class="sr-only"></span>
-        </div>
-    </div>
     <div class="filters">
         {#     Regular filters#}
         <div v-if="help_text">
@@ -34,52 +29,68 @@
         </div>
 
         <div class="mb-5">
-            {#       Id#}
-            {#      <div class="form-group">#}
-            {#        <label class="text-muted small" for="filter.id">{% trans "Id" %}</label>#}
-            {#        <input#}
-            {#          v-model="filter.id"#}
-            {#          @change="updateResults"#}
-            {#          type="number" class="form-control" id="filter.id" placeholder="">#}
-            {#      </div>#}
-
-            {#       Species#}
-            <div class="form-group">
-                <label class="text-muted small" for="filter.species">{% trans "Species" %}</label>
-                <select
-                        v-model="filter.species"
-{#                        @change="updateResults"#}
-                        class="form-control" id="filter.species">
-                    {#          <option value="">{% trans "all" %}</option>#}
-                    <option v-for="(obj, index) in speciesList" :value="obj.english_name">${obj.english_name}</option>
-                </select>
-            </div>
 
             {#       Week#}
             <div class="form-group">
-                <label class="text-muted small" for="filter.week">{% trans "Week" %}</label>
+                <label for="filter.week">{% trans "Week" %}</label>
                 <select
                         v-model="filter.week"
-{#                        @change="updateResults"#}
                         class="form-control" id="filter.week">
-                    {#          <option value="">{% trans "all" %}</option>#}
                     <option v-for="(obj, index) in weekList" :value="obj.week_number">${obj.week_number} - Approx.
                         ${obj.date_range_text}
                     </option>
                 </select>
             </div>
+            <hr/>
 
-            {#       Point#}
-{#            <div class="form-group">#}
-{#                <label class="text-muted small" for="filter.point">{% trans "Point" %}</label>#}
-{#                <select#}
-{#                        v-model="filter.point"#}
-{#                        @change="updateResults"#}
-{#                        class="form-control" id="filter.point">#}
-                    {#          <option value="">{% trans "all" %}</option>#}
-{#                    <option v-for="(obj, index) in pointList" :value="obj">${obj}</option>#}
-{#                </select>#}
-{#            </div>#}
+
+            {#       Species#}
+            <div class="form-group">
+                <label for="filter.species">{% trans "Species" %}</label>
+                <p class="text-muted small"> {% trans "CTRL + click to select multiple" %}</p>
+                <select
+                        multiple
+                        v-model="filter.species"
+                        class="form-control" id="filter.species">
+                    <option v-for="(obj, index) in speciesList" :value="obj.english_name">${obj.english_name}</option>
+                </select>
+            </div>
+
+            <div class="row">
+                <div class="col">
+                    <div class="mb-4">
+                        <button @click="search" class="btn btn-sm btn-warning">{% trans "Search fisheries" %}</button>
+                    </div>
+                </div>
+            </div>
+
+
+
+
+
+
+            {#      Vulnerable Species#}
+            <div class="form-group">
+                <label for="filter.vulnerableSpecies">{% trans "Vulnerable Species" %}</label>
+                <p class="text-muted small"> {% trans "CTRL + click to select multiple" %}</p>
+                <select
+                        multiple
+                        v-model="filter.vulnerableSpecies"
+                        class="form-control" id="filter.vulnerableSpecies">
+                    <option v-for="(obj, index) in vulnerableSpeciesList" :value="obj.english_name">${obj.english_name}</option>
+                </select>
+            </div>
+
+            <div class="row">
+                <div class="col">
+                    <div class="mb-0">
+                        <button @click="searchVulnerableSpeciesSpots" class="btn btn-sm btn-warning">{% trans "Search vulnerable species" %}</button>
+                    </div>
+                </div>
+            </div>
+
+
+
 
             {# Starting Year #}
             {#      <div class="form-group">#}
@@ -233,6 +244,7 @@
             {#            <input#}
             {#              v-model="filter.is_hidden"#}
             {#              @change="updateResults"#}
+
             {#              class="form-check-input" type="checkbox"#}
             {#              id="filter.is_hidden"#}
             {#            >#}
@@ -244,21 +256,6 @@
             {#        </div>#}
             {#      </div>#}
             {##}
-            <div class="row">
-                <div class="col">
-                    {#                    <div class="mb-0">#}
-                    {#                        <button @click="clearFilters" class="btn btn-sm btn-warning">{% trans "Clear Filters" %}</button>#}
-                    {#                    </div>#}
-                    <div class="mb-0">
-                        <button @click="search" class="btn btn-sm btn-warning">{% trans "Search" %}</button>
-                    </div>
-                </div>
-                {#                <div class="col">#}
-                {#                    <div class="mb-0">#}
-                {#                        <button @click="refreshMap" class="btn btn-sm btn-warning">{% trans "Refresh Map" %}</button>#}
-                {#                    </div>#}
-                {#                </div>#}
-            </div>
 
         </div>
     </div>

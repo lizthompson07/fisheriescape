@@ -1,5 +1,7 @@
+from io import StringIO
+
 import factory
-from django.contrib.gis.geos import Polygon, MultiPolygon, fromstr
+from django.contrib.gis.geos import MultiPolygon, fromstr, Point
 from faker import Faker
 
 from .. import models
@@ -164,4 +166,36 @@ class ScoreFactory(factory.django.DjangoModelFactory):
             'fs_score': faker.pydecimal(positive=True),
         }
 
+
+class VulnerableSpeciesFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.VulnerableSpecies
+
+    english_name = factory.lazy_attribute(lambda o: faker.catch_phrase())
+
+    @staticmethod
+    def get_valid_data():
+        return {
+            'english_name': faker.catch_phrase(),
+        }
+
+
+class VulnerableSpeciesSpotsFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = models.VulnerableSpeciesSpot
+
+    vulnerable_species = factory.SubFactory(VulnerableSpeciesFactory)
+    week = factory.SubFactory(WeekFactory)
+    date = faker.date()
+    count = factory.lazy_attribute(lambda o: faker.random_int(min=0, max=100))
+    point = factory.lazy_attribute(lambda o: Point(faker.latlng()))
+
+    @staticmethod
+    def get_valid_data():
+        return {
+            'point': Point(faker.latlng()),
+            'vulnerable_species': VulnerableSpeciesFactory().id,
+            'week': WeekFactory().id,
+            'count': faker.random_int(min=0, max=100),
+        }
 

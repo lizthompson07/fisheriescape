@@ -1,53 +1,88 @@
-# DM Apps
+# Fisheriescape
 
-## Basic Setup
+# Local Setup
+## Prerequisites
+1. PSQL server running
+2. Redis server running
+3. Python 3.9: https://www.python.org/downloads/release/python-3916/
+4. GDAL installed: https://gdal.org/download.html
+5. PROJ installed: https://proj.org/install.html
+6. postgis installed: https://postgis.net/install/
 
-### Prerequisite to running the application
-1. Install Python 3 (<https://www.python.org>), and make sure that Python is added to your PATH variable.
-2. Install MySql (https://pypi.org/project/mysqlclient/). Just follow the mysql installation steps. The `pip install mysqlclient` command will be included later in the process.
-3. Working from your root projects directory (e.g., `~/my_projects`), create python virtual environment: `python -m venv dm_apps_venv`
-4. Activate the virtual environment: `.\dm_apps_venv\Scripts\activate` (Windows) OR `source ./dm_apps_venv/bin/activate` (Linux)
-5. Clone project: `git clone https://github.com/dfo-mar-odis/dm_apps`
-6. navigate into the project directory: `cd dm_apps`
-7. Install the Python packages required by the DM APPS application: `pip install -r requirements.txt`
-    - If you get an error when installing this, you will have to open the requirements.txt and comment out the lines for `mysqlclient` and `shapely`.
-    - Rerun the package installation line above
-    - You will have to download a precompiled version of `mysqlclient` and `shapely`. The binary versions of these packages are available here:
-        - [mysqlclient](https://www.lfd.uci.edu/~gohlke/pythonlibs/#mysqlclient). Be sure to select the file that matches your system configuration.
-        - [shapely](https://www.lfd.uci.edu/~gohlke/pythonlibs/#shapely). Be sure to select the file that matches your system configuration.
-    - So, for example, if your a running python 3.6 on an AMD64 processor, you would download the file called 'mysqlclient‑1.x.x‑cp36‑cp36m‑win_amd64.whl.'.
-    If you do not select the correct file version, it will not work. 
-    - Once you have downloaded the files, you can install them as follows:
-        - `pip install /path/to/local/file/mysqlclient‑1.x.x‑cp36‑cp36m‑win_amd64.whl`
-        - `pip install /path/to/local/file/shapely‑1.x.x‑cp36‑cp36m‑win_amd64.whl`
-    - ***Do not forget to uncomment the two lines from the requirements.txt file***
+## Config
+1. Copy `.env_sample` and rename it to `.env`
+2. Update the env variables to match your local config
+3. Copy `my_conf_sample.py` and rename it to `my_conf.py`
 
-### Running the django development server
-1. If you are using a local Sqlite database (i.e. this is the default configuration), 
-be sure to run migrations before you get started: `python manage.py migrate`.
-1. Change directory to the root `dm_apps` folder (if not already there) and run the development server: `python manage.py runserver`
+## Setup local DB
+Install PSQL spatial extension
+https://docs.djangoproject.com/fr/3.2/ref/contrib/gis/install/postgis/
 
+### Create DB
+```bash
+psql postgres
+```
+### Setup DB user:
+```sql
+\c fisheriescape
+```
+```sql
+CREATE USER localuser WITH PASSWORD 'localpassword';
+ALTER ROLE localuser SET client_encoding TO 'utf8';
+ALTER ROLE localuser SET default_transaction_isolation TO 'read committed';
+ALTER ROLE localuser SET timezone TO 'UTC';
+```
 
+### Grant privileges to local DB user:
+```sql
+GRANT ALL PRIVILEGES ON DATABASE fisheriescape TO localuser;
+ALTER ROLE localuser SUPERUSER;
+```
+### Quit the psql prompt
+```sql
+\q
+```
+
+## Setup local env
+1. Create a virtual environment
+   at `/fisheriescape`
+   ```bash
+   python3.9 -m venv venv
+   ```
+2. Activate the virtual environment
+   ```bash
+   source venv/bin/activate
+   ```
+3. Install dependencies
+    ```bash
+   pip install -r requirements.txt
+   ```
+4. Run the unit tests to make sure everything is setup properly
+   ```bash
+   python manage.py test fisheriescape.test
+   ```
+   
+
+## Import local data
+1. Import test data to your local DB
+   1. Get the fixtures.zip file and unzip it somewhere on your local computer. Write down the folder path
+   2. Load the fixtures
+      ```bash
+      python manage.py loaddata [absolute\path\to\fixtures\folder]\*.json
+      ```
+2. Import Score and Vulnerable Species data to your local DB
+   1. Run the app : `python manage.py runserver`
+   2. Navigate to http://127.0.0.1:8000/ and login using the email `admin_test_user@dfo-mpo.gc.ca`. 
+   The magic link to login will appear in the terminal where Django is running.
+   3. Navigate to http://127.0.0.1:8000/fr/fisheriescape/import/fisheriescape-scores
+   4. Upload Vulnerable Species files
+   5. Navigate to http://127.0.0.1:8000/fr/fisheriescape/import/vulnerable-species-spots
+   6. Upload Scores files
+
+   > Species and vulnerable species will be created automatically, based on the names present in the files imported
 
 ## Getting Started with this Project for Development
 Before proceeding any further, make sure you have completed the steps outlined above.
-
-### Create a superuser for local development
-1. to create a superuser, use the following command `python manage.py createsuperuser`
-1. please note that all usernames in this project should be an email address. Otherwise you will have trouble logging in through the login page.
-
-### Import fixtures
-1. To import some of the basic reference tables, please use the follow command in windows: `import_fixtures.bat`
-NOTE: For linux users, sorry, we don't have a script yet. You will have to import the fixtures manually using `python manage.py loaddata my_fixture.json`. 
-
-### Local configuration file
-We are attempting to build this project in a modular fashion that will allow flexible implementation of the application.
-The idea is that there might be multiple instances of this app in production and each instance will want to have its own custom settings, for example, 
-which database it is connecting to, which apps are connected, allowed hostnames, etc... 
-
-Without any customizations, the site will connect to a local sqlite3 database. This is an ideal, fast and simple option for local development. 
-After running the `migrate` command an empty sqlite database will be created in the project root called `db.sqlite3`. 
-This file is already in the .gitignore file. 
 
 ### Static files
 Static files are not stored in the git repository, they can be pushed to the static file server using `python manage.py findstatic` and downloaded to a machine for local development using `python manage.py collectstatic`. If this step is skipped the "you are not using chrome" warning message will show and images will appear broken on the "127.0.0.1:8000/en" page
@@ -62,10 +97,9 @@ The latter file is in the .gitignore therefore none of the changes made will be 
 application boots up, the `default_conf.py` file will be ignored and the application will look to the `my_conf` file. At this point you would be free
 to make any changes you like to the `my_conf`. 
 
-If you are connecting to a mysql database, you do not need to make a custom `my_conf`. Instead simply provide the database credentials in the `.env`. 
 
 **Important:** You should not be making changes to the `.env_sample` and/or `default_conf.py` unless these are changes that are meant to be 
-persist in the repository for all users. For example, if you were working on a new app, you would eventually have to modify the `default_conf`.   
+persisted in the repository for all users. For example, if you were working on a new app, you would eventually have to modify the `default_conf`.   
 
 ### Connecting existing apps to an instance
 Apps can be easily connected and disconnected from an instance of the application. To do so, you simply comment / uncomment
@@ -79,3 +113,19 @@ the app of interest in the app dictionary: `my_conf.APP_DICT`. Each connected ap
     1. if you are using windows, you can run the suite of test using the following batch file: `run_tests_in_windows.bat`
 1. Please do not create a merge request that has conflicts with the master branch, unless you specifically need help with dealing with any conflicting code.
     1. in the case of the latter, please be sure to properly assign your merge request and add the appropriate comments
+
+# Production Setup
+Deploying on a production environment will greatly depend on the chosen environment.
+
+If you choose to go along the path of a VPS, the setup process is pretty much the same as the local environment.
+
+The only differences are :
+1. No need for a `my_config.py` file
+2. Environment variables set for the production values -> don't forget to specify a restrictive array of ALLOWED_HOST
+3. You might want to change the global admin email in fixtures.zip/auth_user.json before loading the fixtures
+4. If you choose a managed DB (preferred option), you can skipp the DB creation part and directly set the DB connexion parameters in the .env file.   
+⚠️ You still need to grant different privileges to the user and install the PSQL spatial extension.
+
+
+To run the server, configure your reverse proxy (NGINX or other) to run this command : `gunicorn dm_apps.wsgi`
+Please read [gunicorn documentation](https://docs.gunicorn.org/en/latest/configure.html) to see which flags you'd like to add to this command (e.g.: number of concurrent workers)

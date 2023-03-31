@@ -10,10 +10,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AlterUniqueTogether(
-            name="score",
-            unique_together={("hexagon", "week")},
-        ),
         migrations.AddIndex(
             model_name="fisheryarea",
             index=models.Index(["layer_id"], name="layer_id"),
