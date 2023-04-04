@@ -1,9 +1,9 @@
 // Create some test points and group in a layer
 
-var point1 = L.marker([48.76, -60.87]).bindPopup('Test 1'),
-    point2 = L.marker([48.30, -63.68]).bindPopup('Test 2');
+// var point1 = L.marker([48.76, -60.87]).bindPopup('Test 1'),
+//     point2 = L.marker([48.30, -63.68]).bindPopup('Test 2');
 
-var tests = L.layerGroup([point1, point2]);
+// var tests = L.layerGroup([point1, point2]);
 
 // Create variable for different base maps
 
@@ -184,7 +184,7 @@ var baseMaps = {
 // Create overlay variable and add overlays desired
 
 var overlayMaps = {
-    "Test": tests,
+    // "Test": tests,
     "Lobster Areas": lobsterFishery,
     "Snow Crab Areas": snowCrabFishery,
     "Herring Areas": herringFishery,

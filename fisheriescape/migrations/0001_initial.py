@@ -802,14 +802,6 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 (
-                    "image",
-                    models.FileField(
-                        default="/fisheriescape/default_image.png",
-                        upload_to=fisheriescape.models.image_directory_path,
-                        verbose_name="image",
-                    ),
-                ),
-                (
                     "ref_text",
                     models.TextField(
                         blank=True, null=True, verbose_name="reference text"

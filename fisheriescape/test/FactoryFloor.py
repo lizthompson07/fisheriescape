@@ -107,21 +107,6 @@ class FisheryFactory(factory.django.DjangoModelFactory):
         }
 
 
-class AnalysesFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = models.Analyses
-
-    species = factory.SubFactory(SpeciesFactory)
-    week = factory.SubFactory(WeekFactory)
-
-    @staticmethod
-    def get_valid_data():
-        return {
-            'species': SpeciesFactory().id,
-            'week': WeekFactory().id,
-        }
-
-
 class MitigationFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = models.Mitigation

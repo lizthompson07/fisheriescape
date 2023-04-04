@@ -68,16 +68,35 @@ ALTER ROLE localuser SUPERUSER;
    1. Get the fixtures.zip file and unzip it somewhere on your local computer. Write down the folder path
    2. Load the fixtures
       ```bash
-      python manage.py loaddata [absolute\path\to\fixtures\folder]\*.json
+      python manage.py loaddata [absolute\path\to\fixtures\folder]\fixture_name.json
+       ```
+      
+      Where `fixture_name` is the fixture you are loading; **Must** be done one at a time because order matters.
+     
+      ```bash
+      Order:
+      1. auth_group
+      2. auth_user
+      3. auth_user_groups
+      4. fisheriescape_week        
+      5. fisheriescape_species     
+      6. fisheriescape_marinemammal
+      7. fisheriescape_mitigation  
+      8. fisheriescape_nafoarea    
+      9. fisheriescape_hexagon     
+      10. fisheriescape_fisheryarea 
+      11. fisheriescape_fishery      
       ```
+     
+   
 2. Import Score and Vulnerable Species data to your local DB
    1. Run the app : `python manage.py runserver`
    2. Navigate to http://127.0.0.1:8000/ and login using the email `admin_test_user@dfo-mpo.gc.ca`. 
    The magic link to login will appear in the terminal where Django is running.
    3. Navigate to http://127.0.0.1:8000/fr/fisheriescape/import/fisheriescape-scores
-   4. Upload Vulnerable Species files
+   4. Upload Scores files
    5. Navigate to http://127.0.0.1:8000/fr/fisheriescape/import/vulnerable-species-spots
-   6. Upload Scores files
+   6. Upload Vulnerable Species files
 
    > Species and vulnerable species will be created automatically, based on the names present in the files imported
 
@@ -123,7 +142,7 @@ The only differences are :
 1. No need for a `my_config.py` file
 2. Environment variables set for the production values -> don't forget to specify a restrictive array of ALLOWED_HOST
 3. You might want to change the global admin email in fixtures.zip/auth_user.json before loading the fixtures
-4. If you choose a managed DB (preferred option), you can skipp the DB creation part and directly set the DB connexion parameters in the .env file.   
+4. If you choose a managed DB (preferred option), you can skip the DB creation part and directly set the DB connexion parameters in the .env file.   
 ⚠️ You still need to grant different privileges to the user and install the PSQL spatial extension.
 
 

@@ -29,12 +29,46 @@
     </a>
     <div class="dropdown-menu" aria-labelledby="navbarDropdown">
 
-{#        <a class="dropdown-item" href="{% url 'fisheriescape:analyses_filter' %}">Analysis Search</a>#}
         <a class="dropdown-item" href="{% url 'fisheriescape:score_map' %}">Score Map</a>
 
     </div>
 </li>
 
+{% if user.is_authenticated %}
+    {% if user.is_staff %}
+        {% block left_staff %}
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+                   data-toggle="dropdown"
+                   aria-haspopup="true" aria-expanded="false">
+                    {% trans "Import data" %}
+                </a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <a class="dropdown-item"
+                       href="{% url 'fisheriescape:import_fisheriescape_scores' %}"
+                    >{% trans "Fisheriescape Scores" %} </a>
+                    <a class="dropdown-item"
+                       href="{% url 'fisheriescape:import_vulnerable_species_spots' %}"
+                    >{% trans "Vulnerable Species Spots" %} </a>
+                </div>
+            </li>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+                   data-toggle="dropdown"
+                   aria-haspopup="true" aria-expanded="false">
+                    {% trans "Settings" %}
+                </a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <a class="dropdown-item" href="{% url 'fisheriescape:manage_marinemammals' %}">{% trans "Manage Marine Mammals" %}</a>
+                    <a class="dropdown-item" href="{% url 'fisheriescape:manage_species' %}">{% trans "Manage Fishery Species" %}</a>
+                    <a class="dropdown-item"
+                       href="{% url 'fisheriescape:user_list' %}">{% trans "Manage User Permissions" %}</a>
+
+                </div>
+            </li>
+        {% endblock left_staff %}
+    {% endif %}
+{% endif %}
 
 {# Thing three #}
 {#<li class="nav-item dropdown">#}
