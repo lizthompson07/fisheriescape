@@ -82,14 +82,6 @@ class FisheryAreaForm2(forms.ModelForm):
         }
 
 
-class AnalysesForm(forms.ModelForm):
-    class Meta:
-        model = models.Analyses
-        fields = "__all__"
-        widgets = {
-        }
-
-
 class VulnerableSpeciesSpotForm(forms.Form):
     file = forms.FileField()
 

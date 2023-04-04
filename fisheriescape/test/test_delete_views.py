@@ -43,36 +43,3 @@ class TestFisheryDeleteView(CommonTest):
     def test_correct_url(self):
         # use the 'en' locale prefix to url
         self.assert_correct_url("fisheriescape:fishery_delete", f"/en/fisheriescape/fishery/{self.instance.pk}/delete/", [self.instance.pk])
-
-
-class TestAnalysesDeleteView(CommonTest):
-    def setUp(self):
-        super().setUp()
-        self.instance = FactoryFloor.AnalysesFactory()
-        self.test_url = reverse_lazy('fisheriescape:analyses_delete', args=[self.instance.pk, ])
-        self.expected_template = 'fisheriescape/confirm_delete.html'
-        self.user = self.get_and_login_user(in_group="fisheriescape_admin")
-
-    @tag("Analyses", "analyses_delete", "view")
-    def test_view_class(self):
-        self.assert_inheritance(views.AnalysesDeleteView, CommonDeleteView)
-        self.assert_inheritance(views.AnalysesDeleteView, views.FisheriescapeAdminAccessRequired)
-
-    @tag("Analyses", "analyses_delete", "access")
-    def test_view(self):
-        self.assert_good_response(self.test_url)
-        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
-
-    # TODO : fix this test (django.db.transaction.TransactionManagementError)
-    # @tag("Analyses", "analyses_delete", "submit")
-    # def test_submit(self):
-    #     data = FactoryFloor.AnalysesFactory.get_valid_data()
-    #     self.assert_success_url(self.test_url, data=data, user=self.user)
-    #
-    #     # for delete views...
-    #     self.assertEqual(models.Analyses.objects.filter(pk=self.instance.pk).count(), 0)
-
-    @tag("Analyses", "analyses_delete", "correct_url")
-    def test_correct_url(self):
-        # use the 'en' locale prefix to url
-        self.assert_correct_url("fisheriescape:analyses_delete", f"/en/fisheriescape/analyses/{self.instance.pk}/delete/", [self.instance.pk])

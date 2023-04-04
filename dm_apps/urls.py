@@ -54,13 +54,6 @@ if settings.INSTALLED_APPS.count("tickets"):
 else:
     print("not connecting ticket app")
 
-
-if settings.INSTALLED_APPS.count("vault"):
-    urlpatterns += i18n_patterns(path('vault/', include('vault.urls')), prefix_default_language=True)
-else:
-    print("not connecting vault app")
-
-
 if settings.INSTALLED_APPS.count("fisheriescape"):
     urlpatterns += i18n_patterns(path('fisheriescape/', include('fisheriescape.urls')),
                                  prefix_default_language=True)

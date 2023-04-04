@@ -73,32 +73,3 @@ class TestFisheryUpdateView(CommonTest):
     def test_correct_url(self):
         # use the 'en' locale prefix to url
         self.assert_correct_url("fisheriescape:fishery_edit", f"/en/fisheriescape/fishery/{self.instance.pk}/edit/", [self.instance.pk])
-        
-
-class TestAnalysesUpdateView(CommonTest):
-    def setUp(self):
-        super().setUp()
-        self.instance = FactoryFloor.AnalysesFactory()
-        self.test_url = reverse_lazy('fisheriescape:analyses_edit', args=[self.instance.pk, ])
-        self.expected_template = 'fisheriescape/form.html'
-        self.user = self.get_and_login_user(in_group="fisheriescape_admin")
-
-    @tag("Analyses", "analyses_edit", "view")
-    def test_view_class(self):
-        self.assert_inheritance(views.AnalysesUpdateView, CommonUpdateView)
-        self.assert_inheritance(views.AnalysesUpdateView, views.FisheriescapeAdminAccessRequired)
-
-    @tag("Analyses", "analyses_edit", "access")
-    def test_view(self):
-        self.assert_good_response(self.test_url)
-        self.assert_non_public_view(test_url=self.test_url, expected_template=self.expected_template, user=self.user)
-
-    @tag("Analyses", "analyses_edit", "submit")
-    def test_submit(self):
-        data = FactoryFloor.AnalysesFactory.get_valid_data()
-        self.assert_success_url(self.test_url, data=data, user=self.user)
-
-    @tag("Analyses", "analyses_edit", "correct_url")
-    def test_correct_url(self):
-        # use the 'en' locale prefix to url
-        self.assert_correct_url("fisheriescape:analyses_edit", f"/en/fisheriescape/analyses/{self.instance.pk}/edit/", [self.instance.pk])
