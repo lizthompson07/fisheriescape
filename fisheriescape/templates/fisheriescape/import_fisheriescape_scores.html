@@ -1,7 +1,5 @@
 {% extends 'fisheriescape/base.html' %}
-{% load verbose_names %}
 {% load i18n %}
-{% load custom_filters %}
 {% load static %}
 
 {% block title_area %}
@@ -16,7 +14,29 @@
         <form class="text-xl mt-3" method="post" enctype="multipart/form-data">
             {% csrf_token %}
             {{ form }}
-            <br/>
+            <br/><br>
+            <p>File should have following headers and formats:</p>
+
+            <table class="table table-bordered">
+                <tr>
+                    <th title="hexagon grid id">grid.id <i class="bi bi-info-circle"></i></th>
+                    <th title="standard week">sw <i class="bi bi-info-circle"></i></th>
+                    <th title="catch per unit effort value">ceu <i class="bi bi-info-circle"></i></th>
+                    <th title="standard site score">ss.std <i class="bi bi-info-circle"></i></th>
+                    <th title="fisheriescape score">fs <i class="bi bi-info-circle"></i></th>
+                    <th title="species and standard week">sw2 <i class="bi bi-info-circle"></i></th>
+                </tr>
+                <tr>
+                    <td>KJ-275</td>
+                    <td>30</td>
+                    <td>635.0908</td>
+                    <td>0.001767</td>
+                    <td>1.122069</td>
+                    <td>Atlantic halibut fisheriescape SW30</td>
+                </tr>
+
+            </table>
+
             <input class="btn btn-warning mt-4 font-lg" type="submit" value="{% trans 'Submit' %}">
         </form>
 

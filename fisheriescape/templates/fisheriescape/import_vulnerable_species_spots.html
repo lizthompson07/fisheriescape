@@ -1,7 +1,5 @@
 {% extends 'fisheriescape/base.html' %}
-{% load verbose_names %}
 {% load i18n %}
-{% load custom_filters %}
 {% load static %}
 
 {% block title_area %}
@@ -15,7 +13,30 @@
         <form class="text-xl mt-3" method="post" enctype="multipart/form-data">
             {% csrf_token %}
             {{ form }}
-            <br/>
+            <br/><br>
+            <p>File should have following headers and formats:</p>
+            <table class="table table-bordered">
+                <tr>
+                    <th title="4 digit year">year <i class="bi bi-info-circle"></i></th>
+                    <th title="mm/dd/yyyy">date <i class="bi bi-info-circle"></i></th>
+                    <th title="standard week">SW <i class="bi bi-info-circle"></i></th>
+                    <th title="latitude in decimal degrees">lat <i class="bi bi-info-circle"></i></th>
+                    <th title="longitude in decimal degrees">lon <i class="bi bi-info-circle"></i></th>
+                    <th title="species, ensure standard">species <i class="bi bi-info-circle"></i></th>
+                    <th title="total number at location">number <i class="bi bi-info-circle"></i></th>
+                </tr>
+                <tr>
+                    <td>2020</td>
+                    <td>9/19/2020</td>
+                    <td>38</td>
+                    <td>49.9063</td>
+                    <td>-62.6757</td>
+                    <td>fin whale</td>
+                    <td>20</td>
+                </tr>
+
+            </table>
+
             <input class="btn btn-warning mt-4 font-lg" type="submit" value="{% trans 'Submit' %}">
         </form>
 
@@ -37,7 +58,7 @@
             <div class="mt-4">
                 <h2>{% trans "Import result" %}</h2>
                 <div class="d-flex">
-                    <label for="count_success">{% trans "Datapoint imported" %} : </label>
+                    <label for="count_success">{% trans "Datapoint(s) imported" %} : </label>
                     <p class="ml-2" id="count_success">{{ post_result.count_success }}</p></div>
             </div>
             {% if post_result.errors %}
