@@ -67,22 +67,7 @@
                         {% block left_auth %}{% endblock left_auth %}
                         {% if user.is_staff %}
                             {% block left_staff %}
-                                <li class="nav-item dropdown">
-                                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
-                                       data-toggle="dropdown"
-                                       aria-haspopup="true" aria-expanded="false">
-                                        {% trans "Import data" %}
-                                    </a>
-                                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                        {#        <a class="dropdown-item" href="{% url 'fisheriescape:analyses_filter' %}">Analysis Search</a>#}
-                                        <a class="dropdown-item"
-                                           href="{% url 'fisheriescape:import_fisheriescape_scores' %}"
-                                        >{% trans "Fisheriescape Scores" %} </a>
-                                        <a class="dropdown-item"
-                                           href="{% url 'fisheriescape:import_vulnerable_species_spots' %}"
-                                        >{% trans "Vulnerable Species Spots" %} </a>
-                                    </div>
-                                </li>
+
                             {% endblock left_staff %}
                         {% endif %}
                         {% if user.is_superuser %}
