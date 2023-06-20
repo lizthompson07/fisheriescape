@@ -49,11 +49,6 @@ urlpatterns += i18n_patterns(
     # path('tracking/', include('tracking.urls')),
     prefix_default_language=True)
 
-if settings.INSTALLED_APPS.count("tickets"):
-    urlpatterns += i18n_patterns(path('dm-tickets/', include('tickets.urls')), prefix_default_language=True)
-else:
-    print("not connecting ticket app")
-
 if settings.INSTALLED_APPS.count("fisheriescape"):
     urlpatterns += i18n_patterns(path('fisheriescape/', include('fisheriescape.urls')),
                                  prefix_default_language=True)

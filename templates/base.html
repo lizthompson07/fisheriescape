@@ -89,13 +89,6 @@
                     {% if user.is_authenticated %}
                         {% block right_auth %}{% endblock right_auth %}
 
-                        <li class="nav-item py-1">
-                            <a class="nav-link" href="#" pop-href="{% block bug_create %}{% endblock bug_create %}"
-                               data-toggle="tooltip"
-                               title="Complete this form to provide feedback about the system.">
-                                {% trans "Feedback / Bugs" %}
-                            </a>
-                        </li>
                         {% include "_language_form.html" %}
 
 

@@ -170,7 +170,6 @@ INSTALLED_APPS = [
                      'accounts',
                      'lib',
                      'shared_models',
-                     'tickets',
                      'django_browser_reload',
                      # "django_extensions",
                  ] + local_conf.MY_INSTALLED_APPS
