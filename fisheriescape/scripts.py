@@ -298,8 +298,8 @@ def import_scores_from_reader(reader: csv.DictReader) -> dict:
             )
 
             species_obj, created = models.Species.objects.get_or_create(
-                defaults={'english_name': str(row["sw2"].strip()[:-19].strip())},
-                english_name__iexact=str(row["sw2"].strip()[:-19].strip())
+                defaults={'english_name': str(row["species"].strip())},
+                english_name__iexact=str(row["species"].strip())
             )
 
             week_obj, created = models.Week.objects.get_or_create(
@@ -309,8 +309,8 @@ def import_scores_from_reader(reader: csv.DictReader) -> dict:
                 hexagon=hexagon_obj,
                 species=species_obj,
                 week=week_obj,
-                site_score=row["ss.std"].strip(),
-                ceu_score=row["ceu"].strip(),
+                # site_score=row["ss.std"].strip(),
+                # ceu_score=row["ceu"].strip(),
                 fs_score=row["fs"].strip(),
             )
             count_success += 1
